@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import UserProfile from '@/components/dashboard/UserProfile';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -12,6 +13,8 @@ export default async function DashboardPage() {
         <p className="text-sm text-gray-500 mt-2">
           You are now authenticated and can access protected content.
         </p>
+
+        <UserProfile />
       </div>
     </div>
   );
