@@ -12,12 +12,12 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen">
+      <header className="shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold">Nusantara Play</h1>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">{user.email}</span>
+            <span className="text-sm">{user.email}</span>
             <LogoutButton />
           </div>
         </div>
