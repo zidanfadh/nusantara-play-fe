@@ -1,16 +1,29 @@
 'use client';
 
-import { User } from '@supabase/supabase-js';
+import { UserProfile } from '@/types/user';
 
 interface ProfileCardProps {
-  user: User;
+  user: UserProfile;
 }
 
 export function ProfileCard({ user }: ProfileCardProps) {
+  // Use proxy for external images (like Google User Content)
+  const getProxiedAvatarUrl = (url: string | null) => {
+    if (!url || url.trim() === '') return null;
+
+    // If it's a Google User Content or other external URL, use proxy
+    if (url.includes('googleusercontent.com') || url.includes('googleapis.com')) {
+      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+    }
+
+    // For other URLs, use directly
+    return url;
+  };
+
   // Extract initials for avatar fallback
   const getInitials = () => {
-    if (user.user_metadata?.full_name) {
-      return user.user_metadata.full_name
+    if (user.full_name) {
+      return user.full_name
         .split(' ')
         .map((n: string) => n[0])
         .join('')
@@ -40,16 +53,30 @@ export function ProfileCard({ user }: ProfileCardProps) {
           <div className="flex items-end">
             <div className="w-24 h-24 rounded-full bg-background p-1 border border-border">
               <div className="w-full h-full rounded-full bg-secondary flex items-center justify-center text-secondary-foreground text-2xl font-bold">
-                {user.user_metadata?.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={user.user_metadata.avatar_url}
-                    alt="Profile"
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  <span>{getInitials()}</span>
-                )}
+                {(() => {
+                  const avatarUrl = getProxiedAvatarUrl(user.avatar_url);
+                  return avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatarUrl}
+                      alt="Profile Avatar"
+                      className="w-full h-full rounded-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        // Show initials instead
+                        if (target.nextSibling) {
+                          (target.nextSibling as HTMLElement).style.display = 'block';
+                        }
+                      }}
+                    />
+                  ) : null;
+                })()}
+                <span
+                  className={user.avatar_url && user.avatar_url.trim() !== '' ? 'hidden' : 'block'}
+                >
+                  {getInitials()}
+                </span>
               </div>
             </div>
           </div>
@@ -61,9 +88,12 @@ export function ProfileCard({ user }: ProfileCardProps) {
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-foreground">
-              {user.user_metadata?.full_name || 'Pengguna Nusantara Play'}
+              {user.full_name || 'Pengguna Nusantara Play'}
             </h2>
             <p className="text-muted-foreground">{user.email}</p>
+            {user.bio && (
+              <p className="text-sm text-muted-foreground mt-2">{user.bio}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
@@ -79,26 +109,74 @@ export function ProfileCard({ user }: ProfileCardProps) {
                 Status Akun
               </label>
               <div className="mt-1 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="font-medium capitalize">{user.role || 'user'}</span>
+                <span className={`w-2 h-2 rounded-full ${user.status === 'active' ? 'bg-green-500' : 'bg-gray-500'
+                  }`} />
+                <span className="font-medium capitalize">{user.status}</span>
               </div>
             </div>
 
             <div>
               <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                ID Pengguna
+                Role
               </label>
-              <p className="mt-1 font-mono text-sm text-muted-foreground truncate" title={user.id}>
-                {user.id}
-              </p>
+              <p className="mt-1 font-medium capitalize">{user.role}</p>
             </div>
 
             <div>
               <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                Provider Login
+                Terakhir Login
               </label>
-              <p className="mt-1 font-medium capitalize">
-                {user.app_metadata?.provider || 'Email'}
+              <p className="mt-1 font-medium">{formatDate(user.last_login_at)}</p>
+            </div>
+
+            {user.phone && (
+              <div>
+                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Nomor Telepon
+                </label>
+                <p className="mt-1 font-medium">{user.phone}</p>
+              </div>
+            )}
+
+            {user.institution && (
+              <div>
+                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Institusi
+                </label>
+                <p className="mt-1 font-medium">{user.institution}</p>
+              </div>
+            )}
+
+            {user.expertise && (
+              <div className="md:col-span-2">
+                <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Keahlian
+                </label>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {Array.isArray(user.expertise) ? (
+                    user.expertise.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"
+                      >
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm">
+                      {user.expertise}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="md:col-span-2">
+              <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                ID Pengguna
+              </label>
+              <p className="mt-1 font-mono text-sm text-muted-foreground truncate" title={user.id}>
+                {user.id}
               </p>
             </div>
           </div>

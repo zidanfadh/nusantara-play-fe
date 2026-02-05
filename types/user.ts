@@ -10,7 +10,7 @@ export interface UserProfile {
     bio: string | null;
     daerah_id: string | number | null; // Assuming ID could be number or string based on null value in example
     institution: string | null;
-    expertise: string | null;
+    expertise: string[] | string | null; // Can be array or string based on API response
     last_login_at: string;
     created_at: string;
     updated_at: string;
