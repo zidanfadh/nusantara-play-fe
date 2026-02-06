@@ -126,7 +126,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
               <label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                 Terakhir Login
               </label>
-              <p className="mt-1 font-medium">{formatDate(user.last_login_at)}</p>
+              <p className="mt-1 font-medium">{formatDate(user.last_login_at ?? undefined)}</p>
             </div>
 
             {user.phone && (

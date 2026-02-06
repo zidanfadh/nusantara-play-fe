@@ -21,3 +21,35 @@ export interface AuthFormData {
 export interface SignUpFormData extends AuthFormData {
   confirmPassword: string;
 }
+
+// Change Password Types
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+}
+
+// Health Check Types
+export interface HealthCheckResponse {
+  status: string;
+  message: string;
+  timestamp: string;
+}
+
+// Password Validation
+export interface PasswordValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+// Auth Error Response
+export interface AuthErrorResponse {
+  statusCode: number;
+  message: string;
+  error: string;
+}

@@ -1,104 +1,71 @@
 'use client';
 
-import { ProfileCard } from '@/components/dashboard/ProfileCard';
-import { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api/client';
-import { UserProfile } from '@/types/user';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { UserProfileCard } from '@/components/users/UserProfileCard';
+import { EditProfileForm } from '@/components/users/EditProfileForm';
+import type { UserProfile } from '@/types/user';
 
 export default function ProfilePage() {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const { user, isLoading, error, setUser } = useCurrentUser();
+  const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    async function fetchUserProfile() {
-      try {
-        setLoading(true);
-        setError(null);
+  const handleEditSuccess = (updatedUser: UserProfile) => {
+    setUser(updatedUser);
+    setIsEditing(false);
+  };
 
-        // Check if user is authenticated first
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-          router.push('/login');
-          return;
-        }
-
-        // Fetch user profile from API
-        const profile = await apiClient.get<UserProfile>('/users/me');
-        setUserProfile(profile);
-      } catch (err) {
-        console.error('Error fetching user profile:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUserProfile();
-  }, [router]);
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Profil Saya</h1>
-        </div>
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !user) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Profil Saya</h1>
-        </div>
-        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-red-700 dark:text-red-400">Error: {error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userProfile) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Profil Saya</h1>
-        </div>
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Profile data not found.</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <p className="font-medium">Error:</p>
+            <p>{error?.message || 'Gagal memuat profil'}</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Profil Saya</h1>
-      </div>
-
-      <ProfileCard user={userProfile} />
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Statistik Kontribusi</h3>
-          <p className="text-muted-foreground">Belum ada aktivitas tercatat.</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Profil Saya</h1>
+          <p className="mt-2 text-gray-600">
+            {isEditing ? 'Edit informasi profil Anda' : 'Informasi profil Anda'}
+          </p>
         </div>
 
-        <div className="p-6 rounded-lg border border-border bg-card text-card-foreground shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Badge & Sertifikasi</h3>
-          <p className="text-muted-foreground">Belum ada badge yang diraih.</p>
-        </div>
+        {isEditing ? (
+          <div className="bg-white rounded-lg shadow p-6">
+            <EditProfileForm
+              currentUser={user}
+              onSuccess={handleEditSuccess}
+              onCancel={() => setIsEditing(false)}
+            />
+          </div>
+        ) : (
+          <UserProfileCard
+            user={user}
+            onEdit={() => setIsEditing(true)}
+            isCurrentUser={true}
+          />
+        )}
       </div>
     </div>
   );
