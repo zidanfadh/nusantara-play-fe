@@ -1,37 +1,25 @@
 // Audit Log Types
 
 export type AuditAction = 
-  | 'create' 
-  | 'update' 
-  | 'delete' 
-  | 'change_password' 
-  | 'update_profile' 
-  | 'update_role' 
-  | 'update_status';
+  | 'CREATE' 
+  | 'UPDATE' 
+  | 'DELETE' 
+  | 'CHANGE_PASSWORD' 
+  | 'UPDATE_PROFILE' 
+  | 'UPDATE_ROLE' 
+  | 'UPDATE_STATUS';
 
 export type EntityType = 
   | 'user' 
   | 'daerah' 
+  | 'api'
   | 'content' 
   | 'category'
   | 'comment'
   | 'like';
 
-// Changes structure for different operations
-export interface CreateChanges {
-  created: Record<string, any>;
-}
-
-export interface UpdateChanges {
-  before: Record<string, any>;
-  after: Record<string, any>;
-}
-
-export interface DeleteChanges {
-  deleted: Record<string, any>;
-}
-
-export type AuditChanges = CreateChanges | UpdateChanges | DeleteChanges;
+// Changes is a plain object containing the fields that changed
+export type AuditChanges = Record<string, any>;
 
 // Main Audit Log Entity
 export interface AuditLog {

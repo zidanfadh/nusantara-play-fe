@@ -86,12 +86,19 @@ export async function getAuditLogsByUser(
  */
 export function formatAuditAction(action: string): string {
   const actionMap: Record<string, string> = {
+    CREATE: 'Dibuat',
     create: 'Dibuat',
+    UPDATE: 'Diperbarui',
     update: 'Diperbarui',
+    DELETE: 'Dihapus',
     delete: 'Dihapus',
+    CHANGE_PASSWORD: 'Ganti Password',
     change_password: 'Ganti Password',
+    UPDATE_PROFILE: 'Update Profil',
     update_profile: 'Update Profil',
+    UPDATE_ROLE: 'Update Role',
     update_role: 'Update Role',
+    UPDATE_STATUS: 'Update Status',
     update_status: 'Update Status',
   };
 
@@ -105,6 +112,7 @@ export function formatEntityType(entityType: string): string {
   const entityMap: Record<string, string> = {
     user: 'User',
     daerah: 'Daerah',
+    api: 'API',
     content: 'Konten',
     category: 'Kategori',
     comment: 'Komentar',

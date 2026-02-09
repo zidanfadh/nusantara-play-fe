@@ -45,18 +45,19 @@ export function AuditLogFilters({
   };
 
   const actions: AuditAction[] = [
-    'create',
-    'update',
-    'delete',
-    'change_password',
-    'update_profile',
-    'update_role',
-    'update_status',
+    'CREATE',
+    'UPDATE',
+    'DELETE',
+    'CHANGE_PASSWORD',
+    'UPDATE_PROFILE',
+    'UPDATE_ROLE',
+    'UPDATE_STATUS',
   ];
 
   const entityTypes: EntityType[] = [
     'user',
     'daerah',
+    'api',
     'content',
     'category',
     'comment',

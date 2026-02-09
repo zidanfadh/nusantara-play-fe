@@ -157,7 +157,7 @@ export function AuditLogTable({ logs, isLoading }: AuditLogTableProps) {
                           <span className="font-medium text-gray-700 block mb-2">
                             Perubahan Data:
                           </span>
-                          <AuditChangesDisplay changes={log.changes} />
+                          <AuditChangesDisplay changes={log.changes} action={log.action} />
                         </div>
                       </div>
                     </td>
