@@ -55,6 +55,7 @@ export default async function Home() {
         </div>
       </header>
 
+      
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden py-24 md:py-32 lg:py-40">
