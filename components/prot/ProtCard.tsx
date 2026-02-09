@@ -24,6 +24,7 @@ export function ProtCard({ item }: ProtCardProps) {
           </div>
         )}
 
+        
         {/* Badge */}
         <div className="absolute top-3 left-3">
           <span
