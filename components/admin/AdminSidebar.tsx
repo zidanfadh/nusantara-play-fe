@@ -14,7 +14,7 @@ const menuItems = [
     ),
   },
   {
-    title: 'User Management',
+    title: 'Manajemen Pengguna',
     href: '/admin/users',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,14 +47,27 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="bg-gray-800 text-white w-64 flex-shrink-0 flex flex-col">
+    <div className="bg-gradient-to-b from-[#1e3a4c] to-[#2D3E50] text-white w-64 flex-shrink-0 flex flex-col shadow-2xl">
       {/* Logo */}
-      <div className="flex items-center justify-center h-16 bg-gray-900 border-b border-gray-700">
-        <h1 className="text-xl font-bold">Nusantara Play</h1>
+      <div className="flex items-center justify-center h-16 bg-[#0f2027] border-b-2 border-[#C04A21]/30">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-[#D4A017] to-[#E5B028] bg-clip-text text-transparent tracking-wide">Nusantara Play</h1>
+      </div>
+
+      {/* Back to Dashboard Button */}
+      <div className="p-3 border-b border-white/10">
+        <Link
+          href="/dashboard"
+          className="flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold bg-[#D4A017] hover:bg-[#E5B028] text-[#2D2D2D] transition-all duration-200 hover:scale-105 hover:shadow-lg group"
+        >
+          <svg className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Kembali ke Dashboard
+        </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 mt-8">
+      <nav className="flex-1 py-6 px-3 space-y-1">
         {menuItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
 
@@ -62,20 +75,24 @@ export function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors ${
-                isActive ? 'bg-gray-700 text-white border-r-4 border-blue-500' : ''
+              className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                isActive 
+                  ? 'bg-gradient-to-r from-[#C04A21] to-[#D65C2E] text-white shadow-lg scale-105' 
+                  : 'text-gray-300 hover:bg-white/10 hover:text-white hover:translate-x-1'
               }`}
             >
-              <span className="mr-3">{item.icon}</span>
-              <span>{item.title}</span>
+              <span className={`mr-3 ${
+                isActive ? 'text-white' : 'text-[#D4A017] group-hover:text-[#E5B028]'
+              }`}>{item.icon}</span>
+              <span className="tracking-wide">{item.title}</span>
             </Link>
           );
         })}
       </nav>
 
       {/* Footer */}
-      <div className="p-4 bg-gray-900 border-t border-gray-700">
-        <p className="text-xs text-gray-400 text-center">
+      <div className="p-4 bg-[#0f2027] border-t-2 border-[#C04A21]/30">
+        <p className="text-[10px] text-[#D4A017] text-center font-medium">
           Admin Panel v1.0
         </p>
       </div>

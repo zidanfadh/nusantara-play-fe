@@ -76,35 +76,35 @@ export default function UsersManagementPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-gray-900">Manajemen User</h1>
-                <p className="mt-2 text-gray-600">
+        <div className="space-y-5">
+            <div className="bg-gradient-to-r from-white to-[#FFF9F0] rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+                <h1 className="text-xl font-bold text-[#2D2D2D]">Manajemen User</h1>
+                <p className="mt-1 text-[#6B6B6B] text-xs">
                     Kelola semua user di sistem
                 </p>
             </div>
 
             {/* Statistics Card */}
             {stats && (
-                <div className="bg-white rounded-lg shadow p-6 mb-6">
-                    <p className="text-sm text-gray-600 mb-1">Total User</p>
-                    <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
+                <div className="bg-white rounded-lg shadow-sm p-4">
+                    <p className="text-[10px] text-[#6B6B6B] mb-1 uppercase font-semibold tracking-wide">Total User</p>
+                    <p className="text-2xl font-bold text-[#1A5F7A]">{stats.total}</p>
                 </div>
             )}
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow mb-4">
-                <h3 className="text-lg font-semibold mb-3">Filter</h3>
+            <div className="bg-white p-4 rounded-lg shadow-sm">
+                <h3 className="text-base font-bold mb-3 text-[#2D2D2D]">Filter</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="role" className="block text-xs font-medium text-[#6B6B6B] mb-1">
                             Role
                         </label>
                         <select
                             id="role"
                             value={selectedRole}
                             onChange={(e) => setSelectedRole(e.target.value as UserRole | '')}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
                         >
                             <option value="">Semua Role</option>
                             <option value="publik">Publik</option>
@@ -115,14 +115,14 @@ export default function UsersManagementPage() {
                     </div>
 
                     <div>
-                        <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="status" className="block text-xs font-medium text-[#6B6B6B] mb-1">
                             Status
                         </label>
                         <select
                             id="status"
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value as UserStatus | '')}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
                         >
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>
@@ -134,13 +134,13 @@ export default function UsersManagementPage() {
                     <div className="flex items-end gap-2">
                         <button
                             onClick={handleFilterChange}
-                            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-1 bg-[#1A5F7A] text-white py-2 px-4 rounded-lg text-sm hover:bg-[#237A9A] focus:outline-none focus:ring-2 focus:ring-[#1A5F7A] transition-colors"
                         >
                             Terapkan Filter
                         </button>
                         <button
                             onClick={handleReset}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            className="px-4 py-2 bg-[#E5E0D4] text-[#6B6B6B] rounded-lg text-sm hover:bg-[#D6CDB8] focus:outline-none focus:ring-2 focus:ring-[#D6CDB8] transition-colors"
                         >
                             Reset
                         </button>
@@ -150,9 +150,9 @@ export default function UsersManagementPage() {
 
             {/* Error Message */}
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                    <p className="font-medium">Error:</p>
-                    <p>{error.message}</p>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    <p className="font-medium text-sm">Error:</p>
+                    <p className="text-xs">{error.message}</p>
                 </div>
             )}
 
@@ -167,7 +167,7 @@ export default function UsersManagementPage() {
 
             {/* Pagination */}
             {data?.pagination && (
-                <div className="mt-4">
+                <div>
                     <Pagination pagination={data.pagination} onPageChange={changePage} />
                 </div>
             )}

@@ -25,10 +25,10 @@ export default function AuditPage() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
-        <p className="mt-2 text-gray-600">
+    <div className="space-y-5">
+      <div className="bg-gradient-to-r from-white to-[#FFF9F0] rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+        <h1 className="text-xl font-bold text-[#2D2D2D]">Audit Logs</h1>
+        <p className="mt-1 text-[#6B6B6B] text-xs">
           Riwayat semua aktivitas yang terjadi di sistem
         </p>
       </div>
@@ -40,16 +40,16 @@ export default function AuditPage() {
       />
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          <p className="font-medium">Error:</p>
-          <p>{error.message}</p>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          <p className="font-medium text-sm">Error:</p>
+          <p className="text-xs">{error.message}</p>
         </div>
       )}
 
       <AuditLogTable logs={data?.data || []} isLoading={isLoading} />
 
       {data?.pagination && (
-        <div className="mt-4">
+        <div>
           <Pagination pagination={data.pagination} onPageChange={changePage} />
         </div>
       )}

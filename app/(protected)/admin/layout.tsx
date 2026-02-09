@@ -31,10 +31,10 @@ export default function AdminLayout({
   // Tampilkan loading saat fetch user profile dari backend
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex justify-center items-center min-h-screen bg-[#F7F3E8]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading admin panel...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A5F7A] mx-auto"></div>
+          <p className="mt-4 text-[#6B6B6B] text-sm">Loading admin panel...</p>
         </div>
       </div>
     );
@@ -43,10 +43,10 @@ export default function AdminLayout({
   // Jika error atau tidak ada user, tampilkan loading sambil redirect
   if (error || !user) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex justify-center items-center min-h-screen bg-[#F7F3E8]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Redirecting...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A5F7A] mx-auto"></div>
+          <p className="mt-4 text-[#6B6B6B] text-sm">Redirecting...</p>
         </div>
       </div>
     );
@@ -55,17 +55,17 @@ export default function AdminLayout({
   // Jika bukan admin, tampilkan loading sambil redirect
   if (user.role !== 'admin_kpoti') {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex justify-center items-center min-h-screen bg-[#F7F3E8]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking permissions...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1A5F7A] mx-auto"></div>
+          <p className="mt-4 text-[#6B6B6B] text-sm">Checking permissions...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-[#F7F3E8]">
       {/* Sidebar */}
       <AdminSidebar />
 
@@ -73,8 +73,10 @@ export default function AdminLayout({
       <div className="flex-1 flex flex-col overflow-hidden">
         <AdminHeader user={user} />
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-          {children}
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#F7F3E8] p-6">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

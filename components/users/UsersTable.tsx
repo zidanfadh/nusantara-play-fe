@@ -45,23 +45,23 @@ export function UsersTable({
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Memuat data user...</p>
+            <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A5F7A] mx-auto"></div>
+                <p className="mt-3 text-[#6B6B6B] text-sm">Memuat data user...</p>
             </div>
         );
     }
 
     if (users.length === 0) {
         return (
-            <div className="bg-white rounded-lg shadow p-8 text-center">
-                <p className="text-gray-600">Tidak ada user ditemukan.</p>
+            <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+                <p className="text-[#6B6B6B] text-sm">Tidak ada user ditemukan.</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
@@ -142,14 +142,14 @@ export function UsersTable({
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <button
                                             onClick={() => toggleRow(user.id)}
-                                            className="text-blue-600 hover:text-blue-900 mr-3"
+                                            className="text-[#1A5F7A] hover:text-[#237A9A] mr-3 text-xs font-semibold"
                                         >
                                             {expandedRows.has(user.id) ? 'Tutup' : 'Detail'}
                                         </button>
                                         {onViewDetails && (
                                             <button
                                                 onClick={() => onViewDetails(user.id)}
-                                                className="text-green-600 hover:text-green-900"
+                                                className="text-green-600 hover:text-green-700 text-xs font-semibold"
                                             >
                                                 Lihat
                                             </button>
