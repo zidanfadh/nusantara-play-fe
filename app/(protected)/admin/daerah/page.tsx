@@ -59,49 +59,49 @@ export default function DaerahPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Data Daerah</h1>
-        <p className="mt-2 text-gray-600">
+    <div className="space-y-5">
+      <div className="bg-gradient-to-r from-white to-[#FFF9F0] rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+        <h1 className="text-xl font-bold text-[#2D2D2D]">Data Daerah</h1>
+        <p className="mt-1 text-[#6B6B6B] text-xs">
           Daftar wilayah/geografis di Indonesia (provinsi, kabupaten, kota)
         </p>
       </div>
 
       {/* Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 mb-1">Total Daerah</p>
-            <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <p className="text-[10px] text-[#6B6B6B] mb-1 uppercase font-semibold tracking-wide">Total Daerah</p>
+            <p className="text-2xl font-bold text-[#1A5F7A]">{stats.total}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 mb-1">Provinsi</p>
-            <p className="text-3xl font-bold text-green-600">{stats.provinces}</p>
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <p className="text-[10px] text-[#6B6B6B] mb-1 uppercase font-semibold tracking-wide">Provinsi</p>
+            <p className="text-2xl font-bold text-green-600">{stats.provinces}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 mb-1">Kabupaten</p>
-            <p className="text-3xl font-bold text-orange-600">{stats.kabupaten}</p>
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <p className="text-[10px] text-[#6B6B6B] mb-1 uppercase font-semibold tracking-wide">Kabupaten</p>
+            <p className="text-2xl font-bold text-orange-600">{stats.kabupaten}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <p className="text-sm text-gray-600 mb-1">Kota</p>
-            <p className="text-3xl font-bold text-purple-600">{stats.kota}</p>
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <p className="text-[10px] text-[#6B6B6B] mb-1 uppercase font-semibold tracking-wide">Kota</p>
+            <p className="text-2xl font-bold text-purple-600">{stats.kota}</p>
           </div>
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-4">
-        <h3 className="text-lg font-semibold mb-3">Filter</h3>
+      <div className="bg-white p-4 rounded-lg shadow-sm">
+        <h3 className="text-base font-bold mb-3 text-[#2D2D2D]">Filter</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="level" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="level" className="block text-xs font-medium text-[#6B6B6B] mb-1">
               Level
             </label>
             <select
               id="level"
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value as DaerahLevel | '')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
             >
               <option value="">Semua Level</option>
               <option value="provinsi">Provinsi</option>
@@ -111,7 +111,7 @@ export default function DaerahPage() {
           </div>
 
           <div>
-            <label htmlFor="provinsi" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="provinsi" className="block text-xs font-medium text-[#6B6B6B] mb-1">
               Provinsi
             </label>
             <input
@@ -120,20 +120,20 @@ export default function DaerahPage() {
               value={selectedProvince}
               onChange={(e) => setSelectedProvince(e.target.value)}
               placeholder="Nama provinsi"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
             />
           </div>
 
           <div className="flex items-end gap-2">
             <button
               onClick={handleFilterChange}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 bg-[#1A5F7A] text-white py-2 px-4 rounded-lg text-sm hover:bg-[#237A9A] focus:outline-none focus:ring-2 focus:ring-[#1A5F7A] transition-colors"
             >
               Terapkan Filter
             </button>
             <button
               onClick={handleReset}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="px-4 py-2 bg-[#E5E0D4] text-[#6B6B6B] rounded-lg text-sm hover:bg-[#D6CDB8] focus:outline-none focus:ring-2 focus:ring-[#D6CDB8] transition-colors"
             >
               Reset
             </button>
@@ -143,24 +143,24 @@ export default function DaerahPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          <p className="font-medium">Error:</p>
-          <p>{error.message}</p>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          <p className="font-medium text-sm">Error:</p>
+          <p className="text-xs">{error.message}</p>
         </div>
       )}
 
       {/* Table */}
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Memuat data daerah...</p>
+        <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A5F7A] mx-auto"></div>
+          <p className="mt-3 text-[#6B6B6B] text-sm">Memuat data daerah...</p>
         </div>
       ) : data?.data.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600">Tidak ada data daerah ditemukan.</p>
+        <div className="bg-white rounded-lg shadow-sm p-6 text-center">
+          <p className="text-[#6B6B6B] text-sm">Tidak ada data daerah ditemukan.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -220,7 +220,7 @@ export default function DaerahPage() {
 
       {/* Pagination */}
       {data?.pagination && (
-        <div className="mt-4">
+        <div>
           <Pagination pagination={data.pagination} onPageChange={changePage} />
         </div>
       )}

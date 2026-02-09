@@ -64,13 +64,13 @@ export function AuditLogFilters({
   ];
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow mb-4">
-      <h3 className="text-lg font-semibold mb-3">Filter</h3>
+    <div className="bg-white p-4 rounded-lg shadow-sm">
+      <h3 className="text-base font-bold mb-3 text-[#2D2D2D]">Filter</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {showUserFilter && (
           <div>
-            <label htmlFor="user_id" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="user_id" className="block text-xs font-medium text-[#6B6B6B] mb-1">
               User ID
             </label>
             <input
@@ -79,7 +79,7 @@ export function AuditLogFilters({
               value={filters.user_id || ''}
               onChange={(e) => handleFilterChange('user_id', e.target.value)}
               placeholder="UUID User"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
             />
           </div>
         )}
@@ -87,14 +87,14 @@ export function AuditLogFilters({
         {showEntityFilters && (
           <>
             <div>
-              <label htmlFor="entity_type" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="entity_type" className="block text-xs font-medium text-[#6B6B6B] mb-1">
                 Tipe Entity
               </label>
               <select
                 id="entity_type"
                 value={filters.entity_type || ''}
                 onChange={(e) => handleFilterChange('entity_type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
               >
                 <option value="">Semua</option>
                 {entityTypes.map((type) => (
@@ -106,7 +106,7 @@ export function AuditLogFilters({
             </div>
 
             <div>
-              <label htmlFor="entity_id" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="entity_id" className="block text-xs font-medium text-[#6B6B6B] mb-1">
                 Entity ID
               </label>
               <input
@@ -115,21 +115,21 @@ export function AuditLogFilters({
                 value={filters.entity_id || ''}
                 onChange={(e) => handleFilterChange('entity_id', e.target.value)}
                 placeholder="UUID Entity"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
               />
             </div>
           </>
         )}
 
         <div>
-          <label htmlFor="action" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="action" className="block text-xs font-medium text-[#6B6B6B] mb-1">
             Aksi
           </label>
           <select
             id="action"
             value={filters.action || ''}
             onChange={(e) => handleFilterChange('action', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
           >
             <option value="">Semua</option>
             {actions.map((action) => (
@@ -141,14 +141,14 @@ export function AuditLogFilters({
         </div>
 
         <div>
-          <label htmlFor="limit" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="limit" className="block text-xs font-medium text-[#6B6B6B] mb-1">
             Items per Halaman
           </label>
           <select
             id="limit"
             value={filters.limit || 20}
             onChange={(e) => handleFilterChange('limit', parseInt(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -161,7 +161,7 @@ export function AuditLogFilters({
       <div className="mt-4">
         <button
           onClick={handleReset}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+          className="px-4 py-2 bg-[#E5E0D4] text-[#6B6B6B] rounded-lg text-sm hover:bg-[#D6CDB8] focus:outline-none focus:ring-2 focus:ring-[#D6CDB8] transition-colors"
         >
           Reset Filter
         </button>

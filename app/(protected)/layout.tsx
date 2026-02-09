@@ -1,15 +1,42 @@
-import { ReactNode } from 'react';
-import { redirect } from 'next/navigation';
+'use client';
+
+import { ReactNode, useEffect, useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/client';
 import { LogoutButton } from '@/components/auth/LogoutButton';
+import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 
-export default async function ProtectedLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export default function ProtectedLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
-  if (!user) {
-    redirect('/login');
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+      } else {
+        setUser(user);
+      }
+      setLoading(false);
+    };
+    checkUser();
+  }, [router, supabase]);
+
+  // Check if current route is admin
+  const isAdminRoute = pathname?.startsWith('/admin');
+
+  if (loading) {
+    return null;
+  }
+
+  // For admin routes, don't render the navbar (AdminHeader will handle it)
+  if (isAdminRoute) {
+    return <>{children}</>;
   }
 
   return (
@@ -33,8 +60,9 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground hidden sm:inline-block">
-              {user.email}
+              {user?.email}
             </span>
+            <AnimatedThemeToggler className="hover:bg-muted/50 transition-colors" />
             <LogoutButton />
           </div>
         </div>
