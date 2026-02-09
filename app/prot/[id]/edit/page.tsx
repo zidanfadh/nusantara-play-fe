@@ -87,17 +87,18 @@ export default function EditProtPage() {
                         <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">Akses Ditolak</h2>
+                    <p className="text-gray-600 mb-6">
+                        Data dengan status <span className="font-semibold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{initialData.status}</span> tidak dapat disunting. Hanya data dengan status Draft atau Revisi yang dapat diubah.
+                    </p>
+                    <Link href={`/prot/${id}`} className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors">
+                        <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Kembali ke Detail
+                    </Link>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2">Akses Ditolak</h2>
-                <p className="text-gray-600 mb-6">
-                    Data dengan status <span className="font-semibold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{initialData.status}</span> tidak dapat disunting. Hanya data dengan status Draft atau Revisi yang dapat diubah.
-                </p>
-                <Link href={`/prot/${id}`} className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors">
-                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Kembali ke Detail
-                </Link>
             </div>
         </div>
       );
