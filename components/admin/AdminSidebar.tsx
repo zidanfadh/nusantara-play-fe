@@ -99,12 +99,9 @@ export function AdminSidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
-          const hasSubmenu = item.submenus && item.submenus.length > 0;
-          // For items with submenu, check if any submenu is active
-          const isActive = hasSubmenu 
-            ? item.submenus?.some(sub => pathname === sub.href) || false
-            : pathname.startsWith(item.href);
+          const isActive = pathname.startsWith(item.href);
           const isExpanded = expandedMenus[item.title];
+          const hasSubmenu = item.submenus && item.submenus.length > 0;
 
           return (
             <div key={item.href}>

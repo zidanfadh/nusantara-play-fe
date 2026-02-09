@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { protApi } from '@/lib/api/prot';
-import { AdminHeader } from '@/components/admin/AdminHeader';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { PROTEntity, PROTStatus } from '@/types/prot';
 
 export default function AdminPublishPage() {
@@ -71,42 +69,36 @@ export default function AdminPublishPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <AdminSidebar />
-        <div className="flex-1 ml-64">
-          <AdminHeader user={user} />
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Publish ke Arsip Nasional</h1>
+        <p className="text-gray-600 mt-2">PROT yang sudah diverifikasi dan siap untuk dipublish</p>
+      </div>
 
-          <main className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Publish ke Arsip Nasional</h1>
-              <p className="text-gray-600 mt-2">PROT yang sudah diverifikasi dan siap untuk dipublish</p>
-            </div>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+          {error}
+        </div>
+      )}
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
-                {error}
-              </div>
-            )}
-
-            {loading ? (
-              <div className="grid grid-cols-1 gap-6">
-                {[...Array(3)].map((_, i) => (
-                  <div key={i} className="h-32 bg-white rounded-lg shadow-sm animate-pulse"></div>
-                ))}
-              </div>
-            ) : items.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-200">
+      {loading ? (
+        <div className="grid grid-cols-1 gap-6">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-32 bg-white rounded-lg shadow-sm animate-pulse"></div>
+          ))}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-200">
                 <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak Ada PROT</h3>
-                <p className="text-gray-600">Belum ada PROT yang siap untuk dipublish.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {items.map((item) => (
-                  <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak Ada PROT</h3>
+          <p className="text-gray-600">Belum ada PROT yang siap untuk dipublish.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -176,9 +168,6 @@ export default function AdminPublishPage() {
                 ))}
               </div>
             )}
-          </main>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }

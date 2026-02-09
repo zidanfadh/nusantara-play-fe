@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { protApi } from '@/lib/api/prot';
-import { AdminHeader } from '@/components/admin/AdminHeader';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
 interface VerificationStats {
   queue: {
@@ -68,32 +66,26 @@ export default function AdminProtPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <AdminSidebar />
-        <div className="flex-1 ml-64">
-          <AdminHeader user={user} />
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Manajemen PROT</h1>
+        <p className="text-gray-600 mt-2">Statistik dan manajemen data PROT</p>
+      </div>
 
-          <main className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Manajemen PROT</h1>
-              <p className="text-gray-600 mt-2">Statistik dan manajemen data PROT</p>
-            </div>
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+          {error}
+        </div>
+      )}
 
-            {error && (
-              <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
-                {error}
-              </div>
-            )}
-
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-32 bg-white rounded-lg shadow-sm animate-pulse"></div>
-                ))}
-              </div>
-            ) : stats ? (
-              <>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-32 bg-white rounded-lg shadow-sm animate-pulse"></div>
+          ))}
+        </div>
+      ) : stats ? (
+        <>
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
@@ -230,9 +222,6 @@ export default function AdminProtPage() {
                 </div>
               </>
             ) : null}
-          </main>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }

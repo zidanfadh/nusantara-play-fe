@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { protApi } from '@/lib/api/prot';
-import { AdminHeader } from '@/components/admin/AdminHeader';
-import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { PROTEntity, PROTStatus, PROTJenis } from '@/types/prot';
 
 export default function AdminAllProtPage() {
@@ -81,20 +79,14 @@ export default function AdminAllProtPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <AdminSidebar />
-        <div className="flex-1 ml-64">
-          <AdminHeader user={user} />
+    <>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Kelola PROT</h1>
+        <p className="text-gray-600 mt-2">Lihat dan kelola semua data PROT</p>
+      </div>
 
-          <main className="p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">Kelola PROT</h1>
-              <p className="text-gray-600 mt-2">Lihat dan kelola semua data PROT</p>
-            </div>
-
-            {/* Filters */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
@@ -346,9 +338,6 @@ export default function AdminAllProtPage() {
                 )}
               </div>
             )}
-          </main>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
