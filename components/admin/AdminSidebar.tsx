@@ -1,9 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const menuItems = [
+interface MenuItem {
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+  submenus?: { title: string; href: string }[];
+}
+
+const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
     href: '/admin/dashboard',
@@ -32,6 +40,20 @@ const menuItems = [
     ),
   },
   {
+    title: 'PROT',
+    href: '/admin/prot',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+      </svg>
+    ),
+    submenus: [
+      { title: 'Statistik', href: '/admin/prot' },
+      { title: 'Semua PROT', href: '/admin/prot/all' },
+      { title: 'Publish', href: '/admin/prot/publish' },
+    ],
+  },
+  {
     title: 'Daerah',
     href: '/admin/daerah',
     icon: (
@@ -45,6 +67,14 @@ const menuItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [expandedMenus, setExpandedMenus] = useState<{ [key: string]: boolean }>({});
+
+  const toggleSubmenu = (title: string) => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
 
   return (
     <div className="bg-gray-800 text-white w-64 flex-shrink-0 flex flex-col">
@@ -54,21 +84,66 @@ export function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 mt-8">
+      <nav className="flex-1 mt-8 overflow-y-auto">
         {menuItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
+          const isExpanded = expandedMenus[item.title];
+          const hasSubmenu = item.submenus && item.submenus.length > 0;
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors ${
-                isActive ? 'bg-gray-700 text-white border-r-4 border-blue-500' : ''
-              }`}
-            >
-              <span className="mr-3">{item.icon}</span>
-              <span>{item.title}</span>
-            </Link>
+            <div key={item.href}>
+              {hasSubmenu ? (
+                <>
+                  <button
+                    onClick={() => toggleSubmenu(item.title)}
+                    className={`w-full flex items-center justify-between px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors ${
+                      isActive ? 'bg-gray-700 text-white border-r-4 border-blue-500' : ''
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-3">{item.icon}</span>
+                      <span>{item.title}</span>
+                    </div>
+                    <svg
+                      className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {isExpanded && item.submenus && (
+                    <div className="bg-gray-900">
+                      {item.submenus.map((submenu) => {
+                        const isSubmenuActive = pathname === submenu.href;
+                        return (
+                          <Link
+                            key={submenu.href}
+                            href={submenu.href}
+                            className={`flex items-center px-12 py-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-white transition-colors ${
+                              isSubmenuActive ? 'bg-gray-700 text-white border-r-4 border-blue-400' : ''
+                            }`}
+                          >
+                            {submenu.title}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={`flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors ${
+                    isActive ? 'bg-gray-700 text-white border-r-4 border-blue-500' : ''
+                  }`}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  <span>{item.title}</span>
+                </Link>
+              )}
+            </div>
           );
         })}
       </nav>

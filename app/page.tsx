@@ -19,10 +19,10 @@ export default async function Home() {
             <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
               Tentang
             </Link>
-            <Link href="/explore" className="text-muted-foreground hover:text-foreground transition-colors">
-              Jelajahi
+            <Link href="/prot" className="text-muted-foreground hover:text-foreground transition-colors">
+              Jelajahi PROT
             </Link>
-            <Link href="/community" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="#community" className="text-muted-foreground hover:text-foreground transition-colors">
               Komunitas
             </Link>
           </nav>
@@ -30,10 +30,10 @@ export default async function Home() {
           <div className="flex items-center gap-4">
             {user ? (
               <Link
-                href="/dashboard"
+                href="/menu"
                 className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                Dashboard
+                Menu Saya
               </Link>
             ) : (
               <>
@@ -70,16 +70,16 @@ export default async function Home() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <Link
-                  href={user ? "/dashboard" : "/login"}
+                  href={user ? "/menu" : "/login"}
                   className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  Masuk ke Dashboard
+                  {user ? "Ke Menu Saya" : "Mulai Sekarang"}
                 </Link>
                 <Link
-                  href="/about"
+                  href="/prot"
                   className="inline-flex h-12 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  Pelajari Lebih Lanjut
+                  Jelajahi PROT
                 </Link>
               </div>
             </div>

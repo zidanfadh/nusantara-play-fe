@@ -25,7 +25,7 @@ export function LoginForm() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      router.push('/dashboard');
+      router.push('/menu');
     }
   };
 

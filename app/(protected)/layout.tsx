@@ -22,8 +22,8 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
               Nusantara Play
             </Link>
             <nav className="hidden md:flex gap-6 text-sm font-medium">
-              <Link href="/dashboard" className="text-foreground/80 hover:text-foreground transition-colors">
-                Dashboard
+              <Link href="/menu" className="text-foreground/80 hover:text-foreground transition-colors">
+                Menu
               </Link>
               <Link href="/profile" className="text-foreground/80 hover:text-foreground transition-colors">
                 Profil Saya
