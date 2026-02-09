@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { formatUserRole, formatUserStatus, getStatusColor, getRoleColor } from '@/lib/api/users';
 import type { UserProfile } from '@/types/user';
 
@@ -54,13 +55,23 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
                             </span>
                         </div>
                     </div>
-                    {isCurrentUser && onEdit && (
-                        <button
-                            onClick={onEdit}
-                            className="px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600"
-                        >
-                            Edit Profil
-                        </button>
+                    {isCurrentUser && (
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            {onEdit && (
+                                <button
+                                    onClick={onEdit}
+                                    className="px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 font-medium text-sm shadow-sm"
+                                >
+                                    Edit Profil
+                                </button>
+                            )}
+                            <Link
+                                href="/change-password"
+                                className="px-4 py-2 border border-white/40 text-white rounded-md hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 font-medium text-sm flex items-center justify-center transition-colors"
+                            >
+                                Ganti Password
+                            </Link>
+                        </div>
                     )}
                 </div>
             </div>

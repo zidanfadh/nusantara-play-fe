@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { LogoutButton } from '@/components/auth/LogoutButton';
+import { UserNav } from '@/components/ui/UserNav';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
@@ -52,18 +52,12 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
               <Link href="/menu" className="text-foreground/80 hover:text-foreground transition-colors">
                 Menu
               </Link>
-              <Link href="/profile" className="text-foreground/80 hover:text-foreground transition-colors">
-                Profil Saya
-              </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:inline-block">
-              {user?.email}
-            </span>
             <AnimatedThemeToggler className="hover:bg-muted/50 transition-colors" />
-            <LogoutButton />
+            <UserNav />
           </div>
         </div>
       </header>
