@@ -86,13 +86,13 @@ export function AdminSidebar() {
       {/* Back to Dashboard Button */}
       <div className="p-3 border-b border-white/10">
         <Link
-          href="/dashboard"
+          href="/menu"
           className="flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold bg-[#D4A017] hover:bg-[#E5B028] text-[#2D2D2D] transition-all duration-200 hover:scale-105 hover:shadow-lg group"
         >
           <svg className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Kembali ke Dashboard
+          Kembali ke Menu Utama
         </Link>
       </div>
 
