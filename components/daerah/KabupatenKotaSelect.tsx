@@ -33,7 +33,7 @@ export function KabupatenKotaSelect({
     // Reset when province changes
     setDaerahList([]);
     setLoadError(null);
-    
+
     if (!provinceId) {
       return;
     }
@@ -71,7 +71,7 @@ export function KabupatenKotaSelect({
 
   return (
     <div>
-      <label htmlFor="kabupaten-kota" className="block text-sm font-medium text-gray-700 mb-1">
+      <label htmlFor="kabupaten-kota" className="block text-sm font-medium mb-1">
         Kabupaten/Kota {required && <span className="text-red-500">*</span>}
       </label>
       <select
@@ -79,19 +79,18 @@ export function KabupatenKotaSelect({
         value={value || ''}
         onChange={handleChange}
         disabled={isDisabled}
-        className={`w-full px-3 py-2 bg-gray-50 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          error ? 'border-red-500' : 'border-gray-300'
-        } ${isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''} ${className}`}
+        className={`w-full px-3 py-2 bg-gray-50 dark:bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${error ? 'border-red-500' : 'border-gray-700'
+          } ${isDisabled ? 'bg-gray-100 cursor-not-allowed' : ''} ${className}`}
         required={required}
       >
         <option value="">
           {!provinceId
             ? 'Pilih provinsi terlebih dahulu'
             : isLoading
-            ? 'Memuat...'
-            : loadError
-            ? loadError
-            : placeholder}
+              ? 'Memuat...'
+              : loadError
+                ? loadError
+                : placeholder}
         </option>
         {daerahList.map((daerah) => (
           <option key={daerah.id} value={daerah.id}>

@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { createClient } from '@/lib/supabase/client';
 import {
   PROTEntity,
   PROTFilters,
@@ -9,6 +10,12 @@ import {
 
 const BASE_URL = '/prot';
 const VERIFIKASI_URL = '/verifikasi';
+
+async function getAuthToken(): Promise<string | null> {
+  const supabase = createClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token || null;
+}
 
 export const protApi = {
   // PROT CRUD
@@ -37,23 +44,46 @@ export const protApi = {
     apiClient.delete<{ success: boolean }>(`${BASE_URL}/${id}`),
 
   // Media Uploads
-  uploadFoto: (id: string, formData: FormData) => {
-    // Note: client.ts might need adjustment for FormData if it forces JSON
-    // For now assuming standard fetch for file upload or we extend client.ts later
-    return fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/foto-kegiatan`, {
+  uploadFoto: async (id: string, formData: FormData) => {
+    const token = await getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/foto-kegiatan`, {
       method: 'POST',
       body: formData,
-      headers: {
-        // Authorization header needs to be handled manually or via a modified client
-      }
-    }).then(res => res.json());
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   },
 
-  uploadVideo: (id: string, formData: FormData) => {
-    return fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/video-kegiatan`, {
+  uploadVideo: async (id: string, formData: FormData) => {
+    const token = await getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/video-kegiatan`, {
       method: 'POST',
       body: formData,
-    }).then(res => res.json());
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   },
 
   deleteFoto: (id: string, index: number) =>

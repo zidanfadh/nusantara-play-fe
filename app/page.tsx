@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -28,6 +29,7 @@ export default async function Home() {
           </nav>
 
           <div className="flex items-center gap-4">
+            <AnimatedThemeToggler className="hover:bg-muted/50 transition-colors justify-items-end" />
             {user ? (
               <Link
                 href="/menu"
@@ -55,7 +57,7 @@ export default async function Home() {
         </div>
       </header>
 
-      
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden py-24 md:py-32 lg:py-40">
@@ -145,8 +147,8 @@ export default async function Home() {
             &copy; {new Date().getFullYear()} Nusantara Play. Dilindungi undang-undang.
           </p>
           <div className="flex gap-6">
-             <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
-             <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
+            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">Privacy</Link>
+            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">Terms</Link>
           </div>
         </div>
       </footer>

@@ -39,15 +39,70 @@ export default function EditProtPage() {
     }
   }, [id]);
 
-  const handleSubmit = async (data: Partial<PROTEntity>) => {
+  const handleSubmit = async (data: Partial<PROTEntity> & { 
+    fotoFiles?: File[]; 
+    videoFiles?: File[];
+    existingFotos?: string[];
+    existingVideos?: string[];
+  }) => {
     setIsLoading(true);
     setError(null);
+    
+    const uploadErrors: string[] = [];
+    let dataUpdated = false;
+
     try {
-      await protApi.update(id, data);
+      // Extract files and existing media from data
+      const { fotoFiles, videoFiles, existingFotos, existingVideos, ...protData } = data;
+
+      // Update PROT data (backend will handle fotoKegiatan and videoKegiatan separately via upload endpoints)
+      await protApi.update(id, protData);
+      dataUpdated = true;
+
+      // Upload new photos if any (batch upload)
+      if (fotoFiles && fotoFiles.length > 0) {
+        const formData = new FormData();
+        fotoFiles.forEach(file => {
+          formData.append('files', file);
+        });
+        try {
+          await protApi.uploadFoto(id, formData);
+        } catch (uploadError: any) {
+          console.error('Failed to upload photos:', uploadError);
+          uploadErrors.push('foto');
+        }
+      }
+
+      // Upload new videos if any (batch upload)
+      if (videoFiles && videoFiles.length > 0) {
+        const formData = new FormData();
+        videoFiles.forEach(file => {
+          formData.append('files', file);
+        });
+        try {
+          await protApi.uploadVideo(id, formData);
+        } catch (uploadError: any) {
+          console.error('Failed to upload videos:', uploadError);
+          uploadErrors.push('video');
+        }
+      }
+
+      // Show warning if uploads failed but still redirect
+      if (uploadErrors.length > 0) {
+        console.warn(`Upload failed for: ${uploadErrors.join(', ')}`);
+      }
+
       router.push(`/prot/${id}`);
     } catch (err) {
       console.error('Failed to update PROT:', err);
-      setError('Gagal menyimpan perubahan. Silakan coba lagi.');
+      
+      // If data was updated but redirect after 2 seconds
+      if (dataUpdated) {
+        setError('Data berhasil diupdate. Jika ada foto/video yang gagal diupload, silakan coba lagi dari halaman edit.');
+        setTimeout(() => router.push(`/prot/${id}`), 2000);
+      } else {
+        setError('Gagal menyimpan perubahan. Silakan coba lagi.');
+      }
     } finally {
       setIsLoading(false);
     }

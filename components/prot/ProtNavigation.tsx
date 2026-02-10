@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { AnimatedThemeToggler } from '../ui/AnimatedThemeToggler';
 
 export function ProtNavigation() {
   const pathname = usePathname();
@@ -83,10 +84,9 @@ export function ProtNavigation() {
                 href={link.href}
                 className={`
                   flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors
-                  ${
-                    isActive(link.href)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ${isActive(link.href)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }
                 `}
               >
@@ -96,6 +96,8 @@ export function ProtNavigation() {
             ))}
           </nav>
         </div>
+
+
 
         {/* User Actions */}
         <div className="flex items-center gap-3">
@@ -124,6 +126,8 @@ export function ProtNavigation() {
             </Link>
           )}
 
+          <AnimatedThemeToggler className="hover:bg-muted/50 transition-colors justify-items-end" />
+
           {/* Mobile Menu Button */}
           <button className="md:hidden p-2 hover:bg-muted rounded-md">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -132,6 +136,7 @@ export function ProtNavigation() {
           </button>
         </div>
       </div>
+
 
       {/* Mobile Navigation */}
       <div className="md:hidden border-t border-border">
@@ -142,10 +147,9 @@ export function ProtNavigation() {
               href={link.href}
               className={`
                 flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md transition-colors
-                ${
-                  isActive(link.href)
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                ${isActive(link.href)
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }
               `}
             >

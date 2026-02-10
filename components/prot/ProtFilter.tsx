@@ -53,7 +53,7 @@ export function ProtFilter({ filters, onFilterChange, onReset, isLoading }: Prot
                 placeholder="Cari nama permainan/olahraga..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                className="w-full px-4 py-2.5 pl-10 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-4 py-2.5 pl-10 bg-gray-50 dark:bg-background border border-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button
                 type="submit"
@@ -73,7 +73,7 @@ export function ProtFilter({ filters, onFilterChange, onReset, isLoading }: Prot
           <select
             value={filters.jenis || ''}
             onChange={(e) => onFilterChange({ ...filters, jenis: e.target.value as PROTJenis || undefined, page: 1 })}
-            className="px-4 py-2.5 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="px-4 py-2.5 bg-gray-50 border dark:bg-background border-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Semua Jenis</option>
             <option value={PROTJenis.PERMAINAN_RAKYAT}>Permainan Rakyat</option>
@@ -84,7 +84,7 @@ export function ProtFilter({ filters, onFilterChange, onReset, isLoading }: Prot
           <select
             value={filters.targetUsia || ''}
             onChange={(e) => onFilterChange({ ...filters, targetUsia: e.target.value as TargetUsia || undefined, page: 1 })}
-            className="px-4 py-2.5 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="px-4 py-2.5 bg-gray-50 dark:bg-background border border-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Semua Usia</option>
             <option value={TargetUsia.ANAK}>Anak-anak</option>
@@ -97,7 +97,7 @@ export function ProtFilter({ filters, onFilterChange, onReset, isLoading }: Prot
           <select
             value={filters.status || ''}
             onChange={(e) => onFilterChange({ ...filters, status: e.target.value as PROTStatus || undefined, page: 1 })}
-            className="px-4 py-2.5 bg-background border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="px-4 py-2.5 bg-gray-50 dark:bg-background border border-gray-700 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Semua Status</option>
             <option value={PROTStatus.ARSIP_NASIONAL}>Arsip Nasional (Public)</option>

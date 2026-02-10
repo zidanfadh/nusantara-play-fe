@@ -104,7 +104,7 @@ export default function UsersManagementPage() {
                             id="role"
                             value={selectedRole}
                             onChange={(e) => setSelectedRole(e.target.value as UserRole | '')}
-                            className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                            className="w-full px-3 py-2 text-gray-700 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
                         >
                             <option value="">Semua Role</option>
                             <option value="publik">Publik</option>
@@ -122,7 +122,7 @@ export default function UsersManagementPage() {
                             id="status"
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value as UserStatus | '')}
-                            className="w-full px-3 py-2 text-sm border border-[#E5E0D4] rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                            className="w-full px-3 text-gray-700 py-2 text-sm border  rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
                         >
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>
