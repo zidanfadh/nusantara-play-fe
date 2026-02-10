@@ -15,11 +15,16 @@ type AnimatedThemeTogglerProps = {
 
 export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) => {
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const [darkMode, setDarkMode] = useState(() =>
-    typeof window !== "undefined"
-      ? document.documentElement.classList.contains("dark")
-      : false
-  )
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window === "undefined") return false
+    
+    const savedTheme = localStorage.getItem("theme")
+    if (savedTheme) {
+      return savedTheme === "dark"
+    }
+    // Default to light mode
+    return false
+  })
 
   useEffect(() => {
     const syncTheme = () =>
@@ -36,9 +41,19 @@ export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) =
   const onToggle = useCallback(async () => {
     if (!buttonRef.current) return
 
+    const toggled = !darkMode
+    
+    // Check if View Transition API is supported
+    if (!document.startViewTransition) {
+      // Fallback for browsers that don't support View Transition API
+      setDarkMode(toggled)
+      document.documentElement.classList.toggle("dark", toggled)
+      localStorage.setItem("theme", toggled ? "dark" : "light")
+      return
+    }
+
     await document.startViewTransition(() => {
       flushSync(() => {
-        const toggled = !darkMode
         setDarkMode(toggled)
         document.documentElement.classList.toggle("dark", toggled)
         localStorage.setItem("theme", toggled ? "dark" : "light")
@@ -87,7 +102,7 @@ export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) =
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.33 }}
-            className="text-white"
+            className="text-foreground"
           >
             <Sun />
           </motion.span>
@@ -98,7 +113,7 @@ export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) =
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.33 }}
-            className="text-black"
+            className="text-foreground"
           >
             <Moon />
           </motion.span>

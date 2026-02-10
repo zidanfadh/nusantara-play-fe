@@ -1,86 +1,58 @@
 @import "tailwindcss";
 
-:root {
-  /* Warm Sand / Cream - Background */
-  --background: #F7F3E8;
-  /* Dark Charcoal - Text */
-  --foreground: #2D2D2D;
-
-  /* Terracotta / Brick Red - Primary */
-  --primary: #C04A21;
-  --primary-foreground: #FFFFFF;
-
-  /* Deep Teal / Ocean Blue - Secondary */
-  --secondary: #1A5F7A;
-  --secondary-foreground: #FFFFFF;
-
-  /* Ochre / Gold - Accent */
-  --accent: #D4A017;
-  --accent-foreground: #2D2D2D;
-
-  /* UI Elements */
-  --muted: #E5E0D4;
-  --muted-foreground: #6B6B6B;
-  --border: #D6CDB8;
-  --input: #D6CDB8;
-  --ring: #C04A21;
-
+@theme {
+  --color-background: #F7F3E8;
+  --color-foreground: #2D2D2D;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #2D2D2D;
+  --color-primary: #C04A21;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #1A5F7A;
+  --color-secondary-foreground: #FFFFFF;
+  --color-accent: #D4A017;
+  --color-accent-foreground: #2D2D2D;
+  --color-muted: #E5E0D4;
+  --color-muted-foreground: #6B6B6B;
+  --color-border: #D6CDB8;
+  --color-input: #D6CDB8;
+  --color-ring: #C04A21;
   --radius: 0.5rem;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-
+  --radius-sm: calc(0.5rem - 2px);
+  --radius-md: 0.5rem;
+  --radius-lg: calc(0.5rem + 2px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Deep Jungle / Dark Stone */
-    --background: #121212;
-    --foreground: #F7F3E8;
+@custom-variant dark (&:is(.dark *));
 
-    --primary: #D65C2E;
-    --primary-foreground: #FFFFFF;
-
-    --secondary: #2C7A9A;
-    --secondary-foreground: #FFFFFF;
-
-    --accent: #E5B028;
-    --accent-foreground: #121212;
-
-    --muted: #2A2A2A;
-    --muted-foreground: #A1A1A1;
-    --border: #404040;
-    --input: #404040;
-    --ring: #D65C2E;
+@layer theme {
+  :root.dark {
+    --color-background: #121212;
+    --color-foreground: #F7F3E8;
+    --color-card: #1E1E1E;
+    --color-card-foreground: #F7F3E8;
+    --color-primary: #D65C2E;
+    --color-primary-foreground: #FFFFFF;
+    --color-secondary: #2C7A9A;
+    --color-secondary-foreground: #FFFFFF;
+    --color-accent: #E5B028;
+    --color-accent-foreground: #121212;
+    --color-muted: #2A2A2A;
+    --color-muted-foreground: #A1A1A1;
+    --color-border: #404040;
+    --color-input: #404040;
+    --color-ring: #D65C2E;
   }
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  }
 }
