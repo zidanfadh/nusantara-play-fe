@@ -32,12 +32,12 @@ export default function CreateProtPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-background pb-12">
       {/* Header Navigation */}
       <ProtNavigation />
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-background border-b shadow-sm">
          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                <Link href="/" className="hover:text-primary">Beranda</Link>

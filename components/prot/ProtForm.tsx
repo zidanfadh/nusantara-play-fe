@@ -75,7 +75,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <form onSubmit={handleSubmit} className="space-y-8 bg-background p-6 rounded-lg shadow-sm border border-gray-200">
       <div className="border-b pb-4 mb-4">
         <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
       </div>
@@ -93,7 +93,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
             required
             value={formData.nama || ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="Contoh: Gobak Sodor"
           />
         </div>
@@ -109,7 +109,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
             required
             value={formData.jenis || PROTJenis.PERMAINAN_RAKYAT}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value={PROTJenis.PERMAINAN_RAKYAT}>Permainan Rakyat</option>
             <option value={PROTJenis.OLAHRAGA_TRADISIONAL}>Olahraga Tradisional</option>
@@ -127,7 +127,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
             required
             value={formData.targetUsia || TargetUsia.SEMUA_USIA}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
             <option value={TargetUsia.ANAK}>Anak-anak</option>
             <option value={TargetUsia.REMAJA}>Remaja</option>
@@ -142,7 +142,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
         <label className="block text-sm font-medium text-gray-700">
           Lokasi Asal <span className="text-red-500">*</span>
         </label>
-        <div className="p-4 border border-gray-200 rounded-md bg-gray-50">
+        <div className="p-4 border border-gray-200 rounded-md bg-background">
           <DaerahSelector
             provinceValue={formData.provinsiKode}
             kabupatenKotaValue={formData.kabkotaKode}
@@ -164,7 +164,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
           rows={3}
           value={formData.alamatLengkap || ''}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full bg-gray-50 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           placeholder="Detail lokasi spesifik..."
         />
       </div>
@@ -180,7 +180,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
           rows={4}
           value={formData.statusAsalUsul || ''}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full bg-gray-50 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           placeholder="Jelaskan sejarah atau asal usul permainan ini..."
         />
       </div>
@@ -196,7 +196,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
           rows={6}
           value={formData.caraBermain || ''}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full bg-gray-50 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           placeholder="Langkah-langkah cara bermain..."
         />
       </div>
@@ -212,7 +212,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
           rows={3}
           value={formData.nilaiMoral || ''}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="bg-gray-50 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           placeholder="Nilai-nilai yang terkandung..."
         />
       </div>
@@ -226,14 +226,14 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
           <button
             type="button"
             onClick={addPeralatan}
-            className="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+            className="text-sm px-3 py-1 bg-gray-50 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
           >
             + Tambah Alat
           </button>
         </div>
 
         {peralatan.map((alat, index) => (
-          <div key={index} className="p-4 border border-gray-200 rounded-md bg-gray-50 relative">
+          <div key={index} className="p-4 border border-gray-200 rounded-md bg-background relative">
             <button
               type="button"
               onClick={() => removePeralatan(index)}
@@ -250,7 +250,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                   type="text"
                   value={alat.nama}
                   onChange={(e) => handlePeralatanChange(index, 'nama', e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                  className="w-full bg-gray-50 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
                   placeholder="Nama alat..."
                 />
               </div>
@@ -260,7 +260,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                   type="text"
                   value={alat.kisaranHarga || ''}
                   onChange={(e) => handlePeralatanChange(index, 'kisaranHarga', e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                  className="w-full bg-gray-50 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
                   placeholder="Contoh: Rp 50.000"
                 />
               </div>
@@ -269,7 +269,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                 <textarea
                   value={alat.deskripsi || ''}
                   onChange={(e) => handlePeralatanChange(index, 'deskripsi', e.target.value)}
-                  className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                  className="w-full bg-gray-50 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
                   rows={2}
                   placeholder="Deskripsi alat..."
                 />
