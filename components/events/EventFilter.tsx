@@ -56,7 +56,7 @@ export function EventFilter({ onFilterChange, showStatusFilter = false }: EventF
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Cari nama atau deskripsi event..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="text-gray-700 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
         </div>
@@ -69,7 +69,7 @@ export function EventFilter({ onFilterChange, showStatusFilter = false }: EventF
           <select
             value={jenis}
             onChange={(e) => handleJenisChange(e.target.value as EventJenis | '')}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="block text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="">Semua Jenis</option>
             {Object.entries(EVENT_JENIS_LABELS).map(([key, label]) => (
@@ -89,7 +89,7 @@ export function EventFilter({ onFilterChange, showStatusFilter = false }: EventF
             <select
               value={status}
               onChange={(e) => handleStatusChange(e.target.value as EventStatus | '')}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
               <option value="">Semua Status</option>
               {Object.entries(EVENT_STATUS_LABELS).map(([key, label]) => (

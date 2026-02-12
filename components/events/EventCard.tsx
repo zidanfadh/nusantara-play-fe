@@ -24,7 +24,7 @@ export function EventCard({ event, showStatus = false }: EventCardProps) {
     event.kuota_peserta && event.jumlah_peserta >= event.kuota_peserta;
 
   return (
-    <Link href={`/eventss/${event.id}`}>
+    <Link href={`/events/${event.id}`}>
       <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer">
         {/* Banner */}
         {event.banner_url ? (

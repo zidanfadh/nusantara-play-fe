@@ -18,7 +18,7 @@ export default function CreateEventPage() {
       setError(null);
       const newEvent = await createEvent(data);
       // Redirect to event detail page
-      router.push(`/eventss/${newEvent.id}`);
+      router.push(`/events/${newEvent.id}`);
     } catch (err: any) {
       console.error('Error creating event:', err);
       setError(err.response?.data?.message || 'Gagal membuat event. Silakan coba lagi.');
@@ -32,20 +32,20 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen  py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-2">
             <button
               onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900"
+              className=" hover:text-gray-300"
             >
               <ArrowLeftIcon className="h-6 w-6" />
             </button>
-            <h1 className="text-3xl font-bold text-gray-900">Buat Event Baru</h1>
+            <h1 className="text-3xl font-bold ">Buat Event Baru</h1>
           </div>
-          <p className="text-gray-600 ml-10">
+          <p className=" ml-10">
             Isi formulir di bawah untuk membuat event budaya baru
           </p>
         </div>

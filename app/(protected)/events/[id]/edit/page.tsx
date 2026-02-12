@@ -21,7 +21,7 @@ export default function EditEventPage() {
       setIsLoading(true);
       setSubmitError(null);
       await updateEvent(eventId, data);
-      router.push(`/eventss/${eventId}`);
+      router.push(`/events/${eventId}`);
     } catch (err: any) {
       console.error('Error updating event:', err);
       setSubmitError(err.response?.data?.message || 'Gagal mengupdate event. Silakan coba lagi.');
@@ -31,7 +31,7 @@ export default function EditEventPage() {
   };
 
   const handleCancel = () => {
-    router.push(`/eventss/${eventId}`);
+    router.push(`/events/${eventId}`);
   };
 
   if (loading) {
@@ -72,7 +72,7 @@ export default function EditEventPage() {
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-2">
             <button
-              onClick={() => router.push(`/eventss/${eventId}`)}
+              onClick={() => router.push(`/events/${eventId}`)}
               className="text-gray-600 hover:text-gray-900"
             >
               <ArrowLeftIcon className="h-6 w-6" />

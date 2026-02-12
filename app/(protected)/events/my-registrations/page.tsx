@@ -10,12 +10,12 @@ export default function MyRegistrationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 py-8">
+      <div className="min-h-screen  py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center min-h-[400px]">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-              <p className="mt-2 text-gray-600">Memuat data...</p>
+              <p className="mt-2 ">Memuat data...</p>
             </div>
           </div>
         </div>
@@ -25,7 +25,7 @@ export default function MyRegistrationsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 py-8">
+      <div className="min-h-screen  py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-red-800">Error: {error.message}</p>
@@ -36,19 +36,19 @@ export default function MyRegistrationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen  py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/eventss"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            href="/events"
+            className="inline-flex items-center hover:text-gray-400 mb-4"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Kembali ke Semua Event
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Event yang Saya Daftar</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold ">Event yang Saya Daftar</h1>
+          <p className=" mt-2">
             Daftar event yang telah Anda daftarkan
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function MyRegistrationsPage() {
                 )}
 
                 {/* Registration Info */}
-                <div className="mt-2 p-4 bg-white rounded-b-lg border border-gray-200">
+                <div className="mt-2 p-4 bg-white rounded-b-lg border border-gray-300">
                   <div className="text-sm text-gray-600">
                     <p>
                       <strong>Tanggal Daftar:</strong>{' '}
@@ -133,7 +133,7 @@ export default function MyRegistrationsPage() {
             </p>
             <div className="mt-6">
               <Link
-                href="/eventss"
+                href="/events"
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
               >
                 Lihat Semua Event

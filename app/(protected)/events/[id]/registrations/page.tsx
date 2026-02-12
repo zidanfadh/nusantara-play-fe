@@ -75,7 +75,7 @@ export default function EventRegistrationsPage() {
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-2">
             <button
-              onClick={() => router.push(`/eventss/${eventId}`)}
+              onClick={() => router.push(`/events/${eventId}`)}
               className="text-gray-600 hover:text-gray-900"
             >
               <ArrowLeftIcon className="h-6 w-6" />

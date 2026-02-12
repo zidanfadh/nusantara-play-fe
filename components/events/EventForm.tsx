@@ -107,7 +107,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           name="nama"
           value={formData.nama}
           onChange={handleChange}
-          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+          className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-sm shadow-sm sm:text-sm ${
             errors.nama
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
@@ -127,7 +127,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           rows={4}
           value={formData.deskripsi}
           onChange={handleChange}
-          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+          className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
             errors.deskripsi
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
@@ -147,7 +147,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             name="jenis"
             value={formData.jenis}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           >
             {Object.entries(EVENT_JENIS_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
@@ -167,7 +167,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             value={formData.daerah_id}
             onChange={handleChange}
             disabled={daerahLoading}
-            className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+            className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
               errors.daerah_id
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                 : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
@@ -196,7 +196,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             name="tanggal_mulai"
             value={formData.tanggal_mulai}
             onChange={handleChange}
-            className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+            className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
               errors.tanggal_mulai
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                 : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
@@ -217,7 +217,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             name="tanggal_selesai"
             value={formData.tanggal_selesai}
             onChange={handleChange}
-            className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+            className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
               errors.tanggal_selesai
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                 : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
@@ -241,7 +241,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           value={formData.lokasi}
           onChange={handleChange}
           placeholder="Nama venue atau alamat lengkap"
-          className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+          className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
             errors.lokasi
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
               : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
@@ -263,7 +263,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             step="any"
             value={formData.latitude || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
 
@@ -278,7 +278,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             step="any"
             value={formData.longitude || ''}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
       </div>
@@ -295,7 +295,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           min="1"
           value={formData.kuota_peserta || ''}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>
 
@@ -311,7 +311,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           value={formData.banner_url || ''}
           onChange={handleChange}
           placeholder="https://example.com/banner.jpg"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>
 
@@ -326,7 +326,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           rows={3}
           value={formData.persyaratan || ''}
           onChange={handleChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>
 
@@ -344,7 +344,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               name="contact_person"
               value={formData.contact_person || ''}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           </div>
 
@@ -359,7 +359,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
                 name="contact_phone"
                 value={formData.contact_phone || ''}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
 
@@ -373,7 +373,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
                 name="contact_email"
                 value={formData.contact_email || ''}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
           </div>

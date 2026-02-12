@@ -37,21 +37,21 @@ export default function EventsPage() {
   const canCreateEvent = user && ['kurator_daerah', 'admin_kpoti'].includes(user.role);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen  py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Events Budaya</h1>
-              <p className="mt-2 text-gray-600">
+              <h1 className="text-3xl font-bold ">Events Budaya</h1>
+              <p className="mt-2 ">
                 Temukan dan ikuti berbagai acara budaya Nusantara
               </p>
             </div>
             <div className="flex space-x-3">
               {user && (
                 <Link
-                  href="/eventss/my-registrations"
+                  href="/events/my-registrations"
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Event Terdaftar
@@ -59,7 +59,7 @@ export default function EventsPage() {
               )}
               {canCreateEvent && (
                 <Link
-                  href="/eventss/my-events"
+                  href="/events/my-events"
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Event Saya
@@ -67,7 +67,7 @@ export default function EventsPage() {
               )}
               {canCreateEvent && (
                 <Link
-                  href="/eventss/create"
+                  href="/events/create"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
@@ -100,8 +100,8 @@ export default function EventsPage() {
         {!loading && !error && data && (
           <>
             {data.data.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <p className="text-gray-500">Tidak ada event yang ditemukan</p>
+              <div className="text-center py-12  rounded-lg shadow">
+                <p className="">Tidak ada event yang ditemukan</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

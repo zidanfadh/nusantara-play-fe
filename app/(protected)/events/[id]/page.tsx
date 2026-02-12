@@ -87,7 +87,7 @@ export default function EventDetailPage() {
       setActionLoading(true);
       setActionError(null);
       await deleteEvent(eventId);
-      router.push('/eventss/my-events');
+      router.push('/events/my-events');
     } catch (err: any) {
       setActionError(err.response?.data?.message || 'Gagal menghapus event');
     } finally {
@@ -127,7 +127,7 @@ export default function EventDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           <p className="mt-2 text-gray-600">Memuat event...</p>
@@ -138,7 +138,7 @@ export default function EventDetailPage() {
 
   if (error || !event) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen  flex items-center justify-center">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-800">Event tidak ditemukan atau Anda tidak memiliki akses</p>
         </div>
@@ -147,12 +147,12 @@ export default function EventDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen  py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="mb-4 text-gray-600 hover:text-gray-900 flex items-center"
+          className="mb-4  hover:text-gray-400 flex items-center"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Kembali
@@ -226,7 +226,7 @@ export default function EventDetailPage() {
                   )}
                   {event.status === EventStatus.DRAFT && (
                     <Link
-                      href={`/eventss/${eventId}/edit`}
+                      href={`/events/${eventId}/edit`}
                       className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                     >
                       <PencilIcon className="h-5 w-5 mr-2" />
@@ -234,7 +234,7 @@ export default function EventDetailPage() {
                     </Link>
                   )}
                   <Link
-                    href={`/eventss/${eventId}/registrations`}
+                    href={`/events/${eventId}/registrations`}
                     className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                   >
                     <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />

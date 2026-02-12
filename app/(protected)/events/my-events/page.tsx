@@ -35,7 +35,7 @@ export default function MyEventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen  py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -44,18 +44,18 @@ export default function MyEventsPage() {
               <div className="flex items-center space-x-4 mb-2">
                 <button
                   onClick={() => router.back()}
-                  className="text-gray-600 hover:text-gray-900"
+                  className=" hover:text-gray-300"
                 >
                   <ArrowLeftIcon className="h-6 w-6" />
                 </button>
-                <h1 className="text-3xl font-bold text-gray-900">Event Saya</h1>
+                <h1 className="text-3xl font-bold ">Event Saya</h1>
               </div>
-              <p className="text-gray-600 ml-10">
+              <p className=" ml-10">
                 Kelola event yang Anda buat
               </p>
             </div>
             <Link
-              href="/eventss/create"
+              href="/events/create"
               className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
@@ -86,10 +86,10 @@ export default function MyEventsPage() {
         {!loading && !error && data && (
           <>
             {data.data.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-lg shadow">
-                <p className="text-gray-500 mb-4">Anda belum membuat event apapun</p>
+              <div className="text-center py-12  rounded-lg shadow">
+                <p className=" mb-4">Anda belum membuat event apapun</p>
                 <Link
-                  href="/eventss/create"
+                  href="/events/create"
                   className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" />
