@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import { protApi } from '@/lib/api/prot';
 import { ProtCard } from '@/components/prot/ProtCard';
 import { ProtFilter } from '@/components/prot/ProtFilter';
@@ -9,6 +11,8 @@ import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { PROTEntity, PROTFilters } from '@/types/prot';
 
 export default function ProtModulePage() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [items, setItems] = useState<PROTEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +29,13 @@ export default function ProtModulePage() {
     hasNext: false,
     hasPrev: false,
   });
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login?redirectTo=/prot');
+    }
+  }, [authLoading, user, router]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -48,8 +59,10 @@ export default function ProtModulePage() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [filters]);
+    if (user) {
+      fetchData();
+    }
+  }, [filters, user]);
 
   const handleFilterChange = (newFilters: PROTFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -65,6 +78,30 @@ export default function ProtModulePage() {
   const handlePageChange = (newPage: number) => {
       setFilters(prev => ({ ...prev, page: newPage }));
   };
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+          <p className="text-muted-foreground">Memeriksa autentikasi...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render content if not authenticated (will redirect)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+          <p className="text-muted-foreground">Mengalihkan ke halaman login...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
