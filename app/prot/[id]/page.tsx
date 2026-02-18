@@ -370,7 +370,7 @@ export default function ProtDetailPage() {
                             </svg>
                           </div>
                         )}
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-foreground">{alat.nama}</h4>
                           <p className="text-sm text-muted-foreground mb-1">{alat.deskripsi || 'Tidak ada deskripsi'}</p>
                           {alat.kisaranHarga && (
@@ -378,8 +378,34 @@ export default function ProtDetailPage() {
                               Est. {alat.kisaranHarga}
                             </div>
                           )}
+                          {alat.urlPembelian && alat.urlPembelian.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              <p className="text-xs text-muted-foreground font-medium">Beli di:</p>
+                              {alat.urlPembelian.map((url, urlIdx) => (
+                                <a
+                                  key={urlIdx}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-xs text-blue-600 hover:underline truncate"
+                                >
+                                  {url}
+                                </a>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
+                      {/* All fotoAlat */}
+                      {alat.fotoAlat && alat.fotoAlat.length > 1 && (
+                        <div className="mt-3 flex gap-2 overflow-x-auto">
+                          {alat.fotoAlat.slice(1).map((foto, fotoIdx) => (
+                            <div key={fotoIdx} className="w-16 h-16 shrink-0 rounded overflow-hidden border border-border">
+                              <img src={foto} alt={`${alat.nama} foto ${fotoIdx + 2}`} className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -387,6 +413,35 @@ export default function ProtDetailPage() {
                 <p className="text-muted-foreground italic">Tidak ada peralatan khusus yang diperlukan.</p>
               )}
             </div>
+
+            {/* Dokumen Kurikulum */}
+            {item.dokumenKurikulum && item.dokumenKurikulum.length > 0 && (
+              <div className="bg-background border border-border rounded-lg shadow-sm p-6">
+                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Dokumen Kurikulum / Panduan</h3>
+                <div className="space-y-2">
+                  {item.dokumenKurikulum.map((url, idx) => {
+                    const filename = url.split('/').pop() || `Dokumen ${idx + 1}`;
+                    return (
+                      <a
+                        key={idx}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 border border-border rounded-md hover:bg-muted/50 transition-colors group"
+                      >
+                        <svg className="w-6 h-6 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-sm text-blue-600 group-hover:underline truncate">{filename}</span>
+                        <svg className="w-4 h-4 text-muted-foreground ml-auto shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Metadata Footer */}
             <div className="text-xs text-muted-foreground border-t border-border pt-4 flex flex-wrap gap-4">

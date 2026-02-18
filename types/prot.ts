@@ -23,6 +23,7 @@ export interface Peralatan {
   deskripsi?: string;
   kisaranHarga?: string;
   fotoAlat?: string[];
+  urlPembelian?: string[];
 }
 
 export interface PROTEntity {
@@ -42,6 +43,7 @@ export interface PROTEntity {
   peralatan?: Peralatan[];
   fotoKegiatan?: string[];
   videoKegiatan?: string[];
+  dokumenKurikulum?: string[];
   created_by?: string;
   verified_by?: string;
   published_by?: string;

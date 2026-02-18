@@ -31,10 +31,14 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
   const [peralatan, setPeralatan] = useState<Peralatan[]>(initialData?.peralatan || []);
   const [fotoFiles, setFotoFiles] = useState<File[]>([]);
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
+  const [dokumenFiles, setDokumenFiles] = useState<File[]>([]);
+  const [peralatanFotoFiles, setPeralatanFotoFiles] = useState<Record<number, File[]>>({});
   const [existingFotos, setExistingFotos] = useState<string[]>(initialData?.fotoKegiatan || []);
   const [existingVideos, setExistingVideos] = useState<string[]>(initialData?.videoKegiatan || []);
+  const [existingDokumen, setExistingDokumen] = useState<string[]>(initialData?.dokumenKurikulum || []);
   const [isDraggingFoto, setIsDraggingFoto] = useState(false);
   const [isDraggingVideo, setIsDraggingVideo] = useState(false);
+  const [isDraggingDokumen, setIsDraggingDokumen] = useState(false);
   
   // State for daerah - store ID for UI, kode for backend
   const [provinsiId, setProvinsiId] = useState<string>('');
@@ -51,6 +55,9 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
       }
       if (initialData.videoKegiatan) {
         setExistingVideos(initialData.videoKegiatan);
+      }
+      if (initialData.dokumenKurikulum) {
+        setExistingDokumen(initialData.dokumenKurikulum);
       }
 
       // Lookup daerah ID from kode for edit form
@@ -107,11 +114,63 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
     }));
   };
 
-  const handlePeralatanChange = (index: number, field: keyof Peralatan, value: string) => {
+  const handlePeralatanChange = (index: number, field: keyof Peralatan, value: string | string[]) => {
     const newPeralatan = [...peralatan];
     newPeralatan[index] = { ...newPeralatan[index], [field]: value };
     setPeralatan(newPeralatan);
     setFormData((prev) => ({ ...prev, peralatan: newPeralatan }));
+  };
+
+  const handleUrlPembelianChange = (peralatanIndex: number, urlIndex: number, value: string) => {
+    const newPeralatan = [...peralatan];
+    const urls = [...(newPeralatan[peralatanIndex].urlPembelian || [])];
+    urls[urlIndex] = value;
+    newPeralatan[peralatanIndex] = { ...newPeralatan[peralatanIndex], urlPembelian: urls };
+    setPeralatan(newPeralatan);
+    setFormData((prev) => ({ ...prev, peralatan: newPeralatan }));
+  };
+
+  const addUrlPembelian = (peralatanIndex: number) => {
+    const newPeralatan = [...peralatan];
+    const urls = [...(newPeralatan[peralatanIndex].urlPembelian || []), ''];
+    newPeralatan[peralatanIndex] = { ...newPeralatan[peralatanIndex], urlPembelian: urls };
+    setPeralatan(newPeralatan);
+    setFormData((prev) => ({ ...prev, peralatan: newPeralatan }));
+  };
+
+  const removeUrlPembelian = (peralatanIndex: number, urlIndex: number) => {
+    const newPeralatan = [...peralatan];
+    const urls = (newPeralatan[peralatanIndex].urlPembelian || []).filter((_, i) => i !== urlIndex);
+    newPeralatan[peralatanIndex] = { ...newPeralatan[peralatanIndex], urlPembelian: urls };
+    setPeralatan(newPeralatan);
+    setFormData((prev) => ({ ...prev, peralatan: newPeralatan }));
+  };
+
+  const handleDokumenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setDokumenFiles((prev) => [...prev, ...files]);
+    }
+  };
+
+  const handleDokumenDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingDokumen(false);
+    const files = Array.from(e.dataTransfer.files).filter(file =>
+      ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)
+    );
+    if (files.length > 0) {
+      setDokumenFiles((prev) => [...prev, ...files]);
+    }
+  };
+
+  const removeDokumenFile = (index: number) => {
+    setDokumenFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingDokumen = (index: number) => {
+    setExistingDokumen((prev) => prev.filter((_, i) => i !== index));
   };
 
   const addPeralatan = () => {
@@ -195,6 +254,32 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
     setIsDraggingVideo(false);
   };
 
+  const handlePeralatanFotoChange = (peralatanIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setPeralatanFotoFiles(prev => ({
+        ...prev,
+        [peralatanIndex]: [...(prev[peralatanIndex] || []), ...files],
+      }));
+    }
+  };
+
+  const removeNewPeralatanFotoFile = (peralatanIndex: number, fileIndex: number) => {
+    setPeralatanFotoFiles(prev => ({
+      ...prev,
+      [peralatanIndex]: (prev[peralatanIndex] || []).filter((_, i) => i !== fileIndex),
+    }));
+  };
+
+  const removeExistingFotoAlat = (peralatanIndex: number, fotoIndex: number) => {
+    const newPeralatan = [...peralatan];
+    const fotoAlat = [...(newPeralatan[peralatanIndex].fotoAlat || [])];
+    fotoAlat.splice(fotoIndex, 1);
+    newPeralatan[peralatanIndex] = { ...newPeralatan[peralatanIndex], fotoAlat };
+    setPeralatan(newPeralatan);
+    setFormData(prev => ({ ...prev, peralatan: newPeralatan }));
+  };
+
   const removeFotoFile = (index: number) => {
     setFotoFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -217,8 +302,11 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
       ...formData,
       fotoFiles,
       videoFiles,
+      dokumenFiles,
+      peralatanFotoFiles,
       existingFotos,
       existingVideos,
+      existingDokumen,
     };
     await onSubmit(dataToSubmit);
   };
@@ -387,6 +475,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
               type="button"
               onClick={() => removePeralatan(index)}
               className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+              title="Hapus peralatan"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -422,6 +511,96 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                   rows={2}
                   placeholder="Deskripsi alat..."
                 />
+              </div>
+              {/* Foto Alat per peralatan */}
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-xs font-medium">Foto Alat</label>
+                {/* Existing foto alat */}
+                {alat.fotoAlat && alat.fotoAlat.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {alat.fotoAlat.map((url, fotoIdx) => (
+                      <div key={fotoIdx} className="relative group w-16 h-16">
+                        <img src={url} alt={`foto alat ${fotoIdx + 1}`} className="w-full h-full object-cover rounded border border-gray-300" />
+                        <button
+                          type="button"
+                          onClick={() => removeExistingFotoAlat(index, fotoIdx)}
+                          title="Hapus foto alat"
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* New foto alat files */}
+                {(peralatanFotoFiles[index] || []).length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {(peralatanFotoFiles[index] || []).map((file, fileIdx) => (
+                      <div key={fileIdx} className="relative group w-16 h-16">
+                        <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-full object-cover rounded border border-blue-300" />
+                        <button
+                          type="button"
+                          onClick={() => removeNewPeralatanFotoFile(index, fileIdx)}
+                          title="Batal upload foto alat"
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label className="inline-flex items-center gap-1.5 cursor-pointer px-2 py-1 border border-dashed border-gray-300 rounded text-xs text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Tambah Foto
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handlePeralatanFotoChange(index, e)}
+                  />
+                </label>
+              </div>
+
+              <div className="md:col-span-2 space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium">URL Pembelian (Tokopedia, Shopee, dll.)</label>
+                  <button
+                    type="button"
+                    onClick={() => addUrlPembelian(index)}
+                    className="text-xs px-2 py-0.5 bg-gray-50 border border-gray-300 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                  >
+                    + Tambah URL
+                  </button>
+                </div>
+                {(alat.urlPembelian || []).map((url, urlIdx) => (
+                  <div key={urlIdx} className="flex gap-2 mt-1">
+                    <input
+                      type="url"
+                      value={url}
+                      onChange={(e) => handleUrlPembelianChange(index, urlIdx, e.target.value)}
+                      className="flex-1 bg-gray-50 dark:bg-background px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                      placeholder="https://tokopedia.com/..."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeUrlPembelian(index, urlIdx)}
+                      className="text-red-500 hover:text-red-700 px-1"
+                      title="Hapus URL"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {(!alat.urlPembelian || alat.urlPembelian.length === 0) && (
+                  <p className="text-xs text-gray-400 italic">Belum ada URL pembelian.</p>
+                )}
               </div>
             </div>
           </div>
@@ -497,6 +676,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                     type="button"
                     onClick={() => removeExistingFoto(index)}
                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Hapus foto"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -524,6 +704,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                     type="button"
                     onClick={() => removeFotoFile(index)}
                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Hapus foto"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -603,6 +784,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                     type="button"
                     onClick={() => removeExistingVideo(index)}
                     className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Hapus video"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -630,12 +812,119 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                     type="button"
                     onClick={() => removeVideoFile(index)}
                     className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Hapus video"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>
                   <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Dokumen Kurikulum */}
+      <div className="space-y-4">
+        <label className="block text-sm font-medium">
+          Dokumen Kurikulum / Panduan Permainan
+        </label>
+
+        <div
+          onDrop={handleDokumenDrop}
+          onDragOver={handleDragOver}
+          onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingDokumen(true); }}
+          onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingDokumen(false); }}
+          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            isDraggingDokumen
+              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
+              : 'border-gray-300 hover:border-amber-400 bg-gray-50 dark:bg-background'
+          }`}
+        >
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            multiple
+            onChange={handleDokumenChange}
+            className="hidden"
+            id="dokumen-input"
+          />
+          <label
+            htmlFor="dokumen-input"
+            className="cursor-pointer flex flex-col items-center justify-center"
+          >
+            <svg
+              className={`w-12 h-12 mb-3 ${isDraggingDokumen ? 'text-amber-500' : 'text-gray-400'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+              <span className="font-semibold text-amber-600">Klik untuk upload</span> atau drag and drop
+            </p>
+            <p className="text-xs text-gray-500">PDF, DOC, DOCX (max 10 file)</p>
+          </label>
+        </div>
+
+        {/* Existing Documents */}
+        {existingDokumen.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-600">Dokumen yang sudah ada:</p>
+            <div className="space-y-2">
+              {existingDokumen.map((url, index) => {
+                const filename = url.split('/').pop() || `Dokumen ${index + 1}`;
+                return (
+                  <div key={`existing-dok-${index}`} className="flex items-center justify-between p-2 border border-gray-200 rounded-md bg-background">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">{filename}</a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeExistingDokumen(index)}
+                      className="text-red-500 hover:text-red-700 ml-2 shrink-0"
+                      title="Hapus dokumen"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* New Document Files */}
+        {dokumenFiles.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-600">Dokumen baru yang akan diupload:</p>
+            <div className="space-y-2">
+              {dokumenFiles.map((file, index) => (
+                <div key={`new-dok-${index}`} className="flex items-center justify-between p-2 border border-gray-200 rounded-md bg-background">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeDokumenFile(index)}
+                    className="text-red-500 hover:text-red-700 ml-2 shrink-0"
+                    title="Hapus dokumen"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
                 </div>
               ))}
             </div>

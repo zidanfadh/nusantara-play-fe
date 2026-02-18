@@ -56,6 +56,7 @@ export interface Event {
     full_name: string;
     email?: string;
   };
+  is_registered?: boolean; // Indicates if the current user is registered for this event
 }
 
 export interface EventRegistration {

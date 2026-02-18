@@ -339,15 +339,27 @@ export default function EventDetailPage() {
             )}
 
             {/* Registration Button for Users */}
-            {!isOwner && canRegister && (
+            {!isOwner && event.status === EventStatus.PUBLISHED && (
               <div className="bg-white rounded-lg shadow-md p-6">
-                <button
-                  onClick={handleRegister}
-                  disabled={actionLoading}
-                  className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  Daftar Event
-                </button>
+                {event.is_registered || userRegistration ? (
+                  <button
+                    disabled
+                    className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-500 opacity-80 cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <CheckCircleIcon className="h-5 w-5" />
+                    Telah Mendaftarkan Event
+                  </button>
+                ) : (
+                  !isFullyBooked && (
+                    <button
+                      onClick={handleRegister}
+                      disabled={actionLoading}
+                      className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                    >
+                      {actionLoading ? 'Mendaftar...' : 'Daftar Event'}
+                    </button>
+                  )
+                )}
               </div>
             )}
 

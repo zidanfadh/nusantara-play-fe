@@ -42,8 +42,11 @@ export default function EditProtPage() {
   const handleSubmit = async (data: Partial<PROTEntity> & { 
     fotoFiles?: File[]; 
     videoFiles?: File[];
+    dokumenFiles?: File[];
+    peralatanFotoFiles?: Record<number, File[]>;
     existingFotos?: string[];
     existingVideos?: string[];
+    existingDokumen?: string[];
   }) => {
     setIsLoading(true);
     setError(null);
@@ -53,18 +56,79 @@ export default function EditProtPage() {
 
     try {
       // Extract files and existing media from data
-      const { fotoFiles, videoFiles, existingFotos, existingVideos, ...protData } = data;
+      // Strip read-only fields so they are not sent to the backend (backend forbids them)
+      const {
+        fotoFiles, videoFiles, dokumenFiles, peralatanFotoFiles,
+        existingFotos, existingVideos, existingDokumen,
+        id: _id,
+        status: _status,
+        created_by: _created_by,
+        verified_by: _verified_by,
+        published_by: _published_by,
+        submitted_at: _submitted_at,
+        verified_at: _verified_at,
+        published_at: _published_at,
+        created_at: _created_at,
+        updated_at: _updated_at,
+        ...protData
+      } = data;
 
-      // Update PROT data (backend will handle fotoKegiatan and videoKegiatan separately via upload endpoints)
-      await protApi.update(id, protData);
+      // Delete removed dokumen kurikulum (compare original vs remaining, delete from highest index down)
+      if (initialData && existingDokumen) {
+        const originalDokumen = initialData.dokumenKurikulum || [];
+        const removedIndices = originalDokumen
+          .map((url, i) => (existingDokumen.includes(url) ? -1 : i))
+          .filter(i => i !== -1)
+          .sort((a, b) => b - a); // descending so indices don't shift
+        for (const idx of removedIndices) {
+          try {
+            await protApi.deleteDokumenKurikulum(id, idx);
+          } catch (e) {
+            console.error(`Failed to delete dokumen kurikulum[${idx}]:`, e);
+            uploadErrors.push(`Gagal hapus dokumen[${idx}]`);
+          }
+        }
+      }
+
+      // Delete removed foto alat per peralatan (compare original vs remaining, delete from highest index down)
+      if (initialData?.peralatan && protData.peralatan) {
+        for (let pi = 0; pi < initialData.peralatan.length; pi++) {
+          const origFoto = initialData.peralatan[pi]?.fotoAlat || [];
+          const remainFoto = protData.peralatan[pi]?.fotoAlat || [];
+          const removedFotoIndices = origFoto
+            .map((url, i) => (remainFoto.includes(url) ? -1 : i))
+            .filter(i => i !== -1)
+            .sort((a, b) => b - a);
+          for (const fi of removedFotoIndices) {
+            try {
+              await protApi.deleteFotoAlat(id, pi, fi);
+            } catch (e) {
+              console.error(`Failed to delete foto alat[${pi}][${fi}]:`, e);
+              uploadErrors.push(`Gagal hapus foto alat[${pi}][${fi}]`);
+            }
+          }
+        }
+      }
+
+      // Strip media fields that are managed exclusively via upload/delete endpoints.
+      // If these are sent in PATCH they would overwrite any deletions already made above.
+      const {
+        fotoKegiatan: _fotoKegiatan,
+        videoKegiatan: _videoKegiatan,
+        dokumenKurikulum: _dokumenKurikulum,
+        provinsiName: _provinsiName,
+        kabkotaName: _kabkotaName,
+        ...cleanProtData
+      } = protData;
+
+      // Update PROT data
+      await protApi.update(id, cleanProtData);
       dataUpdated = true;
 
       // Upload new photos if any (batch upload)
       if (fotoFiles && fotoFiles.length > 0) {
         const formData = new FormData();
-        fotoFiles.forEach(file => {
-          formData.append('files', file);
-        });
+        fotoFiles.forEach(file => { formData.append('files', file); });
         try {
           await protApi.uploadFoto(id, formData);
         } catch (uploadError: any) {
@@ -76,9 +140,7 @@ export default function EditProtPage() {
       // Upload new videos if any (batch upload)
       if (videoFiles && videoFiles.length > 0) {
         const formData = new FormData();
-        videoFiles.forEach(file => {
-          formData.append('files', file);
-        });
+        videoFiles.forEach(file => { formData.append('files', file); });
         try {
           await protApi.uploadVideo(id, formData);
         } catch (uploadError: any) {
@@ -87,18 +149,45 @@ export default function EditProtPage() {
         }
       }
 
-      // Show warning if uploads failed but still redirect
+      // Upload new dokumen kurikulum if any
+      if (dokumenFiles && dokumenFiles.length > 0) {
+        const formData = new FormData();
+        dokumenFiles.forEach(file => { formData.append('files', file); });
+        try {
+          await protApi.uploadDokumenKurikulum(id, formData);
+        } catch (uploadError: any) {
+          console.error('Failed to upload dokumen kurikulum:', uploadError);
+          uploadErrors.push('dokumen kurikulum');
+        }
+      }
+
+      // Upload new foto alat per peralatan index
+      if (peralatanFotoFiles) {
+        for (const [indexStr, files] of Object.entries(peralatanFotoFiles)) {
+          if (files && files.length > 0) {
+            const peralatanIndex = parseInt(indexStr);
+            try {
+              const formData = new FormData();
+              files.forEach(file => { formData.append('files', file); });
+              await protApi.uploadFotoAlat(id, peralatanIndex, formData);
+            } catch (uploadError: any) {
+              console.error(`Failed to upload foto alat[${peralatanIndex}]:`, uploadError);
+              uploadErrors.push(`foto alat[${peralatanIndex}]`);
+            }
+          }
+        }
+      }
+
       if (uploadErrors.length > 0) {
-        console.warn(`Upload failed for: ${uploadErrors.join(', ')}`);
+        console.warn(`Upload/delete errors: ${uploadErrors.join(', ')}`);
       }
 
       router.push(`/prot/${id}`);
     } catch (err) {
       console.error('Failed to update PROT:', err);
       
-      // If data was updated but redirect after 2 seconds
       if (dataUpdated) {
-        setError('Data berhasil diupdate. Jika ada foto/video yang gagal diupload, silakan coba lagi dari halaman edit.');
+        setError('Data berhasil diupdate. Jika ada foto/video/dokumen yang gagal diproses, silakan coba lagi dari halaman edit.');
         setTimeout(() => router.push(`/prot/${id}`), 2000);
       } else {
         setError('Gagal menyimpan perubahan. Silakan coba lagi.');

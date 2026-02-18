@@ -92,6 +92,54 @@ export const protApi = {
   deleteVideo: (id: string, index: number) =>
     apiClient.delete(`${BASE_URL}/${id}/video-kegiatan/${index}`),
 
+  uploadDokumenKurikulum: async (id: string, formData: FormData) => {
+    const token = await getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/dokumen-kurikulum`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  deleteDokumenKurikulum: (id: string, index: number) =>
+    apiClient.delete(`${BASE_URL}/${id}/dokumen-kurikulum/${index}`),
+
+  uploadFotoAlat: async (id: string, peralatanIndex: number, formData: FormData) => {
+    const token = await getAuthToken();
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/peralatan/${peralatanIndex}/foto-alat`, {
+      method: 'POST',
+      body: formData,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
+      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  deleteFotoAlat: (id: string, peralatanIndex: number, fotoIndex: number) =>
+    apiClient.delete(`${BASE_URL}/${id}/peralatan/${peralatanIndex}/foto-alat/${fotoIndex}`),
+
   // Verification Workflow
   submitKurasi: (id: string, catatan: string) =>
     apiClient.post(`${BASE_URL}/${id}/submit-kurasi`, { catatan }),

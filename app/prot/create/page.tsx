@@ -16,8 +16,11 @@ export default function CreateProtPage() {
   const handleSubmit = async (data: Partial<PROTEntity> & { 
     fotoFiles?: File[]; 
     videoFiles?: File[];
+    dokumenFiles?: File[];
+    peralatanFotoFiles?: Record<number, File[]>;
     existingFotos?: string[];
     existingVideos?: string[];
+    existingDokumen?: string[];
   }) => {
     setIsLoading(true);
     setError(null);
@@ -27,7 +30,7 @@ export default function CreateProtPage() {
 
     try {
       // Extract files and existing media from data (not needed for create)
-      const { fotoFiles, videoFiles, existingFotos, existingVideos, ...protData } = data;
+      const { fotoFiles, videoFiles, dokumenFiles, peralatanFotoFiles, existingFotos, existingVideos, existingDokumen, ...protData } = data;
 
       // Create PROT first
       const response = await protApi.create(protData);
@@ -39,12 +42,9 @@ export default function CreateProtPage() {
         if (fotoFiles && fotoFiles.length > 0) {
           try {
             const formData = new FormData();
-            fotoFiles.forEach(file => {
-              formData.append('files', file);
-            });
+            fotoFiles.forEach(file => { formData.append('files', file); });
             await protApi.uploadFoto(response.id, formData);
           } catch (uploadError: any) {
-            console.error('Failed to upload photos:', uploadError);
             uploadErrors.push(`Gagal upload foto: ${uploadError.message || 'Unknown error'}`);
           }
         }
@@ -53,13 +53,37 @@ export default function CreateProtPage() {
         if (videoFiles && videoFiles.length > 0) {
           try {
             const formData = new FormData();
-            videoFiles.forEach(file => {
-              formData.append('files', file);
-            });
+            videoFiles.forEach(file => { formData.append('files', file); });
             await protApi.uploadVideo(response.id, formData);
           } catch (uploadError: any) {
-            console.error('Failed to upload videos:', uploadError);
             uploadErrors.push(`Gagal upload video: ${uploadError.message || 'Unknown error'}`);
+          }
+        }
+
+        // Upload dokumen kurikulum if any
+        if (dokumenFiles && dokumenFiles.length > 0) {
+          try {
+            const formData = new FormData();
+            dokumenFiles.forEach(file => { formData.append('files', file); });
+            await protApi.uploadDokumenKurikulum(response.id, formData);
+          } catch (uploadError: any) {
+            uploadErrors.push(`Gagal upload dokumen: ${uploadError.message || 'Unknown error'}`);
+          }
+        }
+
+        // Upload foto alat per peralatan index
+        if (peralatanFotoFiles) {
+          for (const [indexStr, files] of Object.entries(peralatanFotoFiles)) {
+            if (files && files.length > 0) {
+              const peralatanIndex = parseInt(indexStr);
+              try {
+                const formData = new FormData();
+                files.forEach(file => { formData.append('files', file); });
+                await protApi.uploadFotoAlat(response.id, peralatanIndex, formData);
+              } catch (uploadError: any) {
+                uploadErrors.push(`Gagal upload foto alat [${peralatanIndex}]: ${uploadError.message || 'Unknown error'}`);
+              }
+            }
           }
         }
 
@@ -73,7 +97,7 @@ export default function CreateProtPage() {
       
       // If PROT was created but uploads failed, show different message
       if (createdProtId) {
-        setError(`Data PROT berhasil disimpan, namun ada masalah saat upload media: ${uploadErrors.join(', ')}. Anda dapat menambahkan foto/video nanti melalui halaman edit.`);
+        setError(`Data PROT berhasil disimpan, namun ada masalah saat upload media: ${uploadErrors.join(', ')}. Anda dapat menambahkan foto/video/dokumen nanti melalui halaman edit.`);
         setTimeout(() => router.push(`/prot/${createdProtId}`), 3000);
       } else {
         setError('Gagal membuat data PROT. Silakan coba lagi.');
