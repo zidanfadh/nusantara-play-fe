@@ -172,7 +172,7 @@ export default function HistoryPage() {
                         {item.catatan && (
                           <div className="mb-4">
                             <h4 className="text-sm font-semibold text-foreground mb-2">Catatan:</h4>
-                            <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                            <p className="text-sm  bg-muted/50 p-3 rounded-md">
                               {item.catatan}
                             </p>
                           </div>

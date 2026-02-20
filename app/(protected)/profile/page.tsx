@@ -45,8 +45,8 @@ export default function ProfilePage() {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Profil Saya</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold ">Profil Saya</h1>
+          <p className="mt-2 ">
             {isEditing ? 'Edit informasi profil Anda' : 'Informasi profil Anda'}
           </p>
         </div>

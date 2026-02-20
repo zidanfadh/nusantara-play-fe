@@ -223,7 +223,7 @@ export default function EditProtPage() {
   // Check permissions: Only DRAFT or REVISI can be edited
   if (initialData.status !== PROTStatus.DRAFT && initialData.status !== PROTStatus.REVISI) {
       return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background">
             <ProtNavigation />
             <div className="pt-20 px-4">
                 <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
@@ -249,23 +249,23 @@ export default function EditProtPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-background pb-12">
       {/* Navigation */}
       <ProtNavigation />
 
       {/* Breadcrumb Section */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-background border-b shadow-sm">
          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+            <div className="flex items-center gap-2 text-sm  mb-2">
                <Link href="/" className="hover:text-primary">Beranda</Link>
                <span>/</span>
                <Link href="/prot" className="hover:text-primary">Daftar PROT</Link>
                <span>/</span>
                <Link href={`/prot/${id}`} className="hover:text-primary truncate max-w-[150px]">{initialData.nama}</Link>
                <span>/</span>
-               <span className="font-medium text-gray-900">Edit</span>
+               <span className="font-medium ">Edit</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Edit Data: {initialData.nama}</h1>
+            <h1 className="text-2xl font-bold ">Edit Data: {initialData.nama}</h1>
          </div>
       </div>
 

@@ -63,8 +63,8 @@ export default async function MenuPage() {
         <h1 className="text-4xl font-bold tracking-tight">
           Selamat Datang Kembali! 👋
         </h1>
-        <p className="text-lg text-muted-foreground">
-          Halo, <span className="font-semibold text-foreground">{user?.user_metadata?.full_name || user?.email}</span>! 
+        <p className="text-lg ">
+          Halo, <span className="font-semibold text-foreground">{user?.user_metadata?.full_name || user?.email}</span> ! 
           Pilih menu di bawah untuk mulai menjelajah.
         </p>
       </div>
@@ -74,7 +74,7 @@ export default async function MenuPage() {
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Kontribusi PROT</p>
+              <p className="text-sm font-medium ">Kontribusi PROT</p>
               <h3 className="text-3xl font-bold mt-2">0</h3>
             </div>
             <div className="p-3 bg-blue-500/10 rounded-lg">
@@ -89,7 +89,7 @@ export default async function MenuPage() {
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Status Verifikasi</p>
+              <p className="text-sm font-medium ">Status Verifikasi</p>
               <h3 className="text-3xl font-bold mt-2">0</h3>
             </div>
             <div className="p-3 bg-green-500/10 rounded-lg">
@@ -104,7 +104,7 @@ export default async function MenuPage() {
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Dalam Proses</p>
+              <p className="text-sm font-medium ">Dalam Proses</p>
               <h3 className="text-3xl font-bold mt-2">0</h3>
             </div>
             <div className="p-3 bg-amber-500/10 rounded-lg">

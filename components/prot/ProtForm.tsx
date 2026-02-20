@@ -514,7 +514,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
               </div>
               {/* Foto Alat per peralatan */}
               <div className="md:col-span-2 space-y-2">
-                <label className="text-xs font-medium">Foto Alat</label>
+                <label className="text-xs font-medium mr-3">Foto Alat</label>
                 {/* Existing foto alat */}
                 {alat.fotoAlat && alat.fotoAlat.length > 0 && (
                   <div className="flex flex-wrap gap-2">
@@ -551,7 +551,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                     ))}
                   </div>
                 )}
-                <label className="inline-flex items-center gap-1.5 cursor-pointer px-2 py-1 border border-dashed border-gray-300 rounded text-xs text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                <label className="inline-flex items-center gap-1.5 cursor-pointer px-2 py-1 border border-dashed border-gray-300 rounded text-xs hover:border-blue-400 hover:text-blue-600 transition-colors">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
@@ -599,7 +599,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                   </div>
                 ))}
                 {(!alat.urlPembelian || alat.urlPembelian.length === 0) && (
-                  <p className="text-xs text-gray-400 italic">Belum ada URL pembelian.</p>
+                  <p className="text-xs italic">Belum ada URL pembelian.</p>
                 )}
               </div>
             </div>
@@ -663,7 +663,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
         {/* Existing Photos */}
         {existingFotos.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-600">Foto yang sudah ada:</p>
+            <p className="text-xs font-medium ">Foto yang sudah ada:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {existingFotos.map((url, index) => (
                 <div key={`existing-foto-${index}`} className="relative group">
@@ -691,7 +691,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
         {/* New Photo Files */}
         {fotoFiles.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-600">Foto baru yang akan diupload:</p>
+            <p className="text-xs font-medium ">Foto baru yang akan diupload:</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {fotoFiles.map((file, index) => (
                 <div key={`new-foto-${index}`} className="relative group">
@@ -710,7 +710,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>
-                  <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
+                  <p className="text-xs  mt-1 truncate">{file.name}</p>
                 </div>
               ))}
             </div>
@@ -873,7 +873,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
         {/* Existing Documents */}
         {existingDokumen.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-600">Dokumen yang sudah ada:</p>
+            <p className="text-xs font-medium ">Dokumen yang sudah ada:</p>
             <div className="space-y-2">
               {existingDokumen.map((url, index) => {
                 const filename = url.split('/').pop() || `Dokumen ${index + 1}`;
@@ -905,7 +905,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
         {/* New Document Files */}
         {dokumenFiles.length > 0 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-600">Dokumen baru yang akan diupload:</p>
+            <p className="text-xs font-medium ">Dokumen baru yang akan diupload:</p>
             <div className="space-y-2">
               {dokumenFiles.map((file, index) => (
                 <div key={`new-dok-${index}`} className="flex items-center justify-between p-2 border border-gray-200 rounded-md bg-background">
@@ -913,7 +913,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
                     <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                    <span className="text-sm  truncate">{file.name}</span>
                   </div>
                   <button
                     type="button"

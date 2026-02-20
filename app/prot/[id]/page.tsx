@@ -375,7 +375,7 @@ export default function ProtDetailPage() {
                           <p className="text-sm text-muted-foreground mb-1">{alat.deskripsi || 'Tidak ada deskripsi'}</p>
                           {alat.kisaranHarga && (
                             <div className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded inline-block">
-                              Est. {alat.kisaranHarga}
+                              Rp {alat.kisaranHarga}
                             </div>
                           )}
                           {alat.urlPembelian && alat.urlPembelian.length > 0 && (
