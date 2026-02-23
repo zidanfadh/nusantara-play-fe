@@ -9,6 +9,7 @@ export default async function MenuPage() {
     {
       title: 'Permainan & Olahraga Tradisional',
       description: 'Jelajahi dan kelola database PROT Indonesia',
+      image: 'https://smansakuto.sch.id/assets/upload/berita/7f1f5a49f9c3704e9513d0b63ecd0daa.jpg',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
@@ -21,6 +22,7 @@ export default async function MenuPage() {
     {
       title: 'Events',
       description: 'Jelajahi dan kelola event yang tersedia',
+      image: 'https://www.aprilasia.com/id/images/media/pacu-jalur-rapp-02.jpg',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -33,6 +35,7 @@ export default async function MenuPage() {
     {
       title: 'Marketplace',
       description: 'Jelajahi dan kelola produk di marketplace',
+      image: 'https://down-id.img.susercontent.com/file/0e88b598d61825ceda008b0854ece18d',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -44,7 +47,8 @@ export default async function MenuPage() {
     },
     {
       title: 'Sertifikat Prestasi',
-      description: 'Jelajahi dan kelola produk di marketplace',
+      description: 'Sertifikasi dan Prestasi',
+      image: 'https://gawai.co/wp-content/uploads/2025/06/IMG_20250603_101425.jpg',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -127,6 +131,14 @@ export default async function MenuPage() {
               href={item.href}
               className="group relative overflow-hidden rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
             >
+              {/* Card Image */}
+              <div className="relative h-44 w-full overflow-hidden bg-muted">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
               <div className="p-6 space-y-4">
                 <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${item.gradient} text-white`}>
                   {item.icon}

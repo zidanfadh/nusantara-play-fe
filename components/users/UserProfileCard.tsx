@@ -26,14 +26,14 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
     return (
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Header with Avatar */}
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-8">
+            <div className="bg-primary px-6 py-8">
                 <div className="flex items-center gap-6">
                     <div className="flex-shrink-0">
                         {user.avatar_url ? (
                             <img
                                 src={user.avatar_url}
                                 alt={user.full_name}
-                                className="w-24 h-24 rounded-full border-4 border-white object-cover"
+                                className="w-24 h-24 rounded-full border-4 border-white object-cover text-white"
                             />
                         ) : (
                             <div className="w-24 h-24 rounded-full border-4 border-white bg-white flex items-center justify-center">
@@ -45,7 +45,7 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
                     </div>
                     <div className="flex-1">
                         <h2 className="text-2xl font-bold text-white">{user.full_name}</h2>
-                        <p className="text-blue-100 mt-1">{user.email}</p>
+                        <p className="text-white mt-1">{user.email}</p>
                         <div className="flex gap-2 mt-3">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)} bg-opacity-90`}>
                                 {formatUserRole(user.role)}
@@ -67,7 +67,7 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
                             )}
                             <Link
                                 href="/change-password"
-                                className="px-4 py-2 border border-white/40 text-white rounded-md hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 font-medium text-sm flex items-center justify-center transition-colors"
+                                className="px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 font-medium text-sm shadow-sm"
                             >
                                 Ganti Password
                             </Link>
