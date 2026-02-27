@@ -61,7 +61,7 @@ export default async function MenuPage() {
     {
       title: 'Kalender',
       description: 'Lihat tanggal penting, jadwal, dan event budaya',
-      image: 'https://images.unsplash.com/photo-1506784693919-ab9957a87eee?w=800',
+      image: 'https://images.twinkl.co.uk/tw1n/image/private/t_630_eco/image_repo/12/64/id-ll-1692253235-flashcard-mainan-tradisional-indonesia_ver_1.jpg',
       icon: (
         <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -153,9 +153,7 @@ export default async function MenuPage() {
                 />
               </div>
               <div className="p-6 space-y-4">
-                <div className={`inline-flex p-3 rounded-lg bg-gradient-to-br ${item.gradient} text-white`}>
-                  {item.icon}
-                </div>
+                
                 <div>
                   <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
                     {item.title}

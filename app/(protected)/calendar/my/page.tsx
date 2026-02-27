@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { usePersonalSchedules } from '@/hooks/usePersonalSchedules';
 import { CalendarItemForm } from '@/components/calendar/CalendarItemForm';
 import { CalendarItemDetail } from '@/components/calendar/CalendarItemDetail';
 import { CalendarItemType } from '@/types/calendar';
 import type { CreatePersonalScheduleRequest } from '@/types/calendar';
+import { ProtNavigation } from '@/components/prot/ProtNavigation';
 
 export default function MyCalendarPage() {
   const [showForm, setShowForm] = useState(false);
@@ -69,9 +71,30 @@ export default function MyCalendarPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      {/* Header Navigation */}
+      <ProtNavigation />
+
+      <main className="container mx-auto px-4 py-6">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm mb-6">
+          <Link href="/" className="text-muted-foreground hover:text-foreground">
+            Beranda
+          </Link>
+          <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <Link href="/calendar" className="text-muted-foreground hover:text-foreground">
+            Kalender
+          </Link>
+          <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-foreground font-medium">Jadwal Saya</span>
+        </div>
+
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Jadwal Pribadi Saya</h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -210,6 +233,7 @@ export default function MyCalendarPage() {
           onDelete={handleDelete}
         />
       )}
+      </main>
     </div>
   );
 }
