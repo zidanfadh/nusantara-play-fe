@@ -52,6 +52,9 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
               <Link href="/menu" className="text-foreground/80 hover:text-foreground transition-colors">
                 Menu
               </Link>
+              <Link href="/calendar" className="text-foreground/80 hover:text-foreground transition-colors">
+                Kalender
+              </Link>
             </nav>
           </div>
 

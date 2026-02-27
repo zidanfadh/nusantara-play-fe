@@ -58,6 +58,19 @@ export default async function MenuPage() {
       color: 'bg-amber-500',
       gradient: 'from-amber-500 to-amber-600',
     },
+    {
+      title: 'Kalender',
+      description: 'Lihat tanggal penting, jadwal, dan event budaya',
+      image: 'https://images.unsplash.com/photo-1506784693919-ab9957a87eee?w=800',
+      icon: (
+        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
+      href: '/calendar',
+      color: 'bg-green-500',
+      gradient: 'from-green-500 to-green-600',
+    },
   ];
 
   return (
@@ -185,6 +198,24 @@ export default async function MenuPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
             </svg>
             Lihat Semua PROT
+          </Link>
+          <Link
+            href="/calendar/my"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg font-medium hover:bg-muted transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Jadwal Saya
+          </Link>
+          <Link
+            href="/calendar/invites"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg font-medium hover:bg-muted transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Undangan Kalender
           </Link>
           <Link
             href="/"

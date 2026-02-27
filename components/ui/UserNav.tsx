@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAuth } from '@/hooks/useAuth';
-import { User, LogOut, LayoutDashboard, ChevronDown } from 'lucide-react';
+import { User, LogOut, LayoutDashboard, ChevronDown, Calendar, Mail } from 'lucide-react';
 
 export function UserNav() {
   const { user, isLoading } = useCurrentUser();
@@ -81,6 +81,24 @@ export function UserNav() {
             >
               <User className="w-4 h-4" />
               Profil Saya
+            </Link>
+
+            <Link
+              href="/calendar/my"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-colors w-full text-left"
+              onClick={() => setIsOpen(false)}
+            >
+              <Calendar className="w-4 h-4" />
+              Jadwal Saya
+            </Link>
+
+            <Link
+              href="/calendar/invites"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-colors w-full text-left"
+              onClick={() => setIsOpen(false)}
+            >
+              <Mail className="w-4 h-4" />
+              Undangan Kalender
             </Link>
           </div>
 
