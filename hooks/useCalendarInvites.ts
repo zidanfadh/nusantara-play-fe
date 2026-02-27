@@ -12,19 +12,24 @@ import type {
   CalendarInviteWithItem,
   InviteUsersRequest,
   RespondToInviteRequest,
+  PaginationMeta,
+  MyInvitesQueryParams,
+  ItemInvitesQueryParams,
 } from '@/types/calendar';
 
 export function useCalendarInvites() {
   const [myInvites, setMyInvites] = useState<CalendarInviteWithItem[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchMyInvites = useCallback(async () => {
+  const fetchMyInvites = useCallback(async (params?: MyInvitesQueryParams) => {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await getMyInvites();
-      setMyInvites(result);
+      const result = await getMyInvites(params);
+      setMyInvites(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch invites'));
     } finally {
@@ -49,6 +54,7 @@ export function useCalendarInvites() {
 
   return {
     myInvites,
+    pagination,
     isLoading,
     error,
     refetch: fetchMyInvites,
@@ -58,20 +64,23 @@ export function useCalendarInvites() {
 
 export function useItemInvites(calendarItemId: string | null) {
   const [invites, setInvites] = useState<CalendarInviteWithUser[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchInvites = useCallback(async () => {
+  const fetchInvites = useCallback(async (params?: ItemInvitesQueryParams) => {
     if (!calendarItemId) {
       setInvites([]);
+      setPagination(null);
       return;
     }
 
     try {
       setIsLoading(true);
       setError(null);
-      const result = await getInvites(calendarItemId);
-      setInvites(result);
+      const result = await getInvites(calendarItemId, params);
+      setInvites(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch invites'));
     } finally {
@@ -120,6 +129,7 @@ export function useItemInvites(calendarItemId: string | null) {
 
   return {
     invites,
+    pagination,
     isLoading,
     error,
     refetch: fetchInvites,

@@ -9,19 +9,23 @@ import type {
   CalendarItem,
   CreatePersonalScheduleRequest,
   UpdatePersonalScheduleRequest,
+  PaginationMeta,
+  PersonalSchedulesQueryParams,
 } from '@/types/calendar';
 
 export function usePersonalSchedules() {
   const [data, setData] = useState<CalendarItem[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchSchedules = useCallback(async () => {
+  const fetchSchedules = useCallback(async (params?: PersonalSchedulesQueryParams) => {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await getPersonalSchedules();
-      setData(result);
+      const result = await getPersonalSchedules(params);
+      setData(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch personal schedules'));
     } finally {
@@ -78,6 +82,7 @@ export function usePersonalSchedules() {
 
   return {
     data,
+    pagination,
     isLoading,
     error,
     refetch: fetchSchedules,

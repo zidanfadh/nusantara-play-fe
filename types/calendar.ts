@@ -207,7 +207,61 @@ export interface UpdatePersonalScheduleRequest {
 }
 
 export interface InviteUsersRequest {
-  user_ids: string[];
+  user_ids?: string[];
+  emails?: string[];
+}
+
+// Pagination
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface PaginatedImportantDatesResponse {
+  data: CalendarItem[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedPersonalSchedulesResponse {
+  data: CalendarItem[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedItemInvitesResponse {
+  data: CalendarInviteWithUser[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginatedMyInvitesResponse {
+  data: CalendarInviteWithItem[];
+  pagination: PaginationMeta;
+}
+
+// Query param types for paginated endpoints
+export interface ImportantDatesQueryParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PersonalSchedulesQueryParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface ItemInvitesQueryParams {
+  page?: number;
+  limit?: number;
+  status?: CalendarInviteStatus;
+}
+
+export interface MyInvitesQueryParams {
+  page?: number;
+  limit?: number;
+  status?: CalendarInviteStatus;
 }
 
 export interface RespondToInviteRequest {

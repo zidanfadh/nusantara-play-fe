@@ -9,19 +9,23 @@ import type {
   CalendarItem,
   CreateImportantDateRequest,
   UpdateImportantDateRequest,
+  PaginationMeta,
+  ImportantDatesQueryParams,
 } from '@/types/calendar';
 
 export function useImportantDates() {
   const [data, setData] = useState<CalendarItem[]>([]);
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchImportantDates = useCallback(async () => {
+  const fetchImportantDates = useCallback(async (params?: ImportantDatesQueryParams) => {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await getImportantDates();
-      setData(result);
+      const result = await getImportantDates(params);
+      setData(result.data);
+      setPagination(result.pagination);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch important dates'));
     } finally {
@@ -78,6 +82,7 @@ export function useImportantDates() {
 
   return {
     data,
+    pagination,
     isLoading,
     error,
     refetch: fetchImportantDates,

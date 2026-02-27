@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCalendarItem } from '@/hooks/useCalendarItem';
 import { useItemInvites } from '@/hooks/useCalendarInvites';
+import { inviteUsers } from '@/lib/api/calendar';
 import { CalendarInviteStatus } from '@/types/calendar';
 
 interface CalendarItemDetailProps {
@@ -10,7 +11,6 @@ interface CalendarItemDetailProps {
   onClose: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
-  onInvite?: () => void;
 }
 
 export function CalendarItemDetail({
@@ -18,19 +18,66 @@ export function CalendarItemDetail({
   onClose,
   onEdit,
   onDelete,
-  onInvite,
 }: CalendarItemDetailProps) {
   const { data: item, isLoading, error, refetch } = useCalendarItem(itemId);
   const {
     invites,
-    isLoading: invitesLoading,
     refetch: refetchInvites,
   } = useItemInvites(itemId);
+
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
+  const [emailList, setEmailList] = useState<string[]>([]);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+  const [isInviting, setIsInviting] = useState(false);
 
   useEffect(() => {
     refetch();
     refetchInvites();
   }, [itemId]);
+
+  const addEmail = () => {
+    const trimmed = emailInput.trim();
+    if (!trimmed) return;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmed)) {
+      setInviteError('Format email tidak valid');
+      return;
+    }
+    if (emailList.includes(trimmed)) {
+      setInviteError('Email sudah ada dalam daftar');
+      return;
+    }
+    setEmailList((prev) => [...prev, trimmed]);
+    setEmailInput('');
+    setInviteError(null);
+  };
+
+  const removeEmail = (email: string) => {
+    setEmailList((prev) => prev.filter((e) => e !== email));
+  };
+
+  const handleInviteSubmit = async () => {
+    if (emailList.length === 0) {
+      setInviteError('Masukkan minimal satu email');
+      return;
+    }
+    setIsInviting(true);
+    setInviteError(null);
+    setInviteSuccess(null);
+    try {
+      await inviteUsers(itemId, { emails: emailList });
+      setInviteSuccess(`${emailList.length} undangan berhasil dikirim`);
+      setEmailList([]);
+      setEmailInput('');
+      refetchInvites();
+    } catch (err) {
+      setInviteError(err instanceof Error ? err.message : 'Gagal mengirim undangan');
+    } finally {
+      setIsInviting(false);
+    }
+  };
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -230,18 +277,83 @@ export function CalendarItemDetail({
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="p-6 border-t dark:border-gray-700 flex justify-between">
-          <div className="flex gap-2">
-            {onInvite && item.visibility !== 'public' && (
+        {/* Inline Invite Form */}
+        {item.visibility !== 'public' && (
+          <div className="border-t dark:border-gray-700 px-6 pt-5 pb-2">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Undang via Email</h3>
               <button
-                onClick={onInvite}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={() => {
+                  setShowInviteForm((v) => !v);
+                  setInviteError(null);
+                  setInviteSuccess(null);
+                }}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
               >
-                Undang User
+                {showInviteForm ? 'Sembunyikan' : 'Tampilkan'}
               </button>
+            </div>
+
+            {showInviteForm && (
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEmail())}
+                    placeholder="email@example.com"
+                    className="flex-1 px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"
+                  />
+                  <button
+                    onClick={addEmail}
+                    type="button"
+                    className="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-sm"
+                  >
+                    Tambah
+                  </button>
+                </div>
+
+                {emailList.length > 0 && (
+                  <div className="space-y-1">
+                    {emailList.map((email) => (
+                      <div
+                        key={email}
+                        className="flex items-center justify-between px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded text-sm"
+                      >
+                        <span>{email}</span>
+                        <button
+                          onClick={() => removeEmail(email)}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {inviteError && (
+                  <p className="text-sm text-red-600 dark:text-red-400">{inviteError}</p>
+                )}
+                {inviteSuccess && (
+                  <p className="text-sm text-green-600 dark:text-green-400">{inviteSuccess}</p>
+                )}
+
+                <button
+                  onClick={handleInviteSubmit}
+                  disabled={isInviting || emailList.length === 0}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                >
+                  {isInviting ? 'Mengirim...' : `Kirim Undangan (${emailList.length})`}
+                </button>
+              </div>
             )}
           </div>
+        )}
+
+        {/* Actions */}
+        <div className="p-6 border-t dark:border-gray-700 flex justify-end">
           <div className="flex gap-2">
             {onEdit && (
               <button

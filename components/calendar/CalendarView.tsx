@@ -27,7 +27,7 @@ export function CalendarViewComponent({
   const params: CalendarQueryParams = {
     year,
     month,
-    view: filters.view || CalendarView.MONTHLY,
+    view: CalendarView.MONTHLY,
     source: filters.source,
     visibility: filters.visibility,
     daerah_id: filters.daerah_id,
@@ -105,7 +105,7 @@ export function CalendarViewComponent({
       {/* Filter */}
       <CalendarFilter
         onFilterChange={setFilters}
-        showViewToggle={true}
+        showViewToggle={false}
         showVisibilityFilter={true}
       />
 

@@ -15,6 +15,14 @@ import type {
   UpdatePersonalScheduleRequest,
   InviteUsersRequest,
   RespondToInviteRequest,
+  PaginatedImportantDatesResponse,
+  PaginatedPersonalSchedulesResponse,
+  PaginatedItemInvitesResponse,
+  PaginatedMyInvitesResponse,
+  ImportantDatesQueryParams,
+  PersonalSchedulesQueryParams,
+  ItemInvitesQueryParams,
+  MyInvitesQueryParams,
 } from '@/types/calendar';
 
 // Helper function to build query string
@@ -60,8 +68,11 @@ export async function createImportantDate(
 }
 
 // 5. Get All Important Dates (Admin View)
-export async function getImportantDates(): Promise<CalendarItem[]> {
-  return apiClient.get<CalendarItem[]>('/calendar/important-dates');
+export async function getImportantDates(
+  params?: ImportantDatesQueryParams
+): Promise<PaginatedImportantDatesResponse> {
+  const queryString = params ? buildQueryString(params) : '';
+  return apiClient.get<PaginatedImportantDatesResponse>(`/calendar/important-dates${queryString}`);
 }
 
 // 6. Update Important Date
@@ -85,8 +96,11 @@ export async function createPersonalSchedule(
 }
 
 // 9. Get Personal Schedules
-export async function getPersonalSchedules(): Promise<CalendarItem[]> {
-  return apiClient.get<CalendarItem[]>('/calendar/personal-schedule');
+export async function getPersonalSchedules(
+  params?: PersonalSchedulesQueryParams
+): Promise<PaginatedPersonalSchedulesResponse> {
+  const queryString = params ? buildQueryString(params) : '';
+  return apiClient.get<PaginatedPersonalSchedulesResponse>(`/calendar/personal-schedule${queryString}`);
 }
 
 // 10. Update Personal Schedule
@@ -112,9 +126,11 @@ export async function inviteUsers(
 
 // 13. Get Invites for Calendar Item
 export async function getInvites(
-  calendarItemId: string
-): Promise<CalendarInviteWithUser[]> {
-  return apiClient.get<CalendarInviteWithUser[]>(`/calendar/${calendarItemId}/invites`);
+  calendarItemId: string,
+  params?: ItemInvitesQueryParams
+): Promise<PaginatedItemInvitesResponse> {
+  const queryString = params ? buildQueryString(params) : '';
+  return apiClient.get<PaginatedItemInvitesResponse>(`/calendar/${calendarItemId}/invites${queryString}`);
 }
 
 // 14. Remove Invite
@@ -128,8 +144,11 @@ export async function removeInvite(
 }
 
 // 15. Get My Invites
-export async function getMyInvites(): Promise<CalendarInviteWithItem[]> {
-  return apiClient.get<CalendarInviteWithItem[]>('/calendar/invites/my');
+export async function getMyInvites(
+  params?: MyInvitesQueryParams
+): Promise<PaginatedMyInvitesResponse> {
+  const queryString = params ? buildQueryString(params) : '';
+  return apiClient.get<PaginatedMyInvitesResponse>(`/calendar/invites/my${queryString}`);
 }
 
 // 16. Respond to Invite
