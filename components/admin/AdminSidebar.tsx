@@ -86,17 +86,17 @@ export function AdminSidebar() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#1e3a4c] to-[#2D3E50] text-white w-64 flex-shrink-0 flex flex-col shadow-2xl">
+    <div className="bg-card border-r border-border text-foreground w-64 flex-shrink-0 flex flex-col">
       {/* Logo */}
-      <div className="flex items-center justify-center h-16 bg-[#0f2027] border-b-2 border-[#C04A21]/30">
-        <h1 className="text-xl font-bold bg-gradient-to-r from-[#D4A017] to-[#E5B028] bg-clip-text text-transparent tracking-wide">Nusantara Play</h1>
+      <div className="flex items-center justify-center h-16 border-b border-border">
+        <h1 className="text-xl font-bold text-primary tracking-wide">Nusantara Play</h1>
       </div>
 
       {/* Back to Dashboard Button */}
-      <div className="p-3 border-b border-white/10">
+      <div className="p-3 border-b border-border">
         <Link
           href="/menu"
-          className="flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold bg-[#D4A017] hover:bg-[#E5B028] text-[#2D2D2D] transition-all duration-200 hover:scale-105 hover:shadow-lg group"
+          className="flex items-center justify-center px-4 py-2.5 rounded-lg text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground transition-colors group"
         >
           <svg className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -119,14 +119,14 @@ export function AdminSidebar() {
                   <button
                     onClick={() => toggleSubmenu(item.title)}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
-                      isActive 
-                        ? 'bg-gradient-to-r from-[#C04A21] to-[#D65C2E] text-white shadow-lg scale-105' 
-                        : 'text-gray-300 hover:bg-white/10 hover:text-white hover:translate-x-1'
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                   >
                     <div className="flex items-center">
                       <span className={`mr-3 ${
-                        isActive ? 'text-white' : 'text-[#D4A017] group-hover:text-[#E5B028]'
+                        isActive ? 'text-primary-foreground' : 'text-primary'
                       }`}>{item.icon}</span>
                       <span className="tracking-wide">{item.title}</span>
                     </div>
@@ -148,9 +148,9 @@ export function AdminSidebar() {
                             key={submenu.href}
                             href={submenu.href}
                             className={`flex items-center px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
-                              isSubmenuActive 
-                                ? 'bg-[#D4A017] text-[#2D2D2D] shadow-md' 
-                                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                              isSubmenuActive
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                             }`}
                           >
                             <span className="ml-6">{submenu.title}</span>
@@ -164,13 +164,13 @@ export function AdminSidebar() {
                 <Link
                   href={item.href}
                   className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
-                    isActive 
-                      ? 'bg-gradient-to-r from-[#C04A21] to-[#D65C2E] text-white shadow-lg scale-105' 
-                      : 'text-gray-300 hover:bg-white/10 hover:text-white hover:translate-x-1'
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   }`}
                 >
                   <span className={`mr-3 ${
-                    isActive ? 'text-white' : 'text-[#D4A017] group-hover:text-[#E5B028]'
+                    isActive ? 'text-primary-foreground' : 'text-primary'
                   }`}>{item.icon}</span>
                   <span className="tracking-wide">{item.title}</span>
                 </Link>
@@ -181,10 +181,8 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 bg-[#0f2027] border-t-2 border-[#C04A21]/30">
-        <p className="text-[10px] text-[#D4A017] text-center font-medium">
-          Admin Panel v1.0
-        </p>
+      <div className="p-4 border-t border-border">
+        <p className="text-[10px] text-muted-foreground text-center">Admin Panel v1.0</p>
       </div>
     </div>
   );
