@@ -63,7 +63,16 @@ export function CalendarInvites() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-4">Loading...</div>;
+    return (
+      <div className="space-y-3">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-card border border-border rounded-xl p-4">
+            <div className="h-5 bg-muted rounded animate-pulse w-1/2 mb-2" />
+            <div className="h-3 bg-muted rounded animate-pulse w-1/3" />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const pendingInvites = myInvites.filter(
@@ -85,14 +94,14 @@ export function CalendarInvites() {
               .map((invite) => (
                 <div
                   key={invite.id}
-                  className="p-4 bg-white dark:bg-gray-800 border-l-4 border-yellow-500 rounded-lg shadow"
+                  className="bg-card border border-border border-l-4 border-l-yellow-500 rounded-xl p-4"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg mb-1">
                         {invite.calendarItem?.title || 'Untitled'}
                       </h4>
-                      <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                      <div className="text-sm text-muted-foreground space-y-1">
                         <div>
                           📅 {invite.calendarItem?.start_date ? formatDate(invite.calendarItem.start_date) : 'No date'}
                           {invite.calendarItem && !invite.calendarItem.all_day &&
@@ -104,41 +113,41 @@ export function CalendarInvites() {
                             {invite.invitedByUser?.full_name || 'Unknown'}
                           </span>
                         </div>
-                      <div>
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${getStatusBadge(
-                            invite.status
-                          )}`}
-                        >
-                          {invite.calendarItem?.visibility || 'private'}
-                        </span>
+                        <div>
+                          <span
+                            className={`text-xs px-2 py-1 rounded ${getStatusBadge(
+                              invite.status
+                            )}`}
+                          >
+                            {invite.calendarItem?.visibility || 'private'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 mt-3">
                     <button
                       onClick={() =>
                         handleRespond(invite.id, CalendarInviteStatus.ACCEPTED)
                       }
                       disabled={respondingId === invite.id}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 text-sm"
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-medium transition-colors"
                     >
-                      {respondingId === invite.id ? '...' : 'Terima'}
+                      {respondingId === invite.id ? 'Memproses...' : 'Terima'}
                     </button>
                     <button
                       onClick={() =>
                         handleRespond(invite.id, CalendarInviteStatus.DECLINED)
                       }
                       disabled={respondingId === invite.id}
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 text-sm"
+                      className="flex-1 px-4 py-2 border border-border rounded-lg hover:bg-muted disabled:opacity-50 text-sm font-medium transition-colors text-muted-foreground"
                     >
-                      {respondingId === invite.id ? '...' : 'Tolak'}
+                      {respondingId === invite.id ? 'Memproses...' : 'Tolak'}
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       )}
@@ -153,17 +162,16 @@ export function CalendarInvites() {
               .map((invite) => (
                 <div
                   key={invite.id}
-                  className="p-3 bg-white dark:bg-gray-800 rounded-lg shadow"
+                  className="bg-card border border-border rounded-xl p-3 flex items-center justify-between"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium">
-                        {invite.calendarItem?.title || 'Untitled'}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {invite.calendarItem?.start_date ? formatDate(invite.calendarItem.start_date) : 'No date'} •{' '}
-                        {invite.invitedByUser?.full_name || 'Unknown'}
-                      </div>
+                  <div className="flex-1">
+                    <div className="font-medium">
+                      {invite.calendarItem?.title || 'Untitled'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {invite.calendarItem?.start_date ? formatDate(invite.calendarItem.start_date) : 'No date'} •{' '}
+                      {invite.invitedByUser?.full_name || 'Unknown'}
+                    </div>
                   </div>
                   <span
                     className={`text-xs px-2 py-1 rounded ${getStatusBadge(
@@ -175,16 +183,18 @@ export function CalendarInvites() {
                       : 'Ditolak'}
                   </span>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       )}
 
       {/* Empty State */}
       {myInvites.length === 0 && (
-        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          Tidak ada undangan kalender
+        <div className="text-center py-12">
+          <svg className="w-10 h-10 text-muted-foreground mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <p className="text-muted-foreground text-sm">Tidak ada undangan kalender</p>
         </div>
       )}
     </div>
