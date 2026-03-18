@@ -7,8 +7,6 @@ import { CalendarItemForm } from '@/components/calendar/CalendarItemForm';
 import { CalendarItemDetail } from '@/components/calendar/CalendarItemDetail';
 import { CalendarItemType } from '@/types/calendar';
 import type { CreatePersonalScheduleRequest } from '@/types/calendar';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
-
 export default function MyCalendarPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -71,11 +69,7 @@ export default function MyCalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <ProtNavigation />
-
-      <main className="container mx-auto px-4 py-6">
+    <>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm mb-6">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
@@ -233,7 +227,6 @@ export default function MyCalendarPage() {
           onDelete={handleDelete}
         />
       )}
-      </main>
-    </div>
+    </>
   );
 }

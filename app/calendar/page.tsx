@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { CalendarViewComponent } from '@/components/calendar/CalendarView';
 import { CalendarAgenda } from '@/components/calendar/CalendarAgenda';
 import { CalendarItemDetail } from '@/components/calendar/CalendarItemDetail';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -14,11 +13,7 @@ export default function CalendarPage() {
   const [viewMode, setViewMode] = useState<'calendar' | 'agenda'>('calendar');
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <ProtNavigation />
-
-      <main className="container mx-auto px-4 py-6">
+    <>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm mb-6">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
@@ -92,7 +87,6 @@ export default function CalendarPage() {
             onClose={() => setSelectedItemId(null)}
           />
         )}
-      </main>
-    </div>
+    </>
   );
 }

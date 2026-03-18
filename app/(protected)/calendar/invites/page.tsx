@@ -2,15 +2,9 @@
 
 import Link from 'next/link';
 import { CalendarInvites } from '@/components/calendar/CalendarInvites';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
-
 export default function CalendarInvitesPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <ProtNavigation />
-
-      <main className="container mx-auto px-4 py-6">
+    <>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm mb-6">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
@@ -36,7 +30,6 @@ export default function CalendarInvitesPage() {
         </div>
 
         <CalendarInvites />
-      </main>
-    </div>
+    </>
   );
 }
