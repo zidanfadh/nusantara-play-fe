@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { protApi } from '@/lib/api/prot';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { VerifikasiEntity } from '@/types/prot';
 
 export default function HistoryPage() {
@@ -74,20 +73,15 @@ export default function HistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <ProtNavigation />
-        <div className="container mx-auto px-4 py-12 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Memuat riwayat...</p>
-        </div>
+      <div className="py-12 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Memuat riwayat...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      <ProtNavigation />
-
+    <>
       <div className="border-b border-border bg-muted/30">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4 mb-4">
@@ -224,6 +218,6 @@ export default function HistoryPage() {
           </div>
         )}
       </main>
-    </div>
+    </>
   );
 }

@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { protApi } from '@/lib/api/prot';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { BlockchainBadge } from '@/components/prot/BlockchainBadge';
 import { BlockchainProofCard } from '@/components/prot/BlockchainProofCard';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -100,13 +99,10 @@ export default function ProtDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <ProtNavigation />
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Memuat data...</p>
-          </div>
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Memuat data...</p>
         </div>
       </div>
     );
@@ -114,9 +110,7 @@ export default function ProtDetailPage() {
 
   if (error || !item) {
     return (
-      <div className="min-h-screen bg-background">
-        <ProtNavigation />
-        <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-12">
           <div className="max-w-lg mx-auto text-center">
             <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -127,7 +121,6 @@ export default function ProtDetailPage() {
               Kembali ke Daftar
             </Link>
           </div>
-        </div>
       </div>
     );
   }
@@ -138,10 +131,7 @@ export default function ProtDetailPage() {
   const isDeletable = user?.role === 'admin_kpoti';
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      {/* Navigation */}
-      <ProtNavigation />
-
+    <>
       {/* Breadcrumb & Title Section */}
       <div className="bg-muted/30 border-b border-border">
         <div className="container mx-auto px-4 py-4">
@@ -464,6 +454,6 @@ export default function ProtDetailPage() {
           </div>
         </div>
       </main>
-    </div>
+    </>
   );
 }

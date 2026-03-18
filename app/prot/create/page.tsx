@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ProtForm } from '@/components/prot/ProtForm';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { protApi } from '@/lib/api/prot';
 import { PROTEntity } from '@/types/prot';
 
@@ -108,10 +107,7 @@ export default function CreateProtPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      {/* Header Navigation */}
-      <ProtNavigation />
-
+    <>
       {/* Breadcrumb */}
       <div className="bg-background border-b shadow-sm">
          <div className="container mx-auto px-4 py-4">
@@ -138,6 +134,6 @@ export default function CreateProtPage() {
             isLoading={isLoading}
         />
       </div>
-    </div>
+    </>
   );
 }

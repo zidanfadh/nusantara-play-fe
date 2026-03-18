@@ -7,7 +7,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { protApi } from '@/lib/api/prot';
 import { ProtCard } from '@/components/prot/ProtCard';
 import { ProtFilter } from '@/components/prot/ProtFilter';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { PROTEntity, PROTFilters } from '@/types/prot';
 
 export default function ProtModulePage() {
@@ -83,7 +82,7 @@ export default function ProtModulePage() {
   // Show loading state while checking authentication
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
           <p className="text-muted-foreground">Memeriksa autentikasi...</p>
@@ -95,7 +94,7 @@ export default function ProtModulePage() {
   // Don't render content if not authenticated (will redirect)
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
           <p className="text-muted-foreground">Mengalihkan ke halaman login...</p>
@@ -105,11 +104,7 @@ export default function ProtModulePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header Navigation */}
-      <ProtNavigation />
-
-      <main className="container mx-auto px-4 py-6">
+    <>
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm mb-6">
           <Link href="/" className="text-muted-foreground hover:text-foreground">
@@ -318,7 +313,6 @@ export default function ProtModulePage() {
               </div>
             </div>
         )}
-      </main>
-    </div>
+    </>
   );
 }
