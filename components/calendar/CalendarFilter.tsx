@@ -39,7 +39,7 @@ export function CalendarFilter({
   };
 
   return (
-    <div className="flex flex-wrap gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+    <div className="flex flex-wrap gap-4 p-4 bg-card border border-border rounded-xl">
 
       {/* Source Filter */}
       <div className="flex-1 min-w-[200px]">
@@ -49,7 +49,7 @@ export function CalendarFilter({
           onChange={(e) =>
             updateFilter('source', e.target.value || undefined)
           }
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">Semua</option>
           <option value={CalendarSourceFilter.IMPORTANT_DATE}>
@@ -71,7 +71,7 @@ export function CalendarFilter({
             onChange={(e) =>
               updateFilter('visibility', e.target.value || undefined)
             }
-            className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Semua</option>
             <option value={CalendarItemVisibility.PUBLIC}>Public</option>
@@ -88,7 +88,7 @@ export function CalendarFilter({
             type="checkbox"
             checked={filters.include_events !== false}
             onChange={(e) => updateFilter('include_events', e.target.checked)}
-            className="w-4 h-4"
+            className="w-4 h-4 accent-primary"
           />
           <span className="text-sm">Tampilkan Event</span>
         </label>
@@ -102,7 +102,7 @@ export function CalendarFilter({
           value={filters.search || ''}
           onChange={(e) => updateFilter('search', e.target.value || undefined)}
           placeholder="Cari judul atau deskripsi..."
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
     </div>
