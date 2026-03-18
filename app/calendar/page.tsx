@@ -1,92 +1,67 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { CalendarViewComponent } from '@/components/calendar/CalendarView';
 import { CalendarAgenda } from '@/components/calendar/CalendarAgenda';
 import { CalendarItemDetail } from '@/components/calendar/CalendarItemDetail';
 
 export default function CalendarPage() {
-  const router = useRouter();
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'calendar' | 'agenda'>('calendar');
 
   return (
     <>
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm mb-6">
-          <Link href="/" className="text-muted-foreground hover:text-foreground">
-            Beranda
-          </Link>
-          <svg className="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-          <span className="text-foreground font-medium">Kalender</span>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-1">Kalender Nusantara Play</h1>
+        <p className="text-muted-foreground">
+          Lihat tanggal penting, jadwal, dan event budaya Indonesia
+        </p>
+      </div>
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Kalender Nusantara Play</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Lihat tanggal penting, jadwal, dan event budaya Indonesia
-          </p>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="mb-4 flex flex-wrap gap-2">
+      {/* View Mode Toggle — segmented control */}
+      <div className="mb-6 flex items-center gap-4">
+        <div className="inline-flex bg-muted p-1 rounded-lg">
           <button
             onClick={() => setViewMode('calendar')}
-            className={`px-4 py-2 rounded ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               viewMode === 'calendar'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
             Kalender
           </button>
           <button
             onClick={() => setViewMode('agenda')}
-            className={`px-4 py-2 rounded ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
               viewMode === 'agenda'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             }`}
           >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
             Agenda
           </button>
-
-          {/* Divider */}
-          <div className="w-px bg-gray-300 dark:bg-gray-600 mx-1" />
-
-          {/* Navigation Buttons */}
-          <Link
-            href="/calendar/invites"
-            className="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 transition-colors"
-          >
-            Undangan
-          </Link>
-          <Link
-            href="/calendar/my"
-            className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition-colors"
-          >
-            Jadwal Saya
-          </Link>
         </div>
+      </div>
 
-        {/* Calendar View */}
-        {viewMode === 'calendar' ? (
-          <CalendarViewComponent onItemClick={setSelectedItemId} />
-        ) : (
-          <CalendarAgenda onItemClick={setSelectedItemId} />
-        )}
+      {viewMode === 'calendar' ? (
+        <CalendarViewComponent onItemClick={setSelectedItemId} />
+      ) : (
+        <CalendarAgenda onItemClick={setSelectedItemId} />
+      )}
 
-        {/* Item Detail Modal */}
-        {selectedItemId && (
-          <CalendarItemDetail
-            itemId={selectedItemId}
-            onClose={() => setSelectedItemId(null)}
-          />
-        )}
+      {selectedItemId && (
+        <CalendarItemDetail
+          itemId={selectedItemId}
+          onClose={() => setSelectedItemId(null)}
+        />
+      )}
     </>
   );
 }
