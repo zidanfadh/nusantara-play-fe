@@ -1,11 +1,12 @@
 'use client';
 
 import { ReactNode, useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { AppNavbar } from '@/components/ui/AppNavbar';
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const supabase = useMemo(() => createClient(), []);
@@ -23,6 +24,11 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
 
   if (loading) {
     return null;
+  }
+
+  // Admin layout manages its own navbar — skip wrapper here
+  if (pathname?.startsWith('/admin')) {
+    return <>{children}</>;
   }
 
   return (
