@@ -52,6 +52,9 @@ export function UserNav() {
             <User className="w-4 h-4 text-foreground/70" />
           )}
         </div>
+        <span className="hidden sm:inline text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors max-w-[100px] truncate">
+          {user?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
+        </span>
         <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -60,6 +63,11 @@ export function UserNav() {
           <div className="px-4 py-3 border-b border-border">
             <p className="text-sm font-medium text-foreground truncate">{user?.full_name || 'User'}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            {user?.role && (
+              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary uppercase tracking-wide">
+                {user.role === 'admin_kpoti' ? 'Admin' : user.role === 'pakar' ? 'Pakar' : 'Pengguna'}
+              </span>
+            )}
           </div>
 
           <div className="py-1">
