@@ -111,3 +111,20 @@ export interface PaginatedResponse<T> {
     hasPrev: boolean;
   };
 }
+
+export interface BlockchainIntegrity {
+  dbIntact: boolean;
+  chainIntact: boolean;
+  fullyVerified: boolean;
+}
+
+export interface BlockchainProof {
+  protId: string;
+  status: 'confirmed' | 'pending' | 'failed';
+  version: number;
+  txHash: string | null;
+  blockNumber: string | null;
+  network: string;
+  anchoredAt: string | null;
+  integrity: BlockchainIntegrity;
+}

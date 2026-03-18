@@ -5,7 +5,8 @@ import {
   PROTFilters,
   PaginatedResponse,
   VerifikasiEntity,
-  VerifikasiQueue
+  VerifikasiQueue,
+  BlockchainProof,
 } from '@/types/prot';
 
 const BASE_URL = '/prot';
@@ -171,4 +172,11 @@ export const protApi = {
 
   getStats: () =>
     apiClient.get(`${VERIFIKASI_URL}/stats`),
+
+  // Blockchain
+  getBlockchainProof: (id: string) =>
+    apiClient.get<BlockchainProof>(`${BASE_URL}/${id}/blockchain-proof`),
+
+  reanchorBlockchain: (id: string) =>
+    apiClient.post<{ message: string; proofId: string }>(`${BASE_URL}/${id}/blockchain-proof/reanchor`),
 };

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { protApi } from '@/lib/api/prot';
 import { ProtNavigation } from '@/components/prot/ProtNavigation';
+import { BlockchainBadge } from '@/components/prot/BlockchainBadge';
+import { BlockchainProofCard } from '@/components/prot/BlockchainProofCard';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { PROTEntity, PROTStatus, PROTJenis } from '@/types/prot';
 
@@ -164,6 +166,10 @@ export default function ProtDetailPage() {
                 <span className="px-2.5 py-0.5 rounded text-sm font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">
                   {(item.status || '').replace(/_/g, ' ')}
                 </span>
+
+                {(item.status === PROTStatus.DIVERIFIKASI || item.status === PROTStatus.ARSIP_NASIONAL) && (
+                  <BlockchainBadge protId={item.id} userRole={user?.role} />
+                )}
 
                 <span className="text-sm text-muted-foreground flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -441,6 +447,11 @@ export default function ProtDetailPage() {
                   })}
                 </div>
               </div>
+            )}
+
+            {/* Blockchain Proof Card */}
+            {(item.status === PROTStatus.DIVERIFIKASI || item.status === PROTStatus.ARSIP_NASIONAL) && (
+              <BlockchainProofCard protId={item.id} userRole={user?.role} />
             )}
 
             {/* Metadata Footer */}
