@@ -72,6 +72,18 @@ const menuItems: MenuItem[] = [
       </svg>
     ),
   },
+  {
+    title: 'Marketplace',
+    href: '/admin/marketplace',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+    ),
+    submenus: [
+      { title: 'Kategori', href: '/admin/marketplace/kategori' },
+    ],
+  },
 ];
 
 export function AdminSidebar() {
