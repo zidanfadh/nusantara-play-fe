@@ -22,13 +22,13 @@ export default function TokoDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <Link href="/marketplace" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
+      <Link href="/marketplace" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeftIcon className="h-4 w-4 mr-1" />
         Kembali ke Marketplace
       </Link>
 
       {/* Toko Header */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-card rounded-lg shadow-md p-6 mb-8">
         <div className="flex items-center">
           {toko.logo_url ? (
             <img src={toko.logo_url} alt={toko.nama} className="w-16 h-16 rounded-full object-cover mr-4" />
@@ -38,9 +38,9 @@ export default function TokoDetailPage() {
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{toko.nama}</h1>
-            {toko.deskripsi && <p className="text-gray-600 mt-1">{toko.deskripsi}</p>}
-            {toko.alamat && <p className="text-sm text-gray-500 mt-1">{toko.alamat}</p>}
+            <h1 className="text-2xl font-bold text-foreground">{toko.nama}</h1>
+            {toko.deskripsi && <p className="text-muted-foreground mt-1">{toko.deskripsi}</p>}
+            {toko.alamat && <p className="text-sm text-muted-foreground mt-1">{toko.alamat}</p>}
           </div>
         </div>
         {toko.whatsapp && (
@@ -55,7 +55,7 @@ export default function TokoDetailPage() {
       {produkLoading ? (
         <div className="text-center py-8"><div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600" /></div>
       ) : produkList.length === 0 ? (
-        <div className="text-center py-8 bg-white rounded-lg shadow"><p className="text-gray-500">Toko ini belum memiliki produk</p></div>
+        <div className="text-center py-8 bg-card rounded-lg shadow"><p className="text-muted-foreground">Toko ini belum memiliki produk</p></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {produkList.map((produk) => <ProdukCard key={produk.id} produk={produk} />)}

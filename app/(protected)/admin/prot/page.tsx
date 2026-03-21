@@ -59,7 +59,7 @@ export default function AdminProtPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -68,8 +68,8 @@ export default function AdminProtPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Manajemen PROT</h1>
-        <p className="text-gray-600 mt-2">Statistik dan manajemen data PROT</p>
+        <h1 className="text-3xl font-bold text-foreground">Manajemen PROT</h1>
+        <p className="text-muted-foreground mt-2">Statistik dan manajemen data PROT</p>
       </div>
 
       {error && (
@@ -81,97 +81,97 @@ export default function AdminProtPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 bg-white rounded-lg shadow-sm animate-pulse"></div>
+            <div key={i} className="h-32 bg-card rounded-lg shadow-sm animate-pulse"></div>
           ))}
         </div>
       ) : stats ? (
         <>
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                  <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-600">Menunggu Review</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">Menunggu Review</h3>
                       <div className="p-2 bg-blue-100 rounded-lg">
                         <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-gray-900">{stats.queue.totalPending}</div>
-                    <p className="text-xs text-gray-500 mt-1">Dalam antrian</p>
+                    <div className="text-3xl font-bold text-foreground">{stats.queue.totalPending}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Dalam antrian</p>
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                  <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-600">Disetujui</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">Disetujui</h3>
                       <div className="p-2 bg-green-100 rounded-lg">
                         <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-gray-900">{stats.verifikasi.totalApproved}</div>
-                    <p className="text-xs text-gray-500 mt-1">Data terverifikasi</p>
+                    <div className="text-3xl font-bold text-foreground">{stats.verifikasi.totalApproved}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Data terverifikasi</p>
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                  <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-600">Perlu Revisi</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">Perlu Revisi</h3>
                       <div className="p-2 bg-amber-100 rounded-lg">
                         <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-gray-900">{stats.verifikasi.totalRevision}</div>
-                    <p className="text-xs text-gray-500 mt-1">Butuh perbaikan</p>
+                    <div className="text-3xl font-bold text-foreground">{stats.verifikasi.totalRevision}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Butuh perbaikan</p>
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                  <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-600">Arsip Nasional</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">Arsip Nasional</h3>
                       <div className="p-2 bg-purple-100 rounded-lg">
                         <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                         </svg>
                       </div>
                     </div>
-                    <div className="text-3xl font-bold text-gray-900">{stats.protByStatus.ARSIP_NASIONAL}</div>
-                    <p className="text-xs text-gray-500 mt-1">Data published</p>
+                    <div className="text-3xl font-bold text-foreground">{stats.protByStatus.ARSIP_NASIONAL}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Data published</p>
                   </div>
                 </div>
 
                 {/* Status Breakdown */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">PROT by Status</h3>
+                  <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">PROT by Status</h3>
                     <div className="space-y-3">
                       {Object.entries(stats.protByStatus).map(([status, count]) => (
                         <div key={status} className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">{status.replace(/_/g, ' ')}</span>
-                          <span className="text-sm font-semibold text-gray-900">{count}</span>
+                          <span className="text-sm text-muted-foreground">{status.replace(/_/g, ' ')}</span>
+                          <span className="text-sm font-semibold text-foreground">{count}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Summary Verifikasi</h3>
+                  <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+                    <h3 className="text-lg font-semibold text-foreground mb-4">Summary Verifikasi</h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Total Review</span>
-                        <span className="text-sm font-semibold text-gray-900">{stats.verifikasi.total}</span>
+                        <span className="text-sm text-muted-foreground">Total Review</span>
+                        <span className="text-sm font-semibold text-foreground">{stats.verifikasi.total}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Approved</span>
+                        <span className="text-sm text-muted-foreground">Approved</span>
                         <span className="text-sm font-semibold text-green-600">{stats.verifikasi.totalApproved}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Rejected</span>
+                        <span className="text-sm text-muted-foreground">Rejected</span>
                         <span className="text-sm font-semibold text-red-600">{stats.verifikasi.totalRejected}</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Revision</span>
+                        <span className="text-sm text-muted-foreground">Revision</span>
                         <span className="text-sm font-semibold text-amber-600">{stats.verifikasi.totalRevision}</span>
                       </div>
                     </div>
@@ -179,8 +179,8 @@ export default function AdminProtPage() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Aksi Cepat</h3>
+                <div className="bg-card rounded-lg shadow-sm p-6 border border-border">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Aksi Cepat</h3>
                   <div className="flex flex-wrap gap-3">
                     <Link
                       href="/prot/verifikasi/queue"

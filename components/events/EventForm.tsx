@@ -97,7 +97,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Nama Event */}
       <div>
-        <label htmlFor="nama" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="nama" className="block text-sm font-medium text-foreground/80">
           Nama Event <span className="text-red-500">*</span>
         </label>
         <input
@@ -106,10 +106,10 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           name="nama"
           value={formData.nama}
           onChange={handleChange}
-          className={`mt-1 pr-3 pl-2 w-full px-3 py-2 border text-gray-700 block w-full rounded-sm shadow-sm sm:text-sm ${
+          className={`mt-1 pr-3 pl-2 w-full px-3 py-2 border text-foreground/80 block w-full rounded-sm shadow-sm sm:text-sm ${
             errors.nama
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+              : 'border-border focus:border-indigo-500 focus:ring-indigo-500'
           }`}
         />
         {errors.nama && <p className="mt-1 text-sm text-red-600">{errors.nama}</p>}
@@ -117,7 +117,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
 
       {/* Deskripsi */}
       <div>
-        <label htmlFor="deskripsi" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="deskripsi" className="block text-sm font-medium text-foreground/80">
           Deskripsi <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -126,10 +126,10 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           rows={4}
           value={formData.deskripsi}
           onChange={handleChange}
-          className={`mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
+          className={`mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md shadow-sm sm:text-sm ${
             errors.deskripsi
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+              : 'border-border focus:border-indigo-500 focus:ring-indigo-500'
           }`}
         />
         {errors.deskripsi && <p className="mt-1 text-sm text-red-600">{errors.deskripsi}</p>}
@@ -138,7 +138,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
       {/* Jenis & Daerah */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="jenis" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="jenis" className="block text-sm font-medium text-foreground/80">
             Jenis Event <span className="text-red-500">*</span>
           </label>
           <select
@@ -146,7 +146,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             name="jenis"
             value={formData.jenis}
             onChange={handleChange}
-            className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           >
             {Object.entries(EVENT_JENIS_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
@@ -177,7 +177,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
       {/* Tanggal */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="tanggal_mulai" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="tanggal_mulai" className="block text-sm font-medium text-foreground/80">
             Tanggal Mulai <span className="text-red-500">*</span>
           </label>
           <input
@@ -186,10 +186,10 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             name="tanggal_mulai"
             value={formData.tanggal_mulai}
             onChange={handleChange}
-            className={`w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
+            className={`w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md shadow-sm sm:text-sm ${
               errors.tanggal_mulai
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                : 'border-border focus:border-indigo-500 focus:ring-indigo-500'
             }`}
           />
           {errors.tanggal_mulai && (
@@ -198,7 +198,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
         </div>
 
         <div>
-          <label htmlFor="tanggal_selesai" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="tanggal_selesai" className="block text-sm font-medium text-foreground/80">
             Tanggal Selesai <span className="text-red-500">*</span>
           </label>
           <input
@@ -207,10 +207,10 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             name="tanggal_selesai"
             value={formData.tanggal_selesai}
             onChange={handleChange}
-            className={`w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
+            className={`w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md shadow-sm sm:text-sm ${
               errors.tanggal_selesai
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                : 'border-border focus:border-indigo-500 focus:ring-indigo-500'
             }`}
           />
           {errors.tanggal_selesai && (
@@ -221,7 +221,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
 
       {/* Lokasi */}
       <div>
-        <label htmlFor="lokasi" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="lokasi" className="block text-sm font-medium text-foreground/80">
           Lokasi <span className="text-red-500">*</span>
         </label>
         <input
@@ -231,10 +231,10 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           value={formData.lokasi}
           onChange={handleChange}
           placeholder="Nama venue atau alamat lengkap"
-          className={`w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md shadow-sm sm:text-sm ${
+          className={`w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md shadow-sm sm:text-sm ${
             errors.lokasi
               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-              : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+              : 'border-border focus:border-indigo-500 focus:ring-indigo-500'
           }`}
         />
         {errors.lokasi && <p className="mt-1 text-sm text-red-600">{errors.lokasi}</p>}
@@ -243,7 +243,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
       {/* Koordinat (Optional) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="latitude" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="latitude" className="block text-sm font-medium text-foreground/80">
             Latitude (Opsional)
           </label>
           <input
@@ -253,12 +253,12 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             step="any"
             value={formData.latitude || ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
 
         <div>
-          <label htmlFor="longitude" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="longitude" className="block text-sm font-medium text-foreground/80">
             Longitude (Opsional)
           </label>
           <input
@@ -268,14 +268,14 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             step="any"
             value={formData.longitude || ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
         </div>
       </div>
 
       {/* Kuota Peserta */}
       <div>
-        <label htmlFor="kuota_peserta" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="kuota_peserta" className="block text-sm font-medium text-foreground/80">
           Kuota Peserta (Opsional)
         </label>
         <input
@@ -285,13 +285,13 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           min="1"
           value={formData.kuota_peserta || ''}
           onChange={handleChange}
-          className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>
 
       {/* Banner URL */}
       <div>
-        <label htmlFor="banner_url" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="banner_url" className="block text-sm font-medium text-foreground/80">
           URL Banner (Opsional)
         </label>
         <input
@@ -301,13 +301,13 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           value={formData.banner_url || ''}
           onChange={handleChange}
           placeholder="https://example.com/banner.jpg"
-          className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>
 
       {/* Persyaratan */}
       <div>
-        <label htmlFor="persyaratan" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="persyaratan" className="block text-sm font-medium text-foreground/80">
           Persyaratan Peserta (Opsional)
         </label>
         <textarea
@@ -316,16 +316,16 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           rows={3}
           value={formData.persyaratan || ''}
           onChange={handleChange}
-          className="mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          className="mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>
 
       {/* Contact Info */}
       <div className="border-t pt-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Kontak Person</h3>
+        <h3 className="text-lg font-medium text-foreground mb-4">Kontak Person</h3>
         <div className="space-y-4">
           <div>
-            <label htmlFor="contact_person" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="contact_person" className="block text-sm font-medium text-foreground/80">
               Nama Kontak
             </label>
             <input
@@ -334,13 +334,13 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               name="contact_person"
               value={formData.contact_person || ''}
               onChange={handleChange}
-              className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="contact_phone" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="contact_phone" className="block text-sm font-medium text-foreground/80">
                 No. Telepon
               </label>
               <input
@@ -349,12 +349,12 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
                 name="contact_phone"
                 value={formData.contact_phone || ''}
                 onChange={handleChange}
-                className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
 
             <div>
-              <label htmlFor="contact_email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="contact_email" className="block text-sm font-medium text-foreground/80">
                 Email
               </label>
               <input
@@ -363,7 +363,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
                 name="contact_email"
                 value={formData.contact_email || ''}
                 onChange={handleChange}
-                className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-gray-700 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 mt-1 pr-3 pl-2 border text-foreground/80 block w-full rounded-md border-border shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
           </div>
@@ -376,7 +376,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
         >
           Batal
         </button>

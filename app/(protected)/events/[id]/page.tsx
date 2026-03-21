@@ -130,7 +130,7 @@ export default function EventDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="mt-2 text-gray-600">Memuat event...</p>
+          <p className="mt-2 text-muted-foreground">Memuat event...</p>
         </div>
       </div>
     );
@@ -152,7 +152,7 @@ export default function EventDetailPage() {
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="mb-4  hover:text-gray-400 flex items-center"
+          className="mb-4  hover:text-muted-foreground/60 flex items-center"
         >
           <ArrowLeftIcon className="h-5 w-5 mr-2" />
           Kembali
@@ -184,10 +184,10 @@ export default function EventDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Event Info */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-card rounded-lg shadow-md p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{event.nama}</h1>
+                  <h1 className="text-3xl font-bold text-foreground mb-2">{event.nama}</h1>
                   <div className="flex items-center space-x-3">
                     <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">
                       {EVENT_JENIS_LABELS[event.jenis]}
@@ -198,21 +198,21 @@ export default function EventDetailPage() {
               </div>
 
               <div className="prose max-w-none">
-                <p className="text-gray-700 whitespace-pre-wrap">{event.deskripsi}</p>
+                <p className="text-foreground/80 whitespace-pre-wrap">{event.deskripsi}</p>
               </div>
 
               {event.persyaratan && (
                 <div className="mt-6 pt-6 border-t">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Persyaratan Peserta</h3>
-                  <p className="text-gray-700 whitespace-pre-wrap">{event.persyaratan}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">Persyaratan Peserta</h3>
+                  <p className="text-foreground/80 whitespace-pre-wrap">{event.persyaratan}</p>
                 </div>
               )}
             </div>
 
             {/* Owner Actions */}
             {isOwner && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Kelola Event</h3>
+              <div className="bg-card rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Kelola Event</h3>
                 <div className="flex flex-wrap gap-3">
                   {event.status === EventStatus.DRAFT && (
                     <button
@@ -227,7 +227,7 @@ export default function EventDetailPage() {
                   {event.status === EventStatus.DRAFT && (
                     <Link
                       href={`/events/${eventId}/edit`}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50"
                     >
                       <PencilIcon className="h-5 w-5 mr-2" />
                       Edit Event
@@ -235,7 +235,7 @@ export default function EventDetailPage() {
                   )}
                   <Link
                     href={`/events/${eventId}/registrations`}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                    className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50"
                   >
                     <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />
                     Kelola Peserta
@@ -266,39 +266,39 @@ export default function EventDetailPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Event Details */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Detail Event</h3>
+            <div className="bg-card rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Detail Event</h3>
               <div className="space-y-4">
                 <div className="flex items-start">
-                  <CalendarIcon className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                  <CalendarIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-medium text-gray-900">Tanggal Mulai</p>
-                    <p className="text-gray-600">{formatDate(event.tanggal_mulai)}</p>
+                    <p className="font-medium text-foreground">Tanggal Mulai</p>
+                    <p className="text-muted-foreground">{formatDate(event.tanggal_mulai)}</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <CalendarIcon className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                  <CalendarIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-medium text-gray-900">Tanggal Selesai</p>
-                    <p className="text-gray-600">{formatDate(event.tanggal_selesai)}</p>
+                    <p className="font-medium text-foreground">Tanggal Selesai</p>
+                    <p className="text-muted-foreground">{formatDate(event.tanggal_selesai)}</p>
                   </div>
                 </div>
                 <div className="flex items-start">
-                  <MapPinIcon className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                  <MapPinIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
                   <div className="text-sm">
-                    <p className="font-medium text-gray-900">Lokasi</p>
-                    <p className="text-gray-600">{event.lokasi}</p>
+                    <p className="font-medium text-foreground">Lokasi</p>
+                    <p className="text-muted-foreground">{event.lokasi}</p>
                     {event.daerah && (
-                      <p className="text-gray-500 text-xs mt-1">{event.daerah.nama}</p>
+                      <p className="text-muted-foreground text-xs mt-1">{event.daerah.nama}</p>
                     )}
                   </div>
                 </div>
                 {event.kuota_peserta && (
                   <div className="flex items-start">
-                    <UsersIcon className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                    <UsersIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
                     <div className="text-sm">
-                      <p className="font-medium text-gray-900">Kuota Peserta</p>
-                      <p className="text-gray-600">
+                      <p className="font-medium text-foreground">Kuota Peserta</p>
+                      <p className="text-muted-foreground">
                         {event.jumlah_peserta} / {event.kuota_peserta} peserta
                       </p>
                       {isFullyBooked && (
@@ -314,23 +314,23 @@ export default function EventDetailPage() {
 
             {/* Contact Info */}
             {(event.contact_person || event.contact_phone || event.contact_email) && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Kontak</h3>
+              <div className="bg-card rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Kontak</h3>
                 <div className="space-y-3">
                   {event.contact_person && (
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-foreground/80">
                       <span className="font-medium">Nama:</span> {event.contact_person}
                     </p>
                   )}
                   {event.contact_phone && (
-                    <div className="flex items-center text-sm text-gray-700">
-                      <PhoneIcon className="h-4 w-4 mr-2 text-gray-400" />
+                    <div className="flex items-center text-sm text-foreground/80">
+                      <PhoneIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
                       {event.contact_phone}
                     </div>
                   )}
                   {event.contact_email && (
-                    <div className="flex items-center text-sm text-gray-700">
-                      <EnvelopeIcon className="h-4 w-4 mr-2 text-gray-400" />
+                    <div className="flex items-center text-sm text-foreground/80">
+                      <EnvelopeIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
                       {event.contact_email}
                     </div>
                   )}
@@ -340,7 +340,7 @@ export default function EventDetailPage() {
 
             {/* Registration Button for Users */}
             {!isOwner && event.status === EventStatus.PUBLISHED && (
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-card rounded-lg shadow-md p-6">
                 {event.is_registered || userRegistration ? (
                   <button
                     disabled
@@ -365,9 +365,9 @@ export default function EventDetailPage() {
 
             {/* Organizer */}
             {event.organizer && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Penyelenggara</h3>
-                <p className="text-sm font-medium text-gray-700">{event.organizer.full_name}</p>
+              <div className="bg-card rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Penyelenggara</h3>
+                <p className="text-sm font-medium text-foreground/80">{event.organizer.full_name}</p>
               </div>
             )}
           </div>

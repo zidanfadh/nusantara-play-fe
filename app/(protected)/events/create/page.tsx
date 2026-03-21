@@ -58,7 +58,7 @@ export default function CreateEventPage() {
         )}
 
         {/* Form */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-card rounded-lg shadow-md p-6">
           <EventForm
             onSubmit={handleSubmit}
             onCancel={handleCancel}

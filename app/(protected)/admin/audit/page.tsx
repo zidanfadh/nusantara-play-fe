@@ -26,9 +26,9 @@ export default function AuditPage() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-gradient-to-r from-white to-[#FFF9F0] rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
-        <h1 className="text-xl font-bold text-[#2D2D2D]">Audit Logs</h1>
-        <p className="mt-1 text-[#6B6B6B] text-xs">
+      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+        <h1 className="text-xl font-bold text-foreground">Audit Logs</h1>
+        <p className="mt-1 text-muted-foreground text-xs">
           Riwayat semua aktivitas yang terjadi di sistem
         </p>
       </div>

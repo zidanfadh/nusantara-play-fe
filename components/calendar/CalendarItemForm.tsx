@@ -110,7 +110,7 @@ export function CalendarItemForm({
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           required
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 border border-border rounded bg-input"
         />
       </div>
 
@@ -123,7 +123,7 @@ export function CalendarItemForm({
             setFormData({ ...formData, description: e.target.value })
           }
           rows={3}
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 border border-border rounded bg-input"
         />
       </div>
 
@@ -156,7 +156,7 @@ export function CalendarItemForm({
             setFormData({ ...formData, start_date: e.target.value })
           }
           required
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 border border-border rounded bg-input"
         />
       </div>
 
@@ -172,7 +172,7 @@ export function CalendarItemForm({
           onChange={(e) =>
             setFormData({ ...formData, end_date: e.target.value })
           }
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 border border-border rounded bg-input"
         />
       </div>
 
@@ -191,7 +191,7 @@ export function CalendarItemForm({
             value={formData.color}
             onChange={(e) => setFormData({ ...formData, color: e.target.value })}
             placeholder="#3B82F6"
-            className="flex-1 px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+            className="flex-1 px-3 py-2 border border-border rounded bg-input"
           />
         </div>
       </div>
@@ -210,7 +210,7 @@ export function CalendarItemForm({
             })
           }
           required
-          className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+          className="w-full px-3 py-2 border border-border rounded bg-input"
         >
           {getVisibilityOptions().map((option) => (
             <option key={option.value} value={option.value}>
@@ -233,9 +233,9 @@ export function CalendarItemForm({
               setFormData({ ...formData, daerah_id: e.target.value })
             }
             placeholder="UUID daerah (kosongkan untuk nasional)"
-            className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+            className="w-full px-3 py-2 border border-border rounded bg-input"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Kosongkan untuk tanggal penting nasional
           </p>
         </div>
@@ -247,7 +247,7 @@ export function CalendarItemForm({
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+          className="px-4 py-2 border border-border rounded hover:bg-muted"
         >
           Batal
         </button>

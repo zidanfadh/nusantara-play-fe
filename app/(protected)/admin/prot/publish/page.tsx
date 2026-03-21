@@ -62,7 +62,7 @@ export default function AdminPublishPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -71,8 +71,8 @@ export default function AdminPublishPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Publish ke Arsip Nasional</h1>
-        <p className="text-gray-600 mt-2">PROT yang sudah diverifikasi dan siap untuk dipublish</p>
+        <h1 className="text-3xl font-bold text-foreground">Publish ke Arsip Nasional</h1>
+        <p className="text-muted-foreground mt-2">PROT yang sudah diverifikasi dan siap untuk dipublish</p>
       </div>
 
       {error && (
@@ -84,25 +84,25 @@ export default function AdminPublishPage() {
       {loading ? (
         <div className="grid grid-cols-1 gap-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-white rounded-lg shadow-sm animate-pulse"></div>
+            <div key={i} className="h-32 bg-card rounded-lg shadow-sm animate-pulse"></div>
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-200">
-                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="bg-card rounded-lg shadow-sm p-12 text-center border border-border">
+                <svg className="w-16 h-16 text-muted-foreground/60 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak Ada PROT</h3>
-          <p className="text-gray-600">Belum ada PROT yang siap untuk dipublish.</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">Tidak Ada PROT</h3>
+          <p className="text-muted-foreground">Belum ada PROT yang siap untuk dipublish.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {items.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div key={item.id} className="bg-card rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold text-gray-900">{item.nama}</h3>
+                          <h3 className="text-xl font-bold text-foreground">{item.nama}</h3>
                           <span className="px-2.5 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
                             {item.status.replace(/_/g, ' ')}
                           </span>
@@ -113,7 +113,7 @@ export default function AdminPublishPage() {
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
                           <div className="flex items-center gap-1">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -130,7 +130,7 @@ export default function AdminPublishPage() {
                         </div>
 
                         {item.statusAsalUsul && (
-                          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                             {item.statusAsalUsul}
                           </p>
                         )}
@@ -139,7 +139,7 @@ export default function AdminPublishPage() {
                       <div className="flex gap-2 ml-6">
                         <Link
                           href={`/prot/${item.id}`}
-                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm font-medium"
+                          className="px-4 py-2 bg-muted text-foreground/80 rounded-md hover:bg-muted/80 transition-colors text-sm font-medium"
                         >
                           Lihat Detail
                         </Link>

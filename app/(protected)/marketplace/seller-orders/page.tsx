@@ -18,7 +18,7 @@ export default function SellerOrdersPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link href="/marketplace/toko-saya" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
+      <Link href="/marketplace/toko-saya" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeftIcon className="h-4 w-4 mr-1" />
         Kembali ke Toko Saya
       </Link>
@@ -30,22 +30,22 @@ export default function SellerOrdersPage() {
       {error && <div className="bg-red-50 border border-red-200 rounded-md p-4"><p className="text-red-800">{error.message}</p></div>}
 
       {!loading && !error && orders.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg shadow"><p className="text-gray-500">Belum ada pesanan masuk</p></div>
+        <div className="text-center py-12 bg-card rounded-lg shadow"><p className="text-muted-foreground">Belum ada pesanan masuk</p></div>
       )}
 
       {!loading && !error && orders.length > 0 && (
         <div className="space-y-4">
           {orders.map((order) => (
             <Link key={order.id} href={`/marketplace/orders/${order.id}`}>
-              <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer">
+              <div className="bg-card rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500">{formatDate(order.created_at)}</span>
+                  <span className="text-sm text-muted-foreground">{formatDate(order.created_at)}</span>
                   <OrderStatusBadge status={order.status} />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{order.buyer?.full_name || 'Pembeli'}</p>
-                    <p className="text-sm text-gray-600">{order.items.length} item</p>
+                    <p className="font-medium text-foreground">{order.buyer?.full_name || 'Pembeli'}</p>
+                    <p className="text-sm text-muted-foreground">{order.items.length} item</p>
                   </div>
                   <p className="text-lg font-bold text-emerald-600">{formatRupiah(order.total_harga)}</p>
                 </div>

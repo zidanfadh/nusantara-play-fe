@@ -38,64 +38,64 @@ export function EventRegistrationTable({
 
   if (registrations.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-lg shadow">
-        <p className="text-gray-500">Belum ada peserta yang mendaftar</p>
+      <div className="text-center py-12 bg-card rounded-lg shadow">
+        <p className="text-muted-foreground">Belum ada peserta yang mendaftar</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="bg-card shadow-md rounded-lg overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-border">
+          <thead className="bg-muted/50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 No
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Nama Peserta
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Tanggal Daftar
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Check-in
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Aksi
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-card divide-y divide-border">
             {registrations.map((registration, index) => (
-              <tr key={registration.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <tr key={registration.id} className="hover:bg-muted/50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                   {index + 1}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-foreground">
                     {registration.user?.full_name || registration.data_pendaftaran?.nama || '-'}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {registration.user?.email || registration.data_pendaftaran?.email || '-'}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {getStatusBadge(registration.status)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                   {formatDate(registration.created_at)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                   {registration.checked_in_at ? formatDate(registration.checked_in_at) : '-'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -120,7 +120,7 @@ export function EventRegistrationTable({
                     </button>
                   )}
                   {registration.status === RegistrationStatus.CANCELLED && (
-                    <span className="text-gray-400">-</span>
+                    <span className="text-muted-foreground/60">-</span>
                   )}
                 </td>
               </tr>
@@ -130,9 +130,9 @@ export function EventRegistrationTable({
       </div>
 
       {/* Summary */}
-      <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+      <div className="bg-muted/50 px-6 py-4 border-t border-border">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-700">Total Peserta: <strong>{registrations.length}</strong></span>
+          <span className="text-foreground/80">Total Peserta: <strong>{registrations.length}</strong></span>
           <div className="flex space-x-4">
             <span className="text-blue-700">
               Terdaftar: <strong>{registrations.filter(r => r.status === RegistrationStatus.REGISTERED).length}</strong>

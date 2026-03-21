@@ -22,7 +22,7 @@ export default function MarketplacePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Marketplace</h1>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-muted-foreground">
                 Temukan peralatan dan perlengkapan permainan tradisional Nusantara
               </p>
             </div>
@@ -30,7 +30,7 @@ export default function MarketplacePage() {
               {user && (
                 <Link
                   href="/marketplace/orders"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-white hover:bg-gray-50"
                 >
                   <ShoppingBagIcon className="h-5 w-5 mr-2" />
                   Pesanan Saya
@@ -54,7 +54,7 @@ export default function MarketplacePage() {
         {loading && (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
-            <p className="mt-2 text-gray-600">Memuat produk...</p>
+            <p className="mt-2 text-muted-foreground">Memuat produk...</p>
           </div>
         )}
 
@@ -66,8 +66,8 @@ export default function MarketplacePage() {
 
         {!loading && !error && (
           produkList.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow">
-              <p className="text-gray-500">Tidak ada produk yang ditemukan</p>
+            <div className="text-center py-12 bg-card rounded-lg shadow">
+              <p className="text-muted-foreground">Tidak ada produk yang ditemukan</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

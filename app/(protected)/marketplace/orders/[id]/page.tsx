@@ -53,17 +53,17 @@ export default function OrderDetailPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link href={isSeller ? '/marketplace/seller-orders' : '/marketplace/orders'} className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
+      <Link href={isSeller ? '/marketplace/seller-orders' : '/marketplace/orders'} className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeftIcon className="h-4 w-4 mr-1" />
         Kembali
       </Link>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-card rounded-lg shadow-md p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Detail Pesanan</h1>
-            <p className="text-sm text-gray-500 mt-1">{formatDate(order.created_at)}</p>
+            <h1 className="text-xl font-bold text-foreground">Detail Pesanan</h1>
+            <p className="text-sm text-muted-foreground mt-1">{formatDate(order.created_at)}</p>
           </div>
           <OrderStatusBadge status={order.status} />
         </div>
@@ -75,22 +75,22 @@ export default function OrderDetailPage() {
           {order.items.map((item) => (
             <div key={item.id} className="p-4 flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">{item.nama_produk}</p>
-                <p className="text-sm text-gray-500">{formatRupiah(item.harga_satuan)} x {item.qty}</p>
+                <p className="font-medium text-foreground">{item.nama_produk}</p>
+                <p className="text-sm text-muted-foreground">{formatRupiah(item.harga_satuan)} x {item.qty}</p>
               </div>
-              <p className="font-semibold text-gray-900">{formatRupiah(item.subtotal)}</p>
+              <p className="font-semibold text-foreground">{formatRupiah(item.subtotal)}</p>
             </div>
           ))}
-          <div className="p-4 flex items-center justify-between bg-gray-50">
-            <p className="font-bold text-gray-900">Total</p>
+          <div className="p-4 flex items-center justify-between bg-muted/50">
+            <p className="font-bold text-foreground">Total</p>
             <p className="text-xl font-bold text-emerald-600">{formatRupiah(order.total_harga)}</p>
           </div>
         </div>
 
         {/* Shipping Address */}
         <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">Alamat Pengiriman</h3>
-          <div className="bg-gray-50 rounded-md p-3 text-sm text-gray-700">
+          <h3 className="text-sm font-semibold text-foreground/80 mb-2">Alamat Pengiriman</h3>
+          <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground/80">
             <p className="font-medium">{order.shipping_address.nama_penerima}</p>
             <p>{order.shipping_address.phone}</p>
             <p>{order.shipping_address.alamat_lengkap}</p>
@@ -101,8 +101,8 @@ export default function OrderDetailPage() {
         {/* Tracking Info */}
         {order.kurir_pengiriman && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Info Pengiriman</h3>
-            <div className="bg-gray-50 rounded-md p-3 text-sm text-gray-700">
+            <h3 className="text-sm font-semibold text-foreground/80 mb-2">Info Pengiriman</h3>
+            <div className="bg-muted/50 rounded-md p-3 text-sm text-foreground/80">
               <p>Kurir: <span className="font-medium">{order.kurir_pengiriman}</span></p>
               <p>No. Resi: <span className="font-medium">{order.nomor_resi}</span></p>
             </div>
@@ -111,42 +111,42 @@ export default function OrderDetailPage() {
 
         {order.catatan && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Catatan</h3>
-            <p className="text-sm text-gray-600">{order.catatan}</p>
+            <h3 className="text-sm font-semibold text-foreground/80 mb-2">Catatan</h3>
+            <p className="text-sm text-muted-foreground">{order.catatan}</p>
           </div>
         )}
 
         {/* Toko / Buyer info */}
         {isBuyer && order.toko && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Penjual</h3>
+            <h3 className="text-sm font-semibold text-foreground/80 mb-2">Penjual</h3>
             <Link href={`/marketplace/toko/${order.toko.id}`} className="text-sm text-emerald-600 hover:underline">{order.toko.nama}</Link>
           </div>
         )}
         {isSeller && order.buyer && (
           <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Pembeli</h3>
-            <p className="text-sm text-gray-700">{order.buyer.full_name} ({order.buyer.email})</p>
+            <h3 className="text-sm font-semibold text-foreground/80 mb-2">Pembeli</h3>
+            <p className="text-sm text-foreground/80">{order.buyer.full_name} ({order.buyer.email})</p>
           </div>
         )}
 
         {/* Kirim form */}
         {showKirimForm && (
           <div className="mb-6 p-4 border rounded-md space-y-3">
-            <h3 className="text-sm font-semibold text-gray-700">Informasi Pengiriman</h3>
+            <h3 className="text-sm font-semibold text-foreground/80">Informasi Pengiriman</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Kurir</label>
-              <input type="text" value={kirimData.kurir_pengiriman} onChange={(e) => setKirimData((p) => ({ ...p, kurir_pengiriman: e.target.value }))} placeholder="JNE, JNT, SiCepat, dll" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 sm:text-sm" />
+              <label className="block text-sm font-medium text-foreground/80">Kurir</label>
+              <input type="text" value={kirimData.kurir_pengiriman} onChange={(e) => setKirimData((p) => ({ ...p, kurir_pengiriman: e.target.value }))} placeholder="JNE, JNT, SiCepat, dll" className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Nomor Resi</label>
-              <input type="text" value={kirimData.nomor_resi} onChange={(e) => setKirimData((p) => ({ ...p, nomor_resi: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 sm:text-sm" />
+              <label className="block text-sm font-medium text-foreground/80">Nomor Resi</label>
+              <input type="text" value={kirimData.nomor_resi} onChange={(e) => setKirimData((p) => ({ ...p, nomor_resi: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm" />
             </div>
             <div className="flex space-x-2">
               <button onClick={handleKirim} disabled={actionLoading || !kirimData.kurir_pengiriman || !kirimData.nomor_resi} className="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 disabled:opacity-50">
                 {actionLoading ? 'Memproses...' : 'Kirim Pesanan'}
               </button>
-              <button onClick={() => setShowKirimForm(false)} className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700">Batal</button>
+              <button onClick={() => setShowKirimForm(false)} className="px-4 py-2 border border-border rounded-md text-sm text-foreground/80">Batal</button>
             </div>
           </div>
         )}

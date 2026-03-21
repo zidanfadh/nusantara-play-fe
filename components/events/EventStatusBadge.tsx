@@ -8,7 +8,7 @@ export function EventStatusBadge({ status }: EventStatusBadgeProps) {
   const getStatusColor = (status: EventStatus) => {
     switch (status) {
       case EventStatus.DRAFT:
-        return 'bg-gray-100 text-gray-700 border-gray-300';
+        return 'bg-muted text-muted-foreground border-border';
       case EventStatus.PUBLISHED:
         return 'bg-blue-100 text-blue-700 border-blue-300';
       case EventStatus.ONGOING:
@@ -18,7 +18,7 @@ export function EventStatusBadge({ status }: EventStatusBadgeProps) {
       case EventStatus.CANCELLED:
         return 'bg-red-100 text-red-700 border-red-300';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-300';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 

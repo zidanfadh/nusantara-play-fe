@@ -42,7 +42,7 @@ export default function ProdukDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <Link href="/marketplace" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
+      <Link href="/marketplace" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
         <ArrowLeftIcon className="h-4 w-4 mr-1" />
         Kembali ke Marketplace
       </Link>
@@ -74,12 +74,12 @@ export default function ProdukDetailPage() {
             </span>
           )}
 
-          <h1 className="text-2xl font-bold text-gray-900">{produk.nama}</h1>
+          <h1 className="text-2xl font-bold text-foreground">{produk.nama}</h1>
           <p className="text-3xl font-bold text-emerald-600 mt-2">{formatRupiah(produk.harga)}</p>
 
           <div className="mt-2">
             {produk.stok > 0 ? (
-              <span className="text-sm text-gray-600">Stok: {produk.stok}</span>
+              <span className="text-sm text-muted-foreground">Stok: {produk.stok}</span>
             ) : (
               <span className="text-sm text-red-600 font-medium">Stok Habis</span>
             )}
@@ -87,15 +87,15 @@ export default function ProdukDetailPage() {
 
           {produk.deskripsi && (
             <div className="mt-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-1">Deskripsi</h3>
-              <p className="text-gray-600 whitespace-pre-wrap">{produk.deskripsi}</p>
+              <h3 className="text-sm font-semibold text-foreground/80 mb-1">Deskripsi</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap">{produk.deskripsi}</p>
             </div>
           )}
 
           {/* Related PROTs */}
           {produk.prots && produk.prots.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Terkait dengan PROT</h3>
+              <h3 className="text-sm font-semibold text-foreground/80 mb-2">Terkait dengan PROT</h3>
               <div className="flex flex-wrap gap-2">
                 {produk.prots.map((prot) => (
                   <Link key={prot.id} href={`/prot/${prot.id}`} className="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full hover:bg-indigo-200">
@@ -108,11 +108,11 @@ export default function ProdukDetailPage() {
 
           {/* Toko */}
           {produk.toko && (
-            <Link href={`/marketplace/toko/${produk.toko.id}`} className="mt-4 flex items-center p-3 bg-gray-50 rounded-md hover:bg-gray-100">
+            <Link href={`/marketplace/toko/${produk.toko.id}`} className="mt-4 flex items-center p-3 bg-muted/50 rounded-md hover:bg-muted">
               <BuildingStorefrontIcon className="h-8 w-8 text-emerald-600 mr-3" />
               <div>
-                <p className="font-medium text-gray-900">{produk.toko.nama}</p>
-                {produk.toko.alamat && <p className="text-xs text-gray-500">{produk.toko.alamat}</p>}
+                <p className="font-medium text-foreground">{produk.toko.nama}</p>
+                {produk.toko.alamat && <p className="text-xs text-muted-foreground">{produk.toko.alamat}</p>}
               </div>
             </Link>
           )}

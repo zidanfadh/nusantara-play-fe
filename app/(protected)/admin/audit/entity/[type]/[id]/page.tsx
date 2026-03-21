@@ -56,10 +56,10 @@ export default function EntityAuditPage() {
           Kembali
         </button>
         
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-foreground">
           Audit Log - {formatEntityType(entityType)}
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-muted-foreground">
           Riwayat perubahan untuk entity ID:{' '}
           <span className="font-mono text-sm">{entityId}</span>
         </p>

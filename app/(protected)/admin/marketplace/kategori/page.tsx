@@ -75,26 +75,26 @@ export default function AdminKategoriPage() {
 
       {/* Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 mb-6 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-card rounded-lg shadow-md p-6 mb-6 space-y-4">
           <h2 className="text-lg font-semibold">{editingId ? 'Edit Kategori' : 'Tambah Kategori Baru'}</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nama *</label>
-            <input type="text" value={formData.nama} onChange={(e) => handleNamaChange(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 sm:text-sm" required />
+            <label className="block text-sm font-medium text-foreground/80">Nama *</label>
+            <input type="text" value={formData.nama} onChange={(e) => handleNamaChange(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground/80 sm:text-sm" required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Slug *</label>
-            <input type="text" value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 sm:text-sm" required />
+            <label className="block text-sm font-medium text-foreground/80">Slug *</label>
+            <input type="text" value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground/80 sm:text-sm" required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Deskripsi</label>
-            <textarea value={formData.deskripsi || ''} onChange={(e) => setFormData((p) => ({ ...p, deskripsi: e.target.value }))} rows={2} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-gray-700 sm:text-sm" />
+            <label className="block text-sm font-medium text-foreground/80">Deskripsi</label>
+            <textarea value={formData.deskripsi || ''} onChange={(e) => setFormData((p) => ({ ...p, deskripsi: e.target.value }))} rows={2} className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground/80 sm:text-sm" />
           </div>
           {formError && <p className="text-sm text-red-600">{formError}</p>}
           <div className="flex space-x-3">
             <button type="submit" disabled={formLoading} className="px-4 py-2 bg-emerald-600 text-white rounded-md text-sm font-medium hover:bg-emerald-700 disabled:opacity-50">
               {formLoading ? 'Menyimpan...' : 'Simpan'}
             </button>
-            <button type="button" onClick={resetForm} className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700">Batal</button>
+            <button type="button" onClick={resetForm} className="px-4 py-2 border border-border rounded-md text-sm text-foreground/80">Batal</button>
           </div>
         </form>
       )}
@@ -106,25 +106,25 @@ export default function AdminKategoriPage() {
 
       {/* Table */}
       {!loading && !error && (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+        <div className="bg-card rounded-lg shadow-md overflow-hidden">
+          <table className="min-w-full divide-y divide-border">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Slug</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deskripsi</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Nama</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Slug</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Deskripsi</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {kategoriList.length === 0 ? (
-                <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-500">Belum ada kategori</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">Belum ada kategori</td></tr>
               ) : (
                 kategoriList.map((k) => (
                   <tr key={k.id}>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{k.nama}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{k.slug}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{k.deskripsi || '-'}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-foreground">{k.nama}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">{k.slug}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">{k.deskripsi || '-'}</td>
                     <td className="px-6 py-4 text-right space-x-2">
                       <button onClick={() => handleEdit(k)} className="text-indigo-600 hover:text-indigo-900"><PencilIcon className="h-4 w-4 inline" /></button>
                       <button onClick={() => handleDelete(k.id)} className="text-red-600 hover:text-red-900"><TrashIcon className="h-4 w-4 inline" /></button>

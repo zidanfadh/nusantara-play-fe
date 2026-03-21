@@ -52,14 +52,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-gradient-to-r from-white to-[#FFF9F0] rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
-        <h1 className="text-xl font-bold text-[#2D2D2D]">Dashboard</h1>
-        <p className="text-[#6B6B6B] mt-1 text-xs">Ringkasan sistem Nusantara Play</p>
+      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+        <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground mt-1 text-xs">Ringkasan sistem Nusantara Play</p>
       </div>
 
       {/* User Statistics */}
       <div>
-        <h2 className="text-base font-bold text-[#2D2D2D] mb-3 flex items-center">
+        <h2 className="text-base font-bold text-foreground mb-3 flex items-center">
           <span className="h-5 w-1 bg-[#C04A21] rounded-full mr-2"></span>
           Statistik Pengguna
         </h2>
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
 
       {/* Daerah Statistics */}
       <div>
-        <h2 className="text-base font-bold text-[#2D2D2D] mb-3 flex items-center">
+        <h2 className="text-base font-bold text-foreground mb-3 flex items-center">
           <span className="h-5 w-1 bg-[#1A5F7A] rounded-full mr-2"></span>
           Statistik Daerah
         </h2>
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-base font-bold text-[#2D2D2D] mb-3 flex items-center">
+        <h2 className="text-base font-bold text-foreground mb-3 flex items-center">
           <span className="h-5 w-1 bg-[#D4A017] rounded-full mr-2"></span>
           Aksi Cepat
         </h2>
@@ -189,11 +189,11 @@ function StatCard({ title, value, icon, color }: StatCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-lg border border-[#E5E0D4] p-4 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5">
+    <div className="bg-card rounded-lg shadow-sm hover:shadow-lg border border-border p-4 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-[10px] font-semibold text-[#6B6B6B] uppercase tracking-wide">{title}</p>
-          <p className="text-2xl font-bold text-[#2D2D2D] mt-1.5">{value.toLocaleString()}</p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{title}</p>
+          <p className="text-2xl font-bold text-foreground mt-1.5">{value.toLocaleString()}</p>
         </div>
         <div className={`p-2.5 rounded-lg shadow-sm ${colorClasses[color]}`}>
           {icon}
@@ -214,17 +214,17 @@ function QuickActionCard({ title, description, href, icon }: QuickActionCardProp
   return (
     <a
       href={href}
-      className="bg-white rounded-lg shadow-sm hover:shadow-lg border-2 border-[#E5E0D4] hover:border-[#C04A21] p-4 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 group"
+      className="bg-card rounded-lg shadow-sm hover:shadow-lg border-2 border-border hover:border-[#C04A21] p-4 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 group"
     >
       <div className="flex items-start space-x-3">
         <div className="p-2 bg-gradient-to-br from-[#D4A017] to-[#E5B028] text-white rounded-lg group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
           {icon}
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-[#2D2D2D] group-hover:text-[#C04A21] transition-colors">
+          <h3 className="text-sm font-bold text-foreground group-hover:text-[#C04A21] transition-colors">
             {title}
           </h3>
-          <p className="text-xs text-[#6B6B6B] mt-1 leading-relaxed">{description}</p>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
           <div className="mt-2 flex items-center text-[#1A5F7A] font-medium text-xs group-hover:text-[#C04A21] transition-colors">
             <span>Lihat selengkapnya</span>
             <svg className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

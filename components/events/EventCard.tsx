@@ -25,7 +25,7 @@ export function EventCard({ event, showStatus = false }: EventCardProps) {
 
   return (
     <Link href={`/events/${event.id}`}>
-      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer">
+      <div className="bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer">
         {/* Banner */}
         {event.banner_url ? (
           <img
@@ -46,7 +46,7 @@ export function EventCard({ event, showStatus = false }: EventCardProps) {
           {/* Header */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+              <h3 className="text-lg font-semibold text-foreground line-clamp-2">
                 {event.nama}
               </h3>
               <span className="inline-block mt-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
@@ -61,28 +61,28 @@ export function EventCard({ event, showStatus = false }: EventCardProps) {
           </div>
 
           {/* Description */}
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
             {event.deskripsi}
           </p>
 
           {/* Info */}
           <div className="space-y-2">
             {/* Date */}
-            <div className="flex items-center text-sm text-gray-700">
-              <CalendarIcon className="h-4 w-4 mr-2 text-gray-400" />
+            <div className="flex items-center text-sm text-foreground/80">
+              <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
               <span>{formatDate(event.tanggal_mulai)}</span>
             </div>
 
             {/* Location */}
-            <div className="flex items-center text-sm text-gray-700">
-              <MapPinIcon className="h-4 w-4 mr-2 text-gray-400" />
+            <div className="flex items-center text-sm text-foreground/80">
+              <MapPinIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
               <span className="line-clamp-1">{event.lokasi}</span>
             </div>
 
             {/* Participants */}
             {event.kuota_peserta && (
-              <div className="flex items-center text-sm text-gray-700">
-                <UsersIcon className="h-4 w-4 mr-2 text-gray-400" />
+              <div className="flex items-center text-sm text-foreground/80">
+                <UsersIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
                 <span>
                   {event.jumlah_peserta} / {event.kuota_peserta} peserta
                 </span>
@@ -97,10 +97,10 @@ export function EventCard({ event, showStatus = false }: EventCardProps) {
 
           {/* Organizer */}
           {event.organizer && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <p className="text-xs text-gray-500">
+            <div className="mt-3 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground">
                 Diselenggarakan oleh{' '}
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-foreground/80">
                   {event.organizer.full_name}
                 </span>
               </p>
