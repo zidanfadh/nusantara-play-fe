@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useState, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { AppNavbar } from '@/components/ui/AppNavbar';
+import { AppFooter } from '@/components/ui/AppFooter';
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -32,11 +33,12 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <AppNavbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+      <AppFooter />
     </div>
   );
 }
