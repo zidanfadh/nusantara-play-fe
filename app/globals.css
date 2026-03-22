@@ -1,27 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #F7F3E8;
-  --color-foreground: #2D2D2D;
+  --color-background: #FDF9F3;
+  --color-foreground: #1C1C18;
   --color-card: #FFFFFF;
-  --color-card-foreground: #2D2D2D;
-  --color-primary: #C04A21;
+  --color-card-foreground: #1C1C18;
+  --color-primary: #9E3C24;
   --color-primary-foreground: #FFFFFF;
   --color-secondary: #1A5F7A;
   --color-secondary-foreground: #FFFFFF;
   --color-accent: #D4A017;
-  --color-accent-foreground: #2D2D2D;
-  --color-muted: #E5E0D4;
+  --color-accent-foreground: #1C1C18;
+  --color-muted: #E6E2DC;
   --color-muted-foreground: #6B6B6B;
   --color-border: #D6CDB8;
   --color-input: #D6CDB8;
-  --color-ring: #C04A21;
+  --color-ring: #9E3C24;
   --radius: 0.5rem;
   --radius-sm: calc(0.5rem - 2px);
-  --radius-md: 0.5rem;
+  --radius-md: 0.75rem;
   --radius-lg: calc(0.5rem + 2px);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Design System — "The Modern Wayfarer" tokens */
+  --color-surface-container-low: #F7F3ED;
+  --color-surface-container-highest: #E6E2DC;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-primary-fixed: #FFDAD2;
+  --color-on-primary-fixed: #3B0A00;
+  --color-on-surface: #1C1C18;
+  --color-outline-variant: #C8C4BE;
 
   /* Warm design-system tokens */
   --color-warm-card: #F1EDE7;
@@ -62,6 +71,15 @@
   --color-warm-btn-hover: #403D3A;
   --color-warm-label: #9A8880;
   --color-warm-neutral: #B0ADAD;
+
+  /* Design system surface tokens — dark overrides */
+  --color-surface-container-lowest: #1A1816;
+  --color-surface-container-low: #1E1C18;
+  --color-surface-container-highest: #2C2A26;
+  --color-primary-fixed: #3C1000;
+  --color-on-primary-fixed: #FFDAD2;
+  --color-on-surface: #EBE7E0;
+  --color-outline-variant: #3A3530;
 }
 
 @layer base {

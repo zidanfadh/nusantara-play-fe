@@ -109,7 +109,7 @@ export default function CreateProtPage() {
   return (
     <>
       {/* Breadcrumb */}
-      <div className="bg-background border-b shadow-sm">
+      <div className="bg-background">
          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center gap-2 text-sm mb-2">
                <Link href="/" className="hover:text-primary">Beranda</Link>
@@ -122,9 +122,9 @@ export default function CreateProtPage() {
          </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="max-w-5xl mx-auto px-6 lg:px-12 py-10">
         {error && (
-            <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+            <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm">
                 {error}
             </div>
         )}
