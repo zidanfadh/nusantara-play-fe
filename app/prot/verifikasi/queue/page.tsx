@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { protApi } from '@/lib/api/prot';
 import { VerifikasiQueue } from '@/types/prot';
 import { VerificationTable } from '@/components/prot/VerificationTable';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 
 export default function VerificationQueuePage() {
   const router = useRouter();
@@ -57,10 +56,7 @@ export default function VerificationQueuePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <ProtNavigation />
-
-      <main className="container mx-auto px-4 py-8">
+    <>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Antrean Verifikasi Tersedia</h1>
           <button
@@ -104,7 +100,6 @@ export default function VerificationQueuePage() {
             </button>
           </div>
         )}
-      </main>
-    </div>
+    </>
   );
 }

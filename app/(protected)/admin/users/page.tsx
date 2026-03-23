@@ -77,34 +77,34 @@ export default function UsersManagementPage() {
 
     return (
         <div className="space-y-5">
-            <div className="bg-gradient-to-r from-white to-[#FFF9F0] rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
-                <h1 className="text-xl font-bold text-[#2D2D2D]">Manajemen User</h1>
-                <p className="mt-1 text-[#6B6B6B] text-xs">
+            <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+                <h1 className="text-xl font-bold text-foreground">Manajemen User</h1>
+                <p className="mt-1 text-muted-foreground text-xs">
                     Kelola semua user di sistem
                 </p>
             </div>
 
             {/* Statistics Card */}
             {stats && (
-                <div className="bg-white rounded-lg shadow-sm p-4">
-                    <p className="text-[10px] text-[#6B6B6B] mb-1 uppercase font-semibold tracking-wide">Total User</p>
+                <div className="bg-card rounded-lg shadow-sm p-4">
+                    <p className="text-[10px] text-muted-foreground mb-1 uppercase font-semibold tracking-wide">Total User</p>
                     <p className="text-2xl font-bold text-[#1A5F7A]">{stats.total}</p>
                 </div>
             )}
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-                <h3 className="text-base font-bold mb-3 text-[#2D2D2D]">Filter</h3>
+            <div className="bg-card p-4 rounded-lg shadow-sm">
+                <h3 className="text-base font-bold mb-3 text-foreground">Filter</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label htmlFor="role" className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                        <label htmlFor="role" className="block text-xs font-medium text-muted-foreground mb-1">
                             Role
                         </label>
                         <select
                             id="role"
                             value={selectedRole}
                             onChange={(e) => setSelectedRole(e.target.value as UserRole | '')}
-                            className="w-full px-3 py-2 text-gray-700 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                            className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
                         >
                             <option value="">Semua Role</option>
                             <option value="publik">Publik</option>
@@ -115,14 +115,14 @@ export default function UsersManagementPage() {
                     </div>
 
                     <div>
-                        <label htmlFor="status" className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                        <label htmlFor="status" className="block text-xs font-medium text-muted-foreground mb-1">
                             Status
                         </label>
                         <select
                             id="status"
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value as UserStatus | '')}
-                            className="w-full px-3 text-gray-700 py-2 text-sm border  rounded-md focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                            className="w-full px-3 text-foreground/80 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
                         >
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>
@@ -140,7 +140,7 @@ export default function UsersManagementPage() {
                         </button>
                         <button
                             onClick={handleReset}
-                            className="px-4 py-2 bg-[#E5E0D4] text-[#6B6B6B] rounded-lg text-sm hover:bg-[#D6CDB8] focus:outline-none focus:ring-2 focus:ring-[#D6CDB8] transition-colors"
+                            className="px-4 py-2 bg-muted text-muted-foreground rounded-lg text-sm hover:bg-muted/80 focus:outline-none transition-colors"
                         >
                             Reset
                         </button>

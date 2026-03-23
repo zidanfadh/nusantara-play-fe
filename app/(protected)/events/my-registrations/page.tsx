@@ -42,7 +42,7 @@ export default function MyRegistrationsPage() {
         <div className="mb-8">
           <Link
             href="/events"
-            className="inline-flex items-center hover:text-gray-400 mb-4"
+            className="inline-flex items-center hover:text-muted-foreground/60 mb-4"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Kembali ke Semua Event
@@ -83,8 +83,8 @@ export default function MyRegistrationsPage() {
                 )}
 
                 {/* Registration Info */}
-                <div className="mt-2 p-4 bg-white rounded-b-lg border border-gray-300">
-                  <div className="text-sm text-gray-600">
+                <div className="mt-2 p-4 bg-card rounded-b-lg border border-border">
+                  <div className="text-sm text-muted-foreground">
                     <p>
                       <strong>Tanggal Daftar:</strong>{' '}
                       {new Date(registration.created_at).toLocaleDateString('id-ID', {
@@ -111,9 +111,9 @@ export default function MyRegistrationsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
+          <div className="text-center py-12 bg-card rounded-lg shadow">
             <svg
-              className="mx-auto h-12 w-12 text-gray-400"
+              className="mx-auto h-12 w-12 text-muted-foreground/60"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -125,10 +125,10 @@ export default function MyRegistrationsPage() {
                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
               />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
+            <h3 className="mt-2 text-sm font-medium text-foreground">
               Belum ada event yang didaftar
             </h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Anda belum mendaftar ke event manapun.
             </p>
             <div className="mt-6">

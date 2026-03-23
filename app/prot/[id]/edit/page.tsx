@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ProtForm } from '@/components/prot/ProtForm';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { protApi } from '@/lib/api/prot';
 import { PROTEntity, PROTStatus } from '@/types/prot';
 
@@ -199,23 +198,17 @@ export default function EditProtPage() {
 
   if (isFetching) {
       return (
-          <div className="min-h-screen bg-gray-50">
-              <ProtNavigation />
-              <div className="flex items-center justify-center py-20">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-              </div>
+          <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
       );
   }
 
   if (!initialData) {
       return (
-        <div className="min-h-screen bg-gray-50">
-            <ProtNavigation />
-            <div className="pt-20 text-center">
-                <h2 className="text-xl font-semibold text-gray-900">Data tidak ditemukan</h2>
-                <Link href="/prot" className="text-primary hover:underline mt-4 inline-block">Kembali ke Daftar</Link>
-            </div>
+        <div className="pt-20 text-center">
+            <h2 className="text-xl font-semibold text-gray-900">Data tidak ditemukan</h2>
+            <Link href="/prot" className="text-primary hover:underline mt-4 inline-block">Kembali ke Daftar</Link>
         </div>
       );
   }
@@ -223,9 +216,7 @@ export default function EditProtPage() {
   // Check permissions: Only DRAFT or REVISI can be edited
   if (initialData.status !== PROTStatus.DRAFT && initialData.status !== PROTStatus.REVISI) {
       return (
-        <div className="min-h-screen bg-background">
-            <ProtNavigation />
-            <div className="pt-20 px-4">
+        <div className="pt-20 px-4">
                 <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">
                     <div className="text-amber-500 mb-4 flex justify-center">
                         <svg className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -244,15 +235,11 @@ export default function EditProtPage() {
                     </Link>
                 </div>
             </div>
-        </div>
       );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      {/* Navigation */}
-      <ProtNavigation />
-
+    <>
       {/* Breadcrumb Section */}
       <div className="bg-background border-b shadow-sm">
          <div className="container mx-auto px-4 py-4">
@@ -282,6 +269,6 @@ export default function EditProtPage() {
             isLoading={isLoading}
         />
       </div>
-    </div>
+    </>
   );
 }

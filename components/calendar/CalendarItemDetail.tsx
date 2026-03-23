@@ -126,13 +126,13 @@ export function CalendarItemDetail({
   if (error) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
+        <div className="bg-card border border-border rounded-xl shadow-xl max-w-2xl w-full mx-4 p-6">
           <div className="text-red-600 dark:text-red-400">
             Error: {error.message}
           </div>
           <button
             onClick={onClose}
-            className="mt-4 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+            className="mt-4 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors"
           >
             Tutup
           </button>
@@ -144,8 +144,12 @@ export function CalendarItemDetail({
   if (isLoading || !item) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
-          <div className="text-center">Loading...</div>
+        <div className="bg-card border border-border rounded-xl shadow-xl max-w-2xl w-full mx-4 p-6">
+          <div className="space-y-3">
+            <div className="h-6 bg-muted rounded animate-pulse w-1/3" />
+            <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
+            <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+          </div>
         </div>
       </div>
     );
@@ -153,9 +157,9 @@ export function CalendarItemDetail({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 my-8">
+      <div className="bg-card border border-border rounded-xl shadow-xl max-w-2xl w-full mx-4 my-8">
         {/* Header */}
-        <div className="p-6 border-b dark:border-gray-700">
+        <div className="p-6 border-b border-border">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
@@ -163,10 +167,10 @@ export function CalendarItemDetail({
                   className="w-4 h-4 rounded"
                   style={{ backgroundColor: item.color || '#3B82F6' }}
                 />
-                <span className="text-sm px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                <span className="text-xs px-2 py-1 rounded-md bg-primary/10 text-primary font-medium">
                   {getTypeLabel(item.type)}
                 </span>
-                <span className="text-sm px-2 py-1 rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                <span className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground">
                   {item.visibility}
                 </span>
               </div>
@@ -174,9 +178,11 @@ export function CalendarItemDetail({
             </div>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              ✕
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         </div>
@@ -187,7 +193,7 @@ export function CalendarItemDetail({
           {item.description && (
             <div>
               <h3 className="font-semibold mb-1">Deskripsi</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 {item.description}
               </p>
             </div>
@@ -196,7 +202,7 @@ export function CalendarItemDetail({
           {/* Date & Time */}
           <div>
             <h3 className="font-semibold mb-1">Tanggal & Waktu</h3>
-            <div className="text-gray-600 dark:text-gray-400">
+            <div className="text-muted-foreground">
               <div>
                 📅 {formatDate(item.start_date)}
                 {!item.all_day && ` • ${formatTime(item.start_date)}`}
@@ -208,7 +214,7 @@ export function CalendarItemDetail({
                 </div>
               )}
               {item.all_day && (
-                <div className="text-sm text-gray-500 mt-1">Sepanjang hari</div>
+                <div className="text-sm text-muted-foreground mt-1">Sepanjang hari</div>
               )}
             </div>
           </div>
@@ -217,7 +223,7 @@ export function CalendarItemDetail({
           {item.creator && (
             <div>
               <h3 className="font-semibold mb-1">Dibuat oleh</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 {item.creator.full_name} ({item.creator.email})
               </p>
             </div>
@@ -227,7 +233,7 @@ export function CalendarItemDetail({
           {item.daerah && (
             <div>
               <h3 className="font-semibold mb-1">Daerah</h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground">
                 {item.daerah.nama}
               </p>
             </div>
@@ -239,17 +245,17 @@ export function CalendarItemDetail({
               <h3 className="font-semibold mb-2">Undangan</h3>
               <div className="space-y-2">
                 {item.invites
-                  .filter((invite) => invite.user) // Filter out invites with undefined user
+                  .filter((invite) => invite.user)
                   .map((invite) => (
                     <div
                       key={invite.id}
-                      className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded"
+                      className="flex items-center justify-between p-2 bg-muted/50 rounded-lg"
                     >
                       <div>
                         <div className="font-medium">
                           {invite.user?.full_name || 'Unknown User'}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-muted-foreground">
                           {invite.user?.email || 'No email'}
                         </div>
                       </div>
@@ -267,7 +273,7 @@ export function CalendarItemDetail({
           )}
 
           {/* Timestamps */}
-          <div className="text-xs text-gray-500 dark:text-gray-400 pt-4 border-t dark:border-gray-700">
+          <div className="text-xs text-muted-foreground pt-4 border-t border-border space-y-1">
             <div>
               Dibuat: {new Date(item.created_at).toLocaleString('id-ID')}
             </div>
@@ -279,7 +285,7 @@ export function CalendarItemDetail({
 
         {/* Inline Invite Form */}
         {item.visibility !== 'public' && (
-          <div className="border-t dark:border-gray-700 px-6 pt-5 pb-2">
+          <div className="border-t border-border px-6 pt-5 pb-2">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Undang via Email</h3>
               <button
@@ -288,7 +294,7 @@ export function CalendarItemDetail({
                   setInviteError(null);
                   setInviteSuccess(null);
                 }}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-sm text-primary hover:underline"
               >
                 {showInviteForm ? 'Sembunyikan' : 'Tampilkan'}
               </button>
@@ -303,12 +309,12 @@ export function CalendarItemDetail({
                     onChange={(e) => setEmailInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEmail())}
                     placeholder="email@example.com"
-                    className="flex-1 px-3 py-2 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"
+                    className="flex-1 px-3 py-2 text-sm bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                   <button
                     onClick={addEmail}
                     type="button"
-                    className="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-sm"
+                    className="px-3 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm transition-colors"
                   >
                     Tambah
                   </button>
@@ -319,7 +325,7 @@ export function CalendarItemDetail({
                     {emailList.map((email) => (
                       <div
                         key={email}
-                        className="flex items-center justify-between px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded text-sm"
+                        className="flex items-center justify-between px-3 py-1.5 bg-muted/50 rounded-lg text-sm"
                       >
                         <span>{email}</span>
                         <button
@@ -343,7 +349,7 @@ export function CalendarItemDetail({
                 <button
                   onClick={handleInviteSubmit}
                   disabled={isInviting || emailList.length === 0}
-                  className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
                 >
                   {isInviting ? 'Mengirim...' : `Kirim Undangan (${emailList.length})`}
                 </button>
@@ -353,31 +359,29 @@ export function CalendarItemDetail({
         )}
 
         {/* Actions */}
-        <div className="p-6 border-t dark:border-gray-700 flex justify-end">
-          <div className="flex gap-2">
-            {onEdit && (
-              <button
-                onClick={onEdit}
-                className="px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                Edit
-              </button>
-            )}
-            {onDelete && (
-              <button
-                onClick={onDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Hapus
-              </button>
-            )}
+        <div className="p-6 border-t border-border flex justify-end gap-2">
+          {onEdit && (
             <button
-              onClick={onClose}
-              className="px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={onEdit}
+              className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
             >
-              Tutup
+              Edit
             </button>
-          </div>
+          )}
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Hapus
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
+          >
+            Tutup
+          </button>
         </div>
       </div>
     </div>

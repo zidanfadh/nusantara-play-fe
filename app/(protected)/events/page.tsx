@@ -52,7 +52,7 @@ export default function EventsPage() {
               {user && (
                 <Link
                   href="/events/my-registrations"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Event Terdaftar
                 </Link>
@@ -60,7 +60,7 @@ export default function EventsPage() {
               {canCreateEvent && (
                 <Link
                   href="/events/my-events"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Event Saya
                 </Link>
@@ -85,7 +85,7 @@ export default function EventsPage() {
         {loading && (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            <p className="mt-2 text-gray-600">Memuat events...</p>
+            <p className="mt-2 text-muted-foreground">Memuat events...</p>
           </div>
         )}
 
@@ -117,17 +117,17 @@ export default function EventsPage() {
                 <button
                   onClick={() => handlePageChange(data.pagination.page - 1)}
                   disabled={!data.pagination.hasPrev}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
-                <span className="px-4 py-2 text-sm text-gray-700">
+                <span className="px-4 py-2 text-sm text-foreground/80">
                   Halaman {data.pagination.page} dari {data.pagination.totalPages}
                 </span>
                 <button
                   onClick={() => handlePageChange(data.pagination.page + 1)}
                   disabled={!data.pagination.hasNext}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

@@ -22,6 +22,14 @@
   --radius-lg: calc(0.5rem + 2px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Warm design-system tokens */
+  --color-warm-card: #F1EDE7;
+  --color-warm-field: #E6E2DC;
+  --color-warm-btn: #E2DFDE;
+  --color-warm-btn-hover: #D5D2D1;
+  --color-warm-label: #8A726C;
+  --color-warm-neutral: #636262;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -44,6 +52,16 @@
     --color-input: #404040;
     --color-ring: #D65C2E;
   }
+}
+
+/* Warm token dark overrides — unlayered so they beat @theme's unlayered :root */
+:root.dark {
+  --color-warm-card: #211F1C;
+  --color-warm-field: #2C2A26;
+  --color-warm-btn: #363330;
+  --color-warm-btn-hover: #403D3A;
+  --color-warm-label: #9A8880;
+  --color-warm-neutral: #B0ADAD;
 }
 
 @layer base {

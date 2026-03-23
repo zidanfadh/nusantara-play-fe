@@ -1,231 +1,199 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ShoppingBag,
+  BadgeCheck,
+  Calendar,
+  Award,
+  Landmark,
+  Dumbbell,
+} from 'lucide-react';
 
 export default async function MenuPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const menuItems = [
-    {
-      title: 'Permainan & Olahraga Tradisional',
-      description: 'Jelajahi dan kelola database PROT Indonesia',
-      image: 'https://smansakuto.sch.id/assets/upload/berita/7f1f5a49f9c3704e9513d0b63ecd0daa.jpg',
-      icon: (
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
-        </svg>
-      ),
-      href: '/prot',
-      color: 'bg-blue-500',
-      gradient: 'from-blue-500 to-blue-600',
-    },
-    {
-      title: 'Events',
-      description: 'Jelajahi dan kelola event yang tersedia',
-      image: 'https://www.aprilasia.com/id/images/media/pacu-jalur-rapp-02.jpg',
-      icon: (
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      ),
-      href: '/events',
-      color: 'bg-purple-500',
-      gradient: 'from-purple-500 to-purple-600',
-    },
-    {
-      title: 'Marketplace',
-      description: 'Jelajahi dan kelola produk di marketplace',
-      image: 'https://down-id.img.susercontent.com/file/0e88b598d61825ceda008b0854ece18d',
-      icon: (
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      ),
-      href: '/marketplace',
-      color: 'bg-amber-500',
-      gradient: 'from-amber-500 to-amber-600',
-    },
-    {
-      title: 'Sertifikat Prestasi',
-      description: 'Sertifikasi dan Prestasi',
-      image: 'https://gawai.co/wp-content/uploads/2025/06/IMG_20250603_101425.jpg',
-      icon: (
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      ),
-      href: '/sertifikat',
-      color: 'bg-amber-500',
-      gradient: 'from-amber-500 to-amber-600',
-    },
-    {
-      title: 'Kalender',
-      description: 'Lihat tanggal penting, jadwal, dan event budaya',
-      image: 'https://images.twinkl.co.uk/tw1n/image/private/t_630_eco/image_repo/12/64/id-ll-1692253235-flashcard-mainan-tradisional-indonesia_ver_1.jpg',
-      icon: (
-        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      href: '/calendar',
-      color: 'bg-green-500',
-      gradient: 'from-green-500 to-green-600',
-    },
-  ];
+  const firstName =
+    user?.user_metadata?.full_name?.split(' ')[0] || 'Kawan';
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">
-          Selamat Datang Kembali! 👋
+    <>
+      {/* Welcome Section */}
+      <section className="mb-16 pt-4">
+        <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest rounded mb-4">
+          Menu Utama
+        </div>
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground mb-4">
+          Selamat Datang,{' '}
+          <span className="text-primary">{firstName}</span>!
         </h1>
-        <p className="text-lg ">
-          Halo, <span className="font-semibold text-foreground">{user?.user_metadata?.full_name || user?.email}</span> ! 
-          Pilih menu di bawah untuk mulai menjelajah.
+        <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
+          Jelajahi kekayaan permainan dan olahraga tradisional Indonesia.
+          Mulai perjalananmu dalam melestarikan warisan budaya nusantara
+          bersama komunitas kami.
         </p>
-      </div>
+      </section>
 
-      {/* Quick Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium ">Kontribusi PROT</p>
-              <h3 className="text-3xl font-bold mt-2">0</h3>
-            </div>
-            <div className="p-3 bg-blue-500/10 rounded-lg">
-              <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">Data PROT yang Anda tambahkan</p>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium ">Status Verifikasi</p>
-              <h3 className="text-3xl font-bold mt-2">0</h3>
-            </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">Data yang telah diverifikasi</p>
-        </div>
-
-        <div className="rounded-xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium ">Dalam Proses</p>
-              <h3 className="text-3xl font-bold mt-2">0</h3>
-            </div>
-            <div className="p-3 bg-amber-500/10 rounded-lg">
-              <svg className="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">Data menunggu verifikasi</p>
-        </div>
-      </div>
-
-      {/* Menu Cards */}
-      <div>
-        <h2 className="text-2xl font-bold mb-4">Menu Utama</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group relative overflow-hidden rounded-xl border border-border bg-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-            >
-              {/* Card Image */}
-              <div className="relative h-44 w-full overflow-hidden bg-muted">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* PROT — Large featured card */}
+        <Link
+          href="/prot"
+          className="md:col-span-8 group relative overflow-hidden rounded-xl bg-card shadow-sm hover:shadow-xl transition-all duration-500"
+        >
+          <div className="flex flex-col md:flex-row h-full min-h-[380px]">
+            <div className="md:w-1/2 p-10 flex flex-col justify-between">
+              <div>
+                <Dumbbell className="w-12 h-12 text-primary mb-4" />
+                <h2 className="text-3xl font-bold tracking-tight text-foreground mb-3">
+                  Permainan &amp; Olahraga Tradisional
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Telusuri dan dokumentasikan ratusan permainan rakyat dari
+                  seluruh pelosok Nusantara, dari Pencak Silat hingga Engklek.
+                </p>
               </div>
-              <div className="p-6 space-y-4">
-                
-                <div>
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {item.description}
-                  </p>
-                </div>
-                <div className="flex items-center text-sm font-medium text-primary">
-                  Buka
-                  <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
+              <div className="flex items-center gap-2 text-primary font-bold">
+                <span>Buka</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
-              <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-5 transition-opacity`}></div>
-            </Link>
-          ))}
-        </div>
+            </div>
+            <div className="md:w-1/2 relative min-h-[280px] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="Traditional Indonesian Sports"
+                className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfEQJCxosURJaPzysnra7VJ76_qk4O03FNM09gti6GOUdu_v0SnYxO9nCt0u7E723RsnPPCUsp7h529XuHHDENvkfKT_8KZAQv6lwDBTH9PtNvj1HqXqLuk_zBuusOjIaO5S2lZo3kOjwUGeVmT5eLzNsMNu13ax8IDuyKM8uVThgT0pxhsoAMEr6QIh3IQa8lGr3jLmlY5fmWEUDEjw-gC6iPCxz-7Ub2d0AxKXnBScIFv7t9mzwBf4X0IjlhCnC3HbYpbhVMYdEc"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-card via-transparent to-transparent hidden md:block" />
+            </div>
+          </div>
+        </Link>
+
+        {/* Events */}
+        <Link
+          href="/events"
+          className="md:col-span-4 group bg-muted/50 rounded-xl p-8 flex flex-col justify-between hover:bg-muted transition-colors duration-300"
+        >
+          <div>
+            <div className="flex justify-between items-start mb-6">
+              <Landmark className="w-10 h-10 text-primary" />
+              <div className="bg-primary/10 px-3 py-1 rounded-full text-[0.65rem] font-bold text-primary uppercase tracking-tighter">
+                Live Now
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold tracking-tight text-foreground mb-3">
+              Events
+            </h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Ikuti turnamen, kompetisi, dan festival budaya tradisional yang
+              diselenggarakan komunitas nusantara.
+            </p>
+          </div>
+          <div className="mt-8 flex items-center justify-between">
+            <div className="flex -space-x-3">
+              <div className="w-8 h-8 rounded-full border-2 border-background bg-stone-300 flex items-center justify-center text-xs font-bold text-stone-600">
+                A
+              </div>
+              <div className="w-8 h-8 rounded-full border-2 border-background bg-stone-400 flex items-center justify-center text-xs font-bold text-stone-700">
+                B
+              </div>
+              <div className="w-8 h-8 rounded-full border-2 border-background bg-primary flex items-center justify-center text-[0.6rem] text-primary-foreground font-bold">
+                +12k
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-primary font-bold text-sm">
+              <span>Buka</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </div>
+        </Link>
+
+        {/* Marketplace */}
+        <Link
+          href="/marketplace"
+          className="md:col-span-4 group relative overflow-hidden rounded-xl bg-muted min-h-[320px] flex flex-col justify-end p-8 hover:shadow-lg transition-all"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            alt="Craftsmanship Marketplace"
+            className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBcxW_teRVKDFriSEkVQA1qoqCOCOkizhEGAE11nJd2ikRpFUelX-NVMebBDQ5r4Oa2nyNxlQ0BsdGsM7SijYW4VSmadpXlr_6bCNTVPJ-Z426kHoxxXXEA8EpbWHc6KZvzzzEyDmvZSXUs6-3podUywzQ0HaMY3QOZAoBP9GivmNyXE7WxYA8mdYdzaHr68AVROC4bybgkIrIudyMtVSksZzOHw8g7VzWcgEhxxIqxrcI3F3RlgYcbFaMJGM7teO8iulVcelP9joX"
+          />
+          <div className="relative z-10">
+            <ShoppingBag className="w-6 h-6 text-primary mb-2" />
+            <h3 className="text-2xl font-bold text-foreground mb-2">
+              Marketplace
+            </h3>
+            <p className="text-muted-foreground text-sm mb-4">
+              Temukan produk kriya fisik dan aset digital dari para pengrajin
+              dan komunitas budaya lokal nusantara.
+            </p>
+            <div className="flex items-center gap-2 text-primary font-bold text-sm">
+              <span>Buka</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </div>
+          </div>
+        </Link>
+
+        {/* Sertifikat Prestasi */}
+        <Link
+          href="/sertifikat"
+          className="md:col-span-4 group bg-card border-b-4 border-primary rounded-xl p-8 flex flex-col justify-between hover:shadow-xl transition-all"
+        >
+          <div>
+            <BadgeCheck className="w-10 h-10 text-primary mb-4" />
+            <h3 className="text-2xl font-bold tracking-tight text-foreground mb-3">
+              Sertifikat Prestasi
+            </h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Raih dan pamerkan sertifikat atas kontribusimu dalam
+              mendokumentasikan serta melestarikan warisan budaya bangsa.
+            </p>
+          </div>
+          <div className="mt-6 p-4 bg-muted rounded-lg flex items-center gap-4">
+            <div className="w-12 h-12 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center">
+              <Award className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <div className="text-[0.65rem] font-bold text-primary uppercase tracking-wider">
+                Badge Terbaru
+              </div>
+              <div className="text-sm font-bold">Gasing Master 2024</div>
+            </div>
+          </div>
+          <div className="mt-6 flex items-center gap-2 text-primary font-bold text-sm">
+            <span>Buka</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+
+        {/* Kalender */}
+        <Link
+          href="/calendar"
+          className="md:col-span-4 group bg-muted/50 rounded-xl p-8 flex flex-col justify-between hover:bg-primary transition-all duration-300"
+        >
+          <div>
+            <Calendar className="w-10 h-10 text-primary group-hover:text-primary-foreground mb-4 transition-colors" />
+            <h3 className="text-2xl font-bold tracking-tight text-foreground group-hover:text-primary-foreground mb-3 transition-colors">
+              Kalender
+            </h3>
+            <p className="text-muted-foreground group-hover:text-primary-foreground/70 text-sm leading-relaxed transition-colors">
+              Atur jadwal kegiatan, sesi latihan, dan pantau hari besar budaya
+              nusantara dalam satu kalender terpadu.
+            </p>
+          </div>
+          <div className="mt-8 flex items-center gap-2 text-primary group-hover:text-primary-foreground font-bold text-sm transition-colors">
+            <span>Buka</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
       </div>
 
-      {/* Quick Actions */}
-      <div className="rounded-xl border border-border bg-muted/30 p-6">
-        <h3 className="text-lg font-semibold mb-4">Aksi Cepat</h3>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href="/prot/create"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Data PROT
-          </Link>
-          <Link
-            href="/prot"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg font-medium hover:bg-muted transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-            Lihat Semua PROT
-          </Link>
-          <Link
-            href="/calendar/my"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg font-medium hover:bg-muted transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Jadwal Saya
-          </Link>
-          <Link
-            href="/calendar/invites"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg font-medium hover:bg-muted transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            Undangan Kalender
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-background border border-border rounded-lg font-medium hover:bg-muted transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            Ke Beranda
-          </Link>
-        </div>
-      </div>
-    </div>
+</>
   );
 }

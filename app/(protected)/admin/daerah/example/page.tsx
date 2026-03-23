@@ -39,15 +39,15 @@ export default function DaerahExamplePage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-foreground">
           Contoh Penggunaan Daerah Selector
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-muted-foreground">
           Form dengan dropdown provinsi dan kabupaten/kota yang hierarkis
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <DaerahSelector
             provinceValue={formData.provinceId}
@@ -87,13 +87,13 @@ export default function DaerahExamplePage() {
         </form>
       </div>
 
-      <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h3 className="font-medium text-gray-900 mb-2">💡 Tips Penggunaan:</h3>
-        <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+      <div className="mt-6 bg-muted/50 border border-border rounded-lg p-4">
+        <h3 className="font-medium text-foreground mb-2">💡 Tips Penggunaan:</h3>
+        <ul className="text-sm text-foreground/80 space-y-1 list-disc list-inside">
           <li>Pilih provinsi terlebih dahulu</li>
           <li>Dropdown kabupaten/kota akan otomatis ter-load setelah provinsi dipilih</li>
           <li>Saat provinsi berubah, kabupaten/kota akan otomatis di-reset</li>
-          <li>Gunakan <code className="bg-gray-200 px-1 rounded">showKabupatenKota=false</code> jika hanya butuh provinsi</li>
+          <li>Gunakan <code className="bg-muted px-1 rounded">showKabupatenKota=false</code> jika hanya butuh provinsi</li>
         </ul>
       </div>
     </div>

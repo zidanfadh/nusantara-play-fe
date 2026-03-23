@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { protApi } from '@/lib/api/prot';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 import { PROTEntity } from '@/types/prot';
 
 export default function ReviewPage() {
@@ -68,23 +67,15 @@ export default function ReviewPage() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-background">
-      <ProtNavigation />
-      <div className="p-8 text-center">Memuat data...</div>
-    </div>
+    <div className="p-8 text-center">Memuat data...</div>
   );
 
   if (!protData) return (
-    <div className="min-h-screen bg-background">
-      <ProtNavigation />
-      <div className="p-8 text-center">Data tidak ditemukan</div>
-    </div>
+    <div className="p-8 text-center">Data tidak ditemukan</div>
   );
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      <ProtNavigation />
-
+    <>
       {/* Breadcrumb Section */}
       <div className="border-b border-border bg-muted/30">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
@@ -240,6 +231,6 @@ export default function ReviewPage() {
         </div>
 
       </main>
-    </div>
+    </>
   );
 }

@@ -73,12 +73,6 @@ export function CalendarViewComponent({
     return months[m - 1];
   };
 
-  const getDayName = (date: string) => {
-    const d = new Date(date);
-    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    return days[d.getDay()];
-  };
-
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.getDate();
@@ -110,35 +104,65 @@ export function CalendarViewComponent({
       />
 
       {/* Month Navigation */}
-      <div className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={prevMonth}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+          className="p-2 border border-border rounded-lg hover:bg-muted transition-colors"
+          aria-label="Bulan sebelumnya"
         >
-          ← Prev
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
-        <h2 className="text-xl font-bold">
-          {getMonthName(month)} {year}
-        </h2>
+
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold">{getMonthName(month)} {year}</h2>
+          <button
+            onClick={() => { setMonth(now.getMonth() + 1); setYear(now.getFullYear()); }}
+            className="px-3 py-1 text-xs font-medium border border-border rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+          >
+            Hari ini
+          </button>
+        </div>
+
         <button
           onClick={nextMonth}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
+          className="p-2 border border-border rounded-lg hover:bg-muted transition-colors"
+          aria-label="Bulan berikutnya"
         >
-          Next →
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
 
       {/* Calendar Grid */}
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="grid grid-cols-7 bg-muted/50 border-b border-border">
+            {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
+              <div key={day} className="p-2 text-center text-xs font-semibold text-muted-foreground border-r border-border last:border-r-0">
+                {day}
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7">
+            {[...Array(35)].map((_, i) => (
+              <div key={i} className={`min-h-[100px] p-2 border-r border-b border-border ${i % 7 === 6 ? 'border-r-0' : ''}`}>
+                <div className="w-5 h-3 bg-muted rounded animate-pulse mb-2" />
+                {i % 3 === 0 && <div className="w-full h-4 bg-muted rounded animate-pulse" />}
+              </div>
+            ))}
+          </div>
+        </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
           {/* Day Headers */}
-          <div className="grid grid-cols-7 bg-gray-100 dark:bg-gray-700">
+          <div className="grid grid-cols-7 bg-muted/50 border-b border-border">
             {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
               <div
                 key={day}
-                className="p-2 text-center font-semibold text-sm border-r border-b dark:border-gray-600 last:border-r-0"
+                className="p-2 text-center text-xs font-semibold text-muted-foreground border-r border-border last:border-r-0"
               >
                 {day}
               </div>
@@ -156,24 +180,20 @@ export function CalendarViewComponent({
               return (
                 <div
                   key={dayItem.date}
-                  className={`min-h-[120px] p-2 border-r border-b dark:border-gray-600 ${
+                  className={`min-h-[100px] p-2 border-r border-b border-border transition-colors ${
                     index % 7 === 6 ? 'border-r-0' : ''
-                  } ${
-                    !isCurrentMonth
-                      ? 'bg-gray-50 dark:bg-gray-900/50'
-                      : ''
-                  } ${
-                    isToday
-                      ? 'bg-blue-50 dark:bg-blue-900/20'
-                      : ''
-                  }`}
+                  } ${!isCurrentMonth ? 'bg-muted/20' : ''} ${isToday ? 'bg-primary/5' : ''}`}
                 >
-                  <div
-                    className={`text-sm font-semibold mb-1 ${
-                      isToday ? 'text-blue-600 dark:text-blue-400' : ''
-                    }`}
-                  >
-                    {formatDate(dayItem.date)}
+                  <div className="flex justify-start mb-1">
+                    {isToday ? (
+                      <span className="inline-flex w-6 h-6 items-center justify-center bg-primary text-primary-foreground rounded-full text-xs font-bold">
+                        {formatDate(dayItem.date)}
+                      </span>
+                    ) : (
+                      <span className={`text-xs font-medium ${!isCurrentMonth ? 'text-muted-foreground' : 'text-foreground'}`}>
+                        {formatDate(dayItem.date)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Entries */}
@@ -182,17 +202,18 @@ export function CalendarViewComponent({
                       <button
                         key={entry.id}
                         onClick={() => onItemClick?.(entry.id)}
-                        className="w-full text-left text-xs p-1 rounded hover:opacity-80 transition"
+                        className="w-full text-left text-xs px-1.5 py-0.5 rounded transition-opacity hover:opacity-80"
                         style={{
-                          backgroundColor: entry.color || '#3B82F6',
-                          color: 'white',
+                          backgroundColor: (entry.color || '#3B82F6') + '20',
+                          color: entry.color || '#3B82F6',
+                          borderLeft: `2px solid ${entry.color || '#3B82F6'}`,
                         }}
                       >
                         <div className="truncate font-medium">
                           {entry.title}
                         </div>
                         {!entry.all_day && (
-                          <div className="text-xs opacity-90">
+                          <div className="text-xs opacity-75">
                             {formatTime(entry.start_date)}
                           </div>
                         )}
@@ -200,7 +221,7 @@ export function CalendarViewComponent({
                     ))}
 
                     {dayItem.entries.length > 3 && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-muted-foreground">
                         +{dayItem.entries.length - 3} lainnya
                       </div>
                     )}

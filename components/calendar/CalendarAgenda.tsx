@@ -75,7 +75,7 @@ export function CalendarAgenda({
     const colors = {
       public: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
       internal: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-      private: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+      private: 'bg-muted text-muted-foreground',
     };
 
     return colors[visibility as keyof typeof colors] || colors.private;
@@ -92,7 +92,7 @@ export function CalendarAgenda({
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+      <div className="bg-card border border-border rounded-xl p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -102,7 +102,7 @@ export function CalendarAgenda({
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -114,7 +114,7 @@ export function CalendarAgenda({
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -125,7 +125,7 @@ export function CalendarAgenda({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari judul atau deskripsi..."
-              className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+              className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
@@ -133,15 +133,26 @@ export function CalendarAgenda({
 
       {/* Agenda List */}
       {isLoading ? (
-        <div className="text-center py-8">Loading...</div>
+        <div className="bg-card border border-border rounded-xl divide-y divide-border">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="p-4 flex gap-4">
+              <div className="w-1 rounded bg-muted animate-pulse" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 bg-muted rounded animate-pulse w-2/3" />
+                <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
+                <div className="h-3 bg-muted rounded animate-pulse w-1/3" />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-          <div className="divide-y dark:divide-gray-700">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="divide-y divide-border">
             {data?.data.map((entry) => (
               <button
                 key={entry.id}
                 onClick={() => onItemClick?.(entry.id)}
-                className="w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                className="w-full text-left p-4 hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-start gap-4">
                   {/* Color Bar */}
@@ -162,19 +173,19 @@ export function CalendarAgenda({
                         >
                           {entry.visibility}
                         </span>
-                        <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                        <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
                           {getTypeLabel(entry.type)}
                         </span>
                       </div>
                     </div>
 
                     {entry.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-muted-foreground mb-2">
                         {entry.description}
                       </p>
                     )}
 
-                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div>
                         📅 {formatDate(entry.start_date)}
                         {!entry.all_day && ` • ${formatTime(entry.start_date)}`}
@@ -192,16 +203,19 @@ export function CalendarAgenda({
             ))}
 
             {data?.data.length === 0 && (
-              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                Tidak ada item kalender untuk periode ini
+              <div className="p-12 text-center">
+                <svg className="w-10 h-10 text-muted-foreground mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-muted-foreground text-sm">Tidak ada item kalender untuk periode ini</p>
               </div>
             )}
           </div>
 
           {/* Pagination */}
           {data && data.pagination.totalPages > 1 && (
-            <div className="p-4 border-t dark:border-gray-700 flex items-center justify-between">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="p-4 border-t border-border flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
                 Halaman {data.pagination.page} dari {data.pagination.totalPages}{' '}
                 • Total {data.pagination.total} item
               </div>
@@ -209,14 +223,14 @@ export function CalendarAgenda({
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={!data.pagination.hasPrev}
-                  className="px-3 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 border border-border rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Prev
                 </button>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={!data.pagination.hasNext}
-                  className="px-3 py-1 border rounded hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 border border-border rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

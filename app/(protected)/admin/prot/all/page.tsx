@@ -72,7 +72,7 @@ export default function AdminAllProtPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -81,16 +81,16 @@ export default function AdminAllProtPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Kelola PROT</h1>
-        <p className="text-gray-600 mt-2">Lihat dan kelola semua data PROT</p>
+        <h1 className="text-3xl font-bold text-foreground">Kelola PROT</h1>
+        <p className="text-muted-foreground mt-2">Lihat dan kelola semua data PROT</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter</h3>
+      <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Filter</h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">
                     Pencarian
                   </label>
                   <input
@@ -101,12 +101,12 @@ export default function AdminAllProtPage() {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">
                     Status
                   </label>
                   <select
@@ -115,7 +115,7 @@ export default function AdminAllProtPage() {
                       setStatusFilter(e.target.value as PROTStatus | '');
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Semua Status</option>
                     <option value={PROTStatus.DRAFT}>DRAFT</option>
@@ -127,7 +127,7 @@ export default function AdminAllProtPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground/80 mb-2">
                     Jenis
                   </label>
                   <select
@@ -136,7 +136,7 @@ export default function AdminAllProtPage() {
                       setJenisFilter(e.target.value as PROTJenis | '');
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Semua Jenis</option>
                     <option value={PROTJenis.PERMAINAN_RAKYAT}>PERMAINAN RAKYAT</option>
@@ -147,7 +147,7 @@ export default function AdminAllProtPage() {
                 <div className="flex items-end">
                   <button
                     onClick={handleReset}
-                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                    className="w-full px-4 py-2 bg-muted text-foreground/80 rounded-md hover:bg-muted/80 transition-colors"
                   >
                     Reset Filter
                   </button>
@@ -162,12 +162,12 @@ export default function AdminAllProtPage() {
             )}
 
             {/* Stats */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <div className="bg-card rounded-lg shadow-sm border border-border p-4 mb-6">
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  Total: <span className="font-semibold text-gray-900">{totalCount}</span> PROT
+                <div className="text-sm text-muted-foreground">
+                  Total: <span className="font-semibold text-foreground">{totalCount}</span> PROT
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-muted-foreground">
                   Halaman {currentPage} dari {totalPages || 1}
                 </div>
               </div>
@@ -175,51 +175,51 @@ export default function AdminAllProtPage() {
 
             {/* Table */}
             {loading ? (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="bg-card rounded-lg shadow-sm border border-border">
                 <div className="p-12 text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-                  <p className="text-gray-600 mt-4">Memuat data...</p>
+                  <p className="text-muted-foreground mt-4">Memuat data...</p>
                 </div>
               </div>
             ) : items.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="bg-card rounded-lg shadow-sm border border-border p-12 text-center">
+                <svg className="w-16 h-16 text-muted-foreground/60 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Tidak Ada Data</h3>
-                <p className="text-gray-600">Tidak ada PROT yang sesuai dengan filter.</p>
+                <h3 className="text-lg font-medium text-foreground mb-2">Tidak Ada Data</h3>
+                <p className="text-muted-foreground">Tidak ada PROT yang sesuai dengan filter.</p>
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-muted/50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Nama
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Jenis
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Daerah
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Tanggal
                         </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                           Aksi
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-card divide-y divide-border">
                       {items.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50">
+                        <tr key={item.id} className="hover:bg-muted/50">
                           <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-900">{item.nama}</div>
+                            <div className="text-sm font-medium text-foreground">{item.nama}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -244,10 +244,10 @@ export default function AdminAllProtPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{item.kabkotaName || item.kabkotaKode}</div>
-                            <div className="text-sm text-gray-500">{item.provinsiName || item.provinsiKode}</div>
+                            <div className="text-sm text-foreground">{item.kabkotaName || item.kabkotaKode}</div>
+                            <div className="text-sm text-muted-foreground">{item.provinsiName || item.provinsiKode}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                             {item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -266,26 +266,26 @@ export default function AdminAllProtPage() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                  <div className="bg-card px-4 py-3 flex items-center justify-between border-t border-border sm:px-6">
                     <div className="flex-1 flex justify-between sm:hidden">
                       <button
                         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                         disabled={currentPage === 1}
-                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                        className="relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground/80 bg-card hover:bg-muted/50 disabled:opacity-50"
                       >
                         Previous
                       </button>
                       <button
                         onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                         disabled={currentPage === totalPages}
-                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-sm font-medium rounded-md text-foreground/80 bg-card hover:bg-muted/50 disabled:opacity-50"
                       >
                         Next
                       </button>
                     </div>
                     <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                       <div>
-                        <p className="text-sm text-gray-700">
+                        <p className="text-sm text-foreground/80">
                           Menampilkan{' '}
                           <span className="font-medium">{(currentPage - 1) * limit + 1}</span>
                           {' '}-{' '}
@@ -301,7 +301,7 @@ export default function AdminAllProtPage() {
                           <button
                             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                           >
                             <span className="sr-only">Previous</span>
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -315,7 +315,7 @@ export default function AdminAllProtPage() {
                               className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                                 currentPage === idx + 1
                                   ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                                  : 'bg-card border-border text-muted-foreground hover:bg-muted/50'
                               }`}
                             >
                               {idx + 1}
@@ -324,7 +324,7 @@ export default function AdminAllProtPage() {
                           <button
                             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
                           >
                             <span className="sr-only">Next</span>
                             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

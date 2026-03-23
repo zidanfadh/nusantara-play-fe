@@ -49,10 +49,10 @@ export default function EventRegistrationsPage() {
 
   if (eventLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <p className="mt-2 text-gray-600">Memuat data...</p>
+          <p className="mt-2 text-muted-foreground">Memuat data...</p>
         </div>
       </div>
     );
@@ -60,7 +60,7 @@ export default function EventRegistrationsPage() {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="bg-red-50 border border-red-200 rounded-md p-4">
           <p className="text-red-800">Event tidak ditemukan atau Anda tidak memiliki akses</p>
         </div>
@@ -69,20 +69,20 @@ export default function EventRegistrationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-2">
             <button
               onClick={() => router.push(`/events/${eventId}`)}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-muted-foreground hover:text-foreground"
             >
               <ArrowLeftIcon className="h-6 w-6" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Kelola Peserta</h1>
-              <p className="text-gray-600 mt-1">{event.nama}</p>
+              <h1 className="text-3xl font-bold text-foreground">Kelola Peserta</h1>
+              <p className="text-muted-foreground mt-1">{event.nama}</p>
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function EventRegistrationsPage() {
         {regLoading && (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            <p className="mt-2 text-gray-600">Memuat data peserta...</p>
+            <p className="mt-2 text-muted-foreground">Memuat data peserta...</p>
           </div>
         )}
 

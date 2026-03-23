@@ -52,10 +52,10 @@ export default function UserAuditPage() {
           Kembali
         </button>
         
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-foreground">
           Audit Log - Aktivitas User
         </h1>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-muted-foreground">
           Riwayat aktivitas untuk user ID:{' '}
           <span className="font-mono text-sm">{userId}</span>
         </p>

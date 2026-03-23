@@ -101,7 +101,7 @@ export default function AdminImportantDatesPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold mb-2">Tanggal Penting</h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground">
               Kelola tanggal penting dan peringatan budaya
             </p>
           </div>
@@ -116,28 +116,28 @@ export default function AdminImportantDatesPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
+                <p className="text-sm text-muted-foreground">Total</p>
                 <p className="text-2xl font-bold mt-1">{stats.total}</p>
               </div>
               <Calendar className="w-10 h-10 text-blue-600" />
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Public</p>
+                <p className="text-sm text-muted-foreground">Public</p>
                 <p className="text-2xl font-bold mt-1">{stats.public}</p>
               </div>
               <Eye className="w-10 h-10 text-green-600" />
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Internal</p>
+                <p className="text-sm text-muted-foreground">Internal</p>
                 <p className="text-2xl font-bold mt-1">{stats.internal}</p>
               </div>
               <EyeOff className="w-10 h-10 text-orange-600" />
@@ -152,10 +152,10 @@ export default function AdminImportantDatesPage() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-card rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
+              <thead className="bg-muted/50">
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold">
                     Judul
@@ -174,11 +174,11 @@ export default function AdminImportantDatesPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y dark:divide-gray-700">
+              <tbody className="divide-y divide-border">
                 {dates.map((date) => (
                   <tr
                     key={date.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="hover:bg-muted/50"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export default function AdminImportantDatesPage() {
                         <div>
                           <div className="font-medium">{date.title}</div>
                           {date.description && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                            <div className="text-sm text-muted-foreground truncate max-w-xs">
                               {date.description}
                             </div>
                           )}
@@ -205,7 +205,7 @@ export default function AdminImportantDatesPage() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">
+                      <span className="text-xs px-2 py-1 rounded bg-muted">
                         {date.visibility}
                       </span>
                     </td>
@@ -215,21 +215,21 @@ export default function AdminImportantDatesPage() {
                           Daerah
                         </span>
                       ) : (
-                        <span className="text-gray-500">Nasional</span>
+                        <span className="text-muted-foreground">Nasional</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <button
                           onClick={() => setSelectedItemId(date.id)}
-                          className="p-2 text-sm border rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          className="p-2 text-sm border border-border rounded hover:bg-muted transition-colors"
                           title="Detail"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => setEditingItem(date)}
-                          className="p-2 text-sm border rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                          className="p-2 text-sm border border-border rounded hover:bg-muted transition-colors"
                           title="Edit"
                         >
                           <Edit className="w-4 h-4" />
@@ -255,11 +255,11 @@ export default function AdminImportantDatesPage() {
 
             {dates.length === 0 && (
               <div className="p-12 text-center">
-                <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/60" />
+                <h3 className="text-lg font-semibold mb-2 text-foreground">
                   Belum Ada Tanggal Penting
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                <p className="text-muted-foreground mb-4">
                   Mulai tambahkan tanggal penting dan peringatan budaya untuk komunitas
                 </p>
                 <button
@@ -278,8 +278,8 @@ export default function AdminImportantDatesPage() {
       {/* Create/Edit Form Modal */}
       {(showForm || editingItem) && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b dark:border-gray-700">
+          <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-xl font-bold">
                 {editingItem ? 'Edit Tanggal Penting' : 'Tambah Tanggal Penting'}
               </h2>
@@ -288,7 +288,7 @@ export default function AdminImportantDatesPage() {
                   setShowForm(false);
                   setEditingItem(null);
                 }}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                className="p-2 hover:bg-muted rounded transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>

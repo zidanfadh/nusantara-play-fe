@@ -101,26 +101,26 @@ export function CalendarInviteModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
+      <div className="bg-card rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b dark:border-gray-700 flex items-center justify-between">
+        <div className="p-6 border-b border-border flex items-center justify-between">
           <h2 className="text-xl font-bold">Undang User</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            className="text-muted-foreground hover:text-foreground"
           >
             ✕
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b dark:border-gray-700 px-6">
+        <div className="flex border-b border-border px-6">
           <button
             onClick={() => setActiveTab('users')}
             className={`py-3 px-4 text-sm font-medium border-b-2 -mb-px transition-colors ${
               activeTab === 'users'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             Pilih User
@@ -135,7 +135,7 @@ export function CalendarInviteModal({
             className={`py-3 px-4 text-sm font-medium border-b-2 -mb-px transition-colors ${
               activeTab === 'email'
                 ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             Undang via Email
@@ -165,14 +165,14 @@ export function CalendarInviteModal({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Cari user berdasarkan nama atau email..."
-                  className="w-full px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full px-3 py-2 border border-border rounded bg-input"
                 />
               </div>
 
               {/* User List */}
               <div className="space-y-2">
                 {filteredUsers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  <div className="text-center py-8 text-muted-foreground">
                     {searchQuery
                       ? 'Tidak ada user yang sesuai pencarian'
                       : 'Semua user sudah diundang'}
@@ -181,7 +181,7 @@ export function CalendarInviteModal({
                   filteredUsers.map((user) => (
                     <label
                       key={user.id}
-                      className="flex items-center gap-3 p-3 border rounded hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer dark:border-gray-600"
+                      className="flex items-center gap-3 p-3 border rounded hover:bg-muted/50 cursor-pointer border-border"
                     >
                       <input
                         type="checkbox"
@@ -191,11 +191,11 @@ export function CalendarInviteModal({
                       />
                       <div className="flex-1">
                         <div className="font-medium">{user.full_name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-muted-foreground">
                           {user.email}
                         </div>
                       </div>
-                      <div className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">
+                      <div className="text-xs px-2 py-1 rounded bg-muted">
                         {user.role}
                       </div>
                     </label>
@@ -204,7 +204,7 @@ export function CalendarInviteModal({
               </div>
 
               {selectedUserIds.length > 0 && (
-                <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+                <div className="mt-4 text-sm text-muted-foreground">
                   {selectedUserIds.length} user dipilih
                 </div>
               )}
@@ -213,7 +213,7 @@ export function CalendarInviteModal({
 
           {activeTab === 'email' && (
             <>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 Masukkan email pengguna yang terdaftar di platform. Email yang tidak
                 terdaftar akan menghasilkan error.
               </p>
@@ -226,7 +226,7 @@ export function CalendarInviteModal({
                   onChange={(e) => setEmailInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEmail())}
                   placeholder="email@example.com"
-                  className="flex-1 px-3 py-2 border rounded dark:bg-gray-700 dark:border-gray-600"
+                  className="flex-1 px-3 py-2 border border-border rounded bg-input"
                 />
                 <button
                   onClick={addEmail}
@@ -243,7 +243,7 @@ export function CalendarInviteModal({
                   {emailList.map((email) => (
                     <div
                       key={email}
-                      className="flex items-center justify-between p-3 border rounded dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50"
+                      className="flex items-center justify-between p-3 border rounded dark:border-gray-600 bg-muted/50"
                     >
                       <span className="text-sm">{email}</span>
                       <button
@@ -256,7 +256,7 @@ export function CalendarInviteModal({
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                <div className="text-center py-8 text-muted-foreground text-sm">
                   Belum ada email ditambahkan
                 </div>
               )}
@@ -265,8 +265,8 @@ export function CalendarInviteModal({
         </div>
 
         {/* Actions */}
-        <div className="p-6 border-t dark:border-gray-700 flex justify-between items-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="p-6 border-t border-border flex justify-between items-center">
+          <div className="text-sm text-muted-foreground">
             {selectedUserIds.length + emailList.length > 0 && (
               <span>
                 Total: {selectedUserIds.length + emailList.length} undangan
@@ -277,7 +277,7 @@ export function CalendarInviteModal({
             <button
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="px-4 py-2 border border-border rounded hover:bg-muted"
             >
               Batal
             </button>

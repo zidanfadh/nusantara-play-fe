@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { protApi } from '@/lib/api/prot';
 import { VerifikasiQueue } from '@/types/prot';
 import { VerificationTable } from '@/components/prot/VerificationTable';
-import { ProtNavigation } from '@/components/prot/ProtNavigation';
 
 export default function MyVerificationQueuePage() {
   const [items, setItems] = useState<VerifikasiQueue[]>([]);
@@ -47,10 +46,7 @@ export default function MyVerificationQueuePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <ProtNavigation />
-
-      <main className="container mx-auto px-4 py-8">
+    <>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Tugas Verifikasi Saya</h1>
           <button
@@ -73,7 +69,6 @@ export default function MyVerificationQueuePage() {
           loading={loading}
           onRelease={handleRelease}
         />
-      </main>
-    </div>
+    </>
   );
 }
