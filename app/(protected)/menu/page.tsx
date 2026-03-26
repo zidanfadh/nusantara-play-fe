@@ -67,7 +67,7 @@ export default async function MenuPage() {
               <img
                 alt="Traditional Indonesian Sports"
                 className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfEQJCxosURJaPzysnra7VJ76_qk4O03FNM09gti6GOUdu_v0SnYxO9nCt0u7E723RsnPPCUsp7h529XuHHDENvkfKT_8KZAQv6lwDBTH9PtNvj1HqXqLuk_zBuusOjIaO5S2lZo3kOjwUGeVmT5eLzNsMNu13ax8IDuyKM8uVThgT0pxhsoAMEr6QIh3IQa8lGr3jLmlY5fmWEUDEjw-gC6iPCxz-7Ub2d0AxKXnBScIFv7t9mzwBf4X0IjlhCnC3HbYpbhVMYdEc"
+                src="/images/landing/menu-olahraga.webp"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-card via-transparent to-transparent hidden md:block" />
             </div>
@@ -122,7 +122,7 @@ export default async function MenuPage() {
           <img
             alt="Craftsmanship Marketplace"
             className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBcxW_teRVKDFriSEkVQA1qoqCOCOkizhEGAE11nJd2ikRpFUelX-NVMebBDQ5r4Oa2nyNxlQ0BsdGsM7SijYW4VSmadpXlr_6bCNTVPJ-Z426kHoxxXXEA8EpbWHc6KZvzzzEyDmvZSXUs6-3podUywzQ0HaMY3QOZAoBP9GivmNyXE7WxYA8mdYdzaHr68AVROC4bybgkIrIudyMtVSksZzOHw8g7VzWcgEhxxIqxrcI3F3RlgYcbFaMJGM7teO8iulVcelP9joX"
+            src="/images/landing/menu-marketplace.webp"
           />
           <div className="relative z-10">
             <ShoppingBag className="w-6 h-6 text-primary mb-2" />
@@ -194,6 +194,6 @@ export default async function MenuPage() {
         </Link>
       </div>
 
-</>
+    </>
   );
 }
