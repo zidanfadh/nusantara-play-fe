@@ -43,7 +43,7 @@ export default async function MenuPage() {
         {/* PROT — Large featured card */}
         <Link
           href="/prot"
-          className="md:col-span-8 group relative overflow-hidden rounded-xl bg-card shadow-sm hover:shadow-xl transition-all duration-500"
+          className="md:col-span-8 group relative overflow-hidden rounded-xl bg-muted/50 shadow-sm hover:shadow-xl transition-all duration-500"
         >
           <div className="flex flex-col md:flex-row h-full min-h-[380px]">
             <div className="md:w-1/2 p-10 flex flex-col justify-between">
@@ -62,14 +62,13 @@ export default async function MenuPage() {
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
             </div>
-            <div className="md:w-1/2 relative min-h-[280px] overflow-hidden">
+            <div className="md:w-1/2 relative min-h-[280px] overflow-hidden md:[mask-image:linear-gradient(to_right,transparent_0%,black_50%)]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 alt="Traditional Indonesian Sports"
                 className="absolute inset-0 w-full h-full object-cover grayscale-[20%] group-hover:scale-105 transition-transform duration-700"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfEQJCxosURJaPzysnra7VJ76_qk4O03FNM09gti6GOUdu_v0SnYxO9nCt0u7E723RsnPPCUsp7h529XuHHDENvkfKT_8KZAQv6lwDBTH9PtNvj1HqXqLuk_zBuusOjIaO5S2lZo3kOjwUGeVmT5eLzNsMNu13ax8IDuyKM8uVThgT0pxhsoAMEr6QIh3IQa8lGr3jLmlY5fmWEUDEjw-gC6iPCxz-7Ub2d0AxKXnBScIFv7t9mzwBf4X0IjlhCnC3HbYpbhVMYdEc"
+                src="/images/landing/menu-olahraga.webp"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-card via-transparent to-transparent hidden md:block" />
             </div>
           </div>
         </Link>
@@ -122,7 +121,7 @@ export default async function MenuPage() {
           <img
             alt="Craftsmanship Marketplace"
             className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBcxW_teRVKDFriSEkVQA1qoqCOCOkizhEGAE11nJd2ikRpFUelX-NVMebBDQ5r4Oa2nyNxlQ0BsdGsM7SijYW4VSmadpXlr_6bCNTVPJ-Z426kHoxxXXEA8EpbWHc6KZvzzzEyDmvZSXUs6-3podUywzQ0HaMY3QOZAoBP9GivmNyXE7WxYA8mdYdzaHr68AVROC4bybgkIrIudyMtVSksZzOHw8g7VzWcgEhxxIqxrcI3F3RlgYcbFaMJGM7teO8iulVcelP9joX"
+            src="/images/landing/menu-marketplace.webp"
           />
           <div className="relative z-10">
             <ShoppingBag className="w-6 h-6 text-primary mb-2" />
@@ -143,7 +142,7 @@ export default async function MenuPage() {
         {/* Sertifikat Prestasi */}
         <Link
           href="/sertifikat"
-          className="md:col-span-4 group bg-card border-b-4 border-primary rounded-xl p-8 flex flex-col justify-between hover:shadow-xl transition-all"
+          className="md:col-span-4 group bg-muted/50 border-b-4 border-primary rounded-xl p-8 flex flex-col justify-between hover:bg-muted transition-all duration-300"
         >
           <div>
             <BadgeCheck className="w-10 h-10 text-primary mb-4" />
@@ -155,7 +154,7 @@ export default async function MenuPage() {
               mendokumentasikan serta melestarikan warisan budaya bangsa.
             </p>
           </div>
-          <div className="mt-6 p-4 bg-muted rounded-lg flex items-center gap-4">
+          <div className="mt-6 p-4 bg-background/50 rounded-lg flex items-center gap-4">
             <div className="w-12 h-12 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center">
               <Award className="w-6 h-6 text-primary" />
             </div>
@@ -194,6 +193,6 @@ export default async function MenuPage() {
         </Link>
       </div>
 
-</>
+    </>
   );
 }

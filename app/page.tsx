@@ -123,7 +123,7 @@ export default async function Home() {
                 <img
                   className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
                   alt="Children playing traditional Indonesian games in a village"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcBWwT3PIhD-cjnP1zeufPBC9f2DcosBjN02U7CGfc3XYsQ95_GrB-rKeXGZ89vEiiMXdBI1mGPue_90pGsFmggREGk6cfKzNhOg59QWPxLo7Sz2yjD9duP73KHTWU31iDRoDzDyacgoXXKW40hasWAgEpIUChJhNXNmHNKgNtgRo65k_ZHLOQ1v003h9u2tMhXVVkka-GK82-Ahttb87h74mewPR6zQyZAyS2gA2DzRzfz9Q2zj33c4Z7rov9y8uQuY9uic9rBHPS"
+                  src="/images/landing/hero.webp"
                 />
               </div>
               <div
@@ -212,19 +212,19 @@ export default async function Home() {
                 {
                   title: 'Arsip Terverifikasi',
                   desc: 'Pendataan komprehensif aturan, sejarah, dan filosofi permainan dari berbagai pelosok Nusantara.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCf_mlFkF6YMAKMB22pBqMTrJY3j-PmNnRTAbFSFopzMc7tDxlkOnzZjI-R9x-X5RWrlvoMN40l-vGPOuInMz1fIka08zPKTjD3thxkaqugUQqBMSPY2PqSMKQGq5y7zJNeJBF33-IOcoxCPzSqBAcLXegeHaHGCbBpdX612XAnccoX_-MPcHgXOAXtgPOdIB9nv68YXOf6PFC9ltrLXSJrkD8ptidJtoiRzM1uCv5WZx2BmTjjtZcyGfVleFUvHRmgLVfYe4_e6M9V',
+                  img: '/images/landing/arsip.webp',
                   imgAlt: 'Old manuscript of traditional Indonesian rules',
                 },
                 {
                   title: 'Komunitas & Event',
                   desc: 'Temukan kawan bermain dan ikut serta dalam festival permainan tradisional di kotamu.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA67NhsHsLAarapj07mnHEN8zic5hfLjX47D3J5WuA7oF4U1xdvk8O4fqGuttim_8lgRpOznsute3x_u621awav5ziue6yAkMU4hghNSi8cmZc5o5afX5hHR2ADQahCS4Ecmlqx3cpbM0d5afCWK8tCtUsbovSHVCKfMbZ7cSKbjsRxnsIh5xUN56vRFI9UcKLk2hWnKKh-j2as9q9poMISQXAPCHPmJypyR86jwyY5hwrkUubSLDIGTl7IPEVp0LHAMtQSA3ey_JRU',
+                  img: '/images/landing/komunitas.webp',
                   imgAlt: 'Indonesian youth gathering at a cultural event',
                 },
                 {
                   title: 'Sertifikasi Budaya',
                   desc: 'Setiap kontribusi data dan partisipasi event mendapatkan sertifikasi digital yang diakui.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBT9NbG6XeGopwexQ2_rUPorBJfikT93GH-QmTH5ZnTnnJ7f6zapLRMxeZZpPtoenKxS1cek1G6hVC6i1M60bgcsKbfE1B_4qylWz6t_tNNNqbqbbxPRbATw9LEWBVEFCUKUFZOPqW-rpLV4GxHf1PGx6ZB_Zi-UsH74hJXkJpqEqPDJWLeSrQSQl1ukJAoD59jYpQ5BLY5I8FuWRILCN4jKtLA5KoByuBqyYvUibSwnXITFryOFgJ8JwQb4PNX1kEKU0mP7tMWF2ls',
+                  img: '/images/landing/sertifikasi.webp',
                   imgAlt: 'Traditional batik patterns and stamps',
                 },
               ].map((feature) => (
@@ -318,7 +318,7 @@ export default async function Home() {
                   <img
                     className="w-full h-full object-cover"
                     alt="Abstract 3D blockchain representation with cultural patterns"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcwCJ2RVb4RSFEypx9xdcuTqk_r0jRQ5fv7mYR7Xoxh2SmAuNco2HguOOWypCWBC-Uzs866tBOU7jURICIg9s2t0XUdfoS4CRrnlqJWelGThT4UrFv_n8nfbKfAm7vWteURMHCpDMmKFWLQDiMqelRMl2z09mp9U3QihBxPr1UqykUorkLFlDx1T2_beDoBOaKq7HOu8iKzpv6Xc2Y7YdghxJC7eTxz6JwPTASWfRGdjiwZVKctJWTXtGbY_013tLSdmxI0dK98ziv"
+                    src="/images/landing/blockchain.webp"
                   />
                 </div>
               </div>
@@ -408,28 +408,28 @@ export default async function Home() {
                   name: 'Congklak',
                   origin: 'Jawa',
                   desc: 'Permainan adu strategi menggunakan papan kayu berlubang dan biji kerang.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCYIjYb0gO6ACK3AJy3CIb0pzCBn8g_TcDGEW_WtBQJTvZEWZtTCZXxGM0zRNzqCopS3UcjWy7N6OqARzdkoXSDxTwO-QSfwyydvPtOicpqJMlVN6KVzriu2OosCuyBFfLtS70LuTGSTKV104PlvxsOYD_A56zzzyTc0Kj4ww4pgnVUCTbTLvcQXE22AeV63zyT-ZljU3y_cbHaVA0bHl87FQ4j_OkmBvlPejgh0hivBeHf7poCToIZXo2LaAbkL_y73yeM0e_I5eUo',
+                  img: '/images/landing/congklak.webp',
                   imgAlt: 'Traditional Congklak wooden board with shells',
                 },
                 {
                   name: 'Egrang',
                   origin: 'Nasional',
                   desc: 'Uji keseimbangan menggunakan galah bambu tinggi sebagai kaki tambahan.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBNOGPWfpeQK-LVkxxmlWgS4qfS06bWJyuhcPcxaO5xjePLWaubDUMpb8qE6J9aXCRjJqxBxeDs_83FGPvLbzZcdcUqrJongUvbS8FKS_SkeSKrRoMNfvlvqTdZfrzaZgzgFegZBEJ3wSmio-lwGwGzJreyDH4aOM7MzObFwGlPrRY0Ly4dDdAI613PbeYTYv9n5dBkyxfVB8rJmD9CStG7cFlbCY14UQ0JajuWF5iSDX9lyaj3yPp4rSte2mElj50rd5rQ5be580Cm',
+                  img: '/images/landing/egrang.webp',
                   imgAlt: 'Bamboo stilts known as Egrang',
                 },
                 {
                   name: 'Gobak Sodor',
                   origin: 'Sumatera',
                   desc: 'Permainan tim yang mengandalkan kecepatan dan ketangkasan menghalangi lawan.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDICSczNZ79GHvV_5MZThxYmYjpmmQ1WgLtfDd1h280JshLXsm3Q1cz7JCpFhKKCkRRlXO-8k6Lz4qvk1YIxvivk9Te4ISTiKybtCHQCuak8yFp90RGFc5ODFG7ZiQ56yD9VzRgz9nupXnXOhchK9G-j7SYYM7RKzy3rut0Tm0khNWSxa22iOFhS3B0fns_AiWR7-ukQ66rh4OCeIVLFNfd8Qjmr5XPaFun_dAMZzIOQHjJQ3ET4l-03i5KVeGolaJ10-73Goer9AsI',
+                  img: '/images/landing/gobak-sodor.webp',
                   imgAlt: 'Group of kids playing Gobak Sodor outdoors',
                 },
                 {
                   name: 'Petak Umpet',
                   origin: 'Global',
                   desc: 'Permainan klasik sembunyi-sembunyi yang melatih kejelian dan kesabaran.',
-                  img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZA0qptz9YPfDWdY67-ayV_Wl-mvITULXMp2oJUAuyk97zYpECMK1m1pV9bpHRVyUUGLH4A9E2vk6yr8hxOBGDxhe0vLeuzu0F1EXxuCiKHck6rX5jZKwTr2oD5Ar-9FiBBt2m9giQUYCbReIIRR1u5RBR5j6b-DcX2FZmRFiXDULpfOg38bpnoC6r6NbJwajtCegNDcEbhtTTVLS4tEs06EF7gU78yHuxcDmzGzv6g3oA_ZiiJZ0h-Qtl6GErPlPXRoLKBu12JR5X',
+                  img: '/images/landing/petak-umpet.webp',
                   imgAlt: 'Children hiding during Petak Umpet game',
                 },
               ].map((game) => (

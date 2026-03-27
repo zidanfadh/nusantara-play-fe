@@ -39,7 +39,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
   const [isDraggingFoto, setIsDraggingFoto] = useState(false);
   const [isDraggingVideo, setIsDraggingVideo] = useState(false);
   const [isDraggingDokumen, setIsDraggingDokumen] = useState(false);
-  
+
   // State for daerah - store ID for UI, kode for backend
   const [provinsiId, setProvinsiId] = useState<string>('');
   const [kabkotaId, setKabkotaId] = useState<string>('');
@@ -99,18 +99,18 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
   const handleProvinceChange = (provinceId: string, province: Daerah | null) => {
     setProvinsiId(provinceId);
     setKabkotaId(''); // Reset kabkota when province changes
-    setFormData((prev) => ({ 
-      ...prev, 
-      provinsiKode: province?.kode || '', 
-      kabkotaKode: '' 
+    setFormData((prev) => ({
+      ...prev,
+      provinsiKode: province?.kode || '',
+      kabkotaKode: ''
     }));
   };
 
   const handleKabupatenKotaChange = (daerahId: string, daerah: Daerah | null) => {
     setKabkotaId(daerahId);
-    setFormData((prev) => ({ 
-      ...prev, 
-      kabkotaKode: daerah?.kode || '' 
+    setFormData((prev) => ({
+      ...prev,
+      kabkotaKode: daerah?.kode || ''
     }));
   };
 
@@ -203,8 +203,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingFoto(false);
-
-    const files = Array.from(e.dataTransfer.files).filter(file => 
+    const files = Array.from(e.dataTransfer.files).filter(file =>
       file.type.startsWith('image/')
     );
     if (files.length > 0) {
@@ -216,8 +215,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingVideo(false);
-
-    const files = Array.from(e.dataTransfer.files).filter(file => 
+    const files = Array.from(e.dataTransfer.files).filter(file =>
       file.type.startsWith('video/')
     );
     if (files.length > 0) {
@@ -311,75 +309,98 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
     await onSubmit(dataToSubmit);
   };
 
+  // Shared input class
+  const inputCls = 'w-full bg-surface-container-highest dark:bg-warm-field border-0 border-b-2 border-outline-variant/50 dark:border-white/10 focus:border-primary focus:outline-none px-4 py-3 rounded-t-lg transition-all placeholder:text-warm-label/50 dark:text-foreground';
+  const labelCls = 'text-[10px] font-bold uppercase tracking-widest text-warm-label block mb-2';
+  const cardCls = 'md:col-span-8 bg-warm-card p-8 rounded-xl shadow-sm space-y-6';
+  const sectionLabelCls = 'text-[10px] font-bold uppercase tracking-[0.2em] text-primary block mb-2';
+  const headingCls = 'text-xl font-bold text-on-surface dark:text-foreground tracking-tight';
+  const uploadZoneCls = (isDragging: boolean) =>
+    `relative border-2 border-dashed p-10 rounded-2xl text-center transition-colors ${
+      isDragging
+        ? 'border-primary bg-primary-fixed/20 dark:bg-primary/10'
+        : 'bg-surface-container-low dark:bg-warm-card/60 border-outline-variant dark:border-white/10 hover:border-primary'
+    }`;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 bg-background dark:bg-background p-6 rounded-lg shadow-sm border border-gray-200">
-      <div className="border-b pb-4 mb-4">
-        <h2 className="text-xl font-semibold ">{title}</h2>
+    <form onSubmit={handleSubmit} className="space-y-16">
+
+      {/* ── Tahap 01 — Identitas Permainan ── */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="md:col-span-4">
+          <span className={sectionLabelCls}>Tahap 01</span>
+          <h3 className={headingCls}>Identitas Permainan</h3>
+          <p className="text-sm text-warm-label mt-2 leading-relaxed">
+            Berikan nama dan kategorisasi yang tepat untuk memudahkan klasifikasi budaya.
+          </p>
+        </div>
+        <div className={cardCls}>
+          {/* Nama PROT */}
+          <div>
+            <label className={labelCls}>
+              Nama PROT <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="nama"
+              required
+              value={formData.nama || ''}
+              onChange={handleChange}
+              className={inputCls}
+              placeholder="Contoh: Egrang Batok"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Jenis */}
+            <div>
+              <label className={labelCls}>
+                Jenis <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="jenis"
+                required
+                value={formData.jenis || PROTJenis.PERMAINAN_RAKYAT}
+                onChange={handleChange}
+                className={`${inputCls} appearance-none`}
+              >
+                <option value={PROTJenis.PERMAINAN_RAKYAT}>Permainan Rakyat</option>
+                <option value={PROTJenis.OLAHRAGA_TRADISIONAL}>Olahraga Tradisional</option>
+              </select>
+            </div>
+
+            {/* Target Usia */}
+            <div>
+              <label className={labelCls}>
+                Target Usia <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="targetUsia"
+                required
+                value={formData.targetUsia || TargetUsia.SEMUA_USIA}
+                onChange={handleChange}
+                className={`${inputCls} appearance-none`}
+              >
+                <option value={TargetUsia.ANAK}>Anak-anak</option>
+                <option value={TargetUsia.REMAJA}>Remaja</option>
+                <option value={TargetUsia.DEWASA}>Dewasa</option>
+                <option value={TargetUsia.SEMUA_USIA}>Semua Usia</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Nama */}
-        <div className="space-y-2">
-          <label htmlFor="nama" className="block text-sm font-medium ">
-            Nama Permainan/Olahraga <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="nama"
-            name="nama"
-            required
-            value={formData.nama || ''}
-            onChange={handleChange}
-            className="bg-gray-50 dark:bg-background w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="Contoh: Gobak Sodor"
-          />
+      {/* ── Tahap 02 — Geografi Budaya ── */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="md:col-span-4">
+          <span className={sectionLabelCls}>Tahap 02</span>
+          <h3 className={headingCls}>Geografi Budaya</h3>
+          <p className="text-sm text-warm-label mt-2 leading-relaxed">
+            Asal muasal daerah menentukan variasi teknik dan dialek penyebutan.
+          </p>
         </div>
-
-        {/* Jenis */}
-        <div className="space-y-2">
-          <label htmlFor="jenis" className="block text-sm font-medium ">
-            Jenis <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="jenis"
-            name="jenis"
-            required
-            value={formData.jenis || PROTJenis.PERMAINAN_RAKYAT}
-            onChange={handleChange}
-            className="bg-gray-50 dark:bg-background w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            <option value={PROTJenis.PERMAINAN_RAKYAT}>Permainan Rakyat</option>
-            <option value={PROTJenis.OLAHRAGA_TRADISIONAL}>Olahraga Tradisional</option>
-          </select>
-        </div>
-
-        {/* Target Usia */}
-        <div className="space-y-2">
-          <label htmlFor="targetUsia" className="block text-sm font-medium ">
-            Target Usia <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="targetUsia"
-            name="targetUsia"
-            required
-            value={formData.targetUsia || TargetUsia.SEMUA_USIA}
-            onChange={handleChange}
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-background border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            <option value={TargetUsia.ANAK}>Anak-anak</option>
-            <option value={TargetUsia.REMAJA}>Remaja</option>
-            <option value={TargetUsia.DEWASA}>Dewasa</option>
-            <option value={TargetUsia.SEMUA_USIA}>Semua Usia</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Lokasi */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium ">
-          Lokasi Asal <span className="text-red-500">*</span>
-        </label>
-        <div className="p-4 border border-gray-200 rounded-md bg-background dark:bg-background">
+        <div className={cardCls}>
           <DaerahSelector
             provinceValue={provinsiId}
             kabupatenKotaValue={kabkotaId}
@@ -387,563 +408,471 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
             onKabupatenKotaChange={handleKabupatenKotaChange}
             required
           />
+
+          {/* Detail Lokasi Spesifik */}
+          <div>
+            <label className={labelCls}>Detail Lokasi Spesifik</label>
+            <input
+              type="text"
+              name="alamatLengkap"
+              value={formData.alamatLengkap || ''}
+              onChange={handleChange}
+              className={inputCls}
+              placeholder="Nama desa atau komunitas adat..."
+            />
+          </div>
         </div>
       </div>
 
-      {/* Alamat Lengkap */}
-      <div className="space-y-2">
-        <label htmlFor="alamatLengkap" className="block text-sm font-medium ">
-          Alamat Lengkap / Detail Lokasi
-        </label>
-        <textarea
-          id="alamatLengkap"
-          name="alamatLengkap"
-          rows={3}
-          value={formData.alamatLengkap || ''}
-          onChange={handleChange}
-          className="w-full bg-gray-50 dark:bg-background px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="Detail lokasi spesifik..."
-        />
-      </div>
-
-      {/* Status Asal Usul */}
-      <div className="space-y-2">
-        <label htmlFor="statusAsalUsul" className="block text-sm font-medium">
-          Sejarah / Asal Usul
-        </label>
-        <textarea
-          id="statusAsalUsul"
-          name="statusAsalUsul"
-          rows={4}
-          value={formData.statusAsalUsul || ''}
-          onChange={handleChange}
-          className="w-full bg-gray-50 dark:bg-background px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="Jelaskan sejarah atau asal usul permainan ini..."
-        />
-      </div>
-
-      {/* Cara Bermain */}
-      <div className="space-y-2">
-        <label htmlFor="caraBermain" className="block text-sm font-medium">
-          Cara Bermain
-        </label>
-        <textarea
-          id="caraBermain"
-          name="caraBermain"
-          rows={6}
-          value={formData.caraBermain || ''}
-          onChange={handleChange}
-          className="w-full bg-gray-50 dark:bg-background px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="Langkah-langkah cara bermain..."
-        />
-      </div>
-
-      {/* Nilai Moral */}
-      <div className="space-y-2">
-        <label htmlFor="nilaiMoral" className="block text-sm font-medium">
-          Nilai Moral / Filosofi
-        </label>
-        <textarea
-          id="nilaiMoral"
-          name="nilaiMoral"
-          rows={3}
-          value={formData.nilaiMoral || ''}
-          onChange={handleChange}
-          className="bg-gray-50 dark:bg-background w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          placeholder="Nilai-nilai yang terkandung..."
-        />
-      </div>
-
-      {/* Peralatan */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <label className="block text-sm font-medium">
-            Peralatan
-          </label>
-          <button
-            type="button"
-            onClick={addPeralatan}
-            className="text-sm px-3 py-1 bg-gray-50 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-          >
-            + Tambah Alat
-          </button>
+      {/* ── Tahap 03 — Filosofi & Mekanik ── */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="md:col-span-4">
+          <span className={sectionLabelCls}>Tahap 03</span>
+          <h3 className={headingCls}>Filosofi &amp; Mekanik</h3>
+          <p className="text-sm text-warm-label mt-2 leading-relaxed">
+            Jelaskan tata cara dan nilai-nilai luhur yang terkandung di dalamnya.
+          </p>
         </div>
+        <div className="md:col-span-8 bg-warm-card p-8 rounded-xl shadow-sm space-y-8">
+          {/* Sejarah / Asal Usul */}
+          <div>
+            <label className={labelCls}>Sejarah / Asal Usul</label>
+            <textarea
+              name="statusAsalUsul"
+              rows={4}
+              value={formData.statusAsalUsul || ''}
+              onChange={handleChange}
+              className={`${inputCls} resize-none`}
+              placeholder="Jelaskan sejarah atau asal usul permainan ini..."
+            />
+          </div>
 
-        {peralatan.map((alat, index) => (
-          <div key={index} className="p-4 border border-gray-200 rounded-md bg-background dark:bg-background relative">
-            <button
-              type="button"
-              onClick={() => removePeralatan(index)}
-              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-              title="Hapus peralatan"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-medium">Nama Alat</label>
-                <input
-                  type="text"
-                  value={alat.nama}
-                  onChange={(e) => handlePeralatanChange(index, 'nama', e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-background px-3 py-1.5 border border-gray-300 rounded-md text-sm"
-                  placeholder="Nama alat..."
-                />
+          {/* Cara Bermain */}
+          <div>
+            <label className={labelCls}>Cara Bermain</label>
+            <textarea
+              name="caraBermain"
+              rows={5}
+              value={formData.caraBermain || ''}
+              onChange={handleChange}
+              className={`${inputCls} resize-none`}
+              placeholder="Langkah demi langkah..."
+            />
+          </div>
+
+          {/* Nilai Moral */}
+          <div>
+            <label className={labelCls}>Nilai Moral &amp; Karakter</label>
+            <textarea
+              name="nilaiMoral"
+              rows={3}
+              value={formData.nilaiMoral || ''}
+              onChange={handleChange}
+              className={`${inputCls} resize-none`}
+              placeholder="Apa pesan yang ingin disampaikan?"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Tahap 04 — Inventaris Alat ── */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="md:col-span-4">
+          <span className={sectionLabelCls}>Tahap 04</span>
+          <h3 className={headingCls}>Inventaris Alat</h3>
+          <p className="text-sm text-warm-label mt-2 leading-relaxed">
+            Daftarkan peralatan fisik yang dibutuhkan untuk memulai permainan.
+          </p>
+        </div>
+        <div className="md:col-span-8 space-y-4">
+          {peralatan.map((alat, index) => (
+            <div key={index} className="bg-warm-card rounded-xl shadow-sm overflow-hidden">
+              {/* Card header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/20 dark:border-white/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-surface-container-highest dark:bg-warm-field rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                    {alat.fotoAlat && alat.fotoAlat.length > 0 ? (
+                      <img src={alat.fotoAlat[0]} alt={alat.nama} className="w-full h-full object-cover" />
+                    ) : peralatanFotoFiles[index]?.length > 0 ? (
+                      <img src={URL.createObjectURL(peralatanFotoFiles[index][0])} alt={alat.nama} className="w-full h-full object-cover" />
+                    ) : (
+                      <svg className="w-5 h-5 text-warm-label" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-on-surface text-sm">{alat.nama || `Peralatan #${index + 1}`}</p>
+                    <p className="text-xs text-warm-label">{alat.nama ? (alat.deskripsi || 'Isi detail di bawah') : 'Belum ada nama & foto'}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removePeralatan(index)}
+                  className="text-warm-label hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                  title="Hapus peralatan"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-medium">Kisaran Harga</label>
-                <input
-                  type="text"
-                  value={alat.kisaranHarga || ''}
-                  onChange={(e) => handlePeralatanChange(index, 'kisaranHarga', e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-background px-3 py-1.5 border border-gray-300 rounded-md text-sm"
-                  placeholder="Contoh: Rp 50.000"
-                />
-              </div>
-              <div className="md:col-span-2 space-y-1">
-                <label className="text-xs font-medium">Deskripsi</label>
-                <textarea
-                  value={alat.deskripsi || ''}
-                  onChange={(e) => handlePeralatanChange(index, 'deskripsi', e.target.value)}
-                  className="w-full bg-gray-50 dark:bg-background px-3 py-1.5 border border-gray-300 rounded-md text-sm"
-                  rows={2}
-                  placeholder="Deskripsi alat..."
-                />
-              </div>
-              {/* Foto Alat per peralatan */}
-              <div className="md:col-span-2 space-y-2">
-                <label className="text-xs font-medium mr-3">Foto Alat</label>
-                {/* Existing foto alat */}
-                {alat.fotoAlat && alat.fotoAlat.length > 0 && (
+
+              {/* Expandable fields */}
+              <div className="p-5 space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelCls}>Nama Alat</label>
+                    <input
+                      type="text"
+                      value={alat.nama}
+                      onChange={(e) => handlePeralatanChange(index, 'nama', e.target.value)}
+                      className={`${inputCls} text-sm py-2.5`}
+                      placeholder="Nama alat..."
+                    />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Kisaran Harga</label>
+                    <input
+                      type="text"
+                      value={alat.kisaranHarga || ''}
+                      onChange={(e) => handlePeralatanChange(index, 'kisaranHarga', e.target.value)}
+                      className={`${inputCls} text-sm py-2.5`}
+                      placeholder="Contoh: Rp 50.000"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className={labelCls}>Deskripsi</label>
+                  <textarea
+                    value={alat.deskripsi || ''}
+                    onChange={(e) => handlePeralatanChange(index, 'deskripsi', e.target.value)}
+                    className={`${inputCls} resize-none text-sm py-2.5`}
+                    rows={2}
+                    placeholder="Deskripsi alat..."
+                  />
+                </div>
+
+                {/* Foto Alat */}
+                <div>
+                  <label className={labelCls}>Foto Alat</label>
                   <div className="flex flex-wrap gap-2">
-                    {alat.fotoAlat.map((url, fotoIdx) => (
+                    {(alat.fotoAlat || []).map((url, fotoIdx) => (
                       <div key={fotoIdx} className="relative group w-16 h-16">
-                        <img src={url} alt={`foto alat ${fotoIdx + 1}`} className="w-full h-full object-cover rounded border border-gray-300" />
+                        <img src={url} alt={`foto alat ${fotoIdx + 1}`} className="w-full h-full object-cover rounded-lg" />
                         <button
                           type="button"
                           onClick={() => removeExistingFotoAlat(index, fotoIdx)}
-                          title="Hapus foto alat"
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
                         >
                           ×
                         </button>
                       </div>
                     ))}
-                  </div>
-                )}
-                {/* New foto alat files */}
-                {(peralatanFotoFiles[index] || []).length > 0 && (
-                  <div className="flex flex-wrap gap-2">
                     {(peralatanFotoFiles[index] || []).map((file, fileIdx) => (
                       <div key={fileIdx} className="relative group w-16 h-16">
-                        <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-full object-cover rounded border border-blue-300" />
+                        <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-full object-cover rounded-lg border-2 border-primary/30" />
                         <button
                           type="button"
                           onClick={() => removeNewPeralatanFotoFile(index, fileIdx)}
-                          title="Batal upload foto alat"
-                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
                         >
                           ×
                         </button>
                       </div>
                     ))}
+                    <label className="w-16 h-16 bg-surface-container-highest dark:bg-warm-field rounded-lg flex items-center justify-center cursor-pointer border border-dashed border-outline-variant dark:border-white/10 hover:border-primary hover:border-2 transition-all">
+                      <svg className="w-5 h-5 text-warm-label" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => handlePeralatanFotoChange(index, e)}
+                      />
+                    </label>
                   </div>
-                )}
-                <label className="inline-flex items-center gap-1.5 cursor-pointer px-2 py-1 border border-dashed border-gray-300 rounded text-xs hover:border-blue-400 hover:text-blue-600 transition-colors">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Tambah Foto
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => handlePeralatanFotoChange(index, e)}
-                  />
-                </label>
-              </div>
-
-              <div className="md:col-span-2 space-y-1">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium">URL Pembelian (Tokopedia, Shopee, dll.)</label>
-                  <button
-                    type="button"
-                    onClick={() => addUrlPembelian(index)}
-                    className="text-xs px-2 py-0.5 bg-gray-50 border border-gray-300 text-gray-700 rounded hover:bg-gray-200 transition-colors"
-                  >
-                    + Tambah URL
-                  </button>
                 </div>
-                {(alat.urlPembelian || []).map((url, urlIdx) => (
-                  <div key={urlIdx} className="flex gap-2 mt-1">
-                    <input
-                      type="url"
-                      value={url}
-                      onChange={(e) => handleUrlPembelianChange(index, urlIdx, e.target.value)}
-                      className="flex-1 bg-gray-50 dark:bg-background px-3 py-1.5 border border-gray-300 rounded-md text-sm"
-                      placeholder="https://tokopedia.com/..."
-                    />
+
+                {/* URL Pembelian */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={labelCls}>URL Pembelian</label>
                     <button
                       type="button"
-                      onClick={() => removeUrlPembelian(index, urlIdx)}
-                      className="text-red-500 hover:text-red-700 px-1"
-                      title="Hapus URL"
+                      onClick={() => addUrlPembelian(index)}
+                      className="text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary/70 transition-colors"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      + Tambah URL
+                    </button>
+                  </div>
+                  {(alat.urlPembelian || []).length === 0 && (
+                    <p className="text-xs text-warm-label/60 italic">Belum ada URL pembelian.</p>
+                  )}
+                  {(alat.urlPembelian || []).map((url, urlIdx) => (
+                    <div key={urlIdx} className="flex gap-2 mt-2">
+                      <input
+                        type="url"
+                        value={url}
+                        onChange={(e) => handleUrlPembelianChange(index, urlIdx, e.target.value)}
+                        className={`${inputCls} text-sm py-2`}
+                        placeholder="https://tokopedia.com/..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeUrlPembelian(index, urlIdx)}
+                        className="text-warm-label hover:text-red-500 px-1 transition-colors"
+                        title="Hapus URL"
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Add peralatan button */}
+          <button
+            type="button"
+            onClick={addPeralatan}
+            className="w-full py-4 rounded-xl border-2 border-dashed border-outline-variant/40 text-warm-label hover:text-primary hover:border-primary/40 hover:bg-primary-fixed/20 transition-all flex items-center justify-center gap-2 group"
+          >
+            <svg className="w-4 h-4 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Tambah Alat Baru</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── Tahap 05 — Dokumentasi Visual ── */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="md:col-span-4">
+          <span className={sectionLabelCls}>Tahap 05</span>
+          <h3 className={headingCls}>Dokumentasi Visual</h3>
+          <p className="text-sm text-warm-label mt-2 leading-relaxed">
+            Lengkapi arsip digital dengan dokumentasi yang komprehensif.
+          </p>
+        </div>
+        <div className="md:col-span-8 space-y-8">
+
+          {/* Foto Kegiatan */}
+          <div className="space-y-4">
+            <label className={labelCls}>Foto Kegiatan</label>
+            <div
+              onDrop={handleFotoDrop}
+              onDragOver={handleDragOver}
+              onDragEnter={handleFotoDragEnter}
+              onDragLeave={handleFotoDragLeave}
+              className={uploadZoneCls(isDraggingFoto)}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFotoChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="font-bold text-on-surface text-sm mb-1">Unggah Foto</p>
+              <p className="text-[10px] text-warm-label max-w-xs mx-auto">Mendukung format JPG, PNG (Maks. 10MB/file)</p>
+            </div>
+
+            {(existingFotos.length > 0 || fotoFiles.length > 0) && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                {existingFotos.map((url, idx) => (
+                  <div key={`ef-${idx}`} className="aspect-square bg-surface-container-highest dark:bg-warm-field rounded-lg overflow-hidden relative group">
+                    <img src={url} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <button type="button" onClick={() => removeExistingFoto(idx)} className="text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {fotoFiles.map((file, idx) => (
+                  <div key={`nf-${idx}`} className="aspect-square bg-surface-container-highest dark:bg-warm-field rounded-lg overflow-hidden relative group">
+                    <img src={URL.createObjectURL(file)} alt={file.name} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <button type="button" onClick={() => removeFotoFile(idx)} className="text-white">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Video Kegiatan */}
+          <div className="space-y-4">
+            <label className={labelCls}>Video Kegiatan</label>
+            <div
+              onDrop={handleVideoDrop}
+              onDragOver={handleDragOver}
+              onDragEnter={handleVideoDragEnter}
+              onDragLeave={handleVideoDragLeave}
+              className={uploadZoneCls(isDraggingVideo)}
+            >
+              <input
+                type="file"
+                accept="video/*"
+                multiple
+                onChange={handleVideoChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="font-bold text-on-surface text-sm mb-1">Unggah Video</p>
+              <p className="text-[10px] text-warm-label max-w-xs mx-auto">Mendukung format MP4, MOV (Maks. 50MB)</p>
+            </div>
+
+            {(existingVideos.length > 0 || videoFiles.length > 0) && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {existingVideos.map((url, idx) => (
+                  <div key={`ev-${idx}`} className="relative group rounded-xl overflow-hidden">
+                    <video src={url} controls className="w-full h-40 object-cover rounded-xl" />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingVideo(idx)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
                 ))}
-                {(!alat.urlPembelian || alat.urlPembelian.length === 0) && (
-                  <p className="text-xs italic">Belum ada URL pembelian.</p>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-        {peralatan.length === 0 && (
-          <p className="text-sm  italic">Belum ada peralatan yang ditambahkan.</p>
-        )}
-      </div>
-
-      {/* Dokumentasi Kegiatan - Foto */}
-      <div className="space-y-4">
-        <label className="block text-sm font-medium">
-          Dokumentasi Foto Kegiatan
-        </label>
-
-        {/* Drag and Drop Zone */}
-        <div
-          onDrop={handleFotoDrop}
-          onDragOver={handleDragOver}
-          onDragEnter={handleFotoDragEnter}
-          onDragLeave={handleFotoDragLeave}
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            isDraggingFoto
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 hover:border-blue-400 bg-gray-50 dark:bg-background'
-          }`}
-        >
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFotoChange}
-            className="hidden"
-            id="foto-input"
-          />
-          <label
-            htmlFor="foto-input"
-            className="cursor-pointer flex flex-col items-center justify-center"
-          >
-            <svg
-              className={`w-12 h-12 mb-3 ${isDraggingFoto ? 'text-blue-500' : 'text-gray-400'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-              <span className="font-semibold text-blue-600">Klik untuk upload</span> atau drag and drop
-            </p>
-            <p className="text-xs text-gray-500">PNG, JPG, JPEG hingga 10MB</p>
-          </label>
-        </div>
-
-        {/* Existing Photos */}
-        {existingFotos.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium ">Foto yang sudah ada:</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {existingFotos.map((url, index) => (
-                <div key={`existing-foto-${index}`} className="relative group">
-                  <img
-                    src={url}
-                    alt={`Foto ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-md border border-gray-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeExistingFoto(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Hapus foto"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* New Photo Files */}
-        {fotoFiles.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium ">Foto baru yang akan diupload:</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {fotoFiles.map((file, index) => (
-                <div key={`new-foto-${index}`} className="relative group">
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                    className="w-full h-32 object-cover rounded-md border border-gray-300"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeFotoFile(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Hapus foto"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <p className="text-xs  mt-1 truncate">{file.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Dokumentasi Kegiatan - Video */}
-      <div className="space-y-4">
-        <label className="block text-sm font-medium">
-          Dokumentasi Video Kegiatan
-        </label>
-
-        {/* Drag and Drop Zone */}
-        <div
-          onDrop={handleVideoDrop}
-          onDragOver={handleDragOver}
-          onDragEnter={handleVideoDragEnter}
-          onDragLeave={handleVideoDragLeave}
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            isDraggingVideo
-              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-              : 'border-gray-300 hover:border-purple-400 bg-gray-50 dark:bg-background'
-          }`}
-        >
-          <input
-            type="file"
-            accept="video/*"
-            multiple
-            onChange={handleVideoChange}
-            className="hidden"
-            id="video-input"
-          />
-          <label
-            htmlFor="video-input"
-            className="cursor-pointer flex flex-col items-center justify-center"
-          >
-            <svg
-              className={`w-12 h-12 mb-3 ${isDraggingVideo ? 'text-purple-500' : 'text-gray-400'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-              <span className="font-semibold text-purple-600">Klik untuk upload</span> atau drag and drop
-            </p>
-            <p className="text-xs text-gray-500">MP4, MOV, AVI hingga 100MB</p>
-          </label>
-        </div>
-
-        {/* Existing Videos */}
-        {existingVideos.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-600">Video yang sudah ada:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {existingVideos.map((url, index) => (
-                <div key={`existing-video-${index}`} className="relative group border border-gray-300 rounded-md p-2 bg-background dark:bg-background">
-                  <video
-                    src={url}
-                    controls
-                    className="w-full h-48 rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeExistingVideo(index)}
-                    className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Hapus video"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* New Video Files */}
-        {videoFiles.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-gray-600">Video baru yang akan diupload:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {videoFiles.map((file, index) => (
-                <div key={`new-video-${index}`} className="relative group border border-gray-300 rounded-md p-2 bg-background dark:bg-background">
-                  <video
-                    src={URL.createObjectURL(file)}
-                    controls
-                    className="w-full h-48 rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeVideoFile(index)}
-                    className="absolute top-3 right-3 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Hapus video"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Dokumen Kurikulum */}
-      <div className="space-y-4">
-        <label className="block text-sm font-medium">
-          Dokumen Kurikulum / Panduan Permainan
-        </label>
-
-        <div
-          onDrop={handleDokumenDrop}
-          onDragOver={handleDragOver}
-          onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingDokumen(true); }}
-          onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingDokumen(false); }}
-          className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            isDraggingDokumen
-              ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20'
-              : 'border-gray-300 hover:border-amber-400 bg-gray-50 dark:bg-background'
-          }`}
-        >
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            multiple
-            onChange={handleDokumenChange}
-            className="hidden"
-            id="dokumen-input"
-          />
-          <label
-            htmlFor="dokumen-input"
-            className="cursor-pointer flex flex-col items-center justify-center"
-          >
-            <svg
-              className={`w-12 h-12 mb-3 ${isDraggingDokumen ? 'text-amber-500' : 'text-gray-400'}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-              <span className="font-semibold text-amber-600">Klik untuk upload</span> atau drag and drop
-            </p>
-            <p className="text-xs text-gray-500">PDF, DOC, DOCX (max 10 file)</p>
-          </label>
-        </div>
-
-        {/* Existing Documents */}
-        {existingDokumen.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium ">Dokumen yang sudah ada:</p>
-            <div className="space-y-2">
-              {existingDokumen.map((url, index) => {
-                const filename = url.split('/').pop() || `Dokumen ${index + 1}`;
-                return (
-                  <div key={`existing-dok-${index}`} className="flex items-center justify-between p-2 border border-gray-200 rounded-md bg-background">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate">{filename}</a>
-                    </div>
+                {videoFiles.map((file, idx) => (
+                  <div key={`nv-${idx}`} className="relative group rounded-xl overflow-hidden">
+                    <video src={URL.createObjectURL(file)} controls className="w-full h-40 object-cover rounded-xl" />
                     <button
                       type="button"
-                      onClick={() => removeExistingDokumen(index)}
-                      className="text-red-500 hover:text-red-700 ml-2 shrink-0"
-                      title="Hapus dokumen"
+                      onClick={() => removeVideoFile(idx)}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* New Document Files */}
-        {dokumenFiles.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-xs font-medium ">Dokumen baru yang akan diupload:</p>
-            <div className="space-y-2">
-              {dokumenFiles.map((file, index) => (
-                <div key={`new-dok-${index}`} className="flex items-center justify-between p-2 border border-gray-200 rounded-md bg-background">
-                  <div className="flex items-center gap-2 overflow-hidden">
-                    <svg className="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span className="text-sm  truncate">{file.name}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeDokumenFile(index)}
-                    className="text-red-500 hover:text-red-700 ml-2 shrink-0"
-                    title="Hapus dokumen"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
+          {/* Dokumen Kurikulum/Panduan */}
+          <div className="space-y-4">
+            <label className={labelCls}>Dokumen Kurikulum/Panduan</label>
+            <div
+              onDrop={handleDokumenDrop}
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingDokumen(true); }}
+              onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingDokumen(false); }}
+              className={uploadZoneCls(isDraggingDokumen)}
+            >
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                multiple
+                onChange={handleDokumenChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
+              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className="font-bold text-on-surface text-sm mb-1">Unggah Dokumen</p>
+              <p className="text-[10px] text-warm-label max-w-xs mx-auto">Mendukung format PDF, DOC (Maks. 20MB)</p>
             </div>
+
+            {(existingDokumen.length > 0 || dokumenFiles.length > 0) && (
+              <div className="space-y-2">
+                {existingDokumen.map((url, idx) => {
+                  const filename = url.split('/').pop() || `Dokumen ${idx + 1}`;
+                  return (
+                    <div key={`ed-${idx}`} className="flex items-center justify-between p-3 bg-warm-card rounded-lg border border-outline-variant/30 dark:border-white/10">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-8 h-8 bg-primary-fixed dark:bg-primary/20 rounded-lg flex items-center justify-center shrink-0">
+                          <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
+                          {filename}
+                        </a>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeExistingDokumen(idx)}
+                        className="text-warm-label hover:text-red-500 ml-2 shrink-0 transition-colors"
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })}
+                {dokumenFiles.map((file, idx) => (
+                  <div key={`nd-${idx}`} className="flex items-center justify-between p-3 bg-warm-card rounded-lg border border-outline-variant/30 dark:border-white/10">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="w-8 h-8 bg-primary-fixed dark:bg-primary/20 rounded-lg flex items-center justify-center shrink-0">
+                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-on-surface truncate">{file.name}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeDokumenFile(idx)}
+                      className="text-warm-label hover:text-red-500 ml-2 shrink-0 transition-colors"
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-6 border-t">
+      {/* ── Footer Actions ── */}
+      <div className="pt-12 border-t border-outline-variant/20 dark:border-white/10 flex flex-col sm:flex-row items-center justify-end gap-4">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          className="w-full sm:w-auto px-8 py-3 text-warm-label font-bold text-[10px] uppercase tracking-widest hover:bg-surface-container-low dark:hover:bg-warm-field rounded-lg transition-colors"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="w-full sm:w-auto px-12 py-4 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
         >
           {isLoading && (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
