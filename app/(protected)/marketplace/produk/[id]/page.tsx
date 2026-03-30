@@ -41,100 +41,113 @@ export default function ProdukDetailPage() {
   const canBuy = user && !isOwner && produk.stok > 0;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <Link href="/marketplace" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
-        <ArrowLeftIcon className="h-4 w-4 mr-1" />
+    <div className="max-w-6xl mx-auto px-6 pt-8 pb-24">
+      <Link href="/marketplace" className="inline-flex items-center text-sm text-stone-500 hover:text-[#9e3c24] mb-8 font-medium transition-colors">
+        <ArrowLeftIcon className="h-4 w-4 mr-2" />
         Kembali ke Marketplace
       </Link>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* Images */}
-        <div>
-          {produk.images && produk.images.length > 0 ? (
-            <img src={produk.images[0]} alt={produk.nama} className="w-full rounded-lg object-cover aspect-square" />
-          ) : (
-            <div className="w-full rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center aspect-square">
-              <span className="text-white text-6xl font-bold">{produk.nama.charAt(0).toUpperCase()}</span>
-            </div>
-          )}
+        <div className="space-y-4">
+          <div className="relative rounded-3xl overflow-hidden bg-[#e6e2dc] shadow-sm">
+            {produk.images && produk.images.length > 0 ? (
+              <img src={produk.images[0]} alt={produk.nama} className="w-full object-cover aspect-square" />
+            ) : (
+              <div className="w-full bg-gradient-to-br from-[#f7f3ed] to-[#e6e2dc] flex items-center justify-center aspect-square">
+                <span className="text-stone-400 text-6xl font-bold">{produk.nama.charAt(0).toUpperCase()}</span>
+              </div>
+            )}
+          </div>
           {produk.images && produk.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2 mt-2">
+            <div className="grid grid-cols-4 gap-4">
               {produk.images.slice(1).map((img, i) => (
-                <img key={i} src={img} alt="" className="w-full rounded-md object-cover aspect-square" />
+                <div key={i} className="rounded-xl overflow-hidden bg-[#e6e2dc]">
+                  <img src={img} alt="" className="w-full h-full object-cover aspect-square hover:opacity-80 transition-opacity cursor-pointer" />
+                </div>
               ))}
             </div>
           )}
         </div>
 
         {/* Info */}
-        <div>
-          {produk.kategori && (
-            <span className="inline-block px-2 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full mb-2">
-              {produk.kategori.nama}
-            </span>
-          )}
+        <div className="flex flex-col h-full">
+          <div>
+            {produk.kategori && (
+              <span className="inline-block px-3 py-1 bg-[#ffdad2] text-[#3c0700] text-[10px] font-bold tracking-widest uppercase rounded-full mb-4">
+                {produk.kategori.nama}
+              </span>
+            )}
 
-          <h1 className="text-2xl font-bold text-foreground">{produk.nama}</h1>
-          <p className="text-3xl font-bold text-emerald-600 mt-2">{formatRupiah(produk.harga)}</p>
+            <h1 className="text-4xl font-extrabold text-stone-800 leading-tight">{produk.nama}</h1>
+            <p className="text-3xl font-extrabold text-[#9e3c24] tracking-tight mt-4">{formatRupiah(produk.harga)}</p>
 
-          <div className="mt-2">
-            {produk.stok > 0 ? (
-              <span className="text-sm text-muted-foreground">Stok: {produk.stok}</span>
-            ) : (
-              <span className="text-sm text-red-600 font-medium">Stok Habis</span>
+            <div className="mt-4">
+              {produk.stok > 0 ? (
+                <span className="text-xs font-bold text-stone-500 bg-[#f1ede7] px-3 py-1.5 rounded-lg inline-block">STOK: {produk.stok}</span>
+              ) : (
+                <span className="text-xs font-bold text-red-700 bg-red-100 px-3 py-1.5 rounded-lg inline-block">HABIS</span>
+              )}
+            </div>
+
+            {produk.deskripsi && (
+              <div className="mt-8">
+                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider mb-3">Deskripsi Produk</h3>
+                <p className="text-stone-600 font-light leading-relaxed whitespace-pre-wrap">{produk.deskripsi}</p>
+              </div>
+            )}
+
+            {/* Related PROTs */}
+            {produk.prots && produk.prots.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider mb-3">Terkait dengan Warisan</h3>
+                <div className="flex flex-wrap gap-2">
+                  {produk.prots.map((prot) => (
+                    <Link key={prot.id} href={`/prot/${prot.id}`} className="px-4 py-2 bg-[#f7f3ed] text-stone-700 text-sm font-medium rounded-xl hover:bg-[#e6e2dc] transition-colors border border-[#e6e2dc]">
+                      {prot.nama}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Toko */}
+            {produk.toko && (
+              <div className="mt-8 pt-8 border-t border-[#e6e2dc]">
+                <h3 className="text-sm font-bold text-stone-800 uppercase tracking-wider mb-4">Informasi Penjual</h3>
+                <Link href={`/marketplace/toko/${produk.toko.id}`} className="flex items-center p-4 bg-[#f7f3ed] rounded-2xl hover:bg-[#ebe8e2] transition-colors group">
+                  <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center mr-4 shadow-sm border border-[#e6e2dc]">
+                    <BuildingStorefrontIcon className="h-6 w-6 text-[#9e3c24]" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-stone-800 group-hover:text-[#9e3c24] transition-colors">{produk.toko.nama}</p>
+                    {produk.toko.alamat && <p className="text-sm text-stone-500 font-light mt-0.5">{produk.toko.alamat}</p>}
+                  </div>
+                </Link>
+              </div>
             )}
           </div>
 
-          {produk.deskripsi && (
-            <div className="mt-4">
-              <h3 className="text-sm font-semibold text-foreground/80 mb-1">Deskripsi</h3>
-              <p className="text-muted-foreground whitespace-pre-wrap">{produk.deskripsi}</p>
-            </div>
-          )}
+          <div className="mt-10 mb-2">
+            {/* Buy button */}
+            {canBuy && (
+              <button
+                onClick={() => setShowCheckout(true)}
+                className="w-full py-4 bg-[#9e3c24] text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-[#9e3c24]/20 active:scale-[0.98] text-lg"
+              >
+                Beli Sekarang
+              </button>
+            )}
 
-          {/* Related PROTs */}
-          {produk.prots && produk.prots.length > 0 && (
-            <div className="mt-4">
-              <h3 className="text-sm font-semibold text-foreground/80 mb-2">Terkait dengan PROT</h3>
-              <div className="flex flex-wrap gap-2">
-                {produk.prots.map((prot) => (
-                  <Link key={prot.id} href={`/prot/${prot.id}`} className="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full hover:bg-indigo-200">
-                    {prot.nama}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Toko */}
-          {produk.toko && (
-            <Link href={`/marketplace/toko/${produk.toko.id}`} className="mt-4 flex items-center p-3 bg-muted/50 rounded-md hover:bg-muted">
-              <BuildingStorefrontIcon className="h-8 w-8 text-emerald-600 mr-3" />
-              <div>
-                <p className="font-medium text-foreground">{produk.toko.nama}</p>
-                {produk.toko.alamat && <p className="text-xs text-muted-foreground">{produk.toko.alamat}</p>}
-              </div>
-            </Link>
-          )}
-
-          {/* Buy button */}
-          {canBuy && (
-            <button
-              onClick={() => setShowCheckout(true)}
-              className="mt-6 w-full px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition"
-            >
-              Beli Sekarang
-            </button>
-          )}
-
-          {isOwner && (
-            <Link
-              href={`/marketplace/toko-saya/produk/${produk.id}/edit`}
-              className="mt-6 block w-full text-center px-6 py-3 border border-emerald-600 text-emerald-600 font-semibold rounded-lg hover:bg-emerald-50 transition"
-            >
-              Edit Produk
-            </Link>
-          )}
+            {isOwner && (
+              <Link
+                href={`/marketplace/toko-saya/produk/${produk.id}/edit`}
+                className="block w-full text-center py-4 bg-[#f7f3ed] text-stone-700 font-bold rounded-2xl hover:bg-[#e6e2dc] transition-all active:scale-[0.98] text-lg border border-[#e6e2dc]"
+              >
+                Edit Produk
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 

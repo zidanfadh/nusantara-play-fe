@@ -33,32 +33,24 @@ export function ProdukFilter({ onFilterChange }: ProdukFilterProps) {
   };
 
   return (
-    <div className="bg-card p-4 rounded-lg shadow-md mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        {/* Search */}
-        <div className="md:col-span-5">
-          <label className="block text-sm font-medium text-foreground/80 mb-1">Cari Produk</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground/60" />
-            </div>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Cari nama produk..."
-              className="text-foreground/80 block w-full pl-10 pr-3 py-2 border border-border rounded-md leading-5 bg-card placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-            />
-          </div>
-        </div>
+    <div className="bg-[#f7f3ed] rounded-2xl p-6 mb-12 flex flex-col lg:flex-row gap-6 items-center">
+      <div className="w-full lg:flex-1 relative">
+        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Cari produk kerajinan..."
+          className="w-full pl-12 pr-4 py-4 bg-white rounded-xl border-none focus:ring-1 focus:ring-[#9e3c24]/20 text-stone-700 placeholder-stone-400"
+        />
+      </div>
 
-        {/* Kategori */}
-        <div className="md:col-span-4">
-          <label className="block text-sm font-medium text-foreground/80 mb-1">Kategori</label>
+      <div className="flex flex-wrap lg:flex-nowrap gap-4 w-full lg:w-auto">
+        <div className="relative group min-w-[200px]">
           <select
             value={kategoriId}
             onChange={(e) => handleKategoriChange(e.target.value)}
-            className="block text-foreground/80 w-full px-3 py-2 border border-border rounded-md leading-5 bg-card focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
+            className="w-full px-4 py-4 bg-white rounded-xl border-none focus:ring-1 focus:ring-[#9e3c24]/20 text-stone-500 text-sm font-medium pr-10 appearance-auto"
           >
             <option value="">Semua Kategori</option>
             {kategoriList.map((k) => (
@@ -67,15 +59,12 @@ export function ProdukFilter({ onFilterChange }: ProdukFilterProps) {
           </select>
         </div>
 
-        {/* Reset */}
-        <div className="md:col-span-3 flex items-end">
-          <button
-            onClick={handleReset}
-            className="w-full px-4 py-2 border border-border rounded-md text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50"
-          >
-            Reset
-          </button>
-        </div>
+        <button
+          onClick={handleReset}
+          className="w-full lg:w-auto px-6 py-4 rounded-xl font-medium text-stone-500 bg-white hover:bg-stone-50 border-none shadow-sm transition-all"
+        >
+          Reset
+        </button>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Produk } from '@/types/marketplace';
+import { BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 
 interface ProdukCardProps {
   produk: Produk;
@@ -14,56 +15,47 @@ export function ProdukCard({ produk }: ProdukCardProps) {
 
   return (
     <Link href={`/marketplace/produk/${produk.id}`}>
-      <div className="bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer">
-        {/* Image */}
-        {imageUrl ? (
-          <img src={imageUrl} alt={produk.nama} className="w-full h-48 object-cover" />
-        ) : (
-          <div className="w-full h-48 bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
-            <span className="text-white text-4xl font-bold">{produk.nama.charAt(0).toUpperCase()}</span>
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-foreground line-clamp-2">{produk.nama}</h3>
-
+      <div className="group cursor-pointer">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#e6e2dc] mb-6">
+          {imageUrl ? (
+            <img 
+               src={imageUrl} 
+               alt={produk.nama} 
+               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#f7f3ed] to-[#e6e2dc] flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+              <span className="text-stone-400 text-6xl font-bold">{produk.nama.charAt(0).toUpperCase()}</span>
+            </div>
+          )}
           {produk.kategori && (
-            <span className="inline-block mt-1 px-2 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full">
-              {produk.kategori.nama}
-            </span>
+             <span className="absolute top-4 left-4 bg-[#ffdad2] text-[#3c0700] text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+               {produk.kategori.nama}
+             </span>
+          )}
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between items-start">
+            <h3 className="text-xl font-bold text-stone-800 group-hover:text-[#9e3c24] transition-colors leading-snug line-clamp-2">
+              {produk.nama}
+            </h3>
+          </div>
+          
+          {produk.toko && (
+            <p className="text-stone-400 text-sm font-medium flex items-center gap-1">
+              <BuildingStorefrontIcon className="w-4 h-4" /> {produk.toko.nama}
+            </p>
           )}
 
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-2">{produk.deskripsi}</p>
-
-          <div className="mt-3 flex items-center justify-between">
-            <span className="text-lg font-bold text-emerald-600">{formatRupiah(produk.harga)}</span>
+          <div className="flex justify-between items-end pt-2">
+            <span className="text-lg font-extrabold text-[#9e3c24] tracking-tight">{formatRupiah(produk.harga)}</span>
             {produk.stok <= 0 ? (
-              <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">Habis</span>
+              <span className="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-1 rounded">HABIS</span>
             ) : (
-              <span className="text-xs text-muted-foreground">Stok: {produk.stok}</span>
+              <span className="text-[10px] font-bold text-stone-500 bg-[#f1ede7] px-2 py-1 rounded">STOK: {produk.stok}</span>
             )}
           </div>
-
-          {/* Toko */}
-          {produk.toko && (
-            <div className="mt-3 pt-3 border-t border-border">
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-foreground/80">{produk.toko.nama}</span>
-              </p>
-            </div>
-          )}
-
-          {/* Related PROTs */}
-          {produk.prots && produk.prots.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {produk.prots.map((prot) => (
-                <span key={prot.id} className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">
-                  {prot.nama}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </Link>

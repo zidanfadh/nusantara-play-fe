@@ -17,6 +17,8 @@
 /.next/
 /out/
 
+/references
+
 # production
 /build
 
