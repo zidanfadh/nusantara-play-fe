@@ -2,7 +2,7 @@
 
 ## Overview
 
-Modul Calendar menyediakan fitur kalender terintegrasi untuk platform Nusantara Play. Kalender menggabungkan tiga sumber data: **tanggal penting** (hari budaya, peringatan nasional, dll), **jadwal pribadi** user, dan **event publik** dari modul Events. Dilengkapi dengan visibility role-based (public/internal/private) dan sistem undangan (invite) untuk berbagi jadwal pribadi.
+Modul Calendar menyediakan fitur kalender terintegrasi untuk platform Nusantara Legacy. Kalender menggabungkan tiga sumber data: **tanggal penting** (hari budaya, peringatan nasional, dll), **jadwal pribadi** user, dan **event publik** dari modul Events. Dilengkapi dengan visibility role-based (public/internal/private) dan sistem undangan (invite) untuk berbagi jadwal pribadi.
 
 ## Base URL
 

@@ -88,7 +88,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
         <div className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-foreground">
-              {user.full_name || 'Pengguna Nusantara Play'}
+              {user.full_name || 'Pengguna Nusantara Legacy'}
             </h2>
             <p className="text-muted-foreground">{user.email}</p>
             {user.bio && (

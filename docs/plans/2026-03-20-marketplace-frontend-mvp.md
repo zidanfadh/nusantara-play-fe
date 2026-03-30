@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Build the frontend for Nusantara Play's marketplace — product browsing, seller
+**Goal:** Build the frontend for Nusantara Legacy's marketplace — product browsing, seller
 toko management, order placement, and admin category management. Consumes the backend
 API built in `docs/plans/2026-03-20-marketplace-backend-mvp.md`.
 

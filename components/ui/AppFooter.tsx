@@ -7,7 +7,7 @@ export function AppFooter() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="md:col-span-1">
           <Link href="/" className="text-xl font-bold text-primary mb-4 block">
-            Nusantara Play
+            Nusantara Legacy
           </Link>
           <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
             Platform digital terdesentralisasi pertama yang fokus pada
@@ -85,7 +85,7 @@ export function AppFooter() {
 
       <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
         <p className="text-foreground/60 text-sm">
-          &copy; {new Date().getFullYear()} Nusantara Play. Menjaga Warisan,
+          &copy; {new Date().getFullYear()} Nusantara Legacy. Menjaga Warisan,
           Memainkan Masa Depan.
         </p>
       </div>

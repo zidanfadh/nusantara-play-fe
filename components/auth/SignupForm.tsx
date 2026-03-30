@@ -64,7 +64,7 @@ export function SignupForm() {
       <div className="text-center sm:text-left">
         <h2 className="text-2xl font-bold text-foreground">Daftar</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Bergabung dengan komunitas Nusantara Play
+          Bergabung dengan komunitas Nusantara Legacy
         </p>
       </div>
 

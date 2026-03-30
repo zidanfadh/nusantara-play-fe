@@ -2,7 +2,7 @@
 
 ## Overview
 
-Modul Calendar telah berhasil diimplementasikan untuk platform Nusantara Play. Implementasi ini mencakup types, API client, hooks, components, dan pages yang lengkap.
+Modul Calendar telah berhasil diimplementasikan untuk platform Nusantara Legacy. Implementasi ini mencakup types, API client, hooks, components, dan pages yang lengkap.
 
 ## Structure
 

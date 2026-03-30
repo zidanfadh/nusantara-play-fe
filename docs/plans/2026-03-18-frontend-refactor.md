@@ -106,7 +106,7 @@ export function AppNavbar() {
         <div className="flex items-center gap-8">
           <Link href="/menu" className="flex items-center gap-2 text-xl font-bold tracking-tight text-primary">
             <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
-            Nusantara Play
+            Nusantara Legacy
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-medium">
             <Link href="/menu" className="text-foreground/80 hover:text-foreground transition-colors">
@@ -452,7 +452,7 @@ Also update the greeting to mention role naturally. Replace the header section:
     Selamat Datang, {user?.user_metadata?.full_name?.split(' ')[0] || 'Kawan'}!
   </h1>
   <p className="text-muted-foreground">
-    Pilih menu di bawah untuk mulai menjelajah Nusantara Play.
+    Pilih menu di bawah untuk mulai menjelajah Nusantara Legacy.
   </p>
 </div>
 ```
@@ -503,7 +503,7 @@ Full rewrite of the outer wrapper and key sections:
 
   {/* Logo — was: bg-[#0f2027] border-b-2 border-[#C04A21]/30 */}
   <div className="flex items-center justify-center h-16 border-b border-border">
-    <h1 className="text-xl font-bold text-primary tracking-wide">Nusantara Play</h1>
+    <h1 className="text-xl font-bold text-primary tracking-wide">Nusantara Legacy</h1>
   </div>
 
   {/* Back button — was: bg-[#D4A017] text-[#2D2D2D] */}

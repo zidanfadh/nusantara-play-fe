@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nusantara Play",
-  description: "Nusantara Play - Your gateway to Indonesian culture and entertainment",
+  title: "Nusantara Legacy",
+  description: "Nusantara Legacy - Your gateway to Indonesian culture and entertainment",
 };
 
 export default function RootLayout({

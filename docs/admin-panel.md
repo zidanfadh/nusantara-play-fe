@@ -1,7 +1,7 @@
 # Admin Panel Structure
 
 ## Overview
-Admin panel untuk Nusantara Play dengan role-based access control (hanya untuk `admin_kpoti`).
+Admin panel untuk Nusantara Legacy dengan role-based access control (hanya untuk `admin_kpoti`).
 
 ## Routes
 - `/admin/dashboard` - Dashboard utama dengan statistik

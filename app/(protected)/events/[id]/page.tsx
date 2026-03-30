@@ -147,232 +147,274 @@ export default function EventDetailPage() {
   }
 
   return (
-    <div className="min-h-screen  py-8">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <button
-          onClick={() => router.back()}
-          className="mb-4  hover:text-muted-foreground/60 flex items-center"
-        >
-          <ArrowLeftIcon className="h-5 w-5 mr-2" />
-          Kembali
-        </button>
+    <main className="min-h-screen bg-background dark:bg-[#121212] pb-24 md:pb-0 font-sans">
+      <div className="max-w-7xl mx-auto">
+        {/* Back Button & Breadcrumb */}
+        <div className="px-6 py-6 flex items-center gap-4">
+          <button
+            onClick={() => router.back()}
+            className="group flex items-center justify-center w-10 h-10 rounded-full bg-[#f7f3ed] dark:bg-[#1e1e1e] hover:bg-[#ffdad2] dark:hover:bg-[#D65C2E]/20 transition-colors duration-300"
+          >
+            <ArrowLeftIcon className="h-5 w-5 text-[#1c1c18] dark:text-[#f7f3e8] group-hover:text-[#3c0700] dark:group-hover:text-white" />
+          </button>
+          <div className="flex items-center text-sm font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880]">
+            <Link href="/events" className="hover:text-[#9e3c24] dark:hover:text-[#D65C2E] transition-colors">Events</Link>
+            <span className="mx-2 text-xs">&gt;</span>
+            <span className="text-[#1c1c18] dark:text-[#f7f3e8] font-semibold">{event.nama}</span>
+          </div>
+        </div>
 
         {/* Action Error */}
         {actionError && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800">{actionError}</p>
+          <div className="mx-6 mb-6 bg-[#ffdad6] dark:bg-red-900/30 border-l-4 border-[#93000a] dark:border-red-500 rounded-md p-4 shadow-sm">
+            <p className="text-[#93000a] dark:text-red-200">{actionError}</p>
           </div>
         )}
 
-        {/* Banner */}
-        {event.banner_url ? (
-          <img
-            src={event.banner_url}
-            alt={event.nama}
-            className="w-full h-96 object-cover rounded-lg shadow-md mb-6"
-          />
-        ) : (
-          <div className="w-full h-96 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg shadow-md mb-6 flex items-center justify-center">
-            <span className="text-white text-8xl font-bold">
-              {event.nama.charAt(0).toUpperCase()}
-            </span>
+        {/* Hero Banner Section */}
+        <div className="px-6">
+          <div className="relative w-full h-[450px] rounded-3xl overflow-hidden shadow-2xl">
+            {event.banner_url ? (
+              <img
+                src={event.banner_url}
+                alt={event.nama}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[#9e3c24] to-[#3c0700] dark:from-[#D65C2E] dark:to-[#121212] flex items-center justify-center">
+                <span className="text-white text-8xl font-bold">
+                  {event.nama.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+            <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
+              <div className="flex flex-wrap gap-3">
+                <span className="px-4 py-2 bg-[#ffdad2] dark:bg-[#D65C2E]/80 text-[#3c0700] dark:text-white rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
+                  {EVENT_JENIS_LABELS[event.jenis]}
+                </span>
+                <span className="px-4 py-2 bg-green-100 dark:bg-green-900/80 text-green-800 dark:text-green-100 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
+                  {event.status.replace(/_/g, ' ')}
+                </span>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Event Info */}
-            <div className="bg-card rounded-lg shadow-md p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground mb-2">{event.nama}</h1>
-                  <div className="flex items-center space-x-3">
-                    <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">
-                      {EVENT_JENIS_LABELS[event.jenis]}
-                    </span>
-                    <EventStatusBadge status={event.status} />
+        {/* Main Content Layout */}
+        <div className="px-6 py-12 flex flex-col lg:flex-row gap-12">
+          {/* Main Column (2/3) */}
+          <div className="lg:w-2/3 space-y-12">
+            {/* Title & Description */}
+            <section className="space-y-6">
+              <h1 className="text-5xl font-extrabold tracking-tight text-[#1c1c18] dark:text-[#f7f3e8] leading-tight">
+                {event.nama}
+              </h1>
+              <div className="prose prose-stone dark:prose-invert max-w-none text-[#747474] dark:text-[#9A8880] leading-relaxed text-lg">
+                <p className="whitespace-pre-wrap">{event.deskripsi}</p>
+              </div>
+            </section>
+
+            {/* Requirements */}
+            {event.persyaratan && (
+              <section className="p-10 rounded-3xl bg-[#f7f3ed] dark:bg-[#1e1e1e] shadow-sm">
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-[#1c1c18] dark:text-[#f7f3e8]">
+                  <ClipboardDocumentListIcon className="h-8 w-8 text-[#9e3c24] dark:text-[#D65C2E]" />
+                  Persyaratan Peserta
+                </h3>
+                <ul className="space-y-4">
+                  {event.persyaratan.split('\n').filter((req: string) => req.trim() !== '').map((req: string, idx: number) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <CheckCircleIcon className="h-6 w-6 text-[#be5439] dark:text-[#D65C2E] shrink-0 mt-0.5" />
+                      <span className="text-[#57423d] dark:text-[#e6e2dc] font-medium leading-relaxed">{req}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {/* Admin Panel (Manage Event) */}
+            {isOwner && (
+              <section className="p-10 rounded-3xl bg-[#e6e2dc] dark:bg-[#2A2A2A] shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-[#1c1c18] dark:text-[#f7f3e8] mb-1">Kelola Event</h3>
+                    <p className="text-sm text-[#747474] dark:text-[#9A8880]">Hanya terlihat oleh pemilik atau pengelola event.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {event.status === EventStatus.DRAFT && (
+                      <button
+                        onClick={handlePublish}
+                        disabled={actionLoading}
+                        className="px-6 py-3 bg-green-600 text-white rounded-xl font-bold text-sm hover:bg-green-700 transition-all flex items-center gap-2 disabled:opacity-50"
+                      >
+                        <CheckCircleIcon className="h-5 w-5" />
+                        Publikasikan
+                      </button>
+                    )}
+                    {event.status === EventStatus.DRAFT && (
+                      <Link
+                        href={`/events/${eventId}/edit`}
+                        className="px-6 py-3 bg-[#ffffff] dark:bg-[#1e1e1e] text-[#1c1c18] dark:text-[#f7f3e8] rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 shadow-sm"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                        Edit Event
+                      </Link>
+                    )}
+                    <Link
+                      href={`/events/${eventId}/registrations`}
+                      className="px-6 py-3 bg-[#ffffff] dark:bg-[#1e1e1e] text-[#1c1c18] dark:text-[#f7f3e8] rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      <UsersIcon className="h-5 w-5" />
+                      Kelola Peserta
+                    </Link>
+                    {[EventStatus.PUBLISHED, EventStatus.ONGOING].includes(event.status) && (
+                      <button
+                        onClick={handleCancel}
+                        disabled={actionLoading}
+                        className="px-6 py-3 bg-orange-600 text-white rounded-xl font-bold text-sm hover:bg-orange-700 transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm"
+                      >
+                        <XCircleIcon className="h-5 w-5" />
+                        Batalkan Event
+                      </button>
+                    )}
+                    <button
+                      onClick={handleDelete}
+                      disabled={actionLoading}
+                      className="px-6 py-3 bg-[#ffdad6] dark:bg-red-900/40 text-[#93000a] dark:text-red-200 rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                      Hapus Event
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              <div className="prose max-w-none">
-                <p className="text-foreground/80 whitespace-pre-wrap">{event.deskripsi}</p>
-              </div>
-
-              {event.persyaratan && (
-                <div className="mt-6 pt-6 border-t">
-                  <h3 className="text-lg font-semibold text-foreground mb-2">Persyaratan Peserta</h3>
-                  <p className="text-foreground/80 whitespace-pre-wrap">{event.persyaratan}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Owner Actions */}
-            {isOwner && (
-              <div className="bg-card rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Kelola Event</h3>
-                <div className="flex flex-wrap gap-3">
-                  {event.status === EventStatus.DRAFT && (
-                    <button
-                      onClick={handlePublish}
-                      disabled={actionLoading}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
-                    >
-                      <CheckCircleIcon className="h-5 w-5 mr-2" />
-                      Publikasikan
-                    </button>
-                  )}
-                  {event.status === EventStatus.DRAFT && (
-                    <Link
-                      href={`/events/${eventId}/edit`}
-                      className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50"
-                    >
-                      <PencilIcon className="h-5 w-5 mr-2" />
-                      Edit Event
-                    </Link>
-                  )}
-                  <Link
-                    href={`/events/${eventId}/registrations`}
-                    className="inline-flex items-center px-4 py-2 border border-border rounded-md shadow-sm text-sm font-medium text-foreground/80 bg-card hover:bg-muted/50"
-                  >
-                    <ClipboardDocumentListIcon className="h-5 w-5 mr-2" />
-                    Kelola Peserta
-                  </Link>
-                  {[EventStatus.PUBLISHED, EventStatus.ONGOING].includes(event.status) && (
-                    <button
-                      onClick={handleCancel}
-                      disabled={actionLoading}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
-                    >
-                      <XCircleIcon className="h-5 w-5 mr-2" />
-                      Batalkan Event
-                    </button>
-                  )}
-                  <button
-                    onClick={handleDelete}
-                    disabled={actionLoading}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50"
-                  >
-                    <TrashIcon className="h-5 w-5 mr-2" />
-                    Hapus Event
-                  </button>
-                </div>
-              </div>
+              </section>
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Event Details */}
-            <div className="bg-card rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Detail Event</h3>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <CalendarIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium text-foreground">Tanggal Mulai</p>
-                    <p className="text-muted-foreground">{formatDate(event.tanggal_mulai)}</p>
+          {/* Sidebar (1/3) */}
+          <div className="lg:w-1/3 space-y-8">
+            {/* Main CTA & Info Card */}
+            <div className="bg-[#ffffff] dark:bg-[#1e1e1e] rounded-3xl p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.06)] border border-[#ddc0b9]/10 lg:sticky lg:top-28">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#ffdad2] dark:bg-[#D65C2E]/20 flex items-center justify-center shrink-0">
+                      <CalendarIcon className="h-6 w-6 text-[#9e3c24] dark:text-[#D65C2E]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880]">Tanggal</p>
+                      <p className="font-bold text-[#1c1c18] dark:text-[#f7f3e8]">{formatDate(event.tanggal_mulai)}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start">
-                  <CalendarIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium text-foreground">Tanggal Selesai</p>
-                    <p className="text-muted-foreground">{formatDate(event.tanggal_selesai)}</p>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-[#ffdad2] dark:bg-[#D65C2E]/20 flex items-center justify-center shrink-0">
+                      <MapPinIcon className="h-6 w-6 text-[#9e3c24] dark:text-[#D65C2E]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880]">Lokasi</p>
+                      <p className="font-bold text-[#1c1c18] dark:text-[#f7f3e8] leading-tight">{event.lokasi}</p>
+                      {event.daerah && <p className="text-sm text-[#747474] dark:text-[#9A8880] mt-0.5">{event.daerah.nama}</p>}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start">
-                  <MapPinIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium text-foreground">Lokasi</p>
-                    <p className="text-muted-foreground">{event.lokasi}</p>
-                    {event.daerah && (
-                      <p className="text-muted-foreground text-xs mt-1">{event.daerah.nama}</p>
-                    )}
-                  </div>
-                </div>
-                {event.kuota_peserta && (
-                  <div className="flex items-start">
-                    <UsersIcon className="h-5 w-5 text-muted-foreground/60 mr-3 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="font-medium text-foreground">Kuota Peserta</p>
-                      <p className="text-muted-foreground">
-                        {event.jumlah_peserta} / {event.kuota_peserta} peserta
-                      </p>
-                      {isFullyBooked && (
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
-                          Penuh
+
+                  {event.kuota_peserta && (
+                    <div className="pt-4 border-t border-[#f1ede7] dark:border-[#404040]">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-[#747474] dark:text-[#9A8880]">Kapasitas Peserta</span>
+                        <span className="text-sm font-bold text-[#1c1c18] dark:text-[#f7f3e8]">
+                          {event.jumlah_peserta}/{event.kuota_peserta} Terisi
                         </span>
+                      </div>
+                      {isFullyBooked && (
+                        <div className="mt-2 inline-block px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 text-xs rounded-full font-bold">
+                          Kapasitas Penuh
+                        </div>
                       )}
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            {(event.contact_person || event.contact_phone || event.contact_email) && (
-              <div className="bg-card rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Kontak</h3>
-                <div className="space-y-3">
-                  {event.contact_person && (
-                    <p className="text-sm text-foreground/80">
-                      <span className="font-medium">Nama:</span> {event.contact_person}
-                    </p>
-                  )}
-                  {event.contact_phone && (
-                    <div className="flex items-center text-sm text-foreground/80">
-                      <PhoneIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
-                      {event.contact_phone}
-                    </div>
-                  )}
-                  {event.contact_email && (
-                    <div className="flex items-center text-sm text-foreground/80">
-                      <EnvelopeIcon className="h-4 w-4 mr-2 text-muted-foreground/60" />
-                      {event.contact_email}
-                    </div>
                   )}
                 </div>
-              </div>
-            )}
 
-            {/* Registration Button for Users */}
-            {!isOwner && event.status === EventStatus.PUBLISHED && (
-              <div className="bg-card rounded-lg shadow-md p-6">
-                {event.is_registered || userRegistration ? (
-                  <button
-                    disabled
-                    className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-500 opacity-80 cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    <CheckCircleIcon className="h-5 w-5" />
-                    Telah Mendaftarkan Event
-                  </button>
-                ) : (
-                  !isFullyBooked && (
+                {/* User Registration Button */}
+                {!isOwner && event.status === EventStatus.PUBLISHED && (
+                  event.is_registered || userRegistration ? (
                     <button
-                      onClick={handleRegister}
-                      disabled={actionLoading}
-                      className="w-full px-4 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                      disabled
+                      className="w-full py-4 bg-green-600 text-white rounded-xl font-black text-lg shadow-lg opacity-80 cursor-not-allowed flex items-center justify-center gap-2 disabled:opacity-80 transition-all"
                     >
-                      {actionLoading ? 'Mendaftar...' : 'Daftar Event'}
+                      <CheckCircleIcon className="h-6 w-6" />
+                      TERDAFTAR
                     </button>
+                  ) : (
+                    !isFullyBooked && (
+                      <button
+                        onClick={handleRegister}
+                        disabled={actionLoading}
+                        className="w-full py-4 bg-[#9e3c24] dark:bg-[#D65C2E] text-white rounded-xl font-black text-lg shadow-lg shadow-[#9e3c24]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                      >
+                        {actionLoading ? 'MENDAFTAR...' : 'DAFTAR SEKARANG'}
+                      </button>
+                    )
                   )
                 )}
               </div>
+            </div>
+
+            {/* Contact Card */}
+            {(event.contact_person || event.contact_phone || event.contact_email) && (
+              <div className="bg-[#f7f3ed] dark:bg-[#1e1e1e] rounded-3xl p-8 space-y-4 shadow-sm border border-[#ddc0b9]/10">
+                <h4 className="text-sm font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880] border-b border-[#ddc0b9]/20 pb-2">
+                  Kontak Panitia
+                </h4>
+                <div className="space-y-4 pt-2">
+                  {event.contact_person && (
+                    <div className="flex items-center gap-4">
+                      <UsersIcon className="text-[#9e3c24] dark:text-[#D65C2E] h-5 w-5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-bold text-[#1c1c18] dark:text-[#f7f3e8]">{event.contact_person}</p>
+                        <p className="text-xs text-[#747474] dark:text-[#9A8880]">PIC Event</p>
+                      </div>
+                    </div>
+                  )}
+                  {event.contact_phone && (
+                    <div className="flex items-center gap-4">
+                      <PhoneIcon className="text-[#9e3c24] dark:text-[#D65C2E] h-5 w-5 shrink-0" />
+                      <p className="text-sm font-medium text-[#1c1c18] dark:text-[#f7f3e8]">{event.contact_phone}</p>
+                    </div>
+                  )}
+                  {event.contact_email && (
+                    <div className="flex items-center gap-4">
+                      <EnvelopeIcon className="text-[#9e3c24] dark:text-[#D65C2E] h-5 w-5 shrink-0" />
+                      <p className="text-sm font-medium text-[#1c1c18] dark:text-[#f7f3e8] break-all">{event.contact_email}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
 
-            {/* Organizer */}
+            {/* Organizer Card */}
             {event.organizer && (
-              <div className="bg-card rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Penyelenggara</h3>
-                <p className="text-sm font-medium text-foreground/80">{event.organizer.full_name}</p>
+              <div className="bg-[#f7f3ed] dark:bg-[#1e1e1e] rounded-3xl p-8 space-y-4 shadow-sm border border-[#ddc0b9]/10">
+                <h4 className="text-sm font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880] border-b border-[#ddc0b9]/20 pb-2">
+                  Penyelenggara
+                </h4>
+                <div className="flex items-center gap-4 pt-2">
+                  <div className="w-14 h-14 rounded-full bg-[#e6e2dc] dark:bg-[#2A2A2A] flex items-center justify-center overflow-hidden shrink-0">
+                    <span className="text-2xl font-bold text-[#747474] dark:text-[#9A8880]">
+                      {event.organizer.full_name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#1c1c18] dark:text-[#f7f3e8] leading-tight">{event.organizer.full_name}</p>
+                    <p className="text-xs text-[#9e3c24] dark:text-[#D65C2E] font-semibold mt-1">Verified Organizer</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

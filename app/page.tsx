@@ -28,7 +28,7 @@ export default async function Home() {
             href="/"
             className="text-2xl font-bold tracking-tighter text-primary"
           >
-            Nusantara Play
+            Nusantara Legacy
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
@@ -80,7 +80,7 @@ export default async function Home() {
 
       <main className="pt-20">
         {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden px-6">
+        <section className="relative min-h-[85vh] lg:min-h-[80vh] flex items-center overflow-hidden px-6 pb-0 pt-10 lg:pt-0">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 z-10">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-medium text-foreground mb-6">
@@ -89,7 +89,7 @@ export default async function Home() {
               </div>
               <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-foreground mb-8 leading-[0.9]">
                 Nusantara <br />
-                <span className="text-primary">Play</span>
+                <span className="text-primary">Legacy</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
                 Menjaga Warisan, Memainkan Masa Depan. Platform berbasis
@@ -133,7 +133,7 @@ export default async function Home() {
                 }}
               >
                 <p className="text-sm font-medium text-muted-foreground italic leading-relaxed">
-                  &ldquo;Budaya adalah identitas. Nusantara Play membawa
+                  &ldquo;Budaya adalah identitas. Nusantara Legacy membawa
                   identitas tersebut ke era digital.&rdquo;
                 </p>
               </div>
@@ -168,6 +168,37 @@ export default async function Home() {
                 </pattern>
               </defs>
             </svg>
+          </div>
+        </section>
+
+        {/* New Nusantara Legacy Tour Banner */}
+        <section className="py-12 lg:py-12 px-6 pt-0 lg:pt-0">
+          <div className="max-w-7xl mx-auto">
+            <div className="relative overflow-hidden rounded-[3rem] bg-muted/80 flex flex-col lg:flex-row items-center border border-border/10 shadow-[0_24px_40px_-10px_rgba(0,0,0,0.05)] pt-0">
+              <div className="w-full lg:w-1/2 p-10 md:p-16 lg:p-20 z-10">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary font-bold text-xs tracking-widest uppercase mb-6">
+                  Baru: Pengalaman Imersif
+                </span>
+                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-6 leading-tight">
+                  Nusantara <br className="hidden md:block"/> Legacy Tour
+                </h2>
+                <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
+                  Jelajahi warisan budaya dalam tampilan 3D interaktif. Lihat setiap detail permainan tradisional langsung dari layar Anda.
+                </p>
+                <button className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center group w-fit">
+                  Mulai Tur Virtual
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+              <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  alt="Nusantara Legacy Virtual Tour Preview" 
+                  className="absolute inset-0 w-full h-full object-contain p-8" /* Saya tambahkan p-8 di sini agar paddingnya teraplikasi ke gambar yang absolute */
+                  src="/images/landing/nusantara-legacy.webp" 
+                />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -533,7 +564,7 @@ export default async function Home() {
               href="/"
               className="text-xl font-bold text-primary mb-4 block"
             >
-              Nusantara Play
+              Nusantara Legacy
             </Link>
             <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
               Platform digital terdesentralisasi pertama yang fokus pada
@@ -611,7 +642,7 @@ export default async function Home() {
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
           <p className="text-foreground/60 text-sm">
-            &copy; {new Date().getFullYear()} Nusantara Play. Menjaga Warisan,
+            &copy; {new Date().getFullYear()} Nusantara Legacy. Menjaga Warisan,
             Memainkan Masa Depan.
           </p>
         </div>

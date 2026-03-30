@@ -152,7 +152,7 @@ Di dalam `<section id="features" ...>`, sebelum `<div className="grid ...">`:
 ```tsx
 <div className="text-center mb-12">
   <h2 className="text-3xl font-bold tracking-tight text-foreground">
-    Mengapa Nusantara Play?
+    Mengapa Nusantara Legacy?
   </h2>
   <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
     Satu platform untuk mendokumentasikan, memverifikasi, dan merayakan kekayaan permainan rakyat Indonesia.
@@ -438,7 +438,7 @@ Ganti seluruh `<footer>...</footer>` dengan:
       <div className="space-y-3 md:col-span-2">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
-          <span className="text-lg font-bold text-primary">Nusantara Play</span>
+          <span className="text-lg font-bold text-primary">Nusantara Legacy</span>
         </Link>
         <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
           Platform digital untuk mendokumentasikan, memverifikasi, dan melestarikan permainan rakyat Nusantara bagi generasi mendatang.
@@ -468,7 +468,7 @@ Ganti seluruh `<footer>...</footer>` dengan:
 
     <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
       <p className="text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} Nusantara Play. Dibuat dengan cinta untuk budaya Indonesia.
+        &copy; {new Date().getFullYear()} Nusantara Legacy. Dibuat dengan cinta untuk budaya Indonesia.
       </p>
       <p className="text-xs text-muted-foreground">
         Seluruh hak cipta dilindungi undang-undang.
@@ -501,7 +501,7 @@ Buka `http://localhost:3000` dan verifikasi:
 - [ ] Header: teks "Main Menu" muncul saat logged in
 - [ ] Hero: badge "Platform Pelestarian..." muncul di atas headline
 - [ ] Stats Bar: 4 angka dengan background merah bata
-- [ ] Features: heading "Mengapa Nusantara Play?" + 3 kartu dengan hover shadow
+- [ ] Features: heading "Mengapa Nusantara Legacy?" + 3 kartu dengan hover shadow
 - [ ] How It Works: 3 langkah dengan nomor besar
 - [ ] Featured Games: 4 kartu permainan + tombol "Lihat Semua"
 - [ ] CTA Banner: background merah bata, 2 button

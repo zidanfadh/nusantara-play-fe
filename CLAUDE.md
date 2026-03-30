@@ -1,10 +1,10 @@
-# CLAUDE.md — Nusantara Play Frontend
+# CLAUDE.md — Nusantara Legacy Frontend
 
 > **Full project context:** see `../CLAUDE.md` in the root repo.
 
 ## Project Overview
 
-Next.js 16 + React 19 + TypeScript + Tailwind v4 frontend for Nusantara Play — a digital
+Next.js 16 + React 19 + TypeScript + Tailwind v4 frontend for Nusantara Legacy — a digital
 archive platform for Indonesian traditional games and sports (PROT). Uses Supabase for auth
 and a NestJS backend (http://localhost:3000) for all data.
 

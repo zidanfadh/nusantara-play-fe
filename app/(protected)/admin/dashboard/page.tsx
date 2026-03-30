@@ -54,7 +54,7 @@ export default function AdminDashboard() {
     <div className="space-y-5">
       <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1 text-xs">Ringkasan sistem Nusantara Play</p>
+        <p className="text-muted-foreground mt-1 text-xs">Ringkasan sistem Nusantara Legacy</p>
       </div>
 
       {/* User Statistics */}

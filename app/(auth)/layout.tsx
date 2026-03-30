@@ -17,7 +17,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold tracking-tight">
              <div className="w-8 h-8 bg-accent rounded-sm rotate-45" />
-             Nusantara Play
+             Nusantara Legacy
           </Link>
         </div>
 
@@ -31,7 +31,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="relative z-10 text-xs opacity-60">
-          &copy; {new Date().getFullYear()} Nusantara Play. Hak cipta dilindungi.
+          &copy; {new Date().getFullYear()} Nusantara Legacy. Hak cipta dilindungi.
         </div>
       </div>
 

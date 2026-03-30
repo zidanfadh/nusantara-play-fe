@@ -32,40 +32,43 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="min-h-screen  py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#fdf9f3] dark:bg-[#121212] text-[#1c1c18] dark:text-[#f7f3e8] selection:bg-[#ffdad2] selection:text-[#3c0700] pb-24 md:pb-0 font-sans">
+      <div className="max-w-4xl rounded-md mx-auto px-6 py-12">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-2">
+        <div className="mb-12">
+          <div className="flex z items-center gap-4 mb-2">
             <button
-              onClick={() => router.back()}
-              className=" hover:text-gray-300"
+              onClick={handleCancel}
+              className="p-2 hover:bg-[#f1ede7] dark:hover:bg-[#1e1e1e] rounded-full transition-all duration-200"
             >
-              <ArrowLeftIcon className="h-6 w-6" />
+              <ArrowLeftIcon className="h-6 w-6 text-[#9e3c24] dark:text-[#D65C2E]" />
             </button>
-            <h1 className="text-3xl font-bold ">Buat Event Baru</h1>
+            <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9e3c24] dark:text-[#D65C2E] block">
+              Event Management
+            </span>
           </div>
-          <p className=" ml-10">
-            Isi formulir di bawah untuk membuat event budaya baru
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-[#1c1c18] dark:text-[#f7f3e8] mt-2">
+            Buat Event Baru
+          </h1>
+          <p className="text-[#636262] dark:text-[#9A8880] mt-4 max-w-xl">
+            Lestarikan warisan melalui kolaborasi. Lengkapi detail event Anda untuk mengundang para penjelajah budaya.
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800">{error}</p>
+          <div className="mb-8 bg-[#ffdad6] dark:bg-red-900/30 border-l-4 border-[#93000a] dark:border-red-500 rounded-md p-4 shadow-sm">
+            <p className="text-[#93000a] dark:text-red-200">{error}</p>
           </div>
         )}
 
-        {/* Form */}
-        <div className="bg-card rounded-lg shadow-md p-6">
-          <EventForm
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isLoading={isLoading}
-          />
-        </div>
+        {/* Form Container */}
+        <EventForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isLoading={isLoading}
+        />
       </div>
-    </div>
+    </main>
   );
 }

@@ -50,7 +50,7 @@ Fitur Kalender telah berhasil ditambahkan ke berbagai tempat di aplikasi untuk m
 **Screenshot Navbar**:
 ```
 ╔════════════════════════════════════════════════╗
-║ 🏛️ Nusantara Play  [Menu] [Kalender] ← BARU!  ║
+║ 🏛️ Nusantara Legacy  [Menu] [Kalender] ← BARU!  ║
 ╚════════════════════════════════════════════════╝
 ```
 

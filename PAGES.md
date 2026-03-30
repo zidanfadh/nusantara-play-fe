@@ -1,6 +1,6 @@
-# Nusantara Play — Dokumentasi Halaman Frontend
+# Nusantara Legacy — Dokumentasi Halaman Frontend
 
-Dokumen ini berisi daftar semua halaman di frontend Nusantara Play, beserta fungsi dan data yang ditampilkan.
+Dokumen ini berisi daftar semua halaman di frontend Nusantara Legacy, beserta fungsi dan data yang ditampilkan.
 Digunakan sebagai referensi untuk kebutuhan refactor tampilan (UI).
 
 ---
@@ -420,13 +420,13 @@ Digunakan sebagai referensi untuk kebutuhan refactor tampilan (UI).
 
 ## 7. Kalender
 
-### `/calendar` — Kalender Nusantara Play
+### `/calendar` — Kalender Nusantara Legacy
 **Akses:** Tidak perlu login (accessible dari footer)
 
 **Fungsi:** Kalender publik berisi tanggal penting budaya dan event komunitas.
 
 **Konten yang ditampilkan:**
-- Judul "Kalender Nusantara Play"
+- Judul "Kalender Nusantara Legacy"
 - Toggle tampilan: Kalender (grid) / Agenda (list)
 - **Mode Kalender:** Komponen `CalendarViewComponent` — grid kalender bulanan dengan event/tanggal penting ditandai
 - **Mode Agenda:** Komponen `CalendarAgenda` — daftar upcoming event dalam format list
