@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -36,7 +37,16 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </div>
 
       {/* Form Container */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+      <div className="flex-1 flex items-center justify-center p-6 bg-background relative">
+        <div className="absolute top-6 left-6 md:top-8 md:left-8">
+          <Link 
+            href="/" 
+            className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Kembali ke Beranda
+          </Link>
+        </div>
         <div className="w-full max-w-md">
            {children}
         </div>
