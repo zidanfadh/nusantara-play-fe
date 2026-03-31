@@ -80,7 +80,7 @@ export default async function Home() {
 
       <main className="pt-20">
         {/* Hero Section */}
-        <section className="relative min-h-[85vh] lg:min-h-[80vh] flex items-center overflow-hidden px-6 pb-0 pt-10 lg:pt-0">
+        <section className="relative min-h-[90vh] flex items-center overflow-hidden px-6">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 z-10">
               <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-medium text-foreground mb-6">
@@ -180,7 +180,7 @@ export default async function Home() {
                   Baru: Pengalaman Imersif
                 </span>
                 <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-6 leading-tight">
-                  Nusantara <br className="hidden md:block"/> Legacy Tour
+                  Nusantara <br className="hidden md:block" /> Legacy Tour
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
                   Jelajahi warisan budaya dalam tampilan 3D interaktif. Lihat setiap detail permainan tradisional langsung dari layar Anda.
@@ -192,10 +192,10 @@ export default async function Home() {
               </div>
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  alt="Nusantara Legacy Virtual Tour Preview" 
+                <img
+                  alt="Nusantara Legacy Virtual Tour Preview"
                   className="absolute inset-0 w-full h-full object-contain p-8" /* Saya tambahkan p-8 di sini agar paddingnya teraplikasi ke gambar yang absolute */
-                  src="/images/landing/nusantara-legacy.webp" 
+                  src="/images/landing/nusantara-legacy.webp"
                 />
               </div>
             </div>
