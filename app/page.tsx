@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
+import { HeroCarousel } from '@/components/ui/HeroCarousel';
 import {
   LockKeyhole,
   ShieldCheck,
@@ -120,11 +121,7 @@ export default async function Home() {
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
-                  alt="Children playing traditional Indonesian games in a village"
-                  src="/images/landing/hero.webp"
-                />
+                <HeroCarousel />
               </div>
               <div
                 className="absolute -bottom-8 -left-8 p-6 bg-card rounded-2xl max-w-[240px] border border-border/20 -rotate-3"
