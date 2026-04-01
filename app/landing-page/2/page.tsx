@@ -18,6 +18,7 @@ export default async function LandingPageV2() {
     data: { user },
   } = await supabase.auth.getUser();
 
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
       <style>{`html { scroll-behavior: smooth; }`}</style>
