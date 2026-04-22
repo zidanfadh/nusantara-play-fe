@@ -9,6 +9,7 @@ import {
   Award,
   Landmark,
   Dumbbell,
+  Gem,
 } from 'lucide-react';
 
 export default async function MenuPage() {
@@ -187,6 +188,26 @@ export default async function MenuPage() {
             </p>
           </div>
           <div className="mt-8 flex items-center gap-2 text-primary group-hover:text-primary-foreground font-bold text-sm transition-colors">
+            <span>Buka</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+        </Link>
+
+        {/* Katalog NFT */}
+        <Link
+          href="/nfts"
+          className="md:col-span-4 group bg-muted/50 rounded-xl p-8 flex flex-col justify-between hover:bg-muted transition-all duration-300"
+        >
+          <div>
+            <Gem className="w-10 h-10 text-primary mb-4" />
+            <h3 className="text-2xl font-bold tracking-tight text-foreground mb-3">
+              Katalog NFT
+            </h3>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Jelajahi dan temukan representasi digital arsip budaya Nusantara di blockchain. Bukan fungsi jual-beli, melainkan dokumentasi.
+            </p>
+          </div>
+          <div className="mt-8 flex items-center gap-2 text-primary font-bold text-sm">
             <span>Buka</span>
             <ArrowRight className="w-4 h-4" />
           </div>
