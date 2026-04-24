@@ -8,7 +8,7 @@ import { Plus, Edit, Trash2, Power, EyeOff, CheckCircle2, ImageOff, Search } fro
 
 export default function AdminNftsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { nfts, loading, pagination, updateParams, refresh } = useNfts({ page: 1, limit: 20 });
+  const { nfts, loading, pagination, updateParams, refresh } = useNfts({ page: 1, limit: 20 }, true);
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {

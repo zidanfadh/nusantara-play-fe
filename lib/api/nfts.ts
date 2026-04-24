@@ -24,6 +24,19 @@ export const nftsApi = {
     return apiClient.get<NftListResponse>(`/nfts${qStr ? `?${qStr}` : ''}`);
   },
 
+  async getAdminAll(params?: FetchNftsParams): Promise<NftListResponse> {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          query.set(key, String(value));
+        }
+      });
+    }
+    const qStr = query.toString();
+    return apiClient.get<NftListResponse>(`/nfts/admin${qStr ? `?${qStr}` : ''}`);
+  },
+
   async getById(id: string): Promise<NftCatalog> {
     return apiClient.get<NftCatalog>(`/nfts/${id}`);
   },

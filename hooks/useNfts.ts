@@ -10,7 +10,7 @@ type FetchNftsParams = {
   limit?: number;
 };
 
-export function useNfts(initialParams?: FetchNftsParams) {
+export function useNfts(initialParams?: FetchNftsParams, isAdmin: boolean = false) {
   const [data, setData] = useState<NftListResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
@@ -21,7 +21,9 @@ export function useNfts(initialParams?: FetchNftsParams) {
     try {
       setLoading(true);
       setError(null);
-      const res = await nftsApi.getAll(params);
+      const res = isAdmin 
+        ? await nftsApi.getAdminAll(params)
+        : await nftsApi.getAll(params);
       setData(res);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch NFTs'));
