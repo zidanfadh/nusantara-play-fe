@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { protApi } from '@/lib/api/prot';
 import { VerifikasiQueue } from '@/types/prot';
 import { VerificationTable } from '@/components/prot/VerificationTable';
+import { ProvinceSelect } from '@/components/daerah/ProvinceSelect';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import type { Daerah } from '@/types/daerah';
 
 export default function VerificationQueuePage() {
   const router = useRouter();
+  const { user } = useCurrentUser();
   const [items, setItems] = useState<VerifikasiQueue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProvinceId, setSelectedProvinceId] = useState('');
+  const [selectedProvinceCode, setSelectedProvinceCode] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -19,10 +24,14 @@ export default function VerificationQueuePage() {
     totalPages: 1
   });
 
-  const fetchQueue = async () => {
+  const fetchQueue = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await protApi.getQueue(pagination.page, pagination.limit);
+      const response = await protApi.getQueue(
+        pagination.page,
+        pagination.limit,
+        selectedProvinceCode || undefined,
+      );
       if (response && response.data) {
         setItems(response.data);
         if (response.pagination) {
@@ -37,11 +46,25 @@ export default function VerificationQueuePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.limit, pagination.page, selectedProvinceCode]);
 
   useEffect(() => {
     fetchQueue();
-  }, [pagination.page]);
+  }, [fetchQueue]);
+
+  const canFilterByProvince = user?.role === 'pakar' || user?.role === 'admin_kpoti';
+
+  const handleProvinceChange = (provinceId: string, province: Daerah | null) => {
+    setSelectedProvinceId(provinceId);
+    setSelectedProvinceCode(province?.kode || '');
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  const handleResetProvince = () => {
+    setSelectedProvinceId('');
+    setSelectedProvinceCode('');
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
 
   const handlePick = async (queueId: string) => {
     try {
@@ -49,9 +72,9 @@ export default function VerificationQueuePage() {
       alert('Tugas berhasil diambil. Silakan cek menu "Tugas Saya".');
       fetchQueue(); // Refresh list
       router.push('/prot/verifikasi/my-queue');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error picking task:', err);
-      alert(err.message || 'Gagal mengambil tugas.');
+      alert(err instanceof Error ? err.message : 'Gagal mengambil tugas.');
     }
   };
 
@@ -66,6 +89,24 @@ export default function VerificationQueuePage() {
             Refresh
           </button>
         </div>
+
+        {canFilterByProvince && (
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-[minmax(0,320px)_auto] gap-3 items-end">
+            <ProvinceSelect
+              value={selectedProvinceId}
+              onChange={handleProvinceChange}
+              placeholder="Semua Provinsi"
+            />
+            <button
+              type="button"
+              onClick={handleResetProvince}
+              disabled={!selectedProvinceId}
+              className="px-3 py-3 text-sm border border-border rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Reset Filter
+            </button>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">

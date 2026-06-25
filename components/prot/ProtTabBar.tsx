@@ -20,7 +20,11 @@ export function ProtTabBar() {
         : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
     }`;
 
-  const canVerify = user && (user.role === 'pakar' || user.role === 'admin_kpoti');
+  const canVerify =
+    user &&
+    (user.role === 'pakar' ||
+      user.role === 'admin_kpoti' ||
+      user.role === 'kurator_daerah');
 
   return (
     <div className="sticky top-16 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -149,8 +149,18 @@ export const protApi = {
     apiClient.post(`${BASE_URL}/${id}/resubmit`),
 
   // Verification Queue (Pakar/Admin)
-  getQueue: (page = 1, limit = 20) =>
-    apiClient.get<PaginatedResponse<VerifikasiQueue>>(`${VERIFIKASI_URL}/queue?page=${page}&limit=${limit}`),
+  getQueue: (page = 1, limit = 20, provinsi?: string) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    if (provinsi) params.append('provinsi', provinsi);
+
+    return apiClient.get<PaginatedResponse<VerifikasiQueue>>(
+      `${VERIFIKASI_URL}/queue?${params.toString()}`,
+    );
+  },
 
   getMyQueue: (page = 1, limit = 20) =>
     apiClient.get<PaginatedResponse<VerifikasiQueue>>(`${VERIFIKASI_URL}/my-queue?page=${page}&limit=${limit}`),

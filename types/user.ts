@@ -42,6 +42,20 @@ export interface UpdateUserProfileDto {
 // Update Role DTO
 export interface UpdateRoleDto {
     role: UserRole;
+    daerah_id?: string;
+}
+
+// Admin Create User DTO
+export interface AdminCreateUserDto {
+    email: string;
+    password: string;
+    full_name: string;
+    role?: UserRole;
+    status?: UserStatus;
+    daerah_id?: string;
+    phone?: string;
+    institution?: string;
+    send_email?: boolean;
 }
 
 // Update Status DTO

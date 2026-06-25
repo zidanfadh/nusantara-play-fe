@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { formatUserRole, formatUserStatus, getStatusColor, getRoleColor } from '@/lib/api/users';
+import { DaerahSelector } from '@/components/daerah/DaerahSelector';
 import type { UserProfile, UserRole, UserStatus } from '@/types/user';
 
 interface UsersTableProps {
     users: UserProfile[];
     isLoading?: boolean;
-    onUpdateRole?: (userId: string, role: UserRole) => void;
+    onUpdateRole?: (userId: string, role: UserRole, daerahId?: string) => void;
     onUpdateStatus?: (userId: string, status: UserStatus) => void;
     onViewDetails?: (userId: string) => void;
 }
@@ -20,6 +21,10 @@ export function UsersTable({
     onViewDetails,
 }: UsersTableProps) {
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+    const [roleDrafts, setRoleDrafts] = useState<Record<string, UserRole>>({});
+    const [provinceDrafts, setProvinceDrafts] = useState<Record<string, string>>({});
+    const [daerahDrafts, setDaerahDrafts] = useState<Record<string, string>>({});
+    const [roleErrors, setRoleErrors] = useState<Record<string, string>>({});
 
     const toggleRow = (userId: string) => {
         setExpandedRows((prev) => {
@@ -41,6 +46,49 @@ export function UsersTable({
             month: 'short',
             day: 'numeric',
         }).format(date);
+    };
+
+    const handleRoleChange = (user: UserProfile, role: UserRole) => {
+        setRoleDrafts((prev) => ({ ...prev, [user.id]: role }));
+        setRoleErrors((prev) => {
+            const next = { ...prev };
+            delete next[user.id];
+            return next;
+        });
+
+        if (role !== 'kurator_daerah') {
+            setProvinceDrafts((prev) => ({ ...prev, [user.id]: '' }));
+            setDaerahDrafts((prev) => ({ ...prev, [user.id]: '' }));
+            onUpdateRole?.(user.id, role);
+        }
+    };
+
+    const handleProvinceChange = (userId: string, provinceId: string) => {
+        setProvinceDrafts((prev) => ({ ...prev, [userId]: provinceId }));
+        setDaerahDrafts((prev) => ({ ...prev, [userId]: '' }));
+    };
+
+    const handleDaerahChange = (userId: string, daerahId: string) => {
+        setDaerahDrafts((prev) => ({ ...prev, [userId]: daerahId }));
+        setRoleErrors((prev) => {
+            const next = { ...prev };
+            delete next[userId];
+            return next;
+        });
+    };
+
+    const handleSaveKuratorRole = (userId: string) => {
+        const daerahId = daerahDrafts[userId];
+
+        if (!daerahId) {
+            setRoleErrors((prev) => ({
+                ...prev,
+                [userId]: 'Wilayah wajib dipilih untuk Kurator Daerah',
+            }));
+            return;
+        }
+
+        onUpdateRole?.(userId, 'kurator_daerah', daerahId);
     };
 
     if (isLoading) {
@@ -175,6 +223,14 @@ export function UsersTable({
                                                             {user.phone || '-'}
                                                         </p>
                                                     </div>
+                                                    <div>
+                                                        <span className="font-medium text-gray-700">
+                                                            Daerah ID:
+                                                        </span>
+                                                        <p className="font-mono text-xs text-gray-600 mt-1">
+                                                            {user.daerah_id || '-'}
+                                                        </p>
+                                                    </div>
                                                     {user.bio && (
                                                         <div className="col-span-2">
                                                             <span className="font-medium text-gray-700">Bio:</span>
@@ -204,15 +260,15 @@ export function UsersTable({
                                                 {(onUpdateRole || onUpdateStatus) && (
                                                     <div className="border-t pt-4 flex gap-4">
                                                         {onUpdateRole && (
-                                                            <div>
+                                                            <div className="min-w-[280px]">
                                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                                     Ubah Role:
                                                                 </label>
                                                                 <select
-                                                                    value={user.role}
+                                                                    value={roleDrafts[user.id] || user.role}
                                                                     onChange={(e) =>
-                                                                        onUpdateRole(
-                                                                            user.id,
+                                                                        handleRoleChange(
+                                                                            user,
                                                                             e.target.value as UserRole
                                                                         )
                                                                     }
@@ -227,6 +283,29 @@ export function UsersTable({
                                                                         Admin KPOTI
                                                                     </option>
                                                                 </select>
+                                                                {(roleDrafts[user.id] || user.role) === 'kurator_daerah' && (
+                                                                    <div className="mt-3 space-y-3">
+                                                                        <DaerahSelector
+                                                                            provinceValue={provinceDrafts[user.id] || ''}
+                                                                            kabupatenKotaValue={daerahDrafts[user.id] || ''}
+                                                                            onProvinceChange={(provinceId) =>
+                                                                                handleProvinceChange(user.id, provinceId)
+                                                                            }
+                                                                            onKabupatenKotaChange={(daerahId) =>
+                                                                                handleDaerahChange(user.id, daerahId)
+                                                                            }
+                                                                            kabupatenKotaError={roleErrors[user.id]}
+                                                                            required
+                                                                        />
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleSaveKuratorRole(user.id)}
+                                                                            className="bg-[#1A5F7A] text-white px-4 py-2 rounded-md text-xs font-semibold hover:bg-[#237A9A] transition-colors"
+                                                                        >
+                                                                            Simpan Role Kurator
+                                                                        </button>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                         {onUpdateStatus && (

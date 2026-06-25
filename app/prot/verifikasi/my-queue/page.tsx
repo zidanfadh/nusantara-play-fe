@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { protApi } from '@/lib/api/prot';
 import { VerifikasiQueue } from '@/types/prot';
 import { VerificationTable } from '@/components/prot/VerificationTable';
@@ -39,9 +38,9 @@ export default function MyVerificationQueuePage() {
     try {
       await protApi.releaseQueue(queueId);
       fetchMyQueue(); // Refresh list
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error releasing task:', err);
-      alert(err.message || 'Gagal melepas tugas.');
+      alert(err instanceof Error ? err.message : 'Gagal melepas tugas.');
     }
   };
 

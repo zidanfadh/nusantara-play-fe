@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 import type {
     UserProfile,
+    AdminCreateUserDto,
     UpdateUserProfileDto,
     UpdateRoleDto,
     UpdateStatusDto,
@@ -19,6 +20,16 @@ import type {
  */
 export async function getCurrentUser(): Promise<UserProfile> {
     return await apiClient.get<UserProfile>('/users/me');
+}
+
+/**
+ * Create a user as admin
+ * Requires authentication - admin_kpoti only
+ */
+export async function createUserByAdmin(
+    data: AdminCreateUserDto
+): Promise<UserProfile> {
+    return await apiClient.post<UserProfile>('/users', data);
 }
 
 /**
