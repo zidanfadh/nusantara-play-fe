@@ -16,7 +16,7 @@ export function HeroCarousel() {
     },
     {
       src: "/images/landing/nusland (1).webp",
-      alt: "Nusantara Legacy Virtual Tour Preview",
+      alt: "Nusantara Virtual Tour Preview",
       href: "https://nusantaraplay.kpoti.id/",
     },
   ];

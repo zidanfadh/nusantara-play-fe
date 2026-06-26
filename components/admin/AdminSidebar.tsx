@@ -110,7 +110,7 @@ export function AdminSidebar() {
     <div className="bg-card border-r border-border text-foreground w-64 flex-shrink-0 flex flex-col">
       {/* Logo */}
       <div className="flex items-center justify-center h-16 border-b border-border">
-        <h1 className="text-xl font-bold text-primary tracking-wide">Nusantara Legacy</h1>
+        <h1 className="text-xl font-bold text-primary tracking-wide">Nusantara Virtual</h1>
       </div>
 
       {/* Back to Dashboard Button */}

@@ -32,7 +32,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
               Admin Panel
             </h2>
             <p className="text-xs text-[#F7F3E8]/80 font-medium">
-              Kelola sistem Nusantara Legacy
+              Kelola sistem Nusantara Virtual
             </p>
           </div>
         </div>

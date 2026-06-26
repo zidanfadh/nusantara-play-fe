@@ -13,7 +13,7 @@ export default async function LandingPageV1() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-primary">
             <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
-            Nusantara Legacy
+            Nusantara Virtual
           </Link>
 
           <nav className="hidden md:flex gap-6 text-sm font-medium">
@@ -121,7 +121,7 @@ export default async function LandingPageV1() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold tracking-tight text-foreground">
-                Mengapa Nusantara Legacy?
+                Mengapa Nusantara Virtual?
               </h2>
               <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
                 Satu platform untuk mendokumentasikan, memverifikasi, dan merayakan kekayaan permainan rakyat Indonesia.
@@ -187,7 +187,7 @@ export default async function LandingPageV1() {
                   Integritas Data Budaya dengan Web3
                 </h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Nusantara Legacy menggunakan teknologi Blockchain (Jaringan Polygon) untuk memberikan lapisan keamanan tertinggi pada arsip budaya bangsa. Setiap data yang disetujui Pakar akan otomatis dikunci (anchored) ke dalam jaringan blockchain.
+                  Nusantara Virtual menggunakan teknologi Blockchain (Jaringan Polygon) untuk memberikan lapisan keamanan tertinggi pada arsip budaya bangsa. Setiap data yang disetujui Pakar akan otomatis dikunci (anchored) ke dalam jaringan blockchain.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Ini menciptakan &quot;sidik jari digital&quot; (SHA-256 Hash) yang memastikan data budaya kita terlindungi, otentik, dan menjadi jejak sejarah yang kekal.
@@ -404,7 +404,7 @@ export default async function LandingPageV1() {
             <div className="space-y-3 md:col-span-2">
               <Link href="/" className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
-                <span className="text-lg font-bold text-primary">Nusantara Legacy</span>
+                <span className="text-lg font-bold text-primary">Nusantara Virtual</span>
               </Link>
               <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
                 Platform digital untuk mendokumentasikan, memverifikasi, dan melestarikan permainan rakyat Nusantara bagi generasi mendatang.
@@ -434,7 +434,7 @@ export default async function LandingPageV1() {
 
           <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-muted-foreground">
-              &copy; {new Date().getFullYear()} Nusantara Legacy. Dibuat dengan cinta untuk budaya Indonesia.
+              &copy; {new Date().getFullYear()} Nusantara Virtual. Dibuat dengan cinta untuk budaya Indonesia.
             </p>
             <p className="text-xs text-muted-foreground">
               Seluruh hak cipta dilindungi undang-undang.

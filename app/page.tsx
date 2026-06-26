@@ -29,7 +29,7 @@ export default async function Home() {
             href="/"
             className="text-2xl font-bold tracking-tighter text-primary"
           >
-            Nusantara Legacy
+            Nusantara Virtual
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
@@ -90,7 +90,7 @@ export default async function Home() {
               </div>
               <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-foreground mb-8 leading-[0.9]">
                 Nusantara <br />
-                <span className="text-primary">Legacy</span>
+                <span className="text-primary">Virtual</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
                 Menjaga Warisan, Memainkan Masa Depan. Platform berbasis
@@ -130,7 +130,7 @@ export default async function Home() {
                 }}
               >
                 <p className="text-sm font-medium text-muted-foreground italic leading-relaxed">
-                  &ldquo;Budaya adalah identitas. Nusantara Legacy membawa
+                  &ldquo;Budaya adalah identitas. Nusantara Virtual membawa
                   identitas tersebut ke era digital.&rdquo;
                 </p>
               </div>
@@ -168,7 +168,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* New Nusantara Legacy Tour Banner */}
+        {/* New Nusantara Virtual Tour Banner */}
         <section className="py-12 lg:py-12 px-6 pt-0 lg:pt-0">
           <div className="max-w-7xl mx-auto">
             <div className="relative overflow-hidden rounded-[3rem] bg-muted/80 flex flex-col lg:flex-row items-center border border-border/10 shadow-[0_24px_40px_-10px_rgba(0,0,0,0.05)] pt-0">
@@ -177,7 +177,7 @@ export default async function Home() {
                   Baru: Pengalaman Imersif
                 </span>
                 <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-6 leading-tight">
-                  Nusantara <br className="hidden md:block" /> Legacy Tour
+                  Nusantara <br className="hidden md:block" /> Virtual Tour
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
                   Jelajahi warisan budaya dalam tampilan 3D interaktif. Lihat setiap detail permainan tradisional langsung dari layar Anda.
@@ -195,7 +195,7 @@ export default async function Home() {
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  alt="Nusantara Legacy Virtual Tour Preview"
+                  alt="Nusantara Virtual Tour Preview"
                   className="absolute inset-0 w-full h-full object-contain p-8" /* Saya tambahkan p-8 di sini agar paddingnya teraplikasi ke gambar yang absolute */
                   src="/images/landing/nusantara-legacy.webp"
                 />
@@ -566,7 +566,7 @@ export default async function Home() {
               href="/"
               className="text-xl font-bold text-primary mb-4 block"
             >
-              Nusantara Legacy
+              Nusantara Virtual
             </Link>
             <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
               Platform digital terdesentralisasi pertama yang fokus pada
@@ -644,7 +644,7 @@ export default async function Home() {
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
           <p className="text-foreground/60 text-sm">
-            &copy; {new Date().getFullYear()} Nusantara Legacy. Menjaga Warisan,
+            &copy; {new Date().getFullYear()} Nusantara Virtual. Menjaga Warisan,
             Memainkan Masa Depan.
           </p>
         </div>
