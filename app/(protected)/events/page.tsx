@@ -42,7 +42,7 @@ export default function EventsPage() {
         {/* Header Section */}
         <header className="mb-16">
           <h1 className="text-5xl font-extrabold tracking-tight text-[#1c1c18] dark:text-[#f7f3e8] mb-4 leading-tight">
-            Events Budaya
+            Acara Budaya
           </h1>
           <p className="text-lg text-[#747474] dark:text-[#9A8880] max-w-2xl leading-relaxed">
             Eksplorasi ragam festival, kompetisi, dan workshop budaya di seluruh Nusantara.
