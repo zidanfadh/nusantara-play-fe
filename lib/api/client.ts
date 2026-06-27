@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
+import { getBackendApiUrl } from './base-url';
 
 async function getAuthHeaders(): Promise<HeadersInit> {
   const supabase = createClient();
@@ -23,7 +22,7 @@ async function request<T>(
 ): Promise<T> {
   const headers = await getAuthHeaders();
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${getBackendApiUrl()}${endpoint}`, {
     ...options,
     headers: {
       ...headers,

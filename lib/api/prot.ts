@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { getBackendApiUrl } from './base-url';
 import { createClient } from '@/lib/supabase/client';
 import {
   PROTEntity,
@@ -52,7 +53,7 @@ export const protApi = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/foto-kegiatan`, {
+    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/foto-kegiatan`, {
       method: 'POST',
       body: formData,
       headers,
@@ -73,7 +74,7 @@ export const protApi = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/video-kegiatan`, {
+    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/video-kegiatan`, {
       method: 'POST',
       body: formData,
       headers,
@@ -100,7 +101,7 @@ export const protApi = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/dokumen-kurikulum`, {
+    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/dokumen-kurikulum`, {
       method: 'POST',
       body: formData,
       headers,
@@ -124,7 +125,7 @@ export const protApi = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}${BASE_URL}/${id}/peralatan/${peralatanIndex}/foto-alat`, {
+    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/peralatan/${peralatanIndex}/foto-alat`, {
       method: 'POST',
       body: formData,
       headers,

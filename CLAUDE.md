@@ -66,7 +66,7 @@ to `/login`.
 ## Env Vars
 
 ```
-NEXT_PUBLIC_BACKEND_API_URL    # NestJS backend base URL (http://localhost:3000/api)
+NEXT_PUBLIC_BACKEND_API_URL    # Development backend base URL (http://localhost:3000/api); production resolves from the current hostname.
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```

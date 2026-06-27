@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { getBackendApiUrl } from './base-url';
 import { createClient } from '@/lib/supabase/client';
 import { NftCatalog, NftListResponse, CreateNftPayload, UpdateNftPayload } from '@/types/nfts';
 
@@ -72,10 +73,8 @@ export const nftsApi = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || '';
-    
     // Perform raw fetch because apiClient forces JSON and content-type
-    const response = await fetch(`${API_URL}/nfts/upload/image`, {
+    const response = await fetch(`${getBackendApiUrl()}/nfts/upload/image`, {
       method: 'POST',
       headers: {
         ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
@@ -88,7 +87,7 @@ export const nftsApi = {
       try {
         const errorData = await response.json();
         message = errorData.message || message;
-      } catch (e) {
+      } catch {
         // syntax error if not json
       }
       throw new Error(message);
