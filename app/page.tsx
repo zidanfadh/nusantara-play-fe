@@ -13,6 +13,7 @@ import {
   Send,
 } from 'lucide-react';
 
+
 export default async function Home() {
   const supabase = await createClient();
   const {
