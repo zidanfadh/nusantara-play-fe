@@ -7,7 +7,7 @@ import { ProtForm } from '@/components/prot/ProtForm';
 import { protApi } from '@/lib/api/prot';
 import { PROTEntity } from '@/types/prot';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { getDaerahById } from '@/lib/api/daerah';
+import { getDaerahAncestors } from '@/lib/api/daerah';
 
 export default function CreateProtPage() {
   const router = useRouter();
@@ -22,10 +22,12 @@ export default function CreateProtPage() {
   useEffect(() => {
     if (!user || user.role !== 'pakar' || !user.daerah_id) return;
 
-    getDaerahById(user.daerah_id)
-      .then((userDaerah) => {
-        if (userDaerah.provinsi) {
-          setPakarProvinceKodes([userDaerah.provinsi]);
+    getDaerahAncestors(user.daerah_id)
+      .then((ancestors) => {
+        // First ancestor (index 0) is the province
+        const province = ancestors[0];
+        if (province?.kode) {
+          setPakarProvinceKodes([province.kode]);
         }
       })
       .catch((err) => {

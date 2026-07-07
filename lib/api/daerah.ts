@@ -59,6 +59,17 @@ export async function getAllProvinces(
 }
 
 /**
+ * Get ancestors of a daerah (province chain from current up to province)
+ * Public endpoint - no authentication required
+ *
+ * @param id - Daerah ID (UUID)
+ * @returns Promise with ancestor chain (province at index 0)
+ */
+export async function getDaerahAncestors(id: string): Promise<Daerah[]> {
+  return await apiClient.get<Daerah[]>(`/daerah/${id}/ancestors`);
+}
+
+/**
  * Get daerah statistics
  * Public endpoint - no authentication required
  * 
