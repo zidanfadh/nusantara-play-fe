@@ -99,6 +99,22 @@ export function LoginForm() {
           </Link>
         </p>
       </form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-background text-muted-foreground">atau</span>
+        </div>
+      </div>
+
+      <Link
+        href="/menu"
+        className="block w-full py-2 px-4 border border-border text-foreground font-medium rounded-md hover:bg-muted transition-colors text-center"
+      >
+        Masuk sebagai Tamu
+      </Link>
     </div>
   );
 }

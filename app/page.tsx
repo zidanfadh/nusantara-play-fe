@@ -161,10 +161,10 @@ export default async function Home() {
                   Mulai Sekarang
                 </Link>
                 <Link
-                  href="/prot"
+                  href="/menu"
                   className="px-8 py-4 bg-muted text-foreground rounded-xl font-bold text-lg hover:bg-muted/70 transition-all duration-300 text-center"
                 >
-                  Jelajahi PROT
+                  Jelajahi Menu
                 </Link>
               </div>
             </div>
