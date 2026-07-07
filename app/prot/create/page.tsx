@@ -6,11 +6,16 @@ import Link from 'next/link';
 import { ProtForm } from '@/components/prot/ProtForm';
 import { protApi } from '@/lib/api/prot';
 import { PROTEntity } from '@/types/prot';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function CreateProtPage() {
   const router = useRouter();
+  const { user, isLoading: userLoading } = useCurrentUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Pakar without daerah_id cannot create PROT
+  const isPakarWithoutDaerah = user?.role === 'pakar' && !user?.daerah_id;
 
   const handleSubmit = async (data: Partial<PROTEntity> & { 
     fotoFiles?: File[]; 
@@ -128,11 +133,33 @@ export default function CreateProtPage() {
                 {error}
             </div>
         )}
-        <ProtForm
-            title="Form Data Baru"
-            onSubmit={handleSubmit}
-            isLoading={isLoading}
-        />
+
+        {userLoading ? (
+          <div className="text-center py-12">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
+            <p className="mt-4 text-warm-label">Memuat...</p>
+          </div>
+        ) : isPakarWithoutDaerah ? (
+          <div className="text-center py-12 bg-yellow-50 rounded-xl border border-yellow-200 px-6">
+            <svg className="w-12 h-12 text-yellow-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <h3 className="text-lg font-bold text-yellow-800 mb-2">Data Daerah Diperlukan</h3>
+            <p className="text-yellow-700 mb-6 max-w-md mx-auto">
+              Anda belum memiliki data daerah. Sebagai Pakar, Anda harus memperbarui profil dengan memilih daerah tempat Anda bertugas terlebih dahulu sebelum menambahkan PROT.
+            </p>
+            <Link href="/profile" className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">
+              Perbarui Profil
+            </Link>
+          </div>
+        ) : (
+          <ProtForm
+              title="Form Data Baru"
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
+              user={user}
+          />
+        )}
       </div>
     </>
   );

@@ -3,16 +3,18 @@ import { useRouter } from 'next/navigation';
 import { DaerahSelector } from '@/components/daerah/DaerahSelector';
 import { PROTEntity, PROTJenis, TargetUsia, Peralatan } from '@/types/prot';
 import type { Daerah } from '@/types/daerah';
-import { getAllProvinces, getChildrenDaerah } from '@/lib/api/daerah';
+import { getAllProvinces, getChildrenDaerah, getDaerahById } from '@/lib/api/daerah';
+import type { UserProfile } from '@/types/user';
 
 interface ProtFormProps {
   initialData?: Partial<PROTEntity>;
   onSubmit: (data: Partial<PROTEntity>) => Promise<void>;
   isLoading: boolean;
   title: string;
+  user?: UserProfile | null;
 }
 
-export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormProps) {
+export function ProtForm({ initialData, onSubmit, isLoading, title, user }: ProtFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<Partial<PROTEntity>>({
     nama: '',
@@ -90,6 +92,29 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
       }
     }
   }, [initialData]);
+
+  // Auto-select province for pakar users
+  useEffect(() => {
+    if (!user || user.role !== 'pakar' || !user.daerah_id || initialData) return;
+
+    const autoSelectProvince = async () => {
+      try {
+        const userDaerah = await getDaerahById(user.daerah_id!);
+        if (!userDaerah.provinsi) return;
+
+        const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
+        const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
+        if (province) {
+          setProvinsiId(province.id);
+          setFormData(prev => ({ ...prev, provinsiKode: province.kode }));
+        }
+      } catch (error) {
+        console.error('Error auto-selecting province for pakar:', error);
+      }
+    };
+
+    autoSelectProvince();
+  }, [user, initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -407,6 +432,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title }: ProtFormPr
             onProvinceChange={handleProvinceChange}
             onKabupatenKotaChange={handleKabupatenKotaChange}
             required
+            provinceDisabled={user?.role === 'pakar'}
           />
 
           {/* Detail Lokasi Spesifik */}

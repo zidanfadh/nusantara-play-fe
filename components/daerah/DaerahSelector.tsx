@@ -13,6 +13,7 @@ interface DaerahSelectorProps {
   provinceError?: string;
   kabupatenKotaError?: string;
   disabled?: boolean;
+  provinceDisabled?: boolean;
   required?: boolean;
   showKabupatenKota?: boolean;
 }
@@ -29,6 +30,7 @@ export function DaerahSelector({
   provinceError,
   kabupatenKotaError,
   disabled = false,
+  provinceDisabled = false,
   required = false,
   showKabupatenKota = true,
 }: DaerahSelectorProps) {
@@ -52,7 +54,7 @@ export function DaerahSelector({
         value={provinceValue}
         onChange={handleProvinceChange}
         error={provinceError}
-        disabled={disabled}
+        disabled={disabled || provinceDisabled}
         required={required}
       />
 

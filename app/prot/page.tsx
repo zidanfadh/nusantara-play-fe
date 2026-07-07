@@ -29,7 +29,7 @@ export default function ProtModulePage() {
   });
 
   const canCreateProt =
-    user && ['kurator_daerah', 'admin_kpoti'].includes(user.role);
+    user && ['kurator_daerah', 'pakar', 'admin_kpoti'].includes(user.role);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
