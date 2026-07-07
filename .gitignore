@@ -18,6 +18,7 @@
 /out/
 
 /references
+/.worktrees
 
 # production
 /build
