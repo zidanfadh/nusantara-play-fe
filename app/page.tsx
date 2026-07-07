@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { HeroCarousel } from '@/components/ui/HeroCarousel';
+import { getBackendApiUrl } from '@/lib/api/base-url';
+import type { PaginatedResponse, PROTEntity } from '@/types/prot';
 import {
   LockKeyhole,
   ShieldCheck,
@@ -13,12 +15,65 @@ import {
   Send,
 } from 'lucide-react';
 
+async function getFeaturedGames(accessToken?: string): Promise<PROTEntity[]> {
+  const params = new URLSearchParams({
+    page: '1',
+    limit: '4',
+  });
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  try {
+    const response = await fetch(`${getBackendApiUrl()}/prot?${params.toString()}`, {
+      headers,
+      next: {
+        revalidate: 60,
+      },
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const result = (await response.json()) as PaginatedResponse<PROTEntity>;
+    return result.data ?? [];
+  } catch (error) {
+    console.error('Error fetching featured PROT data:', error);
+    return [];
+  }
+}
+
+function getGameLocation(game: PROTEntity): string {
+  const city = game.kabkotaName || game.kabkotaKode;
+  const province = game.provinsiName || game.provinsiKode;
+
+  return [city, province].filter(Boolean).join(', ') || 'Indonesia';
+}
+
+function getGameSummary(game: PROTEntity): string {
+  return (
+    game.nilaiMoral ||
+    game.caraBermain ||
+    'Permainan rakyat dan olahraga tradisional yang terdokumentasi dalam arsip Nusantara Virtual.'
+  );
+}
 
 export default async function Home() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [
+    {
+      data: { user },
+    },
+    {
+      data: { session },
+    },
+  ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
+  const featuredGames = await getFeaturedGames(session?.access_token);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
@@ -121,7 +176,6 @@ export default async function Home() {
                   boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.05)',
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <HeroCarousel />
               </div>
               <div
@@ -437,62 +491,51 @@ export default async function Home() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  name: 'Congklak',
-                  origin: 'Jawa',
-                  desc: 'Permainan adu strategi menggunakan papan kayu berlubang dan biji kerang.',
-                  img: '/images/landing/congklak.webp',
-                  imgAlt: 'Traditional Congklak wooden board with shells',
-                },
-                {
-                  name: 'Egrang',
-                  origin: 'Nasional',
-                  desc: 'Uji keseimbangan menggunakan galah bambu tinggi sebagai kaki tambahan.',
-                  img: '/images/landing/egrang.webp',
-                  imgAlt: 'Bamboo stilts known as Egrang',
-                },
-                {
-                  name: 'Gobak Sodor',
-                  origin: 'Sumatera',
-                  desc: 'Permainan tim yang mengandalkan kecepatan dan ketangkasan menghalangi lawan.',
-                  img: '/images/landing/gobak-sodor.webp',
-                  imgAlt: 'Group of kids playing Gobak Sodor outdoors',
-                },
-                {
-                  name: 'Petak Umpet',
-                  origin: 'Global',
-                  desc: 'Permainan klasik sembunyi-sembunyi yang melatih kejelian dan kesabaran.',
-                  img: '/images/landing/petak-umpet.webp',
-                  imgAlt: 'Children hiding during Petak Umpet game',
-                },
-              ].map((game) => (
-                <div
-                  key={game.name}
-                  className="bg-card p-4 rounded-3xl group cursor-pointer border border-transparent hover:border-primary/20 transition-all"
-                  style={{
-                    boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.05)',
-                  }}
-                >
-                  <div className="aspect-square rounded-2xl overflow-hidden mb-6">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      alt={game.imgAlt}
-                      src={game.img}
-                    />
-                  </div>
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-xl font-bold">{game.name}</h4>
-                    <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase rounded-full">
-                      {game.origin}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {game.desc}
-                  </p>
+              {featuredGames.length > 0 ? (
+                featuredGames.map((game) => (
+                  <Link
+                    key={game.id}
+                    href={`/prot/${game.id}`}
+                    className="bg-card p-4 rounded-3xl group cursor-pointer border border-transparent hover:border-primary/20 transition-all"
+                    style={{
+                      boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.05)',
+                    }}
+                  >
+                    <div className="aspect-square rounded-2xl overflow-hidden mb-6 bg-muted">
+                      {game.fotoKegiatan && game.fotoKegiatan.length > 0 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          alt={game.nama}
+                          src={game.fotoKegiatan[0]}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground/40">
+                          <Archive className="w-16 h-16" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-start gap-3 mb-2">
+                      <h4 className="text-xl font-bold line-clamp-2">
+                        {game.nama}
+                      </h4>
+                      <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase rounded-full shrink-0">
+                        {game.jenis === 'PERMAINAN_RAKYAT' ? 'Permainan' : 'Olahraga'}
+                      </span>
+                    </div>
+                    <p className="text-xs font-semibold text-foreground/60 mb-3 uppercase tracking-wider">
+                      {getGameLocation(game)}
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                      {getGameSummary(game)}
+                    </p>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-muted-foreground">
+                  Data permainan belum tersedia untuk ditampilkan.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>
