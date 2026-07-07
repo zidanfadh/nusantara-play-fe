@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProvinceSelect } from './ProvinceSelect';
 import { KabupatenKotaSelect } from './KabupatenKotaSelect';
 import type { Daerah } from '@/types/daerah';
@@ -37,6 +37,13 @@ export function DaerahSelector({
   const [selectedProvinceId, setSelectedProvinceId] = useState<string | null>(
     provinceValue || null
   );
+
+  // Sync internal state when provinceValue changes externally (e.g. auto-select for pakar)
+  useEffect(() => {
+    if (provinceValue && provinceValue !== selectedProvinceId) {
+      setSelectedProvinceId(provinceValue);
+    }
+  }, [provinceValue, selectedProvinceId]);
 
   const handleProvinceChange = (provinceId: string, province: Daerah | null) => {
     setSelectedProvinceId(provinceId || null);

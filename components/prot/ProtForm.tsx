@@ -105,8 +105,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, user }: Prot
         const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
         const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
         if (province) {
-          setProvinsiId(province.id);
-          setFormData(prev => ({ ...prev, provinsiKode: province.kode }));
+          handleProvinceChange(province.id, province);
         }
       } catch (error) {
         console.error('Error auto-selecting province for pakar:', error);
