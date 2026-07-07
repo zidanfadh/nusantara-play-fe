@@ -127,6 +127,19 @@ export default function ProtDetailPage() {
 
   const isEditable = item.status === PROTStatus.DRAFT || item.status === PROTStatus.REVISI;
   const isSubmittable = item.status === PROTStatus.DRAFT || item.status === PROTStatus.REVISI;
+  const canManageProt =
+    user && ['kurator_daerah', 'admin_kpoti'].includes(user.role);
+  const ownsProt = user && item.created_by === user.id;
+  const canEditProt = Boolean(
+    canManageProt &&
+      isEditable &&
+      (user?.role === 'admin_kpoti' || ownsProt)
+  );
+  const canSubmitProt = Boolean(
+    canManageProt &&
+      isSubmittable &&
+      (user?.role === 'admin_kpoti' || ownsProt)
+  );
   const isPublishable = item.status === PROTStatus.DIVERIFIKASI && user?.role === 'admin_kpoti';
   const isDeletable = user?.role === 'admin_kpoti';
 
@@ -173,18 +186,20 @@ export default function ProtDetailPage() {
 
             <div className="flex flex-wrap items-center gap-2">
               {/* View History */}
-              <Link
-                href={`/prot/${item.id}/history`}
-                className="px-3 py-2 bg-background border border-border text-foreground rounded-md text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                History
-              </Link>
+              {user && (
+                <Link
+                  href={`/prot/${item.id}/history`}
+                  className="px-3 py-2 bg-background border border-border text-foreground rounded-md text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  History
+                </Link>
+              )}
 
               {/* Edit Button */}
-              {isEditable && (
+              {canEditProt && (
                 <Link
                   href={`/prot/${item.id}/edit`}
                   className="px-3 py-2 bg-background border border-border text-foreground rounded-md text-sm font-medium hover:bg-muted transition-colors flex items-center gap-2"
@@ -197,7 +212,7 @@ export default function ProtDetailPage() {
               )}
 
               {/* Submit for Verification */}
-              {isSubmittable && (
+              {canSubmitProt && (
                 <button
                   onClick={handleSubmitVerification}
                   disabled={submitting}

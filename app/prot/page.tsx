@@ -1,17 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { protApi } from '@/lib/api/prot';
 import { ProtCard } from '@/components/prot/ProtCard';
 import { ProtFilter } from '@/components/prot/ProtFilter';
 import { PROTEntity, PROTFilters } from '@/types/prot';
 
 export default function ProtModulePage() {
-  const router = useRouter();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user } = useCurrentUser();
   const [items, setItems] = useState<PROTEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +28,10 @@ export default function ProtModulePage() {
     hasPrev: false,
   });
 
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login?redirectTo=/prot');
-    }
-  }, [authLoading, user, router]);
+  const canCreateProt =
+    user && ['kurator_daerah', 'admin_kpoti'].includes(user.role);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -56,13 +50,11 @@ export default function ProtModulePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [filters, user]);
+    fetchData();
+  }, [fetchData]);
 
   const handleFilterChange = (newFilters: PROTFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
@@ -78,30 +70,6 @@ export default function ProtModulePage() {
   const handlePageChange = (newPage: number) => {
       setFilters(prev => ({ ...prev, page: newPage }));
   };
-
-  // Show loading state while checking authentication
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-          <p className="text-muted-foreground">Memeriksa autentikasi...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render content if not authenticated (will redirect)
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
-          <p className="text-muted-foreground">Mengalihkan ke halaman login...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -151,12 +119,14 @@ export default function ProtModulePage() {
                 </svg>
               </button>
             </div>
-            <Link href="/prot/create" className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md font-medium shadow hover:bg-primary/90 transition-colors">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Tambah Data Baru
-            </Link>
+            {canCreateProt && (
+              <Link href="/prot/create" className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md font-medium shadow hover:bg-primary/90 transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Tambah Data Baru
+              </Link>
+            )}
           </div>
         </div>
 

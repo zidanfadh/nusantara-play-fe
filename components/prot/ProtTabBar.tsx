@@ -25,6 +25,8 @@ export function ProtTabBar() {
     (user.role === 'pakar' ||
       user.role === 'admin_kpoti' ||
       user.role === 'kurator_daerah');
+  const canCreateProt =
+    user && ['kurator_daerah', 'admin_kpoti'].includes(user.role);
 
   return (
     <div className="sticky top-16 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -37,7 +39,7 @@ export function ProtTabBar() {
             Daftar PROT
           </Link>
 
-          {user && (
+          {canCreateProt && (
             <Link href="/prot/create" className={tabClass('/prot/create')}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
