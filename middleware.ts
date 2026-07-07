@@ -17,7 +17,6 @@ const publicExactRoutes = [
 const publicPrefixes = [
   /^\/events\/(?!create$|my-events$|my-registrations$)[^/]+$/,
   /^\/prot$/,
-  /^\/prot\/(?!create$|verifikasi$)[^/]+$/,
   /^\/nfts\/[^/]+$/,
 ];
 

@@ -38,3 +38,11 @@ I did not broaden this into unrelated lint cleanup.
 - Route matching now follows the task brief exactly and avoids the root-path false positive that made every route public.
 - Guest auth state is handled intentionally rather than by exception flow, which should prevent unnecessary `/users/me` failures for anonymous users.
 - The `UserNav` guest branch is narrowly scoped and does not change authenticated navigation behavior.
+
+## Fix after review
+
+Removed the temporary public matcher for `/prot/:id` from `middleware.ts` so `/prot` stays public while protected PROT detail routes remain gated until the later UI hardening work. Verified with:
+
+```bash
+pnpm exec eslint middleware.ts hooks/useCurrentUser.ts components/ui/UserNav.tsx
+```
