@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { DaerahSelector } from '@/components/daerah/DaerahSelector';
 import { PROTEntity, PROTJenis, TargetUsia, Peralatan } from '@/types/prot';
 import type { Daerah } from '@/types/daerah';
-import { getAllProvinces, getChildrenDaerah, getDaerahById } from '@/lib/api/daerah';
+import { getAllProvinces, getChildrenDaerah } from '@/lib/api/daerah';
 import type { UserProfile } from '@/types/user';
 
 interface ProtFormProps {
@@ -12,9 +12,10 @@ interface ProtFormProps {
   isLoading: boolean;
   title: string;
   user?: UserProfile | null;
+  initialProvinceId?: string;
 }
 
-export function ProtForm({ initialData, onSubmit, isLoading, title, user }: ProtFormProps) {
+export function ProtForm({ initialData, onSubmit, isLoading, title, user, initialProvinceId }: ProtFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<Partial<PROTEntity>>({
     nama: '',
@@ -43,7 +44,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, user }: Prot
   const [isDraggingDokumen, setIsDraggingDokumen] = useState(false);
 
   // State for daerah - store ID for UI, kode for backend
-  const [provinsiId, setProvinsiId] = useState<string>('');
+  const [provinsiId, setProvinsiId] = useState<string>(initialProvinceId || '');
   const [kabkotaId, setKabkotaId] = useState<string>('');
 
   useEffect(() => {
@@ -92,28 +93,6 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, user }: Prot
       }
     }
   }, [initialData]);
-
-  // Auto-select province for pakar users
-  useEffect(() => {
-    if (!user || user.role !== 'pakar' || !user.daerah_id || initialData) return;
-
-    const autoSelectProvince = async () => {
-      try {
-        const userDaerah = await getDaerahById(user.daerah_id!);
-        if (!userDaerah.provinsi) return;
-
-        const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
-        const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
-        if (province) {
-          handleProvinceChange(province.id, province);
-        }
-      } catch (error) {
-        console.error('Error auto-selecting province for pakar:', error);
-      }
-    };
-
-    autoSelectProvince();
-  }, [user, initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

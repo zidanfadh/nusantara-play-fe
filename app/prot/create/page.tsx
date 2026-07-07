@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ProtForm } from '@/components/prot/ProtForm';
 import { protApi } from '@/lib/api/prot';
 import { PROTEntity } from '@/types/prot';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { getDaerahById, getAllProvinces } from '@/lib/api/daerah';
 
 export default function CreateProtPage() {
   const router = useRouter();
@@ -14,11 +15,39 @@ export default function CreateProtPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Pre-fetch province for pakar users
+  const [pakarProvinceId, setPakarProvinceId] = useState<string>('');
+  const [pakarLoading, setPakarLoading] = useState(false);
+
   // Pakar without daerah_id cannot create PROT
   const isPakarWithoutDaerah = user?.role === 'pakar' && !user?.daerah_id;
 
-  const handleSubmit = async (data: Partial<PROTEntity> & { 
-    fotoFiles?: File[]; 
+  useEffect(() => {
+    if (!user || user.role !== 'pakar' || !user.daerah_id) return;
+
+    const fetchProvince = async () => {
+      setPakarLoading(true);
+      try {
+        const userDaerah = await getDaerahById(user.daerah_id!);
+        if (!userDaerah.provinsi) return;
+
+        const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
+        const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
+        if (province) {
+          setPakarProvinceId(province.id);
+        }
+      } catch (err) {
+        console.error('Error fetching province for pakar:', err);
+      } finally {
+        setPakarLoading(false);
+      }
+    };
+
+    fetchProvince();
+  }, [user]);
+
+  const handleSubmit = async (data: Partial<PROTEntity> & {
+    fotoFiles?: File[];
     videoFiles?: File[];
     dokumenFiles?: File[];
     peralatanFotoFiles?: Record<number, File[]>;
@@ -28,7 +57,7 @@ export default function CreateProtPage() {
   }) => {
     setIsLoading(true);
     setError(null);
-    
+
     let createdProtId: string | null = null;
     const uploadErrors: string[] = [];
 
@@ -38,7 +67,7 @@ export default function CreateProtPage() {
 
       // Create PROT first
       const response = await protApi.create(protData);
-      
+
       if (response && response.id) {
         createdProtId = response.id;
 
@@ -98,7 +127,7 @@ export default function CreateProtPage() {
       }
     } catch (err: any) {
       console.error('Failed to create PROT:', err);
-      
+
       // If PROT was created but uploads failed, show different message
       if (createdProtId) {
         setError(`Data PROT berhasil disimpan, namun ada masalah saat upload media: ${uploadErrors.join(', ')}. Anda dapat menambahkan foto/video/dokumen nanti melalui halaman edit.`);
@@ -134,7 +163,7 @@ export default function CreateProtPage() {
             </div>
         )}
 
-        {userLoading ? (
+        {userLoading || pakarLoading ? (
           <div className="text-center py-12">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
             <p className="mt-4 text-warm-label">Memuat...</p>
@@ -158,6 +187,7 @@ export default function CreateProtPage() {
               onSubmit={handleSubmit}
               isLoading={isLoading}
               user={user}
+              initialProvinceId={pakarProvinceId}
           />
         )}
       </div>
