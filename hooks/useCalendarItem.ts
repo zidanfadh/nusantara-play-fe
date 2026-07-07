@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getCalendarItem } from '@/lib/api/calendar';
 import type { CalendarItemDetail } from '@/types/calendar';
 
@@ -7,7 +7,7 @@ export function useCalendarItem(id: string | null) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchItem = async () => {
+  const fetchItem = useCallback(async () => {
     if (!id) {
       setData(null);
       return;
@@ -23,11 +23,11 @@ export function useCalendarItem(id: string | null) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchItem();
-  }, [id]);
+  }, [fetchItem]);
 
   return {
     data,
