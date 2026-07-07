@@ -1,13 +1,38 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
-const publicRoutes = ['/', '/login', '/signup', '/auth/callback', '/about', '/unauthorized'];
+const publicExactRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/auth/callback',
+  '/about',
+  '/unauthorized',
+  '/menu',
+  '/events',
+  '/calendar',
+  '/nfts',
+];
+
+const publicPrefixes = [
+  /^\/events\/(?!create$|my-events$|my-registrations$)[^/]+$/,
+  /^\/prot$/,
+  /^\/prot\/(?!create$|verifikasi$)[^/]+$/,
+  /^\/nfts\/[^/]+$/,
+];
+
+function isPublicPath(pathname: string) {
+  return (
+    publicExactRoutes.includes(pathname) ||
+    publicPrefixes.some((pattern) => pattern.test(pathname))
+  );
+}
 
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route));
+  const isPublicRoute = isPublicPath(pathname);
 
   // Redirect ke login jika belum login dan bukan public route
   if (!user && !isPublicRoute) {

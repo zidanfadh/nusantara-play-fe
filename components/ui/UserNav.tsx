@@ -37,6 +37,44 @@ export function UserNav() {
     );
   }
 
+  if (!user) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 focus:outline-none group"
+        >
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center border border-border group-hover:border-primary/50 transition-colors">
+            <User className="w-4 h-4 text-foreground/70" />
+          </div>
+          <span className="hidden sm:inline text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+            Guest
+          </span>
+          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-44 bg-card rounded-md shadow-lg py-1 border border-border z-50 ring-1 ring-black/5">
+            <Link
+              href="/login"
+              className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Masuk
+            </Link>
+            <Link
+              href="/signup"
+              className="block px-4 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Daftar
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const isAdmin = user?.role === 'admin_kpoti';
 
   return (
