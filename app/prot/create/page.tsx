@@ -15,36 +15,39 @@ export default function CreateProtPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Pre-fetch province for pakar users
   const [pakarProvinceId, setPakarProvinceId] = useState<string>('');
-  const [pakarLoading, setPakarLoading] = useState(false);
+  const [pakarReady, setPakarReady] = useState(false);
 
-  // Pakar without daerah_id cannot create PROT
   const isPakarWithoutDaerah = user?.role === 'pakar' && !user?.daerah_id;
+  const needsPakarProvince = user?.role === 'pakar' && !isPakarWithoutDaerah;
 
   useEffect(() => {
-    if (!user || user.role !== 'pakar' || !user.daerah_id) return;
+    if (!user) return;
+
+    if (user.role !== 'pakar' || isPakarWithoutDaerah) {
+      setPakarReady(true);
+      return;
+    }
 
     const fetchProvince = async () => {
-      setPakarLoading(true);
       try {
         const userDaerah = await getDaerahById(user.daerah_id!);
-        if (!userDaerah.provinsi) return;
-
-        const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
-        const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
-        if (province) {
-          setPakarProvinceId(province.id);
+        if (userDaerah.provinsi) {
+          const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
+          const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
+          if (province) {
+            setPakarProvinceId(province.id);
+          }
         }
       } catch (err) {
         console.error('Error fetching province for pakar:', err);
       } finally {
-        setPakarLoading(false);
+        setPakarReady(true);
       }
     };
 
     fetchProvince();
-  }, [user]);
+  }, [user, isPakarWithoutDaerah]);
 
   const handleSubmit = async (data: Partial<PROTEntity> & {
     fotoFiles?: File[];
@@ -140,6 +143,8 @@ export default function CreateProtPage() {
     }
   };
 
+  const showLoading = userLoading || (needsPakarProvince && !pakarReady);
+
   return (
     <>
       {/* Breadcrumb */}
@@ -163,7 +168,7 @@ export default function CreateProtPage() {
             </div>
         )}
 
-        {userLoading || pakarLoading ? (
+        {showLoading ? (
           <div className="text-center py-12">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
             <p className="mt-4 text-warm-label">Memuat...</p>
