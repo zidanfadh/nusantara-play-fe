@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ProvinceSelect } from './ProvinceSelect';
 import { KabupatenKotaSelect } from './KabupatenKotaSelect';
 import type { Daerah } from '@/types/daerah';
@@ -16,6 +16,7 @@ interface DaerahSelectorProps {
   provinceDisabled?: boolean;
   required?: boolean;
   showKabupatenKota?: boolean;
+  provinceFilterKodes?: string[];
 }
 
 /**
@@ -33,22 +34,16 @@ export function DaerahSelector({
   provinceDisabled = false,
   required = false,
   showKabupatenKota = true,
+  provinceFilterKodes,
 }: DaerahSelectorProps) {
   const [selectedProvinceId, setSelectedProvinceId] = useState<string | null>(
     provinceValue || null
   );
 
-  // Sync internal state when provinceValue changes externally (e.g. auto-select for pakar)
-  useEffect(() => {
-    if (provinceValue && provinceValue !== selectedProvinceId) {
-      setSelectedProvinceId(provinceValue);
-    }
-  }, [provinceValue, selectedProvinceId]);
-
   const handleProvinceChange = (provinceId: string, province: Daerah | null) => {
     setSelectedProvinceId(provinceId || null);
     onProvinceChange(provinceId, province);
-    
+
     // Reset kabupaten/kota when province changes
     if (showKabupatenKota) {
       onKabupatenKotaChange('', null);
@@ -63,6 +58,7 @@ export function DaerahSelector({
         error={provinceError}
         disabled={disabled || provinceDisabled}
         required={required}
+        filterKodes={provinceFilterKodes}
       />
 
       {showKabupatenKota && (

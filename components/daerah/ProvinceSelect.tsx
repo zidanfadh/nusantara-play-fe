@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getAllProvinces } from '@/lib/api/daerah';
 import type { Daerah } from '@/types/daerah';
 
@@ -12,6 +12,7 @@ interface ProvinceSelectProps {
   required?: boolean;
   placeholder?: string;
   className?: string;
+  filterKodes?: string[];
 }
 
 export function ProvinceSelect({
@@ -22,10 +23,12 @@ export function ProvinceSelect({
   required = false,
   placeholder = 'Pilih Provinsi',
   className = '',
+  filterKodes,
 }: ProvinceSelectProps) {
   const [provinces, setProvinces] = useState<Daerah[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const autoSelectedRef = useRef(false);
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -46,6 +49,29 @@ export function ProvinceSelect({
 
     fetchProvinces();
   }, []);
+
+  // Filter provinces by kodes if provided
+  const displayedProvinces = filterKodes
+    ? provinces.filter((p) => filterKodes.includes(p.kode))
+    : provinces;
+
+  // Auto-select when filtered to a single province
+  useEffect(() => {
+    if (autoSelectedRef.current) return;
+    if (!filterKodes || filterKodes.length === 0) return;
+    if (isLoading || provinces.length === 0) return;
+
+    const matches = provinces.filter((p) => filterKodes.includes(p.kode));
+    if (matches.length === 1) {
+      autoSelectedRef.current = true;
+      onChange(matches[0].id, matches[0]);
+    }
+  }, [provinces, filterKodes, isLoading, onChange]);
+
+  // Reset auto-select when filterKodes changes
+  useEffect(() => {
+    autoSelectedRef.current = false;
+  }, [filterKodes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;
@@ -71,7 +97,7 @@ export function ProvinceSelect({
         <option value="">
           {isLoading ? 'Memuat...' : loadError || placeholder}
         </option>
-        {provinces.map((province) => (
+        {displayedProvinces.map((province) => (
           <option key={province.id} value={province.id}>
             {province.nama}
           </option>

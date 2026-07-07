@@ -4,18 +4,15 @@ import { DaerahSelector } from '@/components/daerah/DaerahSelector';
 import { PROTEntity, PROTJenis, TargetUsia, Peralatan } from '@/types/prot';
 import type { Daerah } from '@/types/daerah';
 import { getAllProvinces, getChildrenDaerah } from '@/lib/api/daerah';
-import type { UserProfile } from '@/types/user';
-
 interface ProtFormProps {
   initialData?: Partial<PROTEntity>;
   onSubmit: (data: Partial<PROTEntity>) => Promise<void>;
   isLoading: boolean;
   title: string;
-  user?: UserProfile | null;
-  initialProvinceId?: string;
+  provinceFilterKodes?: string[];
 }
 
-export function ProtForm({ initialData, onSubmit, isLoading, title, user, initialProvinceId }: ProtFormProps) {
+export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilterKodes }: ProtFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<Partial<PROTEntity>>({
     nama: '',
@@ -44,7 +41,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, user, initia
   const [isDraggingDokumen, setIsDraggingDokumen] = useState(false);
 
   // State for daerah - store ID for UI, kode for backend
-  const [provinsiId, setProvinsiId] = useState<string>(initialProvinceId || '');
+  const [provinsiId, setProvinsiId] = useState<string>('');
   const [kabkotaId, setKabkotaId] = useState<string>('');
 
   useEffect(() => {
@@ -410,7 +407,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, user, initia
             onProvinceChange={handleProvinceChange}
             onKabupatenKotaChange={handleKabupatenKotaChange}
             required
-            provinceDisabled={user?.role === 'pakar'}
+            provinceFilterKodes={provinceFilterKodes}
           />
 
           {/* Detail Lokasi Spesifik */}

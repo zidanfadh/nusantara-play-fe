@@ -7,7 +7,7 @@ import { ProtForm } from '@/components/prot/ProtForm';
 import { protApi } from '@/lib/api/prot';
 import { PROTEntity } from '@/types/prot';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { getDaerahById, getAllProvinces } from '@/lib/api/daerah';
+import { getDaerahById } from '@/lib/api/daerah';
 
 export default function CreateProtPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function CreateProtPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [pakarProvinceId, setPakarProvinceId] = useState<string>('');
+  const [pakarProvinceKodes, setPakarProvinceKodes] = useState<string[] | undefined>(undefined);
   const [pakarReady, setPakarReady] = useState(false);
 
   const isPakarWithoutDaerah = user?.role === 'pakar' && !user?.daerah_id;
@@ -29,15 +29,11 @@ export default function CreateProtPage() {
       return;
     }
 
-    const fetchProvince = async () => {
+    const fetchProvinceKode = async () => {
       try {
         const userDaerah = await getDaerahById(user.daerah_id!);
         if (userDaerah.provinsi) {
-          const provincesResponse = await getAllProvinces({ page: 1, limit: 50 });
-          const province = provincesResponse.data.find(p => p.kode === userDaerah.provinsi);
-          if (province) {
-            setPakarProvinceId(province.id);
-          }
+          setPakarProvinceKodes([userDaerah.provinsi]);
         }
       } catch (err) {
         console.error('Error fetching province for pakar:', err);
@@ -46,7 +42,7 @@ export default function CreateProtPage() {
       }
     };
 
-    fetchProvince();
+    fetchProvinceKode();
   }, [user, isPakarWithoutDaerah]);
 
   const handleSubmit = async (data: Partial<PROTEntity> & {
@@ -65,16 +61,13 @@ export default function CreateProtPage() {
     const uploadErrors: string[] = [];
 
     try {
-      // Extract files and existing media from data (not needed for create)
       const { fotoFiles, videoFiles, dokumenFiles, peralatanFotoFiles, existingFotos, existingVideos, existingDokumen, ...protData } = data;
 
-      // Create PROT first
       const response = await protApi.create(protData);
 
       if (response && response.id) {
         createdProtId = response.id;
 
-        // Upload photos if any (batch upload) - don't block if upload fails
         if (fotoFiles && fotoFiles.length > 0) {
           try {
             const formData = new FormData();
@@ -85,7 +78,6 @@ export default function CreateProtPage() {
           }
         }
 
-        // Upload videos if any (batch upload) - don't block if upload fails
         if (videoFiles && videoFiles.length > 0) {
           try {
             const formData = new FormData();
@@ -96,7 +88,6 @@ export default function CreateProtPage() {
           }
         }
 
-        // Upload dokumen kurikulum if any
         if (dokumenFiles && dokumenFiles.length > 0) {
           try {
             const formData = new FormData();
@@ -107,7 +98,6 @@ export default function CreateProtPage() {
           }
         }
 
-        // Upload foto alat per peralatan index
         if (peralatanFotoFiles) {
           for (const [indexStr, files] of Object.entries(peralatanFotoFiles)) {
             if (files && files.length > 0) {
@@ -123,7 +113,6 @@ export default function CreateProtPage() {
           }
         }
 
-        // Redirect even if upload fails - PROT data is saved
         router.push(`/prot/${response.id}`);
       } else {
         router.push('/prot');
@@ -131,7 +120,6 @@ export default function CreateProtPage() {
     } catch (err: any) {
       console.error('Failed to create PROT:', err);
 
-      // If PROT was created but uploads failed, show different message
       if (createdProtId) {
         setError(`Data PROT berhasil disimpan, namun ada masalah saat upload media: ${uploadErrors.join(', ')}. Anda dapat menambahkan foto/video/dokumen nanti melalui halaman edit.`);
         setTimeout(() => router.push(`/prot/${createdProtId}`), 3000);
@@ -191,8 +179,7 @@ export default function CreateProtPage() {
               title="Form Data Baru"
               onSubmit={handleSubmit}
               isLoading={isLoading}
-              user={user}
-              initialProvinceId={pakarProvinceId}
+              provinceFilterKodes={pakarProvinceKodes}
           />
         )}
       </div>
