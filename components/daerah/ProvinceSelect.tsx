@@ -29,6 +29,8 @@ export function ProvinceSelect({
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const autoSelectedRef = useRef(false);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -36,7 +38,6 @@ export function ProvinceSelect({
       setLoadError(null);
 
       try {
-        // Load all provinces with high limit to avoid pagination
         const response = await getAllProvinces({ page: 1, limit: 50 });
         setProvinces(response.data);
       } catch (err) {
@@ -50,12 +51,11 @@ export function ProvinceSelect({
     fetchProvinces();
   }, []);
 
-  // Filter provinces by kodes if provided
   const displayedProvinces = filterKodes
     ? provinces.filter((p) => filterKodes.includes(p.kode))
     : provinces;
 
-  // Auto-select when filtered to a single province
+  // Auto-select when filtered to a single province (one-shot)
   useEffect(() => {
     if (autoSelectedRef.current) return;
     if (!filterKodes || filterKodes.length === 0) return;
@@ -64,14 +64,9 @@ export function ProvinceSelect({
     const matches = provinces.filter((p) => filterKodes.includes(p.kode));
     if (matches.length === 1) {
       autoSelectedRef.current = true;
-      onChange(matches[0].id, matches[0]);
+      onChangeRef.current(matches[0].id, matches[0]);
     }
-  }, [provinces, filterKodes, isLoading, onChange]);
-
-  // Reset auto-select when filterKodes changes
-  useEffect(() => {
-    autoSelectedRef.current = false;
-  }, [filterKodes]);
+  }, [provinces, filterKodes, isLoading]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = e.target.value;

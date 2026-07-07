@@ -16,34 +16,22 @@ export default function CreateProtPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [pakarProvinceKodes, setPakarProvinceKodes] = useState<string[] | undefined>(undefined);
-  const [pakarReady, setPakarReady] = useState(false);
 
   const isPakarWithoutDaerah = user?.role === 'pakar' && !user?.daerah_id;
-  const needsPakarProvince = user?.role === 'pakar' && !isPakarWithoutDaerah;
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || user.role !== 'pakar' || !user.daerah_id) return;
 
-    if (user.role !== 'pakar' || isPakarWithoutDaerah) {
-      setPakarReady(true);
-      return;
-    }
-
-    const fetchProvinceKode = async () => {
-      try {
-        const userDaerah = await getDaerahById(user.daerah_id!);
+    getDaerahById(user.daerah_id)
+      .then((userDaerah) => {
         if (userDaerah.provinsi) {
           setPakarProvinceKodes([userDaerah.provinsi]);
         }
-      } catch (err) {
+      })
+      .catch((err) => {
         console.error('Error fetching province for pakar:', err);
-      } finally {
-        setPakarReady(true);
-      }
-    };
-
-    fetchProvinceKode();
-  }, [user, isPakarWithoutDaerah]);
+      });
+  }, [user]);
 
   const handleSubmit = async (data: Partial<PROTEntity> & {
     fotoFiles?: File[];
@@ -131,8 +119,6 @@ export default function CreateProtPage() {
     }
   };
 
-  const showLoading = userLoading || (needsPakarProvince && !pakarReady);
-
   return (
     <>
       {/* Breadcrumb */}
@@ -156,7 +142,7 @@ export default function CreateProtPage() {
             </div>
         )}
 
-        {showLoading ? (
+        {userLoading ? (
           <div className="text-center py-12">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" />
             <p className="mt-4 text-warm-label">Memuat...</p>
