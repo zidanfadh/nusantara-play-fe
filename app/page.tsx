@@ -152,9 +152,9 @@ export default async function Home() {
                 <span className="text-primary">Virtual</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
-                Menjaga Warisan, Memainkan Masa Depan. Platform berbasis
-                blockchain untuk mendokumentasikan, mensertifikasi, dan
-                merayakan kekayaan permainan tradisional Indonesia.
+                Menjaga warisan, memainkan masa depan. Platform budaya digital
+                untuk mendokumentasikan, memverifikasi, dan menghidupkan kembali
+                permainan tradisional Indonesia bersama komunitas.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
@@ -238,7 +238,9 @@ export default async function Home() {
                   Nusantara <br className="hidden md:block" /> Virtual Tour
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
-                  Jelajahi warisan budaya dalam tampilan 3D interaktif. Lihat setiap detail permainan tradisional langsung dari layar Anda.
+                  Jelajahi warisan budaya dalam pengalaman 3D interaktif dan
+                  lihat detail permainan tradisional dari sudut pandang yang
+                  lebih hidup, dekat, dan imersif.
                 </p>
                 <a 
                   href="https://multimedia-demo.wellmagicteam.com/nusalega/" 
@@ -302,19 +304,19 @@ export default async function Home() {
               {[
                 {
                   title: 'Arsip Terverifikasi',
-                  desc: 'Pendataan komprehensif aturan, sejarah, dan filosofi permainan dari berbagai pelosok Nusantara.',
+                  desc: 'Dokumentasi yang merangkum aturan main, sejarah, konteks daerah, dan nilai budaya dari berbagai penjuru Nusantara.',
                   img: '/images/landing/arsip.webp',
                   imgAlt: 'Old manuscript of traditional Indonesian rules',
                 },
                 {
                   title: 'Komunitas & Event',
-                  desc: 'Temukan kawan bermain dan ikut serta dalam festival permainan tradisional di kotamu.',
+                  desc: 'Temukan sesama pegiat budaya, ikuti agenda komunitas, dan hadir dalam ruang perjumpaan yang menghidupkan tradisi.',
                   img: '/images/landing/komunitas.webp',
                   imgAlt: 'Indonesian youth gathering at a cultural event',
                 },
                 {
                   title: 'Sertifikasi Budaya',
-                  desc: 'Setiap kontribusi data dan partisipasi event mendapatkan sertifikasi digital yang diakui.',
+                  desc: 'Kontribusi data dan partisipasi kegiatan dapat terhubung dengan sertifikasi digital sebagai bentuk apresiasi yang terdokumentasi.',
                   img: '/images/landing/sertifikasi.webp',
                   imgAlt: 'Traditional batik patterns and stamps',
                 },
@@ -357,9 +359,10 @@ export default async function Home() {
                 </h2>
 
                 <p className="text-xl text-[#FDF9F3]/70 mb-12 leading-relaxed">
-                  Kami menggunakan teknologi Polygon untuk memastikan setiap data
-                  kebudayaan bersifat kekal, transparan, dan tidak dapat
-                  dimanipulasi oleh siapapun.
+                  Kami memanfaatkan teknologi Polygon untuk membantu menjaga
+                  integritas arsip budaya agar lebih transparan, mudah
+                  diverifikasi, dan lebih tahan terhadap perubahan yang tidak
+                  bertanggung jawab.
                 </p>
 
                 <div className="grid grid-cols-2 gap-6">
@@ -480,8 +483,8 @@ export default async function Home() {
                   Permainan Unggulan
                 </h2>
                 <p className="text-muted-foreground">
-                  Arsip terpopuler minggu ini yang paling banyak dikontribusi
-                  oleh komunitas.
+                  Pilihan arsip yang paling menarik untuk mulai mengenal ragam
+                  permainan rakyat dan olahraga tradisional dari berbagai daerah.
                 </p>
               </div>
               <Link
@@ -543,6 +546,73 @@ export default async function Home() {
           </div>
         </section>
 
+        {/* FAQ Section */}
+        <section className="py-24 md:py-32 px-6 bg-muted/20">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-14">
+              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-5">
+                Hal yang Perlu Diketahui
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl mx-auto">
+                Beberapa hal yang biasanya ingin diketahui sebelum mulai
+                menjelajahi arsip permainan tradisional, mengikuti event, atau
+                berkontribusi ke ekosistem Nusantara Virtual.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  question: 'Apa itu Nusantara Virtual?',
+                  answer:
+                    'Nusantara Virtual adalah platform digital untuk mendokumentasikan, menampilkan, dan merayakan permainan tradisional Indonesia. Di dalamnya, pengguna dapat menjelajahi arsip budaya, mempelajari nilai dan aturan permainan, serta ikut terlibat dalam komunitas yang aktif menjaga warisan budaya.',
+                },
+                {
+                  question: 'Apa itu PROT di platform ini?',
+                  answer:
+                    'PROT adalah arsip Permainan Rakyat dan Olahraga Tradisional yang menjadi inti koleksi platform. Setiap entri memuat informasi seperti asal daerah, cara bermain, nilai moral, dokumentasi visual, dan jejak verifikasi agar pengetahuan budaya tersimpan lebih rapi dan mudah diakses.',
+                },
+                {
+                  question: 'Apakah saya harus punya akun untuk melihat isi platform?',
+                  answer:
+                    'Sebagian informasi publik dapat dijelajahi secara terbuka, tetapi membuat akun akan membuka pengalaman yang lebih lengkap, seperti mengakses menu utama, mengikuti aktivitas komunitas, dan menggunakan fitur yang mendukung kontribusi serta partisipasi lebih lanjut.',
+                },
+                {
+                  question: 'Bagaimana cara berkontribusi melestarikan budaya di sini?',
+                  answer:
+                    'Kamu bisa mulai dengan membuat akun, lalu menjelajahi koleksi PROT untuk memahami format dokumentasi yang digunakan. Setelah itu, kamu dapat ikut event, membagikan pengetahuan tentang permainan dari daerahmu, dan menjadi bagian dari ekosistem yang membantu menjaga budaya tetap hidup di era digital.',
+                },
+                {
+                  question: 'Kenapa platform ini menyinggung blockchain?',
+                  answer:
+                    'Blockchain digunakan untuk mendukung integritas data budaya. Dengan pendekatan ini, jejak verifikasi dan bukti pencatatan bisa dibuat lebih transparan, lebih sulit dimanipulasi, dan lebih meyakinkan bagi publik yang ingin memastikan keaslian arsip.',
+                },
+                {
+                  question: 'Apakah kontribusi atau partisipasi saya bisa mendapatkan sertifikasi?',
+                  answer:
+                    'Ya, platform ini dirancang agar kontribusi data dan partisipasi tertentu dapat terhubung dengan sertifikasi digital. Tujuannya bukan hanya memberi apresiasi, tetapi juga membangun rekam jejak keterlibatan budaya yang dapat dilihat dan dibanggakan.',
+                },
+              ].map((item) => (
+                <details
+                  key={item.question}
+                  className="group rounded-2xl border border-border/60 bg-card px-6 py-5 shadow-sm transition-all open:border-primary/30 open:shadow-md"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-left text-lg font-bold text-foreground marker:content-none">
+                    <span>{item.question}</span>
+                    <span className="relative h-6 w-6 shrink-0 rounded-full border border-border/70 bg-muted/70">
+                      <span className="absolute left-1/2 top-1/2 h-0.5 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/80" />
+                      <span className="absolute left-1/2 top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground/80 transition-transform duration-200 group-open:scale-y-0" />
+                    </span>
+                  </summary>
+                  <p className="mt-4 pr-10 text-muted-foreground leading-relaxed">
+                    {item.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA Banner */}
         <section id="community" className="py-24 px-6 overflow-hidden">
           <div className="max-w-7xl mx-auto">
@@ -582,9 +652,10 @@ export default async function Home() {
                 Siap Menjadi Bagian dari Penjaga Warisan Bangsa?
               </h2>
               <p className="text-xl text-primary-foreground/70 mb-12 max-w-2xl relative z-10 leading-relaxed">
-                Daftar sekarang dan mulailah perjalananmu melintasi waktu
-                melalui ribuan permainan tradisional Indonesia yang menanti
-                untuk ditemukan kembali.
+                Bergabunglah untuk menjelajahi arsip budaya, mendukung
+                dokumentasi permainan tradisional, dan ikut membangun ruang
+                digital yang membuat warisan Nusantara tetap relevan bagi
+                generasi berikutnya.
               </p>
               <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                 <Link
@@ -597,7 +668,7 @@ export default async function Home() {
                   href="/prot"
                   className="px-12 py-5 border-2 border-primary-foreground/40 text-primary-foreground rounded-xl font-bold text-xl hover:bg-primary-foreground/10 transition-all duration-300"
                 >
-                  Pelajari Dokumentasi
+                  Jelajahi Arsip PROT
                 </Link>
               </div>
             </div>
