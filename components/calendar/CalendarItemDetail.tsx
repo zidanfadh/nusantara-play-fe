@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useCalendarItem } from '@/hooks/useCalendarItem';
 import { useItemInvites } from '@/hooks/useCalendarInvites';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { inviteUsers } from '@/lib/api/calendar';
 import { CalendarInviteStatus } from '@/types/calendar';
 
@@ -19,9 +20,9 @@ export function CalendarItemDetail({
   onEdit,
   onDelete,
 }: CalendarItemDetailProps) {
+  const { user } = useCurrentUser();
   const { data: item, isLoading, error, refetch } = useCalendarItem(itemId);
   const {
-    invites,
     refetch: refetchInvites,
   } = useItemInvites(itemId);
 
@@ -34,8 +35,10 @@ export function CalendarItemDetail({
 
   useEffect(() => {
     refetch();
-    refetchInvites();
-  }, [itemId]);
+    if (user) {
+      refetchInvites();
+    }
+  }, [itemId, user, refetch, refetchInvites]);
 
   const addEmail = () => {
     const trimmed = emailInput.trim();
@@ -240,7 +243,7 @@ export function CalendarItemDetail({
           )}
 
           {/* Invites */}
-          {item.invites && item.invites.length > 0 && (
+          {user && item.invites && item.invites.length > 0 && (
             <div>
               <h3 className="font-semibold mb-2">Undangan</h3>
               <div className="space-y-2">
@@ -284,7 +287,7 @@ export function CalendarItemDetail({
         </div>
 
         {/* Inline Invite Form */}
-        {item.visibility !== 'public' && (
+        {user && item.visibility !== 'public' && (
           <div className="border-t border-border px-6 pt-5 pb-2">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Undang via Email</h3>
