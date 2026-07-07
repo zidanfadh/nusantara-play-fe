@@ -4,6 +4,8 @@ import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { HeroCarousel } from '@/components/ui/HeroCarousel';
 import { getBackendApiUrl } from '@/lib/api/base-url';
 import type { PaginatedResponse, PROTEntity } from '@/types/prot';
+import { getLandingStats } from '@/lib/api/stats';
+import type { LandingStats } from '@/lib/api/stats';
 import {
   LockKeyhole,
   ShieldCheck,
@@ -74,6 +76,7 @@ export default async function Home() {
     },
   ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
   const featuredGames = await getFeaturedGames(session?.access_token);
+  const stats = await getLandingStats(session?.access_token);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
@@ -264,10 +267,10 @@ export default async function Home() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
               {[
-                { value: '500+', label: 'Permainan' },
-                { value: '34', label: 'Provinsi' },
-                { value: '120+', label: 'Komunitas' },
-                { value: '5.000+', label: 'Anggota' },
+                { value: stats.totalProt.toLocaleString('id-ID'), label: 'Permainan' },
+                { value: stats.totalProvinsi.toString(), label: 'Provinsi' },
+                { value: stats.totalEvents.toLocaleString('id-ID'), label: 'Events' },
+                { value: stats.totalUsers.toLocaleString('id-ID'), label: 'Anggota' },
               ].map((stat, i) => (
                 <div
                   key={stat.label}
