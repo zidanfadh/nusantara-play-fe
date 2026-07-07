@@ -115,7 +115,7 @@ export default async function MenuPage() {
 
         {/* Marketplace */}
         <Link
-          href="/marketplace"
+          href="/login?redirectTo=/marketplace"
           className="md:col-span-4 group relative overflow-hidden rounded-xl bg-muted min-h-[320px] flex flex-col justify-end p-8 hover:shadow-lg transition-all"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -142,7 +142,7 @@ export default async function MenuPage() {
 
         {/* Sertifikat Prestasi */}
         <Link
-          href="/sertifikat"
+          href="/login?redirectTo=/sertifikat"
           className="md:col-span-4 group bg-muted/50 border-b-4 border-primary rounded-xl p-8 flex flex-col justify-between hover:bg-muted transition-all duration-300"
         >
           <div>

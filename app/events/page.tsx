@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useEvents } from '@/hooks/useEvents';
 import { EventCard } from '@/components/events/EventCard';
 import { EventFilter } from '@/components/events/EventFilter';
-import { EventJenis, EventStatus } from '@/types/events';
+import { EventJenis, EventListParams, EventStatus } from '@/types/events';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -25,8 +25,10 @@ export default function EventsPage() {
     limit: 12,
   });
 
-  const handleFilterChange = (newFilters: any) => {
-    setFilters((prev) => ({ ...newFilters, page: 1 }));
+  const handleFilterChange = (
+    newFilters: Pick<EventListParams, 'search' | 'jenis' | 'status' | 'daerah_id'>
+  ) => {
+    setFilters({ ...newFilters, page: 1 });
   };
 
   const handlePageChange = (newPage: number) => {

@@ -5,8 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEvent } from '@/hooks/useEvents';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { EventStatusBadge } from '@/components/events/EventStatusBadge';
-import { EVENT_JENIS_LABELS, EventStatus } from '@/types/events';
+import { EVENT_JENIS_LABELS, EventRegistration, EventStatus } from '@/types/events';
 import {
   CalendarIcon,
   MapPinIcon,
@@ -25,7 +24,6 @@ import {
   cancelEvent,
   deleteEvent,
   registerForEvent,
-  cancelRegistration,
 } from '@/lib/api/events';
 
 export default function EventDetailPage() {
@@ -36,7 +34,23 @@ export default function EventDetailPage() {
   const { data: event, loading, error } = useEvent(eventId);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [userRegistration, setUserRegistration] = useState<any>(null);
+  const [userRegistration, setUserRegistration] = useState<EventRegistration | null>(null);
+
+  const getErrorMessage = (err: unknown, fallback: string) => {
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'response' in err &&
+      typeof (err as { response?: unknown }).response === 'object' &&
+      (err as { response?: { data?: unknown } }).response !== null &&
+      'data' in ((err as { response?: { data?: unknown } }).response ?? {}) &&
+      typeof ((err as { response?: { data?: { message?: unknown } } }).response?.data?.message) === 'string'
+    ) {
+      return (err as { response?: { data?: { message?: string } } }).response?.data?.message ?? fallback;
+    }
+
+    return err instanceof Error ? err.message : fallback;
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -51,8 +65,6 @@ export default function EventDetailPage() {
 
   const isOwner = user && event && user.id === event.created_by;
   const isFullyBooked = event && event.kuota_peserta && event.jumlah_peserta >= event.kuota_peserta;
-  const canRegister = user && event && event.status === EventStatus.PUBLISHED && !isFullyBooked;
-
   const handlePublish = async () => {
     if (!confirm('Apakah Anda yakin ingin mempublikasikan event ini?')) return;
     try {
@@ -60,8 +72,8 @@ export default function EventDetailPage() {
       setActionError(null);
       await publishEvent(eventId);
       window.location.reload();
-    } catch (err: any) {
-      setActionError(err.response?.data?.message || 'Gagal mempublikasikan event');
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err, 'Gagal mempublikasikan event'));
     } finally {
       setActionLoading(false);
     }
@@ -74,8 +86,8 @@ export default function EventDetailPage() {
       setActionError(null);
       await cancelEvent(eventId);
       window.location.reload();
-    } catch (err: any) {
-      setActionError(err.response?.data?.message || 'Gagal membatalkan event');
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err, 'Gagal membatalkan event'));
     } finally {
       setActionLoading(false);
     }
@@ -88,8 +100,8 @@ export default function EventDetailPage() {
       setActionError(null);
       await deleteEvent(eventId);
       router.push('/events/my-events');
-    } catch (err: any) {
-      setActionError(err.response?.data?.message || 'Gagal menghapus event');
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err, 'Gagal menghapus event'));
     } finally {
       setActionLoading(false);
     }
@@ -103,23 +115,8 @@ export default function EventDetailPage() {
       const registration = await registerForEvent(eventId);
       setUserRegistration(registration);
       window.location.reload();
-    } catch (err: any) {
-      setActionError(err.response?.data?.message || 'Gagal mendaftar event');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleCancelRegistration = async () => {
-    if (!confirm('Apakah Anda yakin ingin membatalkan pendaftaran?')) return;
-    try {
-      setActionLoading(true);
-      setActionError(null);
-      await cancelRegistration(eventId);
-      setUserRegistration(null);
-      window.location.reload();
-    } catch (err: any) {
-      setActionError(err.response?.data?.message || 'Gagal membatalkan pendaftaran');
+    } catch (err: unknown) {
+      setActionError(getErrorMessage(err, 'Gagal mendaftar event'));
     } finally {
       setActionLoading(false);
     }
@@ -175,6 +172,7 @@ export default function EventDetailPage() {
         <div className="px-6">
           <div className="relative w-full h-[450px] rounded-3xl overflow-hidden shadow-2xl">
             {event.banner_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={event.banner_url}
                 alt={event.nama}
@@ -338,7 +336,14 @@ export default function EventDetailPage() {
 
                 {/* User Registration Button */}
                 {!isOwner && event.status === EventStatus.PUBLISHED && (
-                  event.is_registered || userRegistration ? (
+                  !user ? (
+                    <Link
+                      href={`/login?redirectTo=/events/${eventId}`}
+                      className="block w-full py-4 bg-[#9e3c24] dark:bg-[#D65C2E] text-white rounded-xl font-black text-lg text-center shadow-lg shadow-[#9e3c24]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    >
+                      MASUK UNTUK DAFTAR
+                    </Link>
+                  ) : event.is_registered || userRegistration ? (
                     <button
                       disabled
                       className="w-full py-4 bg-green-600 text-white rounded-xl font-black text-lg shadow-lg opacity-80 cursor-not-allowed flex items-center justify-center gap-2 disabled:opacity-80 transition-all"
