@@ -26,7 +26,7 @@ export default function EventsPage() {
   });
 
   const handleFilterChange = (
-    newFilters: Pick<EventListParams, 'search' | 'jenis' | 'status' | 'daerah_id'>
+    newFilters: Pick<typeof filters, 'search' | 'jenis' | 'status'> & { daerah_id?: string }
   ) => {
     setFilters({ ...newFilters, page: 1 });
   };

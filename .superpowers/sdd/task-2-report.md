@@ -8,7 +8,7 @@ Completed.
 
 1. `middleware.ts`
    - Replaced the buggy `pathname.startsWith('/')`-style public-route matching with explicit exact routes plus regex-based public detail routes.
-   - Added guarded event and prot detail matching so guest access covers public detail pages but does not open private paths such as `/events/create`, `/events/my-events`, `/events/my-registrations`, `/prot/create`, or `/prot/verifikasi/...`.
+   - Added guarded event detail matching so guest access covers public event detail pages but does not open private paths such as `/events/create`, `/events/my-events`, or `/events/my-registrations`. `/prot/:id` remains protected until the PROT detail UI hardening task.
 
 2. `hooks/useCurrentUser.ts`
    - Added Supabase client session lookup before calling `getCurrentUser()`.
@@ -46,3 +46,4 @@ Removed the temporary public matcher for `/prot/:id` from `middleware.ts` so `/p
 ```bash
 pnpm exec eslint middleware.ts hooks/useCurrentUser.ts components/ui/UserNav.tsx
 ```
+
