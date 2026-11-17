@@ -13,14 +13,15 @@ and a NestJS backend (http://localhost:3000/api in development) for all data.
 ## Commands
 
 ```bash
-pnpm dev          # Start dev server (http://localhost:3001)
+pnpm dev          # Start dev server on port 3001 (next dev -p 3001; the backend uses 3000)
 pnpm build        # Production build (needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, otherwise prerendering fails)
 pnpm lint         # ESLint (no auto-fix)
+pnpm test         # Vitest (vitest run); tests live in tests/**/*.test.ts, `@/` alias works like tsconfig
 ```
 
-There is no test runner yet: `tests/api/base-url.test.ts` exists but there is no `test` script
-(Vitest is added in Phase 02). On this machine always add the D: store/cache flags to pnpm
-(see "Local machine" below).
+On this machine always add the D: store/cache flags to pnpm install/add (see "Local machine" below).
+Build scripts of sharp and unrs-resolver are allowed in `pnpm-workspace.yaml` (see Decisions log),
+so `pnpm install --frozen-lockfile` exits 0. Keep `pnpm-lock.yaml` at `lockfileVersion: '9.0'`.
 
 ## Git Workflow
 
@@ -77,7 +78,7 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 
 ## Env Vars
 
-There is no `.env.example` in this repo.
+See `.env.example` (copy to `.env.local`). `.env*` files are git-ignored except `.env.example`.
 
 ```
 NEXT_PUBLIC_BACKEND_API_URL    # Backend base URL incl. /api. Required in development (http://localhost:3000/api); in production used server-side and as fallback (browser derives api.<hostname>).
@@ -114,13 +115,23 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 - Never log secrets, tokens, or passwords.
 - If a requirement is ambiguous or conflicts with existing code, stop and ask instead of guessing.
 
+## Lint baseline (after Phase 02)
+
+Phases must not add lint errors in the files they touch. Counts below are the whole-repo baseline.
+
+- Backend `npm run lint`: 406 errors, 30 warnings; `prettier/prettier` 0. Per rule: no-unsafe-member-access 174, no-unsafe-call 88, no-unsafe-assignment 84, no-unused-vars 29, no-unsafe-argument 27 (warn), unbound-method 13, no-unsafe-return 10, require-await 4, no-floating-promises 3 (warn), no-unsafe-enum-comparison 2, no-unnecessary-type-assertion 2 (all `@typescript-eslint/`).
+- Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
+
 ## Decisions log
 
-- 2026-11-17: Frontend tests will use Vitest (added in Phase 02).
-- 2026-11-17: pnpm: allow the sharp and unrs-resolver build scripts and pin the pnpm version with the packageManager field (Phase 02).
-- 2026-11-17: .superpowers/ and .claude/settings.local.json will be removed from git and ignored (Phase 02).
-- 2026-11-17: Prettier formatting will be applied once to the whole codebase in Phase 02; after that, phases must not add new lint errors.
 - 2026-11-17: Blockchain work is deprioritized.
+- 2026-11-17: Line endings are LF in both repos, enforced by `.gitattributes` (`* text=auto eol=lf`, common binary types marked `binary`). The working tree is LF even with a global `core.autocrlf=true` (Phase 02).
+- 2026-11-17: Prettier was applied once to the backend (`src/`, `test/`) in Phase 02. Backend `npm run lint` is read-only; `npm run lint:fix` fixes. The frontend has no Prettier setup.
+- 2026-11-17: The app and the migration CLI build their DB connection from one function, `src/config/data-source-options.ts` (DATABASE_* names, `.env.local` then `.env`). Deprecated `DB_*` names are a CLI-only fallback with a warning, so the app's behavior did not change (Phase 02, finding B9).
+- 2026-11-17: pnpm build scripts (frontend): `pnpm-workspace.yaml` allows sharp and unrs-resolver with both `allowBuilds` (pnpm >= 10.26, 11, 12) and `onlyBuiltDependencies` (pnpm 10.x), plus `packages: ['.']` so pnpm 9 accepts the file. Verified `pnpm install --frozen-lockfile` with pnpm 9.15.9, 10.25.0, 10.34.9 and 12.14.0. Lockfile stays `lockfileVersion: '9.0'` (Vercel uses pnpm 9 or 10 for it). No `packageManager` field for now (Phase 02).
+- 2026-11-17: Frontend tests use Vitest 5 (`pnpm test` = `vitest run`, config `vitest.config.ts` with the `@/` alias, tests in `tests/**/*.test.ts`) (Phase 02).
+- 2026-11-17: .superpowers/ and .claude/settings.local.json are no longer tracked and are git-ignored in both repos (Phase 02).
+- 2026-11-17: Frontend dev server runs on port 3001 (`next dev -p 3001`), matching the backend's default CORS origin; the backend uses 3000 (Phase 02).
 
 ## Phase workflow
 
