@@ -1,6 +1,5 @@
-import assert from 'node:assert/strict';
-import { describe, it } from 'node:test';
-import { resolveBackendApiUrl } from '../../lib/api/base-url';
+import { describe, expect, it } from 'vitest';
+import { resolveBackendApiUrl } from '@/lib/api/base-url';
 
 describe('resolveBackendApiUrl', () => {
   it('uses NEXT_PUBLIC_BACKEND_API_URL in development', () => {
@@ -10,7 +9,7 @@ describe('resolveBackendApiUrl', () => {
       hostname: 'nusantaralegacy.org',
     });
 
-    assert.equal(result, 'http://localhost:3000/api');
+    expect(result).toBe('http://localhost:3000/api');
   });
 
   it('resolves nusantaralegacy.org to its production API host', () => {
@@ -20,7 +19,7 @@ describe('resolveBackendApiUrl', () => {
       hostname: 'nusantaralegacy.org',
     });
 
-    assert.equal(result, 'https://api.nusantaralegacy.org/api');
+    expect(result).toBe('https://api.nusantaralegacy.org/api');
   });
 
   it('resolves nusantaravirtual.org to its production API host', () => {
@@ -30,7 +29,7 @@ describe('resolveBackendApiUrl', () => {
       hostname: 'nusantaravirtual.org',
     });
 
-    assert.equal(result, 'https://api.nusantaravirtual.org/api');
+    expect(result).toBe('https://api.nusantaravirtual.org/api');
   });
 
   it('normalizes www hostnames before resolving production API host', () => {
@@ -40,7 +39,7 @@ describe('resolveBackendApiUrl', () => {
       hostname: 'www.nusantaravirtual.org',
     });
 
-    assert.equal(result, 'https://api.nusantaravirtual.org/api');
+    expect(result).toBe('https://api.nusantaravirtual.org/api');
   });
 
   it('falls back to NEXT_PUBLIC_BACKEND_API_URL when hostname is unavailable', () => {
@@ -49,7 +48,7 @@ describe('resolveBackendApiUrl', () => {
       envBackendApiUrl: 'https://fallback.example.com/api',
     });
 
-    assert.equal(result, 'https://fallback.example.com/api');
+    expect(result).toBe('https://fallback.example.com/api');
   });
 
   it('treats missing NODE_ENV as production', () => {
@@ -58,6 +57,6 @@ describe('resolveBackendApiUrl', () => {
       hostname: 'nusantaralegacy.org',
     });
 
-    assert.equal(result, 'https://api.nusantaralegacy.org/api');
+    expect(result).toBe('https://api.nusantaralegacy.org/api');
   });
 });

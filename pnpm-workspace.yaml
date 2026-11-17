@@ -1,3 +1,15 @@
-ignoredBuiltDependencies:
+# Single-package repo. pnpm 9 rejects a pnpm-workspace.yaml without "packages".
+packages:
+  - .
+
+# Dependencies that may run install (build) scripts.
+# Both keys list the same packages, so every pnpm major reads one of them:
+# - allowBuilds: pnpm >= 10.26, 11, 12 (onlyBuiltDependencies was removed in 11).
+# - onlyBuiltDependencies: pnpm 10.0 to 10.25 (and still read by later 10.x).
+# pnpm 9 runs dependency build scripts by default and needs neither.
+allowBuilds:
+  sharp: true
+  unrs-resolver: true
+onlyBuiltDependencies:
   - sharp
   - unrs-resolver

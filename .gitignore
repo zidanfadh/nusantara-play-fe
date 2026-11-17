@@ -33,8 +33,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (.env, .env.local, .env.*.local, ...); .env.example is committed
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +43,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local tool state (per machine)
+/.superpowers/
+.claude/settings.local.json
