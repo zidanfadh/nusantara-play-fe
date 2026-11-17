@@ -6,7 +6,6 @@ const publicExactRoutes = [
   '/login',
   '/signup',
   '/auth/callback',
-  '/about',
   '/unauthorized',
   '/menu',
   '/events',
@@ -21,7 +20,7 @@ const publicPrefixes = [
   /^\/nfts\/[^/]+$/,
 ];
 
-function isPublicPath(pathname: string) {
+export function isPublicPath(pathname: string) {
   return (
     publicExactRoutes.includes(pathname) ||
     publicPrefixes.some((pattern) => pattern.test(pathname))

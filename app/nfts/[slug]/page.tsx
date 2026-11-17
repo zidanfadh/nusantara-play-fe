@@ -127,7 +127,7 @@ export default function NftDetailPage({ params }: { params: Promise<{ slug: stri
               </div>
               <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
                 {nft.about ? (
-                  <div dangerouslySetInnerHTML={{ __html: nft.about.replace(/\n/g, '<br/>') }} />
+                  <div className="whitespace-pre-line">{nft.about}</div>
                 ) : (
                   <p className="italic opacity-70">Belum ada penjelasan detail untuk koleksi ini.</p>
                 )}
