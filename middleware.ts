@@ -54,6 +54,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // backend-api: browser API calls proxied to the NestJS backend by the rewrite in
+    // next.config.ts. They must never run updateSession (a Supabase call) or redirect to /login.
+    '/((?!_next/static|_next/image|backend-api(?:/|$)|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

@@ -1,62 +1,102 @@
-import { describe, expect, it } from 'vitest';
-import { resolveBackendApiUrl } from '@/lib/api/base-url';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { getBackendApiUrl, resolveBackendApiUrl } from '@/lib/api/base-url';
+
+const ENV_URL = 'https://api.nusantaralegacy.org/api';
 
 describe('resolveBackendApiUrl', () => {
-  it('uses NEXT_PUBLIC_BACKEND_API_URL in development', () => {
+  it('uses NEXT_PUBLIC_BACKEND_API_URL in development, also in the browser', () => {
     const result = resolveBackendApiUrl({
       nodeEnv: 'development',
       envBackendApiUrl: 'http://localhost:3000/api',
-      hostname: 'nusantaralegacy.org',
+      browserOrigin: 'http://localhost:3001',
     });
 
     expect(result).toBe('http://localhost:3000/api');
   });
 
-  it('resolves nusantaralegacy.org to its production API host', () => {
-    const result = resolveBackendApiUrl({
-      nodeEnv: 'production',
-      envBackendApiUrl: 'http://localhost:3000/api',
-      hostname: 'nusantaralegacy.org',
-    });
-
-    expect(result).toBe('https://api.nusantaralegacy.org/api');
+  it('throws in development when NEXT_PUBLIC_BACKEND_API_URL is missing', () => {
+    expect(() => resolveBackendApiUrl({ nodeEnv: 'development' })).toThrow(
+      /NEXT_PUBLIC_BACKEND_API_URL is required in development/,
+    );
   });
 
-  it('resolves nusantaravirtual.org to its production API host', () => {
+  it.each([
+    'https://nusantaralegacy.org',
+    'https://www.nusantaralegacy.org',
+    'https://nusantaravirtual.org',
+    'https://nusantara-play-fe-git-phase-03-api-proxy-team.vercel.app',
+  ])('uses the same-origin proxy path in the production browser on %s', (origin) => {
     const result = resolveBackendApiUrl({
       nodeEnv: 'production',
-      envBackendApiUrl: 'http://localhost:3000/api',
-      hostname: 'nusantaravirtual.org',
+      envBackendApiUrl: ENV_URL,
+      browserOrigin: origin,
     });
 
-    expect(result).toBe('https://api.nusantaravirtual.org/api');
+    expect(result).toBe(`${origin}/backend-api`);
   });
 
-  it('normalizes www hostnames before resolving production API host', () => {
+  it('never derives an api.<hostname> URL in the browser', () => {
     const result = resolveBackendApiUrl({
       nodeEnv: 'production',
-      envBackendApiUrl: 'http://localhost:3000/api',
-      hostname: 'www.nusantaravirtual.org',
+      envBackendApiUrl: ENV_URL,
+      browserOrigin: 'https://nusantaravirtual.org',
     });
 
-    expect(result).toBe('https://api.nusantaravirtual.org/api');
+    expect(result).not.toContain('api.nusantaravirtual.org');
   });
 
-  it('falls back to NEXT_PUBLIC_BACKEND_API_URL when hostname is unavailable', () => {
+  it('uses NEXT_PUBLIC_BACKEND_API_URL on the server (no browser origin)', () => {
     const result = resolveBackendApiUrl({
       nodeEnv: 'production',
-      envBackendApiUrl: 'https://fallback.example.com/api',
+      envBackendApiUrl: `${ENV_URL}/`,
     });
 
-    expect(result).toBe('https://fallback.example.com/api');
+    expect(result).toBe(ENV_URL);
+  });
+
+  it('throws on the server in production when NEXT_PUBLIC_BACKEND_API_URL is missing', () => {
+    expect(() => resolveBackendApiUrl({ nodeEnv: 'production' })).toThrow(
+      /NEXT_PUBLIC_BACKEND_API_URL is required/,
+    );
   });
 
   it('treats missing NODE_ENV as production', () => {
     const result = resolveBackendApiUrl({
-      envBackendApiUrl: 'https://fallback.example.com/api',
-      hostname: 'nusantaralegacy.org',
+      envBackendApiUrl: ENV_URL,
+      browserOrigin: 'https://nusantaralegacy.org',
     });
 
-    expect(result).toBe('https://api.nusantaralegacy.org/api');
+    expect(result).toBe('https://nusantaralegacy.org/backend-api');
+  });
+});
+
+describe('getBackendApiUrl', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('returns <window.location.origin>/backend-api in the production browser', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('NEXT_PUBLIC_BACKEND_API_URL', ENV_URL);
+    vi.stubGlobal('window', { location: { origin: 'https://www.nusantaralegacy.org' } });
+
+    expect(getBackendApiUrl()).toBe('https://www.nusantaralegacy.org/backend-api');
+  });
+
+  it('returns NEXT_PUBLIC_BACKEND_API_URL on the server in production', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('NEXT_PUBLIC_BACKEND_API_URL', ENV_URL);
+
+    expect(typeof window).toBe('undefined');
+    expect(getBackendApiUrl()).toBe(ENV_URL);
+  });
+
+  it('returns NEXT_PUBLIC_BACKEND_API_URL in the development browser', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubEnv('NEXT_PUBLIC_BACKEND_API_URL', 'http://localhost:3000/api');
+    vi.stubGlobal('window', { location: { origin: 'http://localhost:3001' } });
+
+    expect(getBackendApiUrl()).toBe('http://localhost:3000/api');
   });
 });
