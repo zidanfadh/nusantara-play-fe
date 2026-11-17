@@ -1,20 +1,26 @@
 # CLAUDE.md — Nusantara Legacy Frontend
 
-> **Full project context:** see `../CLAUDE.md` in the root repo.
+> There is **no** root `CLAUDE.md` above this repo (an earlier version of this file pointed to
+> `../CLAUDE.md`, which does not exist). This file and `nusantara-play-be/CLAUDE.md` are the project
+> context. The sections from "Current direction" onwards are identical in both repos.
 
 ## Project Overview
 
 Next.js 16 + React 19 + TypeScript + Tailwind v4 frontend for Nusantara Legacy — a digital
 archive platform for Indonesian traditional games and sports (PROT). Uses Supabase for auth
-and a NestJS backend (http://localhost:3000) for all data.
+and a NestJS backend (http://localhost:3000/api in development) for all data.
 
 ## Commands
 
 ```bash
 pnpm dev          # Start dev server (http://localhost:3001)
-pnpm build        # Production build
-pnpm lint         # ESLint
+pnpm build        # Production build (needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, otherwise prerendering fails)
+pnpm lint         # ESLint (no auto-fix)
 ```
+
+There is no test runner yet: `tests/api/base-url.test.ts` exists but there is no `test` script
+(Vitest is added in Phase 02). On this machine always add the D: store/cache flags to pnpm
+(see "Local machine" below).
 
 ## Git Workflow
 
@@ -35,21 +41,27 @@ Never chain navigation with git using `&&` — always run them as separate comma
 - `app/(protected)/` — authenticated pages with shared layout
 - `app/prot/` — public-facing PROT browsing pages
 - `app/api/` — Next.js API routes
+- `app/page.tsx` — landing page; a **server component** that fetches stats and featured PROT on the server
 
 **Data flow**: Page/component → domain hook (`hooks/use*.ts`) → API module (`lib/api/*.ts`) →
 `apiClient` (`lib/api/client.ts`) → NestJS backend. `apiClient` auto-attaches the Supabase
 JWT as `Authorization: Bearer <token>`.
 
+**Backend URL** (`lib/api/base-url.ts`): in development it uses `NEXT_PUBLIC_BACKEND_API_URL`.
+In production, in the browser it builds `https://api.<current hostname without www.>/api`; on
+the server (no `window`) it falls back to `NEXT_PUBLIC_BACKEND_API_URL`. On
+https://nusantaralegacy.org the browser therefore calls `https://api.nusantaralegacy.org/api`.
+
 **Auth**: `contexts/AuthContext.tsx` exposes `user`, `session`, `signIn`, `signOut`,
 `getAccessToken`. `middleware.ts` handles session refresh and redirects unauthenticated users
-to `/login`.
+to `/login` (Next.js 16 warns that the `middleware` file convention is deprecated in favour of `proxy`).
 
 ## Key Conventions
 
-- All backend calls go through `apiClient` — never use raw `fetch` directly (except multipart file uploads where the browser must set the `Content-Type` boundary automatically).
+- All backend calls go through `apiClient` — never use raw `fetch` directly (except multipart file uploads where the browser must set the `Content-Type` boundary automatically). Files that currently call `fetch` directly (some of them for uploads): `app/page.tsx`, `hooks/useMarketplace.ts`, `lib/api/stats.ts`, `lib/api/nfts.ts`, `lib/api/prot.ts`.
 - API modules live in `lib/api/` and return typed responses matching `types/*.ts`.
 - Hooks follow the pattern: `useState` + `useEffect` with `isMounted` guard + optional `refetch` via a `refresh` counter. See `hooks/useEvents.ts` as the canonical example.
-- Pages are `'use client'` components that compose hooks + components. Keep pages thin.
+- Pages are mostly `'use client'` components that compose hooks + components. Keep pages thin.
 - Use `useCurrentUser()` to get the authenticated user and check roles (`user.role`).
 - Admin role is `'admin_kpoti'`. Check via `user.role === 'admin_kpoti'` or `['kurator_daerah', 'admin_kpoti'].includes(user.role)`.
 - Components are grouped by domain: `components/events/`, `components/prot/`, `components/marketplace/`, etc.
@@ -65,8 +77,70 @@ to `/login`.
 
 ## Env Vars
 
+There is no `.env.example` in this repo.
+
 ```
-NEXT_PUBLIC_BACKEND_API_URL    # Development backend base URL (http://localhost:3000/api); production resolves from the current hostname.
+NEXT_PUBLIC_BACKEND_API_URL    # Backend base URL incl. /api. Required in development (http://localhost:3000/api); in production used server-side and as fallback (browser derives api.<hostname>).
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
+
+## Current direction
+
+1. We are building "Jelajah Nusantara": a lightweight 3D virtual world inside Nusantara Play. Users pick a province on a map of Indonesia, walk around a small village scene, interact with PROT objects (only PROT with status ARSIP_NASIONAL), meet other players (multiplayer), and earn rewards.
+2. Rewards come in two currencies. XP gives levels and leaderboard rank and is never redeemable. Points will later be redeemable for in-platform rewards (marketplace vouchers, NFT badges). Points can never be cashed out to money and never transferred between accounts.
+3. Golden rule for rewards: the browser is never trusted. The client only reports actions; the backend validates them and decides every reward. Every point change goes through an append-only ledger with server-built idempotency keys.
+4. Authentication will be migrated away from Supabase to a self-hosted auth module in the NestJS backend (Argon2id passwords, RS256 JWT access tokens of 15 minutes, rotating refresh tokens in httpOnly cookies, Google OAuth). Until that phase is done, do not add any NEW dependency on Supabase.
+5. Multiplayer will run on a separate realtime server (Colyseus, Node.js, TypeScript) in nusantara-play-be/realtime/, with one room per province.
+6. Hardware target: a mid-range Android phone (4 GB RAM, Chrome). Performance budget: at least 30 fps, initial 3D download max 5 MB, max 8 MB per province, max 100k triangles and 100 draw calls per scene, textures max 1024x1024 and compressed, max 20 visible avatars per room. A 2D fallback must exist for weak devices.
+7. Out of scope: open world, vehicles, combat, heavy physics, AI NPCs, day-night cycle, realtime shadows, detailed avatar editors, realistic graphics.
+8. Blockchain anchoring is not a priority. Do not change blockchain/ or src/modules/blockchain/ unless a phase asks for it.
+
+## Deployment facts
+
+- Frontend: Vercel, https://nusantaralegacy.org (`www.` is a CNAME to the apex; `nusantaravirtual.org` points to the same Vercel IP).
+- Production database: PostgreSQL, most likely on Supabase. Never connect to it from a dev machine.
+- Production backend: **confirmed** (Phase 01) at `https://api.nusantaralegacy.org/api` (IP 103.235.72.203, nginx/1.24.0 on Ubuntu in front of the NestJS app). The live frontend bundle has `NEXT_PUBLIC_BACKEND_API_URL=https://api.nusantaralegacy.org/api` baked in. Hosting provider of that server is unknown. `nginx/nginx.conf` in this repo still uses `server_name api-nusantaraplay.kpoti.id`, which no longer resolves, so the repo nginx config does not match production.
+- Local development database: a local PostgreSQL on port 5432, set up in a later phase.
+
+## Engineering rules
+
+- Before writing code, show a short plan and the list of files you will touch.
+- Every phase ends with passing tests and a successful build. Add or update unit tests for every service you change.
+- Lint rule: a phase must not add new lint errors in the files it touches.
+- Ownership and permission checks live in the service layer and throw ForbiddenException.
+- Any multi-table write that must be atomic uses a TypeORM transaction.
+- Any read-then-write on a shared counter or claim (stock, queue claims, points) must be race-safe: use a conditional UPDATE or a pessimistic lock.
+- Never log secrets, tokens, or passwords.
+- If a requirement is ambiguous or conflicts with existing code, stop and ask instead of guessing.
+
+## Decisions log
+
+- 2026-11-17: Frontend tests will use Vitest (added in Phase 02).
+- 2026-11-17: pnpm: allow the sharp and unrs-resolver build scripts and pin the pnpm version with the packageManager field (Phase 02).
+- 2026-11-17: .superpowers/ and .claude/settings.local.json will be removed from git and ignored (Phase 02).
+- 2026-11-17: Prettier formatting will be applied once to the whole codebase in Phase 02; after that, phases must not add new lint errors.
+- 2026-11-17: Blockchain work is deprioritized.
+
+## Phase workflow
+
+- Work happens in numbered phases. Each phase uses its own branch phase-XX-<short-slug>, created from the latest main.
+- Do only what the phase prompt asks. Anything else you notice goes under "Out-of-scope observations" in the report.
+- Every phase ends with a report at nusantara-play-be/docs/phase-reports/phase-XX.md that follows nusantara-play-be/docs/phase-reports/TEMPLATE.md, and the full report is printed as the final message.
+
+## Local machine
+
+Windows 11; repos live on drive D: (`D:/Project/Nusantara Legacy/`). C: has very little free space (~7.5 GB), so anything that takes disk space goes to D:.
+
+- Before heavy work, check free space on C: and D:. If D: has less than 10 GB free, stop and tell the owner.
+- Detect the shell first (Git Bash: `export`, PowerShell: `$env:`, cmd: `set`) and set these **session-only** variables for every command. Use forward slashes (`D:/...`):
+  - npm cache (also used by npx): `npm_config_cache=D:/dev-cache/npm`
+  - Temp files: `TEMP`, `TMP` and `TMPDIR` = `D:/dev-cache/tmp`
+- pnpm: always pass `--store-dir D:/.pnpm-store` and a D: cache dir, otherwise pnpm writes its metadata cache to C:. **pnpm 12 has no `--cache-dir` flag** (it fails with a misleading "unexpected argument" error); use `--config.cache-dir=D:/dev-cache/pnpm-cache` (or env `pnpm_config_cache_dir=D:/dev-cache/pnpm-cache`). Also pass `--state-dir D:/dev-cache/pnpm-state`. Example:
+  `pnpm install --frozen-lockfile --store-dir D:/.pnpm-store --config.cache-dir=D:/dev-cache/pnpm-cache --state-dir D:/dev-cache/pnpm-state`
+  If pnpm complains that node_modules was linked from a different store, the frontend `node_modules` folder may be deleted and reinstalled. Delete nothing else.
+- Jest: `npm test -- --cacheDirectory D:/dev-cache/jest`
+- Create these folders if they do not exist.
+- Do not change global settings (no `npm config set`, no `pnpm config set --global`, no edits to system or user environment variables) unless the owner asks.
+- Docker Desktop's disk image currently lives on C: (`%LOCALAPPDATA%\Docker\wsl\disk\docker_data.vhdx`). Do not pull images or start containers unless a phase asks for it.
+- Never connect to the production database. Local PostgreSQL uses port 5432.
