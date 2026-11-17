@@ -48,10 +48,16 @@ Never chain navigation with git using `&&` — always run them as separate comma
 `apiClient` (`lib/api/client.ts`) → NestJS backend. `apiClient` auto-attaches the Supabase
 JWT as `Authorization: Bearer <token>`.
 
-**Backend URL** (`lib/api/base-url.ts`): in development it uses `NEXT_PUBLIC_BACKEND_API_URL`.
-In production, in the browser it builds `https://api.<current hostname without www.>/api`; on
-the server (no `window`) it falls back to `NEXT_PUBLIC_BACKEND_API_URL`. On
-https://nusantaralegacy.org the browser therefore calls `https://api.nusantaralegacy.org/api`.
+**Backend URL** (`lib/api/base-url.ts`, `getBackendApiUrl()`): in development it uses
+`NEXT_PUBLIC_BACKEND_API_URL` (browser and server). In production, in the browser it returns
+`${window.location.origin}/backend-api` on any domain (nusantaralegacy.org, www., nusantaravirtual.org,
+`*.vercel.app` previews). `next.config.ts` rewrites `/backend-api/:path*` to `<BACKEND_ORIGIN>/api/:path*`
+(default `https://api.nusantaralegacy.org`; validated, an invalid value fails `pnpm build`), so browser
+calls are same-origin and not subject to CORS. On the server (no `window`) it uses
+`NEXT_PUBLIC_BACKEND_API_URL` directly. `middleware.ts` excludes `/backend-api` from its matcher (no
+Supabase call, no `/login` redirect). `/backend-api` is reserved: do not create `app/**/backend-api/`
+(a test fails if you do). Every backend call, including raw multipart `fetch` uploads, must build its
+URL with `getBackendApiUrl()`.
 
 **Auth**: `contexts/AuthContext.tsx` exposes `user`, `session`, `signIn`, `signOut`,
 `getAccessToken`. `middleware.ts` handles session refresh and redirects unauthenticated users
@@ -81,7 +87,8 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 See `.env.example` (copy to `.env.local`). `.env*` files are git-ignored except `.env.example`.
 
 ```
-NEXT_PUBLIC_BACKEND_API_URL    # Backend base URL incl. /api. Required in development (http://localhost:3000/api); in production used server-side and as fallback (browser derives api.<hostname>).
+NEXT_PUBLIC_BACKEND_API_URL    # Backend base URL incl. /api. Required in development (http://localhost:3000/api); in production used only server-side (the browser uses /backend-api).
+BACKEND_ORIGIN                 # Optional, build time. Origin behind the /backend-api rewrite (default https://api.nusantaralegacy.org); https only (http for localhost), no path, no trailing slash.
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 ```
@@ -101,8 +108,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 - Frontend: Vercel, https://nusantaralegacy.org (`www.` is a CNAME to the apex; `nusantaravirtual.org` points to the same Vercel IP).
 - Production database: PostgreSQL, most likely on Supabase. Never connect to it from a dev machine.
-- Production backend: **confirmed** (Phase 01) at `https://api.nusantaralegacy.org/api` (IP 103.235.72.203, nginx/1.24.0 on Ubuntu in front of the NestJS app). The live frontend bundle has `NEXT_PUBLIC_BACKEND_API_URL=https://api.nusantaralegacy.org/api` baked in. Hosting provider of that server is unknown. `nginx/nginx.conf` in this repo still uses `server_name api-nusantaraplay.kpoti.id`, which no longer resolves, so the repo nginx config does not match production.
+- Production backend: **confirmed** (Phase 01) at `https://api.nusantaralegacy.org` (API under `/api`; IP 103.235.72.203, nginx/1.24.0 on Ubuntu in front of the NestJS app). The live frontend bundle has `NEXT_PUBLIC_BACKEND_API_URL=https://api.nusantaralegacy.org/api` baked in. Hosting provider of that server is unknown. `nginx/nginx.conf` in this repo still uses `server_name api-nusantaraplay.kpoti.id`, which no longer resolves, so the repo nginx config does not match production.
+- Production backend CORS: its allowlist contains `https://nusantaravirtual.org` but **not** `nusantaralegacy.org` (Phase 03: `Access-Control-Allow-Origin` is returned only for `Origin: https://nusantaravirtual.org`). **Nobody currently has access to that server**, so its CORS config, nginx config and env cannot be changed or inspected.
+- Browser → backend: browser calls go to the same-origin path `/backend-api/*`, which a Vercel rewrite (frontend `next.config.ts`) proxies to `https://api.nusantaralegacy.org/api/*` (Phase 03). Server-side calls (server components, route handlers) go directly to `NEXT_PUBLIC_BACKEND_API_URL`.
 - Local development database: a local PostgreSQL on port 5432, set up in a later phase.
+
+## Risks
+
+- `/backend-api` proxy (Phase 03): Vercel runs external rewrites in its CDN/router, not in a Function. The proxied request timeout is **120 s** (`ROUTER_EXTERNAL_TARGET_ERROR` after that). Vercel documents **no request body limit** for external rewrites (the documented 4.5 MB limit is for Functions). Uploads above 4.5 MB through the proxy are therefore unverified on Vercel until a large upload is tested on a preview deployment. Locally `next start` proxied a 6 MB multipart body intact. The backend (repo nginx) allows 50 MB and has `proxy_read_timeout 60s`, so a slow large upload can still fail on that side.
+- All browser API traffic now reaches the backend from Vercel's IP addresses. Vercel sets `X-Forwarded-For`/`X-Real-IP` to the visitor's IP, but whether production nginx/NestJS use them is unknown (no server access; the repo nginx has `limit_req` 10 r/s burst 20 per `$binary_remote_addr`, and NestJS has a global throttler of 100 requests / 60 s per IP without `trust proxy`). Per-IP rate limits could therefore hit many users at once (HTTP 429 or 503).
+- Vercel CDN caching of proxied responses: projects created on or after 2026-04-06 honor upstream cache headers on external rewrites by default. `next.config.ts` sends `x-vercel-enable-rewrite-caching: 0` for `/backend-api/:path*` to turn that off. The backend currently sends no `Cache-Control` header.
+- Same-origin cookies (including Supabase `sb-*` auth cookies) are now forwarded to the backend with every browser API call. Large cookie headers could exceed nginx header buffer limits (unknown production config).
 
 ## Engineering rules
 
@@ -132,6 +148,7 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - 2026-11-17: Frontend tests use Vitest 5 (`pnpm test` = `vitest run`, config `vitest.config.ts` with the `@/` alias, tests in `tests/**/*.test.ts`) (Phase 02).
 - 2026-11-17: .superpowers/ and .claude/settings.local.json are no longer tracked and are git-ignored in both repos (Phase 02).
 - 2026-11-17: Frontend dev server runs on port 3001 (`next dev -p 3001`), matching the backend's default CORS origin; the backend uses 3000 (Phase 02).
+- 2026-11-17: Browser API calls in production go through the same-origin Vercel rewrite `/backend-api/:path*` → `<BACKEND_ORIGIN>/api/:path*` (default `https://api.nusantaralegacy.org`), because the production backend's CORS allowlist lacks nusantaralegacy.org and nobody has server access. This replaces the `https://api.<hostname>/api` derivation (finding F3). Keep the proxy even after the server's CORS is fixed, unless a later phase decides otherwise (Phase 03).
 
 ## Phase workflow
 
