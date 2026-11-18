@@ -100,6 +100,10 @@ function signContent(content: StandContent<SceneProt>): SignContent {
   return { kind: 'empty' };
 }
 
+function markInstancesDirty(mesh: InstancedMesh) {
+  mesh.instanceMatrix.needsUpdate = true;
+}
+
 /** Instances whose transform is animated (palms sway, the canoe bobs). Plain numbers, set up once. */
 interface AnimatedInstances {
   mesh: InstancedMesh;
@@ -185,7 +189,7 @@ function World({ scene, tier, animate }: { scene: SceneDefinition; tier: 'full' 
         s.setScalar(d.scale);
         a.mesh.setMatrixAt(i, m.compose(p, q, s));
       }
-      a.mesh.instanceMatrix.needsUpdate = true;
+      markInstancesDirty(a.mesh);
     }
   });
 
@@ -311,7 +315,6 @@ function Player({
   const group = useRef<Group>(null);
   const blob = useRef<Group>(null);
   const { actions } = useAnimations(gltf.animations, group);
-  const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const colliders = useMemo(() => sceneColliders(scene, tier === 'full'), [scene, tier]);
   const state = useRef({
@@ -443,10 +446,6 @@ function Player({
     () => frameCamera(size.width / Math.max(1, size.height), framePoints),
     [size.width, size.height, framePoints],
   );
-  useEffect(() => {
-    camera.fov = frame.fov;
-    camera.updateProjectionMatrix();
-  }, [camera, frame.fov]);
 
   // Entry glide from a higher view (full tier only, never with reduced motion); any input skips it.
   const intro = useRef({ active: tier === 'full' && !reducedMotion, elapsed: 0 });
@@ -475,8 +474,13 @@ function Player({
     from?.fadeOut(0.18);
   };
 
-  useFrame((_, rawDt) => {
+  useFrame((three, rawDt) => {
     const dt = Math.min(rawDt, 0.1);
+    const cam = three.camera as PerspectiveCamera;
+    if (cam.fov !== frame.fov) {
+      cam.fov = frame.fov;
+      cam.updateProjectionMatrix();
+    }
     const s = state.current;
     const input = latest.current.paused ? ZERO_INPUT : combineInput(keysToVector(keys.current), joystickRef.current);
     const strength = Math.hypot(input.x, input.y);
@@ -520,8 +524,8 @@ function Player({
         if (pose.done) i.active = false;
       }
     }
-    camera.position.set(f.x.value + off.x, off.y, f.z.value + off.z);
-    camera.rotation.set(-pitch, 0, 0);
+    cam.position.set(f.x.value + off.x, off.y, f.z.value + off.z);
+    cam.rotation.set(-pitch, 0, 0);
 
     const near = nearestStand(s.pos, scene.stands);
     if (near !== s.near) {

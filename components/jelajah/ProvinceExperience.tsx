@@ -4,11 +4,15 @@
  * /jelajah/[provinsi] (Phase 11): the walkable village scene (tiers full and lite) or its 2D fallback
  * (tier 2d), the PROT stands, the panel and the overlays. three.js lives only in the dynamically loaded
  * VillageScene3D chunk, which is requested only on the full and lite tiers.
+ *
+ * Phase 12: the SIMULATED reward HUD (entering +25 XP, opening a PROT panel +10 XP, Paspor stamp) and a
+ * one-time banner when the province has no public PROT yet. Rewards never reach the backend.
  */
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { ArrowLeft, Hand, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Hand, Map as MapIcon, RefreshCw, X } from 'lucide-react';
+import { enterProvince, openProt } from '@/lib/jelajah/demo-rewards';
 import { ZERO_INPUT, type InputVector } from '@/lib/jelajah/engine/input';
 import { hasSeenHelp, markHelpSeen } from '@/lib/jelajah/engine/help-hint';
 import { loadSceneProt, type SceneProt } from '@/lib/jelajah/engine/scene-prot';
@@ -17,6 +21,7 @@ import type { SceneDefinition } from '@/lib/jelajah/scenes/types';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
 import { Joystick } from './Joystick';
+import { grantDemoReward, RewardHud } from './RewardHud';
 import { ProvinceScene2D } from './ProvinceScene2D';
 import { StandPanel, type PanelContent } from './StandPanel';
 import { TierMenu } from './TierMenu';
@@ -76,10 +81,19 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
   const prots = data.status === 'ready' ? data.prots : null;
   const stands = useMemo(() => assignStands(prots ?? [], scene.stands.length), [prots, scene.stands.length]);
 
+  // SIMULATED rewards (frontend only, this tab only). Opening a PROT panel: +10 XP once per PROT.
+  const protCount = prots?.length ?? 0;
+  const rewardOpenedProt = useCallback(
+    (protId: string) => grantDemoReward((s) => openProt(s, scene.provinsiKode, protId, protCount)),
+    [scene.provinsiKode, protCount],
+  );
+
   const [near, setNear] = useState<number | null>(null);
   const [panel, setPanel] = useState<PanelContent | null>(null);
   const [ready, setReady] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [hudOverlay, setHudOverlay] = useState(false);
+  const [emptyBannerClosed, setEmptyBannerClosed] = useState(false);
   const joystickRef = useRef<InputVector>(ZERO_INPUT);
   const returnFocus = useRef<HTMLElement | null>(null);
   const sceneRef = useRef<HTMLElement>(null);
@@ -93,9 +107,14 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
       const active = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
       returnFocus.current = trigger ?? lihatRef.current ?? active;
       joystickRef.current = ZERO_INPUT;
-      setPanel(content.kind === 'prot' ? { kind: 'prot', prot: content.prot } : { kind: 'board', prots: content.prots });
+      if (content.kind === 'prot') {
+        setPanel({ kind: 'prot', prot: content.prot });
+        rewardOpenedProt(content.prot.id);
+      } else {
+        setPanel({ kind: 'board', prots: content.prots });
+      }
     },
-    [stands],
+    [stands, rewardOpenedProt],
   );
 
   const closePanel = useCallback(() => {
@@ -123,6 +142,46 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
 
   const nearContent = near !== null ? stands[near] : null;
   const is3D = tier === 'full' || tier === 'lite';
+  const entered = ready || tier === '2d';
+
+  // Entering the scene (once it is shown): +25 XP the first time in this tab.
+  useEffect(() => {
+    if (entered) grantDemoReward((s) => enterProvince(s, scene.provinsiKode));
+  }, [entered, scene.provinsiKode]);
+
+  const quests = useMemo(
+    () => [{ provinsiKode: scene.provinsiKode, nama: scene.nama, protCount: prots ? prots.length : null }],
+    [scene.provinsiKode, scene.nama, prots],
+  );
+  const hud = <RewardHud quests={quests} onOverlayChange={setHudOverlay} />;
+
+  // Friendly one-time banner when the province has no public PROT yet (production today).
+  const emptyBanner = entered && prots !== null && prots.length === 0 && !emptyBannerClosed && (
+    <div
+      role="status"
+      className="pointer-events-auto w-full rounded-xl border border-border bg-card/95 px-4 py-3 text-sm text-card-foreground shadow-lg"
+    >
+      <div className="flex items-start gap-2">
+        <p className="flex-1 leading-relaxed">
+          PROT {scene.nama} sedang dalam proses kurasi. Sementara itu, jelajahi PROT dari provinsi lain di peta.
+        </p>
+        <button
+          type="button"
+          onClick={() => setEmptyBannerClosed(true)}
+          aria-label="Tutup pemberitahuan"
+          className="-mr-1 -mt-1 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
+      <Link
+        href="/jelajah"
+        className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <MapIcon className="h-3.5 w-3.5" aria-hidden /> Kembali ke peta
+      </Link>
+    </div>
+  );
 
   const errorBanner = data.status === 'error' && (
     <div
@@ -165,7 +224,10 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
     <StandPanel
       content={panel}
       onClose={closePanel}
-      onSelectProt={(prot) => setPanel({ kind: 'prot', prot })}
+      onSelectProt={(prot) => {
+        setPanel({ kind: 'prot', prot });
+        rewardOpenedProt(prot.id);
+      }}
     />
   );
 
@@ -173,7 +235,11 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
     return (
       <div className="relative min-h-[calc(100dvh-4rem)] bg-background text-foreground">
         <div className="relative h-16">{topBar}</div>
-        {errorBanner && <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6">{errorBanner}</div>}
+        <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 pt-2 sm:px-6">
+          {hud}
+          {errorBanner}
+          {emptyBanner}
+        </div>
         {data.status === 'loading' && <p className="px-6 pt-4 text-sm text-muted-foreground">Memuat data PROT…</p>}
         <ProvinceScene2D nama={scene.nama} stands={stands} onOpen={(i, el) => openStand(i, el)} />
         {panel && <div className="fixed inset-0 z-30 md:pointer-events-none [&>aside]:pointer-events-auto">{panelView}</div>}
@@ -198,7 +264,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
             tier={tier}
             stands={stands}
             joystickRef={joystickRef}
-            paused={panel !== null}
+            paused={panel !== null || hudOverlay}
             onNearStand={setNear}
             onInteract={onInteract}
             onReady={onReady}
@@ -209,7 +275,29 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
 
       {topBar}
 
-      {errorBanner && <div className="absolute left-1/2 top-20 z-20 w-[min(92%,26rem)] -translate-x-1/2">{errorBanner}</div>}
+      {/* Simulated reward HUD under the title bar, left; messages below it (clear of the joystick and the panel). */}
+      {entered && <div className="pointer-events-none absolute left-3 top-[4.25rem] z-20">{hud}</div>}
+      <div className="pointer-events-none absolute left-3 right-3 top-[10.75rem] z-20 flex flex-col items-center gap-2 lg:left-1/2 lg:right-auto lg:top-20 lg:w-[26rem] lg:-translate-x-1/2">
+        {errorBanner && <div className="pointer-events-auto w-full">{errorBanner}</div>}
+        {ready && emptyBanner}
+        {ready && showHelp && (
+          <div className="pointer-events-auto w-full max-w-[24rem] rounded-xl border border-border bg-card/95 px-4 py-3 text-sm text-card-foreground shadow-lg">
+            <p className="flex items-start gap-2">
+              <Hand className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              {touch
+                ? 'Geser joystick di kiri bawah untuk berjalan. Dekati stand, lalu ketuk Lihat.'
+                : 'Berjalan dengan W A S D atau tombol panah. Dekati stand, lalu tekan E atau klik Lihat.'}
+            </p>
+            <button
+              type="button"
+              onClick={dismissHelp}
+              className="mt-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Mengerti
+            </button>
+          </div>
+        )}
+      </div>
 
       {ready && nearContent && (
         <div className={`absolute bottom-6 left-1/2 z-20 w-[min(92%,22rem)] -translate-x-1/2 ${panel ? 'invisible' : ''}`}>
@@ -232,24 +320,6 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
               </button>
             </div>
           )}
-        </div>
-      )}
-
-      {ready && showHelp && (
-        <div className="absolute left-1/2 top-20 z-20 w-[min(92%,24rem)] -translate-x-1/2 rounded-xl border border-border bg-card/95 px-4 py-3 text-sm text-card-foreground shadow-lg">
-          <p className="flex items-start gap-2">
-            <Hand className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-            {touch
-              ? 'Geser joystick di kiri bawah untuk berjalan. Dekati stand, lalu ketuk Lihat.'
-              : 'Berjalan dengan W A S D atau tombol panah. Dekati stand, lalu tekan E atau klik Lihat.'}
-          </p>
-          <button
-            type="button"
-            onClick={dismissHelp}
-            className="mt-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Mengerti
-          </button>
         </div>
       )}
 
