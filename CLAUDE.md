@@ -16,7 +16,7 @@ and a NestJS backend (http://localhost:3000/api in development) for all data.
 pnpm dev          # Start dev server on port 3001 (next dev -p 3001; the backend uses 3000)
 pnpm build        # Production build (needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, otherwise prerendering fails)
 pnpm lint         # ESLint (no auto-fix)
-pnpm test         # Vitest (vitest run); tests live in tests/**/*.test.ts, `@/` alias works like tsconfig
+pnpm test         # Vitest (vitest run); tests live in tests/**/*.test.{ts,tsx}, `@/` alias works like tsconfig (component tests render with react-dom/server)
 ```
 
 On this machine always add the D: store/cache flags to pnpm install/add (see "Local machine" below).
@@ -71,6 +71,7 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 - Pages are mostly `'use client'` components that compose hooks + components. Keep pages thin.
 - Use `useCurrentUser()` to get the authenticated user and check roles (`user.role`).
 - Admin role is `'admin_kpoti'`. Check via `user.role === 'admin_kpoti'` or `['kurator_daerah', 'admin_kpoti'].includes(user.role)`.
+- Audit log `changes` are always displayed through `redactSecrets()` (`components/audit/redact-secrets.ts`): values of secret-looking keys (password, token, secret, api key, authorization) show as `[REDACTED]` at any depth (Phase 07).
 - Components are grouped by domain: `components/events/`, `components/prot/`, `components/marketplace/`, etc.
 
 ## Feature Modules
@@ -98,7 +99,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 1. We are building "Jelajah Nusantara": a lightweight 3D virtual world inside Nusantara Play. Users pick a province on a map of Indonesia, walk around a small village scene, interact with PROT objects (only PROT with status ARSIP_NASIONAL), meet other players (multiplayer), and earn rewards.
 2. Rewards come in two currencies. XP gives levels and leaderboard rank and is never redeemable. Points will later be redeemable for in-platform rewards (marketplace vouchers, NFT badges). Points can never be cashed out to money and never transferred between accounts.
 3. Golden rule for rewards: the browser is never trusted. The client only reports actions; the backend validates them and decides every reward. Every point change goes through an append-only ledger with server-built idempotency keys.
-4. Authentication will be migrated away from Supabase to a self-hosted auth module in the NestJS backend (Argon2id passwords, RS256 JWT access tokens of 15 minutes, rotating refresh tokens in httpOnly cookies, Google OAuth). Until that phase is done, do not add any NEW dependency on Supabase.
+4. Authentication is being migrated away from Supabase to a self-hosted auth module in the NestJS backend (Phase 07 = foundation, Phase 08 = login/register/refresh endpoints and cookies, later Google OAuth). Until the migration is done, do not add any NEW dependency on Supabase. Design (Phase 07):
+   - Passwords: Argon2id via `@node-rs/argon2` (prebuilt binaries, no install scripts; works on Windows and node:alpine), memoryCost 19456 KiB, timeCost 2, parallelism 1. Legacy bcrypt hashes from Supabase are verified with `bcryptjs` and rehashed to Argon2id on the next successful login (Phase 08). Unknown emails are verified against a dummy Argon2 hash (`PasswordService.verifyDummy()`) so timing does not reveal accounts. Policy: 8 to 128 characters, not equal to the email (case-insensitive).
+   - Access tokens: JWT, RS256, signed with `jose` (5.x, the CJS build that Jest can load), 15 minutes (`ACCESS_TOKEN_TTL_SECONDS`, default 900). Claims `sub` (users.id), `role`, `iss`, `aud`, `iat`, `exp`, `jti`; header `kid`. Public key at `GET /api/auth/jwks.json` (404 while local auth is disabled).
+   - Refresh tokens: 32 random bytes, base64url; only the SHA-256 hex hash is stored (`refresh_tokens.token_hash`); 30 days (`REFRESH_TOKEN_TTL_DAYS`); rotated on every use (conditional UPDATE `revoked_at IS NULL` in a transaction). Reuse of a revoked token revokes the whole family (`reuse_detected`) and returns 401, EXCEPT when the token was rotated less than `REFRESH_REUSE_GRACE_SECONDS` (default 20) ago: then 409 `refresh_conflict` without revoking (two tabs refreshing at once; the client retries once with the newer cookie).
+   - Browser path: the frontend calls the backend through the same-origin Vercel rewrite `/backend-api/*`, so cookies set by the backend belong to the FRONTEND domain, and the browser-visible path of the auth endpoints is `/backend-api/auth/*` (cookie Path/Domain must be chosen for that; implemented in Phase 08).
+   - Transition: `AUTH_ACCEPT_SUPABASE_TOKENS` (default true) keeps accepting Supabase tokens through the legacy strategy (`src/modules/auth/legacy/`). `JwtAuthGuard` tries our `local-jwt` strategy first, then `supabase-jwt`.
+   - Safe without config: if any of `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `JWT_KEY_ID`, `JWT_ISSUER`, `JWT_AUDIENCE` is missing (or the keys are invalid), local auth is disabled with one startup warning and the backend behaves exactly as before.
 5. Multiplayer will run on a separate realtime server (Colyseus, Node.js, TypeScript) in nusantara-play-be/realtime/, with one room per province.
 6. Hardware target: a mid-range Android phone (4 GB RAM, Chrome). Performance budget: at least 30 fps, initial 3D download max 5 MB, max 8 MB per province, max 100k triangles and 100 draw calls per scene, textures max 1024x1024 and compressed, max 20 visible avatars per room. A 2D fallback must exist for weak devices.
 7. Out of scope: open world, vehicles, combat, heavy physics, AI NPCs, day-night cycle, realtime shadows, detailed avatar editors, realistic graphics.
@@ -141,18 +148,34 @@ column, so running the migration first is safe for the old code too.
      stores passwords from `POST /auth/change-password`.
    - P3: rate limit per user id (anonymous per IP) and `trust proxy` from `TRUST_PROXY`.
    - P4: `avatar_url` must be an https URL of max 500 characters (null or empty clears it).
+4. Migration `1795100000000-CreateSelfHostedAuthTables` (Phase 07): makes `users.supabase_user_id`
+   nullable (unique constraint kept) and creates `user_credentials`, `refresh_tokens`, `auth_identities`
+   (`IF NOT EXISTS`; down drops the tables and restores NOT NULL only if no user lacks a Supabase id).
+   Run it before the Phase 07 code starts; the old code is unaffected by it.
+5. Self-hosted auth env (Phase 07): `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `JWT_KEY_ID`, `JWT_ISSUER`,
+   `JWT_AUDIENCE`, optionally `ACCESS_TOKEN_TTL_SECONDS`, `REFRESH_TOKEN_TTL_DAYS`,
+   `REFRESH_REUSE_GRACE_SECONDS`, `AUTH_ACCEPT_SUPABASE_TOKENS` (keep `true`). Generate the key pair ON the
+   server (`npm run auth:generate-keys`); never reuse dev or test keys; never commit the private key.
+   Without these vars the Phase 07 backend still starts and behaves as before (local auth disabled).
+6. audit_log cleanup (Phase 06 finding, still open): production `audit_log.changes` still contains plain-text
+   passwords from old `POST /auth/change-password` requests. Redact them in the database (replace the
+   values of `currentPassword`, `newPassword`, `confirmPassword` with `[REDACTED]`) after a backup.
+   Until then the admin audit page hides secret-looking values on display (frontend, Phase 07).
 
 ## Local development
 
 Both repos run fully locally against a disposable PostgreSQL (Phase 05). **Login does not work locally**
-until the self-hosted auth phase: auth is still Supabase, and the local Supabase values are fake
-(`https://supabase-placeholder.invalid`), so authenticated backend endpoints return 401 and the
-frontend cannot sign in. Public pages and public endpoints work.
+yet: the frontend still signs in through Supabase, and the local Supabase values are fake
+(`https://supabase-placeholder.invalid`). The self-hosted login endpoints arrive in Phase 08. Since
+Phase 07 the backend accepts its own RS256 access tokens (tests sign them with `TokenService`), and
+`GET /api/auth/jwks.json` works once a dev key pair is in `.env.local`. Public pages and public endpoints work.
 
 1. Database (in `nusantara-play-be`): `npm run db:up` starts `postgres:15-alpine` (container
    `nusantara-dev-db`, port bound to `127.0.0.1:5432`, volume `nusantara-dev-db-data`, local-only
    password `localdev`) and creates `nusantara_play_dev` and `nusantara_play_test` on first start.
 2. Backend env: `cp .env.local.example .env.local` (fake placeholders only; never put real secrets there).
+   Then run `npm run auth:generate-keys` and paste the printed `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `JWT_KEY_ID`
+   lines into `.env.local` (DEV-ONLY keys; `.env.local` is git-ignored). Without them local auth stays disabled.
 3. Schema and seed: `npm run db:setup` (`src/scripts/db-local-setup.ts`; `npm run seed` is an alias).
    Refuses unless the host is `localhost`/`127.0.0.1` and the database name ends with `_dev` or `_test`.
    Builds the schema from the entities, records all `src/migrations/` as applied, seeds daerah (34 provinsi,
@@ -167,7 +190,8 @@ frontend cannot sign in. Public pages and public endpoints work.
 6. Tests (backend): `npm test` (unit, no database), `npm run test:int` (`*.int-spec.ts`, real
    `nusantara_play_test`), `npm run test:e2e` (full AppModule on `nusantara_play_test`). Integration and
    e2e run the same setup logic as `db:setup` in a Jest global setup and force every env var to local test
-   values (`test/test-env.ts`). Login-dependent e2e tests are skipped until the auth phase.
+   values (`test/test-env.ts`, which also generates a fresh RS256 key pair per test process, in memory only).
+   Login-dependent events e2e tests are still skipped until the Phase 08 login endpoints exist.
 7. Reset: `npm run db:reset -- --yes` deletes the volume and starts an empty database; then `npm run db:setup`.
    `npm run db:down` stops the container and keeps the data; `npm run db:logs` follows the logs.
 
@@ -217,6 +241,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 05: 240 errors, 30 warnings (`test/events.e2e-spec.ts` went from 214 to 48 errors; all new files are clean).
 - Backend after Phase 06: 237 errors, 30 warnings (no touched file gained errors; all new files are clean).
 - Frontend after Phase 06: unchanged, 44 errors, 87 warnings.
+- Backend after Phase 07: 221 errors, 29 warnings (`jwt-auth.guard.ts` went from 17 errors + 1 warning to 0; the moved legacy strategy is clean; no touched file gained errors; all new files are clean).
+- Frontend after Phase 07: unchanged, 44 errors, 87 warnings (touched files clean).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -245,6 +271,13 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - 2026-11-18: Rate limiting: `UserThrottlerGuard` (global, after `JwtAuthGuard`) tracks `user:<id>` or `ip:<req.ip>`; Express `trust proxy` comes from `TRUST_PROXY` (default `loopback`) (Phase 06, P3).
 - 2026-11-18: `audit_log.changes` stores the request body with secret-looking keys (password, token, secret, api key, authorization) replaced by `[REDACTED]` (Phase 06, P2).
 - 2026-11-18: B2, B3, B6, B8 and B10 are deferred: blockchain is deprioritized, and B6/B10 are replaced by the self-hosted auth phase (Phase 06).
+- 2026-11-18: Self-hosted auth lives in a new module `src/modules/auth-core/` (passwords, keys/tokens, refresh tokens, JWKS, `local-jwt` strategy, entities) with no Supabase dependency. The Supabase strategy moved to `src/modules/auth/legacy/supabase-jwt.strategy.ts` (passport name `supabase-jwt`, registered only while `AUTH_ACCEPT_SUPABASE_TOKENS` is true), so a later phase can delete the legacy path in one step (Phase 07).
+- 2026-11-18: `JwtAuthGuard` no longer extends `AuthGuard('jwt')`; it calls passport with `['local-jwt', 'supabase-jwt']` (or only `local-jwt`) and keeps the old semantics: protected routes get 401 "Authentication required" or the strategy's error rethrown; `@Public()` routes set `req.user` to the user or `false`, and leave it unset on a strategy error (Phase 07).
+- 2026-11-18: The `local-jwt` strategy does one read-only `users` lookup per request (status must be `active`), never calls Supabase and never writes (no `last_login_at` update; Phase 08 sets it on login). The role comes from the database, not from the token (Phase 07).
+- 2026-11-18: Auth config is a pure parser `readAuthConfig()` in `src/config/auth.config.ts` (same pattern as `data-source-options.ts`). `KeyService` loads the keys once at startup and cross-checks them (RSA >= 2048 bits, public key matches private key); invalid keys disable local auth like missing ones (Phase 07).
+- 2026-11-18: `jose` is pinned to 5.x because jose 6 is ESM-only and Jest (ts-jest, CommonJS) cannot load it without extra transform config (Phase 07).
+- 2026-11-18: New auth tables use `timestamptz` (as specified), unlike the older `timestamp without time zone` columns. Every constraint and index has an explicit name shared by the entity and the migration, so a migrated database and a `synchronize()`d one are identical (verified with `pg_dump`) (Phase 07).
+- 2026-11-18: The admin audit page redacts secret-looking keys (password, token, secret, apikey/api_key/api-key, authorization; case-insensitive, any depth) on display with `components/audit/redact-secrets.ts` (Phase 07).
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
