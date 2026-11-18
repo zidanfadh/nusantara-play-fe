@@ -7,6 +7,18 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { inviteUsers } from '@/lib/api/calendar';
 import { CalendarInviteStatus } from '@/types/calendar';
 
+/**
+ * "Name (email)", or just "Name" when the email is absent: since Phase 06
+ * the backend no longer sends the creator's email for public items.
+ */
+export function formatCreatorLabel(creator: {
+  full_name: string;
+  email?: string | null;
+}): string {
+  const email = creator.email?.trim();
+  return email ? `${creator.full_name} (${email})` : creator.full_name;
+}
+
 interface CalendarItemDetailProps {
   itemId: string;
   onClose: () => void;
@@ -227,7 +239,7 @@ export function CalendarItemDetail({
             <div>
               <h3 className="font-semibold mb-1">Dibuat oleh</h3>
               <p className="text-muted-foreground">
-                {item.creator.full_name} ({item.creator.email})
+                {formatCreatorLabel(item.creator)}
               </p>
             </div>
           )}
