@@ -18,7 +18,7 @@ describe('middleware matcher', () => {
     expect(matches(url)).toBe(false);
   });
 
-  it.each(['/', '/login', '/profile', '/prot', '/prot/123', '/api/proxy-image', '/backend-apix'])(
+  it.each(['/', '/login', '/profile', '/prot', '/prot/123', '/api/some-route', '/backend-apix'])(
     'still runs for %s',
     (url) => {
       expect(matches(url)).toBe(true);
