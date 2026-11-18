@@ -106,6 +106,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
    - Browser path: the frontend calls the backend through the same-origin Vercel rewrite `/backend-api/*`, so cookies set by the backend belong to the FRONTEND domain, and the browser-visible path of the auth endpoints is `/backend-api/auth/*` (cookie Path/Domain must be chosen for that; implemented in Phase 08).
    - Transition: `AUTH_ACCEPT_SUPABASE_TOKENS` (default true) keeps accepting Supabase tokens through the legacy strategy (`src/modules/auth/legacy/`). `JwtAuthGuard` tries our `local-jwt` strategy first, then `supabase-jwt`.
    - Safe without config: if any of `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `JWT_KEY_ID`, `JWT_ISSUER`, `JWT_AUDIENCE` is missing (or the keys are invalid), local auth is disabled with one startup warning and the backend behaves exactly as before.
+   - Endpoints (Phase 08, backend only; the frontend still signs in through Supabase until a later phase): `POST /api/auth/register`, `/login`, `/refresh`, `/logout`, `/logout-all`, and `/change-password` (local accounts locally, Supabase accounts through the unchanged legacy flow). Browser paths: `/backend-api/auth/*` in production, `/api/auth/*` locally. Login returns `{ accessToken, expiresIn, user }` (`user` = `GET /api/users/me`); the refresh token travels ONLY in a cookie. Register always answers 201 with the same body and never touches an existing account. Generic errors never reveal whether an email exists. Backend CLAUDE.md "Architecture" has the details.
+   - Cookies (Phase 08): `np_refresh` = raw refresh token, httpOnly, Secure in production (`AUTH_COOKIE_SECURE`), SameSite=Lax, Path=`AUTH_COOKIE_PATH` (`/backend-api/auth` in production, `/api/auth` locally), host-only (no Domain: each frontend domain has its own session), Max-Age 30 days. `np_logged_in=1` = readable marker, same flags, Path=/, no secret; the frontend middleware may use it ONLY to decide redirects, never as proof of a session. Both are cleared with the same attributes.
+   - CSRF (Phase 08): the cookie-based endpoints (`/refresh`, `/logout`, `/logout-all`, and `/change-password` when it reads the cookie) require `X-Requested-With: nusantara-play` and an `Origin` that is in `FRONTEND_URLS` or fully matches a regex in `FRONTEND_ORIGIN_PATTERNS` (Vercel previews); otherwise 403. The frontend must send that header on these calls.
+   - Brute force (Phase 08): per-account lockout (`LOGIN_MAX_FAILED` 5 wrong passwords → locked `LOGIN_LOCK_MINUTES` 15, atomic counter in SQL), per-email limit (10 login attempts / 15 min, in memory), generous per-IP limits (login and register 30 / min, refresh 60 / min). See Risks.
 5. Multiplayer will run on a separate realtime server (Colyseus, Node.js, TypeScript) in nusantara-play-be/realtime/, with one room per province.
 6. Hardware target: a mid-range Android phone (4 GB RAM, Chrome). Performance budget: at least 30 fps, initial 3D download max 5 MB, max 8 MB per province, max 100k triangles and 100 draw calls per scene, textures max 1024x1024 and compressed, max 20 visible avatars per room. A 2D fallback must exist for weak devices.
 7. Out of scope: open world, vehicles, combat, heavy physics, AI NPCs, day-night cycle, realtime shadows, detailed avatar editors, realistic graphics.
@@ -157,18 +161,33 @@ column, so running the migration first is safe for the old code too.
    `REFRESH_REUSE_GRACE_SECONDS`, `AUTH_ACCEPT_SUPABASE_TOKENS` (keep `true`). Generate the key pair ON the
    server (`npm run auth:generate-keys`); never reuse dev or test keys; never commit the private key.
    Without these vars the Phase 07 backend still starts and behaves as before (local auth disabled).
-6. audit_log cleanup (Phase 06 finding, still open): production `audit_log.changes` still contains plain-text
+6. Phase 08 (no migration; `npm ci` installs the new dependency `cookie-parser`): self-hosted register, login,
+   refresh, logout, logout-all and local change-password endpoints, refresh cookies, CSRF check, lockout,
+   `JwtAuthGuard` runs once per request, unused `JwtModule` removed. Env on the server:
+   - `JWT_ISSUER=https://api.nusantaralegacy.org`, `JWT_AUDIENCE=nusantara-play` (owner decision; part of item 5).
+   - `AUTH_COOKIE_PATH=/backend-api/auth` (the default; may be omitted). `AUTH_COOKIE_SECURE` unset (true because
+     `NODE_ENV=production`; check that the server really runs with `NODE_ENV=production`, otherwise set `true`).
+   - `FRONTEND_ORIGIN_PATTERNS` empty, unless login must work on Vercel preview deployments (then a full-match regex
+     for the preview host names of the frontend project).
+   - `LOGIN_MAX_FAILED=5`, `LOGIN_LOCK_MINUTES=15` (the defaults; may be omitted).
+   - **`FRONTEND_URLS` must contain `https://nusantaralegacy.org`, `https://www.nusantaralegacy.org` and
+     `https://nusantaravirtual.org`**: the CSRF check compares the browser's `Origin` with it, and the production
+     allowlist currently lacks nusantaralegacy.org (Deployment facts), so refresh/logout would answer 403.
+   - Before the frontend switches to these endpoints, verify on a Vercel preview that the `/backend-api` rewrite
+     forwards `Origin`, `Cookie` and `X-Requested-With` and passes `Set-Cookie` back unchanged.
+7. audit_log cleanup (Phase 06 finding, still open): production `audit_log.changes` still contains plain-text
    passwords from old `POST /auth/change-password` requests. Redact them in the database (replace the
    values of `currentPassword`, `newPassword`, `confirmPassword` with `[REDACTED]`) after a backup.
    Until then the admin audit page hides secret-looking values on display (frontend, Phase 07).
 
 ## Local development
 
-Both repos run fully locally against a disposable PostgreSQL (Phase 05). **Login does not work locally**
-yet: the frontend still signs in through Supabase, and the local Supabase values are fake
-(`https://supabase-placeholder.invalid`). The self-hosted login endpoints arrive in Phase 08. Since
-Phase 07 the backend accepts its own RS256 access tokens (tests sign them with `TokenService`), and
-`GET /api/auth/jwks.json` works once a dev key pair is in `.env.local`. Public pages and public endpoints work.
+Both repos run fully locally against a disposable PostgreSQL (Phase 05). **The frontend still cannot log in
+locally**: it signs in through Supabase, and the local Supabase values are fake
+(`https://supabase-placeholder.invalid`). The backend's own login works since Phase 08 (register, login,
+refresh, logout under `http://localhost:3000/api/auth/`; walk-through with curl in
+`nusantara-play-be/docs/auth-local-testing.md`) once a dev key pair is in `.env.local`. Public pages and
+public endpoints work.
 
 1. Database (in `nusantara-play-be`): `npm run db:up` starts `postgres:15-alpine` (container
    `nusantara-dev-db`, port bound to `127.0.0.1:5432`, volume `nusantara-dev-db-data`, local-only
@@ -176,6 +195,9 @@ Phase 07 the backend accepts its own RS256 access tokens (tests sign them with `
 2. Backend env: `cp .env.local.example .env.local` (fake placeholders only; never put real secrets there).
    Then run `npm run auth:generate-keys` and paste the printed `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `JWT_KEY_ID`
    lines into `.env.local` (DEV-ONLY keys; `.env.local` is git-ignored). Without them local auth stays disabled.
+   Phase 08: also copy the cookie lines (`AUTH_COOKIE_PATH=/api/auth`, `AUTH_COOKIE_SECURE=false`) from
+   `.env.local.example`; with the default `/backend-api/auth` the refresh cookie is never sent to `/api/auth/refresh`.
+   Set them in `.env.local`, not with a Git Bash `export` (Git Bash turns `/api/auth` into a Windows path).
 3. Schema and seed: `npm run db:setup` (`src/scripts/db-local-setup.ts`; `npm run seed` is an alias).
    Refuses unless the host is `localhost`/`127.0.0.1` and the database name ends with `_dev` or `_test`.
    Builds the schema from the entities, records all `src/migrations/` as applied, seeds daerah (34 provinsi,
@@ -191,7 +213,9 @@ Phase 07 the backend accepts its own RS256 access tokens (tests sign them with `
    `nusantara_play_test`), `npm run test:e2e` (full AppModule on `nusantara_play_test`). Integration and
    e2e run the same setup logic as `db:setup` in a Jest global setup and force every env var to local test
    values (`test/test-env.ts`, which also generates a fresh RS256 key pair per test process, in memory only).
-   Login-dependent events e2e tests are still skipped until the Phase 08 login endpoints exist.
+   E2E tests that need a session register and log in through the real endpoints; `test/e2e-app.ts` builds the
+   app like `main.ts` (cookie parser, trust proxy, pipes, filter). Two events e2e tests stay skipped for
+   reasons unrelated to login (see the comment in `test/events.e2e-spec.ts`).
 7. Reset: `npm run db:reset -- --yes` deletes the volume and starts an empty database; then `npm run db:setup`.
    `npm run db:down` stops the container and keeps the data; `npm run db:logs` follows the logs.
 
@@ -200,6 +224,18 @@ Phase 07 the backend accepts its own RS256 access tokens (tests sign them with `
 - `/backend-api` proxy (Phase 03): Vercel runs external rewrites in its CDN/router, not in a Function. The proxied request timeout is **120 s** (`ROUTER_EXTERNAL_TARGET_ERROR` after that). Vercel documents **no request body limit** for external rewrites (the documented 4.5 MB limit is for Functions). Uploads above 4.5 MB through the proxy are therefore unverified on Vercel until a large upload is tested on a preview deployment. Locally `next start` proxied a 6 MB multipart body intact. The backend (repo nginx) allows 50 MB and has `proxy_read_timeout 60s`, so a slow large upload can still fail on that side.
 - All browser API traffic now reaches the backend from Vercel's IP addresses. Vercel sets `X-Forwarded-For`/`X-Real-IP` to the visitor's IP, but whether production nginx/NestJS use them is unknown (no server access; the repo nginx has `limit_req` 10 r/s burst 20 per `$binary_remote_addr`). Since Phase 06 (not yet deployed) the NestJS throttler limits logged-in users per user id; anonymous requests are still limited per `req.ip`, which behind Vercel is a Vercel egress IP shared by many visitors (Vercel IPs are not a stable published list, so they cannot be trusted as proxies). Per-IP limits (nginx `limit_req`, anonymous throttling) can therefore still hit many users at once (HTTP 429 or 503).
 - Vercel CDN caching of proxied responses: projects created on or after 2026-04-06 honor upstream cache headers on external rewrites by default. `next.config.ts` sends `x-vercel-enable-rewrite-caching: 0` for `/backend-api/:path*` to turn that off. The backend currently sends no `Cache-Control` header.
+- Login throttling (Phase 08): behind Vercel, anonymous requests may all share a few Vercel egress IPs, so the
+  per-IP limits are deliberately generous (login and register 30 / min, refresh 60 / min per tracker) and can
+  still hit many visitors at once if `req.ip` turns out to be a Vercel IP in production. The real brute-force
+  protection is per account: (1) the database lockout (5 wrong passwords → 15 minutes, shared by every backend
+  instance) and (2) the per-email limit of 10 login attempts per 15 minutes. The per-email limit lives in the
+  process memory (the throttler's in-memory storage): with N backend instances an attacker gets up to N × 10
+  attempts per window, and a restart resets it. **Trade-off:** anyone who knows an email address can lock that
+  account for 15 minutes (5 wrong passwords) and keep it locked by repeating; the per-email 429 also blocks the
+  real owner for up to 15 minutes. Accepted for now; a later phase could add CAPTCHA or email-based unlock.
+- Access tokens (15 minutes) stay valid after logout, logout-all and a password change until they expire; only
+  refresh tokens are revoked. A suspended or inactive user is rejected at once (the `local-jwt` strategy checks
+  the status on every request).
 - Same-origin cookies (including Supabase `sb-*` auth cookies) are now forwarded to the backend with every browser API call. Large cookie headers could exceed nginx header buffer limits (unknown production config).
 
 ## Engineering rules
@@ -243,6 +279,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Frontend after Phase 06: unchanged, 44 errors, 87 warnings.
 - Backend after Phase 07: 221 errors, 29 warnings (`jwt-auth.guard.ts` went from 17 errors + 1 warning to 0; the moved legacy strategy is clean; no touched file gained errors; all new files are clean).
 - Frontend after Phase 07: unchanged, 44 errors, 87 warnings (touched files clean).
+- Backend after Phase 08: 220 errors, 29 warnings (`auth.module.ts` went from 1 error to 0; no touched file gained errors; all new files are clean).
+- Frontend after Phase 08: unchanged (only CLAUDE.md changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -278,6 +316,17 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - 2026-11-18: `jose` is pinned to 5.x because jose 6 is ESM-only and Jest (ts-jest, CommonJS) cannot load it without extra transform config (Phase 07).
 - 2026-11-18: New auth tables use `timestamptz` (as specified), unlike the older `timestamp without time zone` columns. Every constraint and index has an explicit name shared by the entity and the migration, so a migrated database and a `synchronize()`d one are identical (verified with `pg_dump`) (Phase 07).
 - 2026-11-18: The admin audit page redacts secret-looking keys (password, token, secret, apikey/api_key/api-key, authorization; case-insensitive, any depth) on display with `components/audit/redact-secrets.ts` (Phase 07).
+- 2026-11-18: Owner decisions for Phase 08: production `JWT_ISSUER=https://api.nusantaralegacy.org`, `JWT_AUDIENCE=nusantara-play`; the refresh cookie is host-only (no Domain attribute), so each frontend domain has its own session; `last_login_at` is updated on successful login AND on successful refresh (Phase 08).
+- 2026-11-18: The self-hosted endpoints live in `auth-core` (`LocalAuthController`, `LocalAuthService`, no Supabase dependency). `POST /auth/change-password` stays in `AuthController` (one route for both kinds of account) and branches on "has `user_credentials`": local change → 204; otherwise the legacy Supabase flow unchanged (201 `{success, message}`, old validation incl. required `confirmPassword` and the upper/lower/digit rule, applied with `LegacyChangePasswordDto`). The shared DTO makes `confirmPassword` optional (the current frontend still sends it; when sent it must match) (Phase 08).
+- 2026-11-18: Generic answers (Phase 08): register always 201 `{success, message}` (new account, existing account, Supabase-only account, lost race); login 401 "Invalid email or password" for unknown email, wrong password, locked account, no password and several matching users; 403 "This account cannot sign in" only after a correct password on a suspended/inactive account; register hashes the password in every branch so timing does not depend on the branch.
+- 2026-11-18: Lockout counter (Phase 08): one conditional SQL UPDATE (`failed_login_count + 1`, `locked_until = now() + LOGIN_LOCK_MINUTES` when the new count reaches `LOGIN_MAX_FAILED`). The count is reset only by a correct password, so after a lock expires the next wrong password locks again at once. A locked account is refused before the password is verified. Change-password uses the same counter.
+- 2026-11-18: Per-email login limit (Phase 08): `LoginEmailLimiter` uses the existing in-memory `ThrottlerStorage` (no new store, entries already expire), key = SHA-256 of the normalized email, counts EVERY attempt (known or unknown email, success or failure), 429 after 10 per 15 minutes. Per-IP limits use `@Throttle` overrides of the default throttler on the auth routes (they replace the global 100 / min there).
+- 2026-11-18: CSRF (Phase 08): custom header `X-Requested-With: nusantara-play` plus Origin allowlist; a missing Origin fails. `FRONTEND_ORIGIN_PATTERNS` entries are compiled as `^(?:pattern)$`, case-insensitive; invalid ones are skipped with a warning (index only). Change-password checks CSRF only when the request carries `np_refresh` (otherwise it is a plain bearer-token call).
+- 2026-11-18: Refresh errors keep their machine-readable code: `AuthErrorFilter` (scoped to `LocalAuthController`) answers `{statusCode, error, message, timestamp, path, method}` for `refresh_conflict` and `invalid_refresh_token`; the global `HttpExceptionFilter` would drop `error` (Phase 08).
+- 2026-11-18: Login and refresh answer 503 while local auth is disabled; register still works without keys (it needs none). Refresh also revokes the family and answers 401 when the user is gone, suspended or inactive. Login and refresh responses send `Cache-Control: no-store` (Phase 08).
+- 2026-11-18: `JwtAuthGuard` marks the request (a symbol) after authenticating; a second run in the same request reuses `req.user` instead of running the strategies again. A `req.user` set by anything else is not trusted (Phase 08).
+- 2026-11-18: The unused `JwtModule` (configured with `SUPABASE_JWT_SECRET`) was removed from `auth.module.ts`; nothing injected `JwtService`. The `@nestjs/jwt` package stays in package.json for now (Phase 08).
+- 2026-11-18: No migration in Phase 08: `user_credentials` (Phase 07) already has `failed_login_count`, `locked_until`, `password_changed_at`.
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
