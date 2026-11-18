@@ -6,8 +6,8 @@ describe('middleware public routes', () => {
     expect(isPublicPath('/about')).toBe(false);
   });
 
-  it('keeps /api/proxy-image behind login', () => {
-    expect(isPublicPath('/api/proxy-image')).toBe(false);
+  it('keeps /api routes behind login', () => {
+    expect(isPublicPath('/api/some-route')).toBe(false);
   });
 
   it.each(['/', '/login', '/signup', '/nfts', '/nfts/some-slug', '/prot', '/events'])(
