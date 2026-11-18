@@ -86,9 +86,10 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 | Marketplace | `types/marketplace.ts` | `lib/api/marketplace.ts` | `hooks/useMarketplace.ts` | `components/marketplace/` | `app/(protected)/marketplace/` |
 | Jelajah | `lib/jelajah/data.ts` | `lib/jelajah/data.ts` (via `apiClient`) | `lib/jelajah/use-*.ts` | `components/jelajah/` | `app/jelajah/` |
 
-## Jelajah Nusantara (Phase 10)
+## Jelajah Nusantara (Phases 10 and 11)
 
-Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/` (and `scripts/build-jelajah-geo.mjs`).
+Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/` (and `scripts/build-jelajah-geo.mjs`,
+`scripts/optimize-jelajah-assets.mjs`, `scripts/check-jelajah-budget.mjs`).
 
 - `app/jelajah/page.tsx` (static) renders `JelajahHub` (client). `app/jelajah/[provinsi]/page.tsx`: `generateStaticParams` +
   `dynamicParams = false`, so only `ENTERABLE_PROVINCES` (`sumatera-selatan`) exist; every other slug is a 404.
@@ -104,9 +105,10 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
   ground plane, not raycasting; drei `MapControls` without rotation; renders on demand in production) and `Map2D.tsx`
   (tier 2d, SVG, never imports three). Both take `MapViewProps` (`lib/jelajah/map-model.ts`). The "★ Pilot" marker is a DOM
   button positioned from the 3D scene each frame (drei `<Html>` rendered empty in the production build).
-- **three.js isolation**: only `components/jelajah/Map3D.tsx` and `lib/jelajah/three/*` may import `three` or
-  `@react-three/*`, and `Map3D` is only loaded via `next/dynamic(..., { ssr: false })` from `JelajahHub`
-  (`tests/jelajah/three-isolation.test.ts`). The 2d tier never fetches the three chunk.
+- **three.js isolation**: only `components/jelajah/Map3D.tsx`, `components/jelajah/three/*` and `lib/jelajah/three/*` may
+  import `three` or `@react-three/*`; `Map3D` is only loaded via `next/dynamic(..., { ssr: false })` from `JelajahHub`, and
+  `three/VillageScene3D` only the same way from `ProvinceExperience` (`tests/jelajah/three-isolation.test.ts`). three.js loads on
+  no route except `/jelajah` and `/jelajah/[provinsi]`, and the 2d tier never fetches the three chunk.
 - Tiers (`lib/jelajah/device-tier.ts`, `use-device-tier.ts`): automatic tier cached in `localStorage['jelajah.autoTier.v1']`,
   user override in `localStorage['jelajah.tier']` (settings menu "Tampilan"); every storage access is in try/catch.
 - Budgets (`lib/jelajah/budget.ts`): 30 fps, 5 MB cold download for /jelajah, 100 draw calls, 100k triangles. In
@@ -115,6 +117,41 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
 - Colours (`lib/jelajah/palette.ts`) are derived from the `app/globals.css` tokens; the theme comes from the `dark` class on
   `<html>` (`use-theme-mode.ts`, `useSyncExternalStore`), so the map recolours live when the navbar toggle is used.
 - Everything simulated is labelled "Demo" in the UI and never sent to the backend.
+
+### Province scene engine (Phase 11)
+
+`/jelajah/sumatera-selatan` is a walkable riverside village with 6 PROT stands. The engine is generic; a province is a data file.
+
+- **Scene data** (`lib/jelajah/scenes/`): `types.ts` (`SceneDefinition`: assets, ground, river, plaza, paths, spawn, walkable
+  rectangle, houses, stands in assignment order, decor with optional `collide` and `detail`, colours), one file per province
+  (`sumatera-selatan.ts`) and the registry `index.ts` (`findScene(slug)`). Metres, +x east, -z north (river side); the camera
+  looks north. Scene files may only use `import type` (the budget script loads them with Node type stripping). New province =
+  new scene file + registry entry + slug in `ENTERABLE_PROVINCES`.
+- **Engine** (`lib/jelajah/engine/`, pure, unit-tested in `tests/jelajah/scene-engine.test.ts` and `scene-prot.test.ts`):
+  `stands.ts` (`assignStands`: PROT in name order onto the stands, empty stands = "Segera hadir", more PROT than stands → the
+  last stand is a notice board listing the rest; `INTERACT_DISTANCE` 2 m from the stand footprint), `collision.ts` (circle and
+  turned-box colliders for houses, stands and decor, walkable rectangle, push-out resolution with sliding; no physics
+  library), `input.ts` (joystick and WASD/arrow keys → input vector), `scene-prot.ts` (the province's ARSIP_NASIONAL PROT from
+  `lib/jelajah/data.ts` → plain-text `SceneProt`, https photos only, shortened texts), `help-hint.ts` (controls hint shown once,
+  `localStorage['jelajah.sceneHelpSeen.v1']`, try/catch).
+- **Views**: `ProvinceExperience.tsx` (client: data, tiers, overlays: Demo label, back to the map, help hint, loading screen with
+  progress, "Lihat" button, `StandPanel` side panel / bottom sheet with Esc and focus return, screen-reader stand list),
+  `three/VillageScene3D.tsx` (full/lite), `ProvinceScene2D.tsx` (2d: illustrated header + PROT card grid, same panel, no three).
+- **3D build-up** (`lib/jelajah/three/`): `village-geometry.ts` merges ground, plaza, paths, river banks, the procedural raised
+  houses ("terinspirasi rumah limas", never described otherwise) and the stand pavilions into ONE vertex-coloured mesh;
+  `model-bake.ts` bakes the Nature Kit materials to vertex colours for one `InstancedMesh` per model; `canvas-textures.ts` draws
+  the stand signs (canvas sprites, not drei `<Html>`) and the blob shadow. One directional + one ambient light, no realtime
+  shadows. The player (Kenney mini character, idle/walk) has a fixed-pitch follow camera and a silhouette pass (opaque render
+  order scene 0 → silhouette 1 → player 2, `depthFunc: GreaterDepth`) so it stays visible behind roofs. Lite tier drops
+  decor marked `detail` and the water streaks. Measured (Phase 11, dev overlay): full 43 draw calls / 17.7k triangles, lite 34 / 9.2k.
+- **Assets** (`public/jelajah/assets/v1/`, versioned folder; bump to `v2/` instead of changing files in place): `nature.glb` and
+  `player.glb`, built by `pnpm jelajah:assets --nature <dir> --characters <dir>` from packs downloaded to D: (never committed
+  raw): meshopt (decoded by drei `useGLTF`), textures <= 1024 px as WebP, no KTX2. **Only CC0 packs**; every pack and the exact
+  files used are recorded in `public/jelajah/assets/ASSET_LICENSES.md` (licence checked in the pack's own licence file).
+- **Budget**: `pnpm check:jelajah` fails if a scene's asset files exceed 8 MB in total (or are missing) or any texture in
+  `public/jelajah/assets/` (also inside .glb files) exceeds 1024 px. Phase 11: 195.6 KB of assets; cold load of the scene
+  about 0.74 to 0.97 MB (3D) and 0.39 MB (2d).
+- Scene text comes only from PROT data or neutral UI text; no cultural facts are invented.
 
 ## Env Vars
 
@@ -163,6 +200,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/`; details in the frontend
      CLAUDE.md "Jelajah Nusantara". Province counts are computed on the client from `GET /prot?status=ARSIP_NASIONAL`
      (all pages); a backend endpoint `GET /api/jelajah/provinces` should replace that later.
+   - Jelajah Nusantara V2 (Phase 11): `/jelajah/sumatera-selatan` is a walkable riverside village (procedural raised houses
+     "terinspirasi rumah limas", CC0 low-poly nature and player character, 6 procedural PROT stands around a plaza, joystick
+     or WASD/arrows, no bots). Stands fill automatically from the province's public PROT; production still has 0 there, so
+     every stand shows "Segera hadir". Local development uses the labelled DEMO PROT. The scene is generic: later provinces
+     add a scene data file (frontend CLAUDE.md "Province scene engine"). 3D assets are CC0 only, recorded in
+     `public/jelajah/assets/ASSET_LICENSES.md`; `pnpm check:jelajah` enforces 8 MB per province and textures <= 1024 px.
 
 ## Deployment facts
 
@@ -277,7 +320,8 @@ public endpoints work.
    Builds the schema from the entities, records all `src/migrations/` as applied, seeds daerah (34 provinsi,
    416 kabupaten, 98 kota, 7230 kecamatan, 74952 desa, 8487 kelurahan) and DEMO data (user
    `demo-kurator@example.test`, 3 PROT with status ARSIP_NASIONAL, 1 published event; names start with
-   "DEMO"). Idempotent. Flags: `-- --database=<name>`, `-- --no-demo`.
+   "DEMO"; since Phase 11 also `DEMO PROT Sumsel 1` to `4` in Sumatera Selatan (provinsi 16, ARSIP_NASIONAL, fixed UUIDs
+   `…de31` to `…de34`, neutral placeholder text) for the Jelajah scene). Idempotent. Flags: `-- --database=<name>`, `-- --no-demo`.
 4. Backend: `npm run start:dev` → http://localhost:3000/api. Blockchain vars stay empty, so
    BlockchainService logs a warning and is inactive.
 5. Frontend (in `nusantara-play-fe`): `.env.local` with `NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3000/api`
@@ -369,6 +413,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Frontend after Phase 09: unchanged (only CLAUDE.md changed).
 - Frontend after Phase 10: unchanged, 44 errors, 87 warnings (every new and touched file is clean).
 - Backend after Phase 10: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 11: unchanged, 44 errors, 87 warnings (every new and touched file is clean).
+- Backend after Phase 11: unchanged, 220 errors, 29 warnings (`src/scripts/db-local-setup.ts` is clean).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -442,6 +488,24 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   cached; the user's override is stored in localStorage (`jelajah.tier`). Budgets live in `lib/jelajah/budget.ts` (Phase 10).
 - 2026-11-18: Everything that uses disk space goes to D:, never C:; Docker Desktop data moved to D:\DockerData\wsl by the
   owner (see "Local machine").
+- 2026-11-18: Owner decisions for Phase 11 (visual track V2): 3D assets come from free CC0 low-poly packs (Kenney Nature
+  Kit 2.1 and Mini Characters 2.0 chosen); traditional buildings are built procedurally in code because no free pack has
+  Indonesian architecture, and are described only as "terinspirasi rumah limas"; no simulated other players (bots); the
+  scene must look good on phones (first test device iPhone 11; target stays a 4 GB mid-range Android); production has 0 public
+  PROT in Sumatera Selatan, so the scene must look intentional when empty ("Segera hadir" stands) and fill itself when real
+  PROT are published; local development uses clearly labelled DEMO data; no invented cultural facts (scene text comes only
+  from PROT data or neutral UI text).
+- 2026-11-18: Asset licence rule: only CC0 assets in `public/jelajah/assets/`, each pack recorded in `ASSET_LICENSES.md` (name,
+  author, source URL, licence as checked in the pack, files used). Raw packs are downloaded to D: and never committed; the
+  committed files are built by `scripts/optimize-jelajah-assets.mjs` (meshopt, WebP <= 1024 px, no KTX2). Dev dependency
+  `@gltf-transform/cli` 4.5.1 (its core/extensions/functions packages are resolved through it; lockfile stays 9.0, no new
+  build scripts) (Phase 11).
+- 2026-11-18: Province scenes are data files (`lib/jelajah/scenes/<slug>.ts`) rendered by one engine; collision is circles and
+  turned boxes with push-out (no physics library); stands get PROT in name order, the last stand turns into a notice board when
+  a province has more PROT than stands; signs are canvas sprites (not drei `<Html>`); no realtime shadows (blob shadows), one
+  directional + one ambient light; the player stays visible behind roofs through a silhouette pass (Phase 11).
+- 2026-11-18: Phase 11 was interrupted by a usage limit after the verification run and resumed; the resume finished the
+  player-silhouette fix, the dev-overlay measurements, fresh screenshots and the docs (Phase 11 report, "Deviations").
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow

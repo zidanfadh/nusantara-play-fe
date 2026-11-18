@@ -11,12 +11,13 @@ import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { MapControls } from '@react-three/drei';
 import { Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'three';
-import { budgetViolations, type RenderStats } from '@/lib/jelajah/budget';
+import type { RenderStats } from '@/lib/jelajah/budget';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
 import { hitTest, initialFrame, shapesBounds, type Bounds } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
 import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { buildMapGeometry, paintRange } from '@/lib/jelajah/three/map-geometry';
+import { StatsOverlay, StatsProbe } from './three/StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 const FOV = 35;
@@ -270,33 +271,6 @@ function SceneColors({ sea, seaDeep }: { sea: string; seaDeep: string }) {
   );
 }
 
-/** Development only: samples fps, draw calls and triangles and reports them once a second. */
-function StatsProbe({ onStats }: { onStats: (s: RenderStats) => void }) {
-  const gl = useThree((s) => s.gl);
-  const acc = useRef({ frames: 0, since: -1, warned: '' });
-  useFrame(() => {
-    const a = acc.current;
-    const now = performance.now();
-    if (a.since < 0) a.since = now;
-    a.frames += 1;
-    if (now - a.since < 1000) return;
-    const stats = {
-      fps: (a.frames * 1000) / (now - a.since),
-      drawCalls: gl.info.render.calls,
-      triangles: gl.info.render.triangles,
-    };
-    a.frames = 0;
-    a.since = now;
-    onStats(stats);
-    // Warn when the SET of exceeded budgets changes, not on every new value.
-    const issues = budgetViolations(stats);
-    const key = issues.map((i) => i.split(' ').slice(0, -3).join(' ')).join(',');
-    if (key && key !== a.warned) console.warn(`[jelajah] budget exceeded: ${issues.join(', ')}`);
-    a.warned = key;
-  });
-  return null;
-}
-
 export default function Map3D(props: Map3DProps) {
   const { tier, shapes, palette } = props;
   const settings = canvasSettings(tier);
@@ -364,14 +338,7 @@ export default function Map3D(props: Map3DProps) {
           <span className="h-2.5 w-0.5 bg-primary" aria-hidden />
         </button>
       )}
-      {IS_DEV && stats && (
-        <div className="pointer-events-none absolute left-3 top-28 rounded bg-black/70 px-2 py-1 font-mono text-[11px] leading-tight text-white">
-          <div>{stats.fps.toFixed(0)} fps</div>
-          <div>{stats.drawCalls} draw calls</div>
-          <div>{(stats.triangles / 1000).toFixed(1)}k triangles</div>
-          <div>tier {tier}</div>
-        </div>
-      )}
+      {IS_DEV && stats && <StatsOverlay stats={stats} tier={tier} className="left-3 top-28" />}
     </div>
   );
 }

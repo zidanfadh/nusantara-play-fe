@@ -1,0 +1,14 @@
+'use client';
+
+import { Component, type ReactNode } from 'react';
+
+/** Falls back to the 2D view when WebGL fails at runtime (context creation, lost context). */
+export class WebGLBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
