@@ -17,6 +17,7 @@ pnpm dev          # Start dev server on port 3001 (next dev -p 3001; the backend
 pnpm build        # Production build (needs NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, otherwise prerendering fails)
 pnpm lint         # ESLint (no auto-fix)
 pnpm test         # Vitest (vitest run); tests live in tests/**/*.test.{ts,tsx}, `@/` alias works like tsconfig (component tests render with react-dom/server)
+pnpm jelajah:geo --download D:/dev-cache/tmp/jelajah-geo   # Rebuild public/jelajah/geo/indonesia-provinces.json (mapshaper; source pinned by SHA-256)
 ```
 
 On this machine always add the D: store/cache flags to pnpm install/add (see "Local machine" below).
@@ -41,6 +42,7 @@ Never chain navigation with git using `&&` — always run them as separate comma
 - `app/(auth)/` — public auth pages (login, signup)
 - `app/(protected)/` — authenticated pages with shared layout
 - `app/prot/` — public-facing PROT browsing pages
+- `app/jelajah/` — Jelajah Nusantara (public): hub map `/jelajah`, province pages `/jelajah/[provinsi]` (Phase 10)
 - `app/api/` — Next.js API routes
 - `app/page.tsx` — landing page; a **server component** that fetches stats and featured PROT on the server
 
@@ -82,6 +84,37 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 | Events | `types/events.ts` | `lib/api/events.ts` | `hooks/useEvents.ts` | `components/events/` | `app/(protected)/events/` |
 | Calendar | `types/calendar.ts` | `lib/api/calendar.ts` | `hooks/useCalendar.ts` | `components/calendar/` | `app/(protected)/calendar/` |
 | Marketplace | `types/marketplace.ts` | `lib/api/marketplace.ts` | `hooks/useMarketplace.ts` | `components/marketplace/` | `app/(protected)/marketplace/` |
+| Jelajah | `lib/jelajah/data.ts` | `lib/jelajah/data.ts` (via `apiClient`) | `lib/jelajah/use-*.ts` | `components/jelajah/` | `app/jelajah/` |
+
+## Jelajah Nusantara (Phase 10)
+
+Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/` (and `scripts/build-jelajah-geo.mjs`).
+
+- `app/jelajah/page.tsx` (static) renders `JelajahHub` (client). `app/jelajah/[provinsi]/page.tsx`: `generateStaticParams` +
+  `dynamicParams = false`, so only `ENTERABLE_PROVINCES` (`sumatera-selatan`) exist; every other slug is a 404.
+  `/jelajah` and `/jelajah/*` are public in `middleware.ts` (that also covers the static geo file). No navbar link yet.
+- Data (`lib/jelajah/data.ts`): provinces (`/daerah/provinces?limit=100`) and every public PROT (`/prot`, always
+  `status=ARSIP_NASIONAL`, because `apiClient` sends the login token and kurator/admin would otherwise get drafts; 100 per
+  page, max 50 pages), counted per province on the client. While loading or after an error, every province from
+  `KNOWN_PROVINCES` (`lib/jelajah/provinces.ts`, the 35 production codes) is shown with 0 PROT, so the map still renders.
+- Geometry (`lib/jelajah/geo.ts`, no three.js): GeoJSON → map units (1 unit = 1 degree, centred on 118°E 2.5°S), shapes
+  matched to codes by normalized name (`matchShapesToProvinces`), point-in-polygon hit test, SVG paths, portrait framing.
+- Views: `Map3D.tsx` (tiers full/lite; one merged non-indexed geometry with vertex colours for all provinces + one
+  LineSegments for borders + the sea = 3 draw calls, ~39k triangles; `lib/jelajah/three/map-geometry.ts`; picking on the
+  ground plane, not raycasting; drei `MapControls` without rotation; renders on demand in production) and `Map2D.tsx`
+  (tier 2d, SVG, never imports three). Both take `MapViewProps` (`lib/jelajah/map-model.ts`). The "★ Pilot" marker is a DOM
+  button positioned from the 3D scene each frame (drei `<Html>` rendered empty in the production build).
+- **three.js isolation**: only `components/jelajah/Map3D.tsx` and `lib/jelajah/three/*` may import `three` or
+  `@react-three/*`, and `Map3D` is only loaded via `next/dynamic(..., { ssr: false })` from `JelajahHub`
+  (`tests/jelajah/three-isolation.test.ts`). The 2d tier never fetches the three chunk.
+- Tiers (`lib/jelajah/device-tier.ts`, `use-device-tier.ts`): automatic tier cached in `localStorage['jelajah.autoTier.v1']`,
+  user override in `localStorage['jelajah.tier']` (settings menu "Tampilan"); every storage access is in try/catch.
+- Budgets (`lib/jelajah/budget.ts`): 30 fps, 5 MB cold download for /jelajah, 100 draw calls, 100k triangles. In
+  development `Map3D` shows an fps / draw calls / triangles overlay and warns in the console when the set of exceeded
+  budgets changes.
+- Colours (`lib/jelajah/palette.ts`) are derived from the `app/globals.css` tokens; the theme comes from the `dark` class on
+  `<html>` (`use-theme-mode.ts`, `useSyncExternalStore`), so the map recolours live when the navbar toggle is used.
+- Everything simulated is labelled "Demo" in the UI and never sent to the backend.
 
 ## Env Vars
 
@@ -116,6 +149,20 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 6. Hardware target: a mid-range Android phone (4 GB RAM, Chrome). Performance budget: at least 30 fps, initial 3D download max 5 MB, max 8 MB per province, max 100k triangles and 100 draw calls per scene, textures max 1024x1024 and compressed, max 20 visible avatars per room. A 2D fallback must exist for weak devices.
 7. Out of scope: open world, vehicles, combat, heavy physics, AI NPCs, day-night cycle, realtime shadows, detailed avatar editors, realistic graphics.
 8. Blockchain anchoring is not a priority. Do not change blockchain/ or src/modules/blockchain/ unless a phase asks for it.
+9. Visual track first (owner decision, Phase 10): the boss needs something visual soon, so the frontend-only visual phases
+   (V1 hub map, V2 province scene, ...) come before the remaining backend work (Google login, deployment), which continues
+   afterwards. Visual phases reach users through Vercel only.
+   - Pilot province: **Sumatera Selatan** (kode `16`, slug `sumatera-selatan`). It has **0 public PROT** in production
+     (Phase 10), so V2 needs PROT content there first.
+   - Rewards and multiplayer shown in demo phases are SIMULATED until the backend exists: clearly labelled "Demo" in the
+     UI and never sent to or saved on the backend.
+   - Demos are built on phase branches and shown to the boss through the Vercel preview link before anything is merged
+     to production. No navbar link to /jelajah until the boss has reviewed it.
+   - Jelajah Nusantara V1 (Phase 10): `/jelajah` hub map of Indonesia (3D with three.js / @react-three/fiber /
+     @react-three/drei, plus an SVG 2D fallback) and `/jelajah/sumatera-selatan` ("Segera hadir" placeholder). Frontend
+     code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/`; details in the frontend
+     CLAUDE.md "Jelajah Nusantara". Province counts are computed on the client from `GET /prot?status=ARSIP_NASIONAL`
+     (all pages); a backend endpoint `GET /api/jelajah/provinces` should replace that later.
 
 ## Deployment facts
 
@@ -320,6 +367,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 09: unchanged, 220 errors, 29 warnings (every touched and new file is clean; `users.controller.spec.ts` and the
   rewritten `local-jwt.strategy.spec.ts` have 0 problems).
 - Frontend after Phase 09: unchanged (only CLAUDE.md changed).
+- Frontend after Phase 10: unchanged, 44 errors, 87 warnings (every new and touched file is clean).
+- Backend after Phase 10: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -374,6 +423,25 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - 2026-11-18: After a local change-password the own session continues through its next refresh (the kept refresh family issues a new access token); the change-password response stays 204 (Phase 09). The "password telah diubah" email is sent after a reset and after a LOCAL change-password, not after the legacy Supabase change-password (unchanged).
 - 2026-11-18: `emailVerified` is added to the `user` object of login and refresh as well, so it stays the same object as `GET /api/users/me` (Phase 08 contract) (Phase 09).
 - 2026-11-18: Without `APP_PUBLIC_URL` (or with an invalid one) no email with a link is sent (warning per attempt, without the address) instead of falling back to a guessed URL; the "akun sudah ada" email is still sent, without the login link (Phase 09).
+- 2026-11-18: Visual track first; pilot province Sumatera Selatan; demo rewards and multiplayer are simulated, labelled
+  "Demo" and never sent to the backend; demos are reviewed on the Vercel preview before merging (owner decisions, Phase 10).
+- 2026-11-18: Single product domain https://nusantaralegacy.org. `next.config.ts` redirects (308, same path and query,
+  `/backend-api` included) every request whose Host is `nusantaravirtual.org` or `www.nusantaravirtual.org`. No rule for
+  `www.nusantaralegacy.org` (Vercel already redirects it, 307) and never one for the apex (Phase 10).
+- 2026-11-18: 3D stack for Jelajah: three 0.187.0, @react-three/fiber 9.8.2, @react-three/drei 10.7.9 (React 19 peers),
+  dev: @types/three 0.187.0. No other 3D, physics or animation libraries. three.js is loaded only through `next/dynamic`
+  with `ssr: false` from the /jelajah hub; a test guards the import graph (Phase 10).
+- 2026-11-18: Province boundaries: geoBoundaries gbHumanitarian IDN ADM1 (OCHA ROAP/HDX, 2019, CC BY 3.0 IGO) instead of
+  gbOpen (ODbL), simplified with mapshaper 0.6.18 (last release without native build scripts) to 225 KB in
+  `public/jelajah/geo/`. The 2019 data has 34 provinces; Papua Selatan (93) has no own shape (accepted by the owner, Phase 10).
+- 2026-11-18: The pilot province is always clickable on the hub map (own soft colour, card with "no PROT yet" and the
+  Masuk button) even without public PROT; every other province without public PROT is muted and not clickable
+  (accepted deviation, Phase 10).
+- 2026-11-18: Device tiers for 3D pages: full (antialias, pixel ratio up to 2), lite (no antialias, pixel ratio up to
+  1.5), 2d (SVG, no three.js). Automatic choice from WebGL2, deviceMemory, hardwareConcurrency and a short fps probe,
+  cached; the user's override is stored in localStorage (`jelajah.tier`). Budgets live in `lib/jelajah/budget.ts` (Phase 10).
+- 2026-11-18: Everything that uses disk space goes to D:, never C:; Docker Desktop data moved to D:\DockerData\wsl by the
+  owner (see "Local machine").
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
