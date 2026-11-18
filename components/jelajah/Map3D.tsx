@@ -288,9 +288,11 @@ function StatsProbe({ onStats }: { onStats: (s: RenderStats) => void }) {
     a.frames = 0;
     a.since = now;
     onStats(stats);
-    const issues = budgetViolations(stats).join(', ');
-    if (issues && issues !== a.warned) console.warn(`[jelajah] budget exceeded: ${issues}`);
-    a.warned = issues;
+    // Warn when the SET of exceeded budgets changes, not on every new value.
+    const issues = budgetViolations(stats);
+    const key = issues.map((i) => i.split(' ').slice(0, -3).join(' ')).join(',');
+    if (key && key !== a.warned) console.warn(`[jelajah] budget exceeded: ${issues.join(', ')}`);
+    a.warned = key;
   });
   return null;
 }
@@ -363,7 +365,7 @@ export default function Map3D(props: Map3DProps) {
         </button>
       )}
       {IS_DEV && stats && (
-        <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-black/70 px-2 py-1 font-mono text-[11px] leading-tight text-white">
+        <div className="pointer-events-none absolute left-3 top-28 rounded bg-black/70 px-2 py-1 font-mono text-[11px] leading-tight text-white">
           <div>{stats.fps.toFixed(0)} fps</div>
           <div>{stats.drawCalls} draw calls</div>
           <div>{(stats.triangles / 1000).toFixed(1)}k triangles</div>
