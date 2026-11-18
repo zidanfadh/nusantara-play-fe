@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { hitTest, parseProvinceGeo, project, ringArea, shapesBounds, svgPath } from '@/lib/jelajah/geo';
+import { hitTest, initialFrame, parseProvinceGeo, project, ringArea, shapesBounds, svgPath } from '@/lib/jelajah/geo';
 import { KNOWN_PROVINCES } from '@/lib/jelajah/provinces';
 import { buildMapGeometry } from '@/lib/jelajah/three/map-geometry';
 
@@ -111,5 +111,15 @@ describe('buildMapGeometry', () => {
   it('svgPath flips y so north is up', () => {
     const { shapes } = parseProvinceGeo({ features: [square(118, -2.5, 1, 'Bali')] }, KNOWN_PROVINCES);
     expect(svgPath(shapes[0])).toBe('M0.000 0.000L1.000 0.000L1.000 -1.000L0.000 -1.000Z');
+  });
+});
+
+describe('initialFrame', () => {
+  const b = { minX: -23, minY: -9, maxX: 23, maxY: 9 };
+  it('shows the whole map on landscape screens', () => {
+    expect(initialFrame(b, 1.6)).toBe(b);
+  });
+  it('frames the western part on portrait screens', () => {
+    expect(initialFrame(b, 390 / 780)).toEqual({ ...b, maxX: -23 + 46 * 0.55 });
   });
 });

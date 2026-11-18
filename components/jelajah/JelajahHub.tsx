@@ -169,13 +169,17 @@ export function JelajahHub() {
           aria-hidden
         >
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm" style={{ background: palette.protHigh }} /> Ada PROT
+            <span
+              className="h-2.5 w-5 rounded-sm"
+              style={{ background: `linear-gradient(90deg, ${palette.protLow}, ${palette.protHigh})` }}
+            />{' '}
+            Ada PROT (makin banyak, makin tua)
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm" style={{ background: palette.pilot }} /> Pilot
+            <span className="h-2.5 w-5 rounded-sm" style={{ background: palette.pilot }} /> Pilot
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm border border-border" style={{ background: palette.muted }} /> Belum
+            <span className="h-2.5 w-5 rounded-sm border border-border" style={{ background: palette.muted }} /> Belum
             ada PROT
           </div>
         </div>

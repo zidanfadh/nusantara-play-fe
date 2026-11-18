@@ -9,11 +9,11 @@
  */
 import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html, MapControls } from '@react-three/drei';
+import { MapControls } from '@react-three/drei';
 import { Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'three';
 import { budgetViolations, type RenderStats } from '@/lib/jelajah/budget';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
-import { hitTest, shapesBounds, type Bounds } from '@/lib/jelajah/geo';
+import { hitTest, initialFrame, shapesBounds, type Bounds } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
 import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { buildMapGeometry, paintRange } from '@/lib/jelajah/three/map-geometry';
@@ -191,10 +191,11 @@ function Controls({ bounds }: { bounds: Bounds }) {
   const aspectBucket = Math.round(aspect * 4);
   useEffect(() => {
     const c = controls.current;
-    const cx = (bounds.minX + bounds.maxX) / 2;
-    const cz = -(bounds.minY + bounds.maxY) / 2;
+    const frame = initialFrame(bounds, aspect);
+    const cx = (frame.minX + frame.maxX) / 2;
+    const cz = -(frame.minY + frame.maxY) / 2;
     const target = new Vector3(cx, 0, cz);
-    camera.position.copy(target).add(cameraOffset(fitDistance(bounds, aspect)));
+    camera.position.copy(target).add(cameraOffset(fitDistance(frame, aspect)));
     camera.lookAt(target);
     if (c) {
       c.target.copy(target);
@@ -234,24 +235,26 @@ function Controls({ bounds }: { bounds: Bounds }) {
   );
 }
 
-function PilotMarker({
-  shapes,
-  onSelect,
-}: Pick<MapViewProps, 'shapes' | 'onSelect'>) {
-  const pilot = shapes.find((s) => s.kode === PILOT_PROVINCE.kode);
-  if (!pilot) return null;
-  return (
-    <Html position={[pilot.anchor[0], HEIGHT_ACTIVE + 0.4, -pilot.anchor[1]]} center zIndexRange={[20, 0]}>
-      <button
-        type="button"
-        onClick={() => onSelect(PILOT_PROVINCE.kode)}
-        className="whitespace-nowrap rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-md ring-2 ring-background focus:outline-none focus-visible:ring-accent"
-        aria-label={`${PILOT_PROVINCE.nama}, provinsi pilot`}
-      >
-        ★ Pilot
-      </button>
-    </Html>
-  );
+/**
+ * Reports the screen position of a 3D point on every rendered frame (so it follows pan and zoom).
+ * Used to keep the pilot marker button, a plain DOM element, over its province.
+ */
+function TrackScreenPoint({
+  position,
+  onMove,
+}: {
+  position: [number, number, number];
+  onMove: (x: number, y: number, visible: boolean) => void;
+}) {
+  const camera = useThree((s) => s.camera);
+  const size = useThree((s) => s.size);
+  const point = useMemo(() => new Vector3(), []);
+  useFrame(() => {
+    point.set(...position).project(camera);
+    const visible = point.z < 1 && Math.abs(point.x) <= 1.05 && Math.abs(point.y) <= 1.05;
+    onMove(((point.x + 1) / 2) * size.width, ((1 - point.y) / 2) * size.height, visible);
+  });
+  return null;
 }
 
 function SceneColors({ sea, seaDeep }: { sea: string; seaDeep: string }) {
@@ -297,6 +300,14 @@ export default function Map3D(props: Map3DProps) {
   const settings = canvasSettings(tier);
   const bounds = useMemo(() => shapesBounds(shapes), [shapes]);
   const [stats, setStats] = useState<RenderStats | null>(null);
+  const pilot = shapes.find((s) => s.kode === PILOT_PROVINCE.kode);
+  const pilotRef = useRef<HTMLButtonElement>(null);
+  const movePilotMarker = (x: number, y: number, visible: boolean) => {
+    const el = pilotRef.current;
+    if (!el) return;
+    el.style.transform = `translate(-50%, -100%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+    el.style.visibility = visible ? 'visible' : 'hidden';
+  };
 
   return (
     <div className="absolute inset-0">
@@ -321,7 +332,12 @@ export default function Map3D(props: Map3DProps) {
           selectedKode={props.selectedKode}
           palette={palette}
         />
-        <PilotMarker shapes={shapes} onSelect={props.onSelect} />
+        {pilot && (
+          <TrackScreenPoint
+            position={[pilot.anchor[0], HEIGHT_ACTIVE, -pilot.anchor[1]]}
+            onMove={movePilotMarker}
+          />
+        )}
         <Picker
           shapes={shapes}
           summaryByKode={props.summaryByKode}
@@ -331,6 +347,21 @@ export default function Map3D(props: Map3DProps) {
         <Controls bounds={bounds} />
         {IS_DEV && <StatsProbe onStats={setStats} />}
       </Canvas>
+      {pilot && (
+        <button
+          ref={pilotRef}
+          type="button"
+          onClick={() => props.onSelect(PILOT_PROVINCE.kode)}
+          style={{ visibility: 'hidden' }}
+          className="absolute left-0 top-0 z-10 flex flex-col items-center focus:outline-none [&:focus-visible>span]:ring-accent"
+          aria-label={`${PILOT_PROVINCE.nama}, provinsi pilot`}
+        >
+          <span className="whitespace-nowrap rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-md ring-2 ring-background">
+            ★ Pilot
+          </span>
+          <span className="h-2.5 w-0.5 bg-primary" aria-hidden />
+        </button>
+      )}
       {IS_DEV && stats && (
         <div className="pointer-events-none absolute bottom-2 left-2 rounded bg-black/70 px-2 py-1 font-mono text-[11px] leading-tight text-white">
           <div>{stats.fps.toFixed(0)} fps</div>

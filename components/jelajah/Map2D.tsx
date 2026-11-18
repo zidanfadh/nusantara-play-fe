@@ -6,7 +6,7 @@
  * are keyboard-focusable buttons.
  */
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { shapesBounds, svgPath } from '@/lib/jelajah/geo';
+import { initialFrame, shapesBounds, svgPath } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
 import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 
@@ -40,8 +40,19 @@ export default function Map2D({
     [bounds],
   );
   const [view, setView] = useState<View | null>(null);
-  const v = view ?? full;
   const svgRef = useRef<SVGSVGElement>(null);
+  // First view: on portrait screens zoom to the western part (same rule as the 3D view).
+  useEffect(() => {
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0 || view) return;
+    const frame = initialFrame(bounds, rect.width / rect.height);
+    if (frame === bounds) return;
+    const w = frame.maxX - frame.minX + 2 * PAD;
+    // Reading the element size is only possible after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setView({ x: frame.minX - PAD, y: -(bounds.minY + bounds.maxY) / 2 - ((w / full.w) * full.h) / 2, w, h: (w / full.w) * full.h });
+  }, [bounds, full, view]);
+  const v = view ?? full;
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ moved: number; multi: boolean }>({ moved: 0, multi: false });
 

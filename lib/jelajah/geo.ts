@@ -187,3 +187,17 @@ export function svgPath(shape: ProvinceShape): string {
   }
   return parts.join('');
 }
+
+/** Portrait viewports narrower than this get a closer first view. */
+export const PORTRAIT_ASPECT = 0.8;
+/** Share of the map width shown first on portrait screens (Sumatra to Sulawesi, around the pilot). */
+export const PORTRAIT_WIDTH_SHARE = 0.55;
+
+/**
+ * Area to frame on first load. Landscape: the whole map. Portrait (phones): the western part, so
+ * provinces are big enough to tap; the rest is one pan away.
+ */
+export function initialFrame(bounds: Bounds, aspect: number): Bounds {
+  if (aspect >= PORTRAIT_ASPECT) return bounds;
+  return { ...bounds, maxX: bounds.minX + (bounds.maxX - bounds.minX) * PORTRAIT_WIDTH_SHARE };
+}
