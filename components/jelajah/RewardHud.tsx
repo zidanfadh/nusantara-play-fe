@@ -24,12 +24,14 @@ export function announceRewards(res: RewardResult): void {
     if (e.kind === 'open-prot') return 'Membuka stan PROT';
     return `Stempel Paspor ${provinceName(e.provinsiKode)}`;
   });
+  // Top centre: clear of the HUD (left) and the stand panel (right on wide screens).
   toast.success(`+${res.xpGained} XP`, {
     description: `${reasons.join(' · ')} (${SIMULATION_LABEL})`,
     duration: 2600,
+    position: 'top-center',
   });
   if (res.levelAfter > res.levelBefore) {
-    toast(`Naik ke Level ${res.levelAfter}!`, { description: SIMULATION_LABEL, duration: 2200 });
+    toast(`Naik ke Level ${res.levelAfter}!`, { description: SIMULATION_LABEL, duration: 2200, position: 'top-center' });
   }
 }
 

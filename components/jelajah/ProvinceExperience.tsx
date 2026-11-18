@@ -300,7 +300,10 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
       </div>
 
       {ready && nearContent && (
-        <div className={`absolute bottom-6 left-1/2 z-20 w-[min(92%,22rem)] -translate-x-1/2 ${panel ? 'invisible' : ''}`}>
+        // Phones: right of the joystick, so neither the joystick nor the player (lower third) is covered.
+        <div
+          className={`absolute z-20 ${touch ? 'bottom-8 left-[10.5rem] right-3' : 'bottom-6 left-1/2 w-[min(92%,22rem)] -translate-x-1/2'} ${panel ? 'invisible' : ''}`}
+        >
           {nearContent.kind === 'empty' ? (
             <p className="rounded-xl border border-border bg-card/95 px-4 py-3 text-center text-sm text-card-foreground shadow-lg">
               Segera hadir. Stand ini menunggu PROT dari {scene.nama}.

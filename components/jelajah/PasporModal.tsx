@@ -20,7 +20,10 @@ export function PasporModal({
   onReset: () => void;
 }) {
   const stamped = new Set(stamps);
-  const count = KNOWN_PROVINCES.filter((p) => stamped.has(p.kode)).length;
+  // Stamped provinces first (each group in name order), so new stamps are visible without scrolling.
+  const stampedProvinces = KNOWN_PROVINCES.filter((p) => stamped.has(p.kode));
+  const ordered = [...stampedProvinces, ...KNOWN_PROVINCES.filter((p) => !stamped.has(p.kode))];
+  const count = stampedProvinces.length;
   return (
     <DemoDialog
       open={open}
@@ -45,7 +48,7 @@ export function PasporModal({
       }
     >
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Provinsi di Paspor">
-        {KNOWN_PROVINCES.map((p) => {
+        {ordered.map((p) => {
           const done = stamped.has(p.kode);
           return (
             <li
