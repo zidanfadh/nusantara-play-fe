@@ -30,6 +30,9 @@ export const PLAYER_RADIUS = 0.35;
 /** Footprint of a PROT stand (pavilion), metres. */
 export const STAND_SIZE = { width: 2.8, depth: 2.2 } as const;
 
+/** Stand roof height (top of the ridge) in metres; the sign floats above it. */
+export const STAND_ROOF_TOP = 3.05;
+
 /** Extra depth in front of a house (its stairs). */
 export const HOUSE_STAIRS_DEPTH = 1.6;
 
@@ -148,6 +151,8 @@ export function sceneColliders(scene: SceneDefinition, includeDetail = true): Co
     });
   }
   for (const s of scene.stands) out.push(standCollider(s));
+  const c = scene.centrepiece;
+  if (c) out.push({ kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation });
   for (const d of scene.decor) {
     if (d.collide === undefined || (d.detail && !includeDetail)) continue;
     if (typeof d.collide === 'number') out.push({ kind: 'circle', x: d.x, z: d.z, r: d.collide });

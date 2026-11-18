@@ -15,6 +15,7 @@ import { loadSceneProt, type SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import { assignStands } from '@/lib/jelajah/engine/stands';
 import type { SceneDefinition } from '@/lib/jelajah/scenes/types';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
+import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
 import { Joystick } from './Joystick';
 import { ProvinceScene2D } from './ProvinceScene2D';
 import { StandPanel, type PanelContent } from './StandPanel';
@@ -58,6 +59,7 @@ function DemoBadge() {
 export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
   const { tier, choice, autoTier, choose } = useDeviceTier();
   const touch = useSyncExternalStore(subscribeCoarse, isCoarse, () => false);
+  const reducedMotion = useReducedMotion();
 
   const [data, setData] = useState<DataState>({ status: 'loading' });
   const [refresh, setRefresh] = useState(0);
@@ -200,6 +202,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
             onNearStand={setNear}
             onInteract={onInteract}
             onReady={onReady}
+            reducedMotion={reducedMotion}
           />
         </WebGLBoundary>
       ) : null}

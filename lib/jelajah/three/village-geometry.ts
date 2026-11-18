@@ -1,13 +1,13 @@
 /**
  * Procedural geometry of a province scene (Phase 11): ground, plaza, paths, river banks, raised houses
- * ("terinspirasi rumah limas") and the PROT stands. Everything static and opaque is merged into ONE
+ * ("terinspirasi rumah limas"), the PROT stands and (Phase 12) the plaza centrepiece. Everything static and opaque is merged into ONE
  * non-indexed geometry with vertex colours (one draw call); the water is a second geometry.
  *
  * Only imported by components/jelajah/three/* (three.js isolation, see tests/jelajah/three-isolation.test.ts).
  */
 import { BoxGeometry, BufferGeometry, CircleGeometry, Color, Float32BufferAttribute, Matrix4, PlaneGeometry, Vector3 } from 'three';
-import { HOUSE_STAIRS_DEPTH, STAND_SIZE } from '@/lib/jelajah/engine/collision';
-import type { HouseDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
+import { HOUSE_STAIRS_DEPTH, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
+import type { HouseDef, PavilionDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
 
 /** Water surface height (ground = 0). */
 export const WATER_Y = -0.22;
@@ -188,8 +188,7 @@ function addHouse(b: Builder, h: HouseDef, scene: SceneDefinition) {
   b.box(m, midW, 0.08, 0.08, 0, skirtTop, -md, trim);
 }
 
-/** Stand roof height (top of the ridge) in metres; the sign floats above it. */
-export const STAND_ROOF_TOP = 3.05;
+export { STAND_ROOF_TOP };
 
 function addStand(b: Builder, s: StandDef, scene: SceneDefinition) {
   const c = scene.colors;
@@ -219,12 +218,54 @@ function addStand(b: Builder, s: StandDef, scene: SceneDefinition) {
   b.tri(m, v(-ow + 0.25, eaveY, od - 0.3), v(-ow + 0.25, eaveY, -od + 0.3), v(-ow + 0.25, STAND_ROOF_TOP - 0.1, 0), inside, gable);
 }
 
-/** Ground + plaza + paths + banks + houses + stands: one geometry with vertex colours. */
+/**
+ * Neutral plaza centrepiece (Phase 12): an open pavilion, a two-tier pyramid roof on four posts on a low
+ * platform. Part of the merged village mesh, so it costs no extra draw call.
+ */
+function addPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const m = placement(p.x, p.z, p.rotation);
+  const post = new Color(c.housePost);
+  const floor = new Color(c.houseFloor);
+  const roof = new Color(c.houseRoof);
+  const upperRoof = new Color(c.houseRoof).multiplyScalar(0.9);
+  const trim = new Color(c.houseTrim);
+  const S = p.size;
+  const platform = 0.36;
+  // Low step around a raised wooden platform.
+  b.box(m, S + 0.8, 0.16, S + 0.8, 0, 0.08, 0, new Color(c.plaza).multiplyScalar(0.82));
+  b.box(m, S, platform, S, 0, platform / 2, 0, floor);
+  // Four posts and the beams that carry the roof.
+  const inset = S / 2 - 0.25;
+  for (const x of [-inset, inset]) {
+    for (const z of [-inset, inset]) b.box(m, 0.24, p.postHeight, 0.24, x, platform + p.postHeight / 2, z, post);
+  }
+  const y0 = platform + p.postHeight;
+  for (const z of [-inset, inset]) b.box(m, S - 0.2, 0.18, 0.18, 0, y0, z, post);
+  for (const x of [-inset, inset]) b.box(m, 0.18, 0.18, S - 0.2, x, y0, 0, post);
+  // Roof: a flatter skirt, then a steeper pyramid, then a small cap.
+  const square = (half: number, y: number) => [v(-half, y, -half), v(half, y, -half), v(half, y, half), v(-half, y, half)];
+  const eave = square(S / 2 + 0.95, y0 - 0.05);
+  const midY = y0 + p.roofHeight * 0.38;
+  const mid = square(S / 2 - 0.05, midY);
+  const apex = v(0, y0 + p.roofHeight, 0);
+  const lowInside = v(0, y0 - 1.2, 0);
+  const highInside = v(0, midY - 0.6, 0);
+  for (let i = 0; i < 4; i += 1) {
+    const j = (i + 1) % 4;
+    b.quad(m, eave[i], eave[j], mid[j], mid[i], lowInside, roof);
+    b.tri(m, mid[i], mid[j], apex, highInside, upperRoof);
+  }
+  b.box(m, 0.22, 0.32, 0.22, 0, y0 + p.roofHeight + 0.06, 0, trim);
+}
+
+/** Ground + plaza + paths + banks + houses + stands (+ centrepiece): one geometry with vertex colours. */
 export function buildVillageGeometry(scene: SceneDefinition): BufferGeometry {
   const b = new Builder();
   addGround(b, scene);
   for (const h of scene.houses) addHouse(b, h, scene);
   for (const s of scene.stands) addStand(b, s, scene);
+  if (scene.centrepiece) addPavilion(b, scene.centrepiece, scene);
   return b.build();
 }
 
