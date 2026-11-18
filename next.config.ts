@@ -53,7 +53,38 @@ export function resolveBackendOrigin(raw: string | undefined): string {
   return value;
 }
 
+/** The only product domain (owner decision, Phase 10). */
+export const CANONICAL_ORIGIN = "https://nusantaralegacy.org";
+
+/**
+ * Retired hosts that redirect permanently (308) to CANONICAL_ORIGIN with the same path and query.
+ * www.nusantaralegacy.org is NOT listed: Vercel already redirects it to the apex (Phase 10 check), and
+ * the apex itself must never be listed (it would loop if Vercel redirected the other way).
+ */
+export const RETIRED_HOSTS = ["nusantaravirtual.org", "www.nusantaravirtual.org"] as const;
+
+/** Escapes a host name for the regex that Next.js applies to `has` host values. */
+function hostPattern(host: string): string {
+  return host.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * One redirect per retired host. `/:path*` matches every path including `/` and `/backend-api/...`
+ * (nothing is excluded); Next.js keeps the query string on redirects.
+ */
+export function domainRedirects() {
+  return RETIRED_HOSTS.map((host) => ({
+    source: "/:path*",
+    has: [{ type: "host" as const, value: hostPattern(host) }],
+    destination: `${CANONICAL_ORIGIN}/:path*`,
+    permanent: true,
+  }));
+}
+
 const nextConfig: NextConfig = {
+  async redirects() {
+    return domainRedirects();
+  },
   async rewrites() {
     // Destination host is fixed by config; nothing in the request can choose it (no open proxy).
     const origin = resolveBackendOrigin(process.env.BACKEND_ORIGIN);

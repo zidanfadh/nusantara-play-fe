@@ -50,8 +50,8 @@ JWT as `Authorization: Bearer <token>`.
 
 **Backend URL** (`lib/api/base-url.ts`, `getBackendApiUrl()`): in development it uses
 `NEXT_PUBLIC_BACKEND_API_URL` (browser and server). In production, in the browser it returns
-`${window.location.origin}/backend-api` on any domain (nusantaralegacy.org, www., nusantaravirtual.org,
-`*.vercel.app` previews). `next.config.ts` rewrites `/backend-api/:path*` to `<BACKEND_ORIGIN>/api/:path*`
+`${window.location.origin}/backend-api` on any domain (nusantaralegacy.org, `*.vercel.app` previews; the
+retired nusantaravirtual.org is redirected to nusantaralegacy.org before any page loads, Phase 10). `next.config.ts` rewrites `/backend-api/:path*` to `<BACKEND_ORIGIN>/api/:path*`
 (default `https://api.nusantaralegacy.org`; validated, an invalid value fails `pnpm build`), so browser
 calls are same-origin and not subject to CORS. On the server (no `window`) it uses
 `NEXT_PUBLIC_BACKEND_API_URL` directly. `middleware.ts` excludes `/backend-api` from its matcher (no
@@ -119,7 +119,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ## Deployment facts
 
-- Frontend: Vercel, https://nusantaralegacy.org (`www.` is a CNAME to the apex; `nusantaravirtual.org` points to the same Vercel IP).
+- Frontend: Vercel. **The product uses only https://nusantaralegacy.org** (owner decision, Phase 10). `nusantaravirtual.org` is
+  retired: `next.config.ts` `redirects()` sends every request whose Host is `nusantaravirtual.org` or
+  `www.nusantaravirtual.org` to `https://nusantaralegacy.org` with a 308, same path and query, `/backend-api` included.
+  `www.nusantaralegacy.org` is redirected by Vercel itself (307 to the apex, Phase 10 check), so the app has no rule
+  for it; never add one for the apex (loop risk). Phase 10 finding: the TLS certificate covers only the apex, so
+  `https://www.nusantaralegacy.org` and `https://www.nusantaravirtual.org` fail with a certificate error in browsers
+  (fix in the Vercel domain settings). All domains point to the same Vercel IP.
 - Production database: PostgreSQL, most likely on Supabase. Never connect to it from a dev machine.
 - Production backend: **confirmed** (Phase 01) at `https://api.nusantaralegacy.org` (API under `/api`; IP 103.235.72.203, nginx/1.24.0 on Ubuntu in front of the NestJS app). The live frontend bundle has `NEXT_PUBLIC_BACKEND_API_URL=https://api.nusantaralegacy.org/api` baked in. Hosting provider of that server is unknown. `nginx/nginx.conf` in this repo still uses `server_name api-nusantaraplay.kpoti.id`, which no longer resolves, so the repo nginx config does not match production.
 - Production backend CORS: its allowlist contains `https://nusantaravirtual.org` but **not** `nusantaralegacy.org` (Phase 03: `Access-Control-Allow-Origin` is returned only for `Origin: https://nusantaravirtual.org`). **Nobody currently has access to that server**, so its CORS config, nginx config and env cannot be changed or inspected.
@@ -172,9 +178,9 @@ column, so running the migration first is safe for the old code too.
    - `FRONTEND_ORIGIN_PATTERNS` empty, unless login must work on Vercel preview deployments (then a full-match regex
      for the preview host names of the frontend project).
    - `LOGIN_MAX_FAILED=5`, `LOGIN_LOCK_MINUTES=15` (the defaults; may be omitted).
-   - **`FRONTEND_URLS` must contain `https://nusantaralegacy.org`, `https://www.nusantaralegacy.org` and
-     `https://nusantaravirtual.org`**: the CSRF check compares the browser's `Origin` with it, and the production
-     allowlist currently lacks nusantaralegacy.org (Deployment facts), so refresh/logout would answer 403.
+   - **`FRONTEND_URLS` must contain `https://nusantaralegacy.org`**: the CSRF check compares the browser's `Origin` with
+     it, and the production allowlist currently lacks nusantaralegacy.org (Deployment facts), so refresh/logout would
+     answer 403. See item 9 for the final value.
    - Before the frontend switches to these endpoints, verify on a Vercel preview that the `/backend-api` rewrite
      forwards `Origin`, `Cookie` and `X-Requested-With` and passes `Set-Cookie` back unchanged.
 7. audit_log cleanup (Phase 06 finding, still open): production `audit_log.changes` still contains plain-text
@@ -191,6 +197,10 @@ column, so running the migration first is safe for the old code too.
      (error name/code); the endpoints still answer normally. Never point production at Mailpit.
    - Effects: access tokens issued before a password change are rejected; `/users/me`, login and refresh carry
      `emailVerified`; a daily cleanup job deletes old refresh and email tokens.
+9. Single domain (Phase 10): production **`FRONTEND_URLS=https://nusantaralegacy.org`** (add
+   `https://www.nusantaralegacy.org` only if `www.` is ever served as its own host instead of redirecting; today Vercel
+   redirects it). `nusantaravirtual.org` no longer needs to be listed: the frontend redirects it before any page or
+   `/backend-api` call runs. Also `APP_PUBLIC_URL=https://nusantaralegacy.org` (item 8).
 
 ## Local development
 
