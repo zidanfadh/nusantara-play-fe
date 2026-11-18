@@ -1,0 +1,16 @@
+indonesia-provinces.json
+
+Source: geoBoundaries, gbHumanitarian release, Indonesia ADM1 (boundary ID IDN-ADM1, year 2019),
+originally from OCHA Regional Office for Asia and the Pacific (ROAP) via the Humanitarian Data
+Exchange (HDX). https://www.geoboundaries.org/
+Licence: Creative Commons Attribution 3.0 IGO (CC BY 3.0 IGO).
+Pinned file: https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbHumanitarian/IDN/ADM1/geoBoundaries-IDN-ADM1.geojson
+(SHA-256 88eb119bf5eaa57060e53616313a02ef69ceb8d4a91cb9a282cf9d0e7c84b828)
+
+Changes: only the province name is kept (shapeName → name); islands under 100 km² removed;
+simplified with mapshaper (Visvalingam weighted, 0.5%); coordinates rounded to 0.001°.
+Regenerate with: pnpm jelajah:geo --download <directory outside the repo>
+
+Boundaries are for illustration only and imply no official position on any boundary.
+The 2019 data has 34 provinces; the 2022 Papua provinces (Papua Selatan, Papua Tengah,
+Papua Pegunungan, Papua Barat Daya) are not separate shapes.
