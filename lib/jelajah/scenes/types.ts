@@ -29,7 +29,6 @@ export type NatureModel =
   | 'flower_purpleA'
   | 'rock_largeA'
   | 'rock_smallA'
-  | 'rock_smallFlatA'
   | 'stone_smallA'
   | 'fence_simple'
   | 'fence_planks'

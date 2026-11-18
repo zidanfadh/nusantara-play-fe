@@ -46,6 +46,9 @@ export interface RawProt {
   status?: unknown;
   provinsiKode?: unknown;
   fotoKegiatan?: unknown;
+  /** Read by the province scene (Phase 11). */
+  deskripsi?: unknown;
+  caraBermain?: unknown;
 }
 
 interface RawProvince {

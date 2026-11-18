@@ -52,7 +52,6 @@ export const NATURE_MODELS = [
   // ground details
   'rock_largeA',
   'rock_smallA',
-  'rock_smallFlatA',
   'stone_smallA',
   'fence_simple',
   'fence_planks',

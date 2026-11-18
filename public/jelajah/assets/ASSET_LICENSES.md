@@ -17,7 +17,7 @@ built procedurally in code (`lib/jelajah/three/village-geometry.ts`).
   `tree_palmTall.glb`, `tree_palmBend.glb`, `tree_palmShort.glb`, `tree_default.glb`, `tree_oak.glb`,
   `tree_fat.glb`, `crops_bambooStageA.glb`, `plant_bushLarge.glb`, `plant_bush.glb`, `plant_flatTall.glb`,
   `grass.glb`, `grass_large.glb`, `flower_redA.glb`, `flower_yellowA.glb`, `flower_purpleA.glb`,
-  `rock_largeA.glb`, `rock_smallA.glb`, `rock_smallFlatA.glb`, `stone_smallA.glb`, `fence_simple.glb`,
+  `rock_largeA.glb`, `rock_smallA.glb`, `stone_smallA.glb`, `fence_simple.glb`,
   `fence_planks.glb`, `log_stack.glb`, `log.glb`, `stump_round.glb`, `pot_large.glb`, `pot_small.glb`,
   `canoe.glb`, `lily_large.glb`, `lily_small.glb`
 

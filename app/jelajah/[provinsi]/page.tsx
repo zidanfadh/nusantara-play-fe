@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { AppNavbar } from '@/components/ui/AppNavbar';
-import { ProvincePlaceholder } from '@/components/jelajah/ProvincePlaceholder';
+import { ProvinceExperience } from '@/components/jelajah/ProvinceExperience';
 import { ENTERABLE_PROVINCES, findEnterableProvince } from '@/lib/jelajah/provinces';
+import { findScene } from '@/lib/jelajah/scenes';
 
 // Only the enterable provinces exist; every other slug is a 404 (no runtime rendering).
 export const dynamicParams = false;
@@ -15,17 +16,22 @@ type Params = { params: Promise<{ provinsi: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const province = findEnterableProvince((await params).provinsi);
-  return { title: province ? `${province.nama} · Jelajah Nusantara` : 'Jelajah Nusantara' };
+  return {
+    title: province ? `${province.nama} · Jelajah Nusantara` : 'Jelajah Nusantara',
+    description: province ? `Desa virtual ${province.nama}: jelajahi stand PROT dari provinsi ini.` : undefined,
+  };
 }
 
 export default async function JelajahProvinsiPage({ params }: Params) {
-  const province = findEnterableProvince((await params).provinsi);
-  if (!province) notFound();
+  const slug = (await params).provinsi;
+  const province = findEnterableProvince(slug);
+  const scene = findScene(slug);
+  if (!province || !scene) notFound();
   return (
     <div className="min-h-screen bg-background">
       <AppNavbar />
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-        <ProvincePlaceholder kode={province.kode} nama={province.nama} />
+      <main>
+        <ProvinceExperience scene={scene} />
       </main>
     </div>
   );

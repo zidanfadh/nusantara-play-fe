@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { Component, useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
@@ -14,6 +14,7 @@ import { useThemeMode } from '@/lib/jelajah/use-theme-mode';
 import Map2D from './Map2D';
 import { ProvinceCard } from './ProvinceCard';
 import { TierMenu } from './TierMenu';
+import { WebGLBoundary } from './WebGLBoundary';
 
 // three.js lives only in this chunk; it is requested only when the tier is full or lite.
 const Map3D = dynamic(() => import('./Map3D'), {
@@ -27,17 +28,6 @@ function MapSkeleton({ label }: { label: string }) {
       <p className="animate-pulse text-sm text-muted-foreground">{label}</p>
     </div>
   );
-}
-
-/** Falls back to the 2D map when WebGL fails at runtime (context creation, lost context). */
-class WebGLBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? this.props.fallback : this.props.children;
-  }
 }
 
 export function JelajahHub() {

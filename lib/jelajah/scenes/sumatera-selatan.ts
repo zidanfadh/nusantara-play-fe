@@ -95,7 +95,8 @@ const decor: DecorDef[] = [
   { model: 'lily_small', x: -14, z: -18.8, y: -0.17, rotation: 0.2, scale: 1.5, detail: true },
 ];
 
-// Frame: trees on the far river bank and along the edges (outside the walkable area).
+// Frame: trees on the far river bank and along the east and west edges (outside the walkable area).
+// None on the south side: the camera looks north from there.
 const rand = seeded(1601);
 const FRAME_TREES: NatureModel[] = ['tree_palmTall', 'tree_default', 'tree_palmBend', 'tree_oak', 'tree_fat'];
 for (let i = 0; i < 16; i += 1) {
@@ -121,17 +122,6 @@ for (const side of [-1, 1]) {
     });
   }
 }
-for (let i = 0; i < 9; i += 1) {
-  decor.push({
-    model: FRAME_TREES[(i + 1) % FRAME_TREES.length],
-    x: round(-20 + i * 5 + rand() * 2),
-    z: round(19.5 + rand() * 3),
-    rotation: round(rand() * 6.28),
-    scale: round(1.2 + rand() * 0.4),
-    detail: i % 3 === 2,
-  });
-}
-
 // Small details scattered on the grass (lite tier leaves them out). Kept off the plaza and paths.
 const DETAILS: NatureModel[] = [
   'grass',
@@ -140,7 +130,6 @@ const DETAILS: NatureModel[] = [
   'flower_yellowA',
   'flower_purpleA',
   'rock_smallA',
-  'rock_smallFlatA',
   'stone_smallA',
   'plant_flatTall',
 ];
@@ -157,7 +146,7 @@ for (let tries = 0; placed < 70 && tries < 600; tries += 1) {
     x: round(x),
     z: round(z),
     rotation: round(rand() * 6.28),
-    scale: round(1.6 + rand() * 0.8),
+    scale: round(0.8 + rand() * 0.5),
     detail: true,
   });
   placed += 1;
@@ -176,7 +165,7 @@ export const SUMATERA_SELATAN_SCENE: SceneDefinition = {
   river: { north: -21, south: -14, bank: 1.8 },
   plaza: PLAZA,
   paths: [
-    { from: [0, 22], to: [0, PLAZA.z + PLAZA.radius - 0.5], width: 2.6 },
+    { from: [0, 45], to: [0, PLAZA.z + PLAZA.radius - 0.5], width: 2.6 },
     { from: [0, PLAZA.z - PLAZA.radius + 0.5], to: [0, -12.6], width: 2.2 },
     { from: [-PLAZA.radius + 0.5, -1], to: [-11.5, -3.8], width: 2 },
     { from: [PLAZA.radius - 0.5, -1], to: [11.5, -3.8], width: 2 },
@@ -201,10 +190,10 @@ export const SUMATERA_SELATAN_SCENE: SceneDefinition = {
     houseWall: '#946039',
     housePost: '#5E3B25',
     houseFloor: '#734A2E',
-    houseRoof: '#6E3627',
+    houseRoof: '#7E4330',
     houseTrim: '#C99A2E',
     standPost: '#8A5A3B',
-    standRoof: '#9E3C24',
+    standRoof: '#B4553A',
     standCounter: '#D2AC78',
     materials: {
       leafsGreen: '#6F9A4B',
