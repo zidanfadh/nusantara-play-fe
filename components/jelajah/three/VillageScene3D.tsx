@@ -6,19 +6,22 @@
  *
  * Draw calls (full tier, Sumatera Selatan): 1 merged village mesh (ground, plaza, paths, banks,
  * houses, stands) + 1 water + 1 per Nature Kit model type (instanced, vertex colours) + 1 blob
- * shadows + 1 per stand sign (sprite) + the player (2 skinned meshes + 1 blob). No realtime shadows.
+ * shadows + 1 per stand sign (sprite) + the player (2 skinned meshes + 2 occlusion silhouettes + 1 blob).
+ * No realtime shadows.
  */
 import { Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useAnimations, useGLTF, useProgress } from '@react-three/drei';
 import {
   DoubleSide,
+  GreaterDepth,
   InstancedMesh,
   Matrix4,
   MeshBasicMaterial,
   MeshLambertMaterial,
   PlaneGeometry,
   Quaternion,
+  SkinnedMesh,
   Sprite,
   SpriteMaterial,
   Vector3,
@@ -247,11 +250,33 @@ function Player({
   const blobTexture = useMemo(() => createBlobTexture(), []);
   useEffect(() => () => blobTexture.dispose(), [blobTexture]);
 
-  // The pack's characters are not shadow casters here, and their material is double sided already.
   useEffect(() => {
+    const skinned: SkinnedMesh[] = [];
     gltf.scene.traverse((o) => {
       o.frustumCulled = false; // skinned meshes: the bind-pose bounds do not follow the animation
+      if (o instanceof SkinnedMesh) skinned.push(o);
     });
+    // Silhouette where the player is hidden behind a roof or a house: a copy of each skinned mesh
+    // (sharing the skeleton) that draws only where it is BEHIND the depth buffer (+2 draw calls).
+    // Order in the opaque pass: scene (0) → silhouette (1) → player (2), so the silhouette is tested
+    // against the scene only, never against the player's own body (no pale patches on the player).
+    const ghostMaterial = new MeshBasicMaterial({
+      color: '#F3DFC1',
+      depthWrite: false,
+      depthFunc: GreaterDepth,
+    });
+    const ghosts = skinned.map((mesh) => {
+      const ghost = mesh.clone();
+      ghost.material = ghostMaterial;
+      ghost.renderOrder = 1;
+      mesh.renderOrder = 2;
+      mesh.parent?.add(ghost);
+      return ghost;
+    });
+    return () => {
+      for (const g of ghosts) g.removeFromParent();
+      ghostMaterial.dispose();
+    };
   }, [gltf.scene]);
 
   useEffect(() => {
