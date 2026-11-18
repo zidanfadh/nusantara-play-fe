@@ -6,13 +6,14 @@ import { MapPin, RefreshCw } from 'lucide-react';
 import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
 import { PALETTES } from '@/lib/jelajah/palette';
-import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { ENTERABLE_PROVINCES, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useJelajahData } from '@/lib/jelajah/use-jelajah-data';
 import { useProvinceShapes } from '@/lib/jelajah/use-province-shapes';
 import { useThemeMode } from '@/lib/jelajah/use-theme-mode';
 import Map2D from './Map2D';
 import { ProvinceCard } from './ProvinceCard';
+import { RewardHud } from './RewardHud';
 import { TierMenu } from './TierMenu';
 import { WebGLBoundary } from './WebGLBoundary';
 
@@ -56,6 +57,17 @@ export function JelajahHub() {
     setSelectedKode(kode);
     mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  // One demo quest per province scene (Phase 12, SIMULATED rewards).
+  const quests = useMemo(
+    () =>
+      ENTERABLE_PROVINCES.map((p) => ({
+        provinsiKode: p.kode,
+        nama: p.nama,
+        protCount: status === 'ready' ? summaryByKode.get(p.kode)?.protCount ?? 0 : null,
+      })),
+    [status, summaryByKode],
+  );
 
   const clickable = data.provinces.filter((p) => isClickable(p.kode, summaryByKode));
   const others = data.provinces.filter((p) => !isClickable(p.kode, summaryByKode));
@@ -125,8 +137,13 @@ export function JelajahHub() {
           </div>
         </div>
 
+        {/* Simulated reward HUD under the title card; hidden on phones while a province card is open. */}
+        <div className={`pointer-events-none absolute left-3 top-[4.5rem] z-20 md:top-[5.25rem] ${selected ? 'hidden md:block' : ''}`}>
+          <RewardHud quests={quests} />
+        </div>
+
         {hovered && !selected && (
-          <div className="pointer-events-none absolute left-1/2 top-20 z-20 -translate-x-1/2 rounded-full bg-card/95 px-3 py-1 text-sm font-medium text-card-foreground shadow">
+          <div className="pointer-events-none absolute left-1/2 top-[11rem] z-20 lg:top-20 -translate-x-1/2 rounded-full bg-card/95 px-3 py-1 text-sm font-medium text-card-foreground shadow">
             {hovered.nama} · {hovered.protCount} PROT
           </div>
         )}
@@ -134,7 +151,7 @@ export function JelajahHub() {
         {status === 'error' && (
           <div
             role="alert"
-            className="absolute left-1/2 top-20 z-20 flex w-[min(92%,26rem)] -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm text-card-foreground shadow-lg"
+            className="absolute left-1/2 top-[11rem] z-20 lg:top-20 flex w-[min(92%,26rem)] -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm text-card-foreground shadow-lg"
           >
             <p className="flex-1">Data PROT belum bisa dimuat. Peta tetap bisa dilihat.</p>
             <button
@@ -147,7 +164,7 @@ export function JelajahHub() {
           </div>
         )}
         {status === 'loading' && (
-          <p className="absolute left-1/2 top-20 z-20 -translate-x-1/2 rounded-full bg-card/90 px-3 py-1 text-xs text-muted-foreground shadow">
+          <p className="absolute left-1/2 top-[11rem] z-20 lg:top-20 -translate-x-1/2 rounded-full bg-card/90 px-3 py-1 text-xs text-muted-foreground shadow">
             Memuat data PROT…
           </p>
         )}

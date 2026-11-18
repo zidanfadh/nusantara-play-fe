@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
-import { flushSync } from "react-dom"
+import { useRef, useCallback, useSyncExternalStore } from "react"
 
 import { Moon, Sun } from "lucide-react"
 
@@ -13,51 +12,44 @@ type AnimatedThemeTogglerProps = {
   className?: string
 }
 
+// The theme lives in the `dark` class on <html>, set before hydration by the inline script in
+// app/layout.tsx. The server (and the hydration pass) always renders the light icon; the real value is
+// read only after mount, so server and client markup match (no React error #418) (Phase 12).
+function subscribeTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+  return () => observer.disconnect()
+}
+const isDark = () => document.documentElement.classList.contains("dark")
+const isDarkOnServer = () => false
+
+function applyTheme(dark: boolean) {
+  document.documentElement.classList.toggle("dark", dark)
+  try {
+    localStorage.setItem("theme", dark ? "dark" : "light")
+  } catch {
+    // storage blocked: the theme still changes for this page
+  }
+}
+
 export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) => {
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window === "undefined") return false
-    
-    const savedTheme = localStorage.getItem("theme")
-    if (savedTheme) {
-      return savedTheme === "dark"
-    }
-    // Default to light mode
-    return false
-  })
-
-  useEffect(() => {
-    const syncTheme = () =>
-      setDarkMode(document.documentElement.classList.contains("dark"))
-
-    const observer = new MutationObserver(syncTheme)
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    })
-    return () => observer.disconnect()
-  }, [])
+  const darkMode = useSyncExternalStore(subscribeTheme, isDark, isDarkOnServer)
 
   const onToggle = useCallback(async () => {
     if (!buttonRef.current) return
 
     const toggled = !darkMode
-    
+
     // Check if View Transition API is supported
     if (!document.startViewTransition) {
       // Fallback for browsers that don't support View Transition API
-      setDarkMode(toggled)
-      document.documentElement.classList.toggle("dark", toggled)
-      localStorage.setItem("theme", toggled ? "dark" : "light")
+      applyTheme(toggled)
       return
     }
 
     await document.startViewTransition(() => {
-      flushSync(() => {
-        setDarkMode(toggled)
-        document.documentElement.classList.toggle("dark", toggled)
-        localStorage.setItem("theme", toggled ? "dark" : "light")
-      })
+      applyTheme(toggled)
     }).ready
 
     const { left, top, width, height } = buttonRef.current.getBoundingClientRect()

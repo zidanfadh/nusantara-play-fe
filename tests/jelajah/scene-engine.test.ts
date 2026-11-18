@@ -100,10 +100,12 @@ describe('colliders and bounds', () => {
     expect(x).toBeLessThanOrEqual(9.65);
   });
 
-  it('houses, stands and colliding decor block; detail-only items are optional', () => {
+  it('houses, stands, the centrepiece and colliding decor block; detail-only items are optional', () => {
     const all = sceneColliders(scene);
     const blocking = scene.decor.filter((d) => d.collide !== undefined).length;
-    expect(all).toHaveLength(scene.houses.length + scene.stands.length + blocking);
+    const centrepiece = scene.centrepiece ? 1 : 0;
+    expect(centrepiece).toBe(1);
+    expect(all).toHaveLength(scene.houses.length + scene.stands.length + centrepiece + blocking);
     expect(sceneColliders(scene, false).length).toBeLessThanOrEqual(all.length);
   });
 
@@ -114,6 +116,18 @@ describe('colliders and bounds', () => {
     expect(spawn.z).toBeGreaterThanOrEqual(walkable.minZ);
     expect(spawn.z).toBeLessThanOrEqual(walkable.maxZ);
     for (const c of sceneColliders(scene)) expect(distanceToCollider(c, spawn.x, spawn.z)).toBeGreaterThan(0.5);
+  });
+
+  it('the plaza centrepiece blocks the player and leaves room around it', () => {
+    const c = scene.centrepiece!;
+    const col = sceneColliders(scene)[scene.houses.length + scene.stands.length];
+    expect(col).toMatchObject({ kind: 'box', x: c.x, z: c.z });
+    // Walking into it from the south stops at its edge.
+    const [, z] = resolveMove([c.x, c.z + 4], [0, -4], [col], scene.walkable);
+    expect(z).toBeGreaterThan(c.z + c.size / 2);
+    // It stays inside the plaza and clear of every stand.
+    expect(c.size / 2 + 0.2).toBeLessThan(scene.plaza.radius);
+    for (const s of scene.stands) expect(distanceToCollider(col, s.x, s.z)).toBeGreaterThan(STAND_SIZE.width);
   });
 
   it('the scene has 6 stands that do not overlap each other or the houses', () => {

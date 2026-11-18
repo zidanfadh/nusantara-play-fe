@@ -31,22 +31,18 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                let theme = localStorage.getItem('theme');
-                // Set default to light if no theme is saved
-                if (!theme) {
-                  theme = 'light';
-                  localStorage.setItem('theme', 'light');
-                }
-                // Only apply dark if explicitly set to dark
-                if (theme === 'dark') {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
-              })();
-            `,
+            // Runs before hydration: sets the theme class on <html> only (suppressHydrationWarning
+            // covers that one attribute). Components read the theme after mount (Phase 12, #418 fix).
+            __html: `(function () {
+  try {
+    var theme = localStorage.getItem('theme');
+    if (!theme) {
+      theme = 'light';
+      localStorage.setItem('theme', 'light');
+    }
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  } catch (e) {}
+})();`,
           }}
         />
       </head>

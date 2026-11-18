@@ -6,31 +6,45 @@
  *
  * Draw calls (full tier, Sumatera Selatan): 1 merged village mesh (ground, plaza, paths, banks,
  * houses, stands) + 1 water + 1 per Nature Kit model type (instanced, vertex colours) + 1 blob
- * shadows + 1 per stand sign (sprite) + the player (2 skinned meshes + 2 occlusion silhouettes + 1 blob).
- * No realtime shadows.
+ * shadows + 1 per stand sign (sprite) + the player (2 skinned meshes + 2 silhouette fills + 2 silhouette
+ * edges + 1 blob). The plaza centrepiece is part of the merged mesh. No realtime shadows.
+ *
+ * Phase 12: framed follow camera (lib/jelajah/engine/camera.ts) with a short entry glide, a silhouette in
+ * the site's primary colour with an edge, and cheap ambient life (water shimmer, palm sway, canoe bob) on
+ * the full tier only, never with prefers-reduced-motion.
  */
 import { Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useAnimations, useGLTF, useProgress } from '@react-three/drei';
 import {
+  AddEquation,
+  BackSide,
+  CustomBlending,
   DoubleSide,
+  Euler,
   GreaterDepth,
   InstancedMesh,
   Matrix4,
   MeshBasicMaterial,
   MeshLambertMaterial,
+  NotEqualStencilFunc,
+  OneMinusSrcAlphaFactor,
   PlaneGeometry,
   Quaternion,
+  ReplaceStencilOp,
   SkinnedMesh,
+  SrcAlphaFactor,
   Sprite,
   SpriteMaterial,
   Vector3,
   type AnimationAction,
   type Group,
+  type Mesh,
   type PerspectiveCamera,
 } from 'three';
 import type { RenderStats } from '@/lib/jelajah/budget';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
+import { frameCamera, introPose, smoothDamp, spawnFramePoints, type DampState } from '@/lib/jelajah/engine/camera';
 import { resolveMove, sceneColliders, STAND_SIZE } from '@/lib/jelajah/engine/collision';
 import {
   combineInput,
@@ -45,19 +59,24 @@ import {
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import { nearestStand, type StandContent } from '@/lib/jelajah/engine/stands';
 import type { DecorDef, NatureModel, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
-import { createBlobTexture, createSignTexture, SIGN_CANVAS, type SignContent } from '@/lib/jelajah/three/canvas-textures';
+import { SIGN_CENTER_Y, SIGN_HEIGHT, SIGN_WIDTH } from '@/lib/jelajah/engine/sign-text';
+import { createBlobTexture, createSignTexture, type SignContent } from '@/lib/jelajah/three/canvas-textures';
 import { bakeModel } from '@/lib/jelajah/three/model-bake';
-import { buildVillageGeometry, buildWaterGeometry, STAND_ROOF_TOP } from '@/lib/jelajah/three/village-geometry';
+import { buildVillageGeometry, buildWaterGeometry } from '@/lib/jelajah/three/village-geometry';
 import { StatsOverlay, StatsProbe } from './StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
-const FOV = 45;
-/** Camera offset from the player: fixed pitch (about 40° down), never rotates. */
-const CAMERA_OFFSET = new Vector3(0, 13.5, 15.5);
 const PLAYER_SCALE = 2.5;
 const WALK_SPEED = 4.2; // m/s at full input
 const TURN_SPEED = 10; // rad/s
-const SIGN_WIDTH = 2.9;
+/** Camera follow smoothing (seconds, critically damped). */
+const FOLLOW_SMOOTH_TIME = 0.16;
+/** Hidden-player silhouette: the site's primary colour (light theme --color-primary) and a light edge. */
+const SILHOUETTE_COLOR = '#9E3C24';
+const SILHOUETTE_OPACITY = 0.82;
+const SILHOUETTE_EDGE_COLOR = '#FFF1DC';
+/** Edge width in metres (view space). */
+const SILHOUETTE_EDGE_WIDTH = 0.055;
 
 export interface VillageScene3DProps {
   scene: SceneDefinition;
@@ -71,6 +90,8 @@ export interface VillageScene3DProps {
   /** E (or Enter on the canvas) pressed. */
   onInteract: () => void;
   onReady: () => void;
+  /** prefers-reduced-motion: no entry glide and no ambient animation. */
+  reducedMotion: boolean;
 }
 
 function signContent(content: StandContent<SceneProt>): SignContent {
@@ -79,19 +100,32 @@ function signContent(content: StandContent<SceneProt>): SignContent {
   return { kind: 'empty' };
 }
 
+function markInstancesDirty(mesh: InstancedMesh) {
+  mesh.instanceMatrix.needsUpdate = true;
+}
+
+/** Instances whose transform is animated (palms sway, the canoe bobs). Plain numbers, set up once. */
+interface AnimatedInstances {
+  mesh: InstancedMesh;
+  kind: 'palm' | 'canoe';
+  items: { x: number; y: number; z: number; rotation: number; scale: number; phase: number }[];
+}
+
 /** Static village: merged procedural mesh, water, instanced Nature Kit models and blob shadows. */
-function World({ scene, tier }: { scene: SceneDefinition; tier: 'full' | 'lite' }) {
+function World({ scene, tier, animate }: { scene: SceneDefinition; tier: 'full' | 'lite'; animate: boolean }) {
   const { scene: nature } = useGLTF(scene.assets.nature, false, true);
 
   const village = useMemo(() => buildVillageGeometry(scene), [scene]);
   const water = useMemo(() => buildWaterGeometry(scene, tier === 'full'), [scene, tier]);
   const material = useMemo(() => new MeshLambertMaterial({ vertexColors: true }), []);
   const decor = useMemo(() => scene.decor.filter((d) => tier === 'full' || !d.detail), [scene, tier]);
+  const waterRef = useRef<Mesh>(null);
 
-  const instanced = useMemo(() => {
+  const { meshes: instanced, animated } = useMemo(() => {
     const byModel = new Map<NatureModel, DecorDef[]>();
     for (const d of decor) byModel.set(d.model, [...(byModel.get(d.model) ?? []), d]);
     const meshes: InstancedMesh[] = [];
+    const animatedList: AnimatedInstances[] = [];
     const m = new Matrix4();
     const q = new Quaternion();
     const up = new Vector3(0, 1, 0);
@@ -108,15 +142,64 @@ function World({ scene, tier }: { scene: SceneDefinition; tier: 'full' | 'lite' 
       mesh.computeBoundingSphere();
       mesh.name = model;
       meshes.push(mesh);
+      const kind = model.startsWith('tree_palm') ? 'palm' : model === 'canoe' ? 'canoe' : null;
+      if (kind) {
+        animatedList.push({
+          mesh,
+          kind,
+          items: items.map((d, i) => ({
+            x: d.x,
+            y: d.y ?? 0,
+            z: d.z,
+            rotation: d.rotation ?? 0,
+            scale: scene.modelScale * (d.scale ?? 1),
+            phase: (d.x * 0.37 + d.z * 0.61 + i) % (Math.PI * 2),
+          })),
+        });
+      }
     }
-    return meshes;
+    return { meshes, animated: animatedList };
   }, [nature, decor, scene, material]);
+
+  // Ambient life (full tier, no reduced motion). Scratch objects are reused: no allocations per frame.
+  const scratch = useMemo(
+    () => ({ m: new Matrix4(), q: new Quaternion(), e: new Euler(), p: new Vector3(), s: new Vector3() }),
+    [],
+  );
+  useFrame(({ clock }) => {
+    if (!animate) return;
+    const t = clock.elapsedTime;
+    const w = waterRef.current;
+    if (w) {
+      (w.material as MeshLambertMaterial).color.setScalar(1 + 0.05 * Math.sin(t * 1.3));
+      w.position.x = Math.sin(t * 0.21) * 0.9; // the streaks drift back and forth (the river is 160 m wide)
+    }
+    const { m, q, e, p, s } = scratch;
+    for (const a of animated) {
+      for (let i = 0; i < a.items.length; i += 1) {
+        const d = a.items[i];
+        if (a.kind === 'palm') {
+          e.set(Math.sin(t * 0.8 + d.phase) * 0.035, d.rotation, Math.cos(t * 0.63 + d.phase) * 0.03);
+          p.set(d.x, d.y, d.z);
+        } else {
+          e.set(Math.sin(t * 1.1 + d.phase) * 0.03, d.rotation, Math.sin(t * 1.4 + d.phase) * 0.05);
+          p.set(d.x, d.y + Math.sin(t * 1.6 + d.phase) * 0.05, d.z);
+        }
+        q.setFromEuler(e);
+        s.setScalar(d.scale);
+        a.mesh.setMatrixAt(i, m.compose(p, q, s));
+      }
+      markInstancesDirty(a.mesh);
+    }
+  });
 
   // Blob shadows under houses, stands and the larger models.
   const blobs = useMemo(() => {
     const spots: { x: number; z: number; w: number; d: number; rot: number }[] = [];
     for (const h of scene.houses) spots.push({ x: h.x, z: h.z, w: h.width + 1.4, d: h.depth + 1.6, rot: h.rotation });
     for (const s of scene.stands) spots.push({ x: s.x, z: s.z, w: STAND_SIZE.width + 1, d: STAND_SIZE.depth + 1, rot: s.rotation });
+    const c = scene.centrepiece;
+    if (c) spots.push({ x: c.x, z: c.z, w: c.size + 2.2, d: c.size + 2.2, rot: c.rotation });
     for (const d of decor) {
       if (!/^tree_|bamboo|bushLarge|log_stack|rock_large/.test(d.model)) continue;
       const r = (d.model.startsWith('tree_') ? 1.6 : 1.1) * (d.scale ?? 1);
@@ -170,7 +253,7 @@ function World({ scene, tier }: { scene: SceneDefinition; tier: 'full' | 'lite' 
   return (
     <>
       <mesh geometry={village} material={material} />
-      <mesh geometry={water}>
+      <mesh ref={waterRef} geometry={water}>
         <meshLambertMaterial vertexColors />
       </mesh>
       {instanced.map((mesh) => (
@@ -189,8 +272,8 @@ function Signs({ scene, stands }: { scene: SceneDefinition; stands: readonly Sta
         const content = stands[i] ?? { kind: 'empty' };
         const material = new SpriteMaterial({ map: createSignTexture(signContent(content)), transparent: true });
         const sprite = new Sprite(material);
-        sprite.position.set(s.x, STAND_ROOF_TOP + 0.95, s.z);
-        sprite.scale.set(SIGN_WIDTH, (SIGN_WIDTH * SIGN_CANVAS.height) / SIGN_CANVAS.width, 1);
+        sprite.position.set(s.x, SIGN_CENTER_Y, s.z);
+        sprite.scale.set(SIGN_WIDTH, SIGN_HEIGHT, 1);
         return sprite;
       }),
     [scene, stands],
@@ -226,12 +309,12 @@ function Player({
   paused,
   onNearStand,
   onInteract,
-}: Pick<VillageScene3DProps, 'scene' | 'tier' | 'joystickRef' | 'paused' | 'onNearStand' | 'onInteract'>) {
+  reducedMotion,
+}: Pick<VillageScene3DProps, 'scene' | 'tier' | 'joystickRef' | 'paused' | 'onNearStand' | 'onInteract' | 'reducedMotion'>) {
   const gltf = useGLTF(scene.assets.player, false, true);
   const group = useRef<Group>(null);
   const blob = useRef<Group>(null);
   const { actions } = useAnimations(gltf.animations, group);
-  const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const colliders = useMemo(() => sceneColliders(scene, tier === 'full'), [scene, tier]);
   const state = useRef({
@@ -239,7 +322,6 @@ function Player({
     heading: scene.spawn.rotation,
     moving: false,
     near: null as number | null,
-    focus: new Vector3(scene.spawn.x, 0, scene.spawn.z),
     snapped: false,
   });
   const keys = useRef(new Set<string>());
@@ -256,26 +338,66 @@ function Player({
       o.frustumCulled = false; // skinned meshes: the bind-pose bounds do not follow the animation
       if (o instanceof SkinnedMesh) skinned.push(o);
     });
-    // Silhouette where the player is hidden behind a roof or a house: a copy of each skinned mesh
-    // (sharing the skeleton) that draws only where it is BEHIND the depth buffer (+2 draw calls).
-    // Order in the opaque pass: scene (0) → silhouette (1) → player (2), so the silhouette is tested
-    // against the scene only, never against the player's own body (no pale patches on the player).
-    const ghostMaterial = new MeshBasicMaterial({
-      color: '#F3DFC1',
+    // Silhouette where the player is hidden behind a roof or a house (Phase 11, restyled in Phase 12):
+    // copies of each skinned mesh (sharing the skeleton) that draw only where they are BEHIND the depth
+    // buffer. Order in the opaque pass: scene (0) → fill (1) → edge (1.5) → player (2), so both are
+    // tested against the scene only, never against the player's own body.
+    // - Fill: the site's primary colour at a fixed opacity. It stays in the opaque pass (transparent:
+    //   false) but blends through CustomBlending; the stencil makes every pixel blend only once, so
+    //   overlapping body parts do not get darker.
+    // - Edge: the same mesh pushed out along its normals (view space), drawn only outside the fill
+    //   (stencil), as a light outline around the shape.
+    const fill = new MeshBasicMaterial({
+      color: SILHOUETTE_COLOR,
+      opacity: SILHOUETTE_OPACITY,
+      blending: CustomBlending,
+      blendEquation: AddEquation,
+      blendSrc: SrcAlphaFactor,
+      blendDst: OneMinusSrcAlphaFactor,
       depthWrite: false,
       depthFunc: GreaterDepth,
+      toneMapped: false,
+      stencilWrite: true,
+      stencilRef: 1,
+      stencilFunc: NotEqualStencilFunc,
+      stencilZPass: ReplaceStencilOp,
     });
-    const ghosts = skinned.map((mesh) => {
-      const ghost = mesh.clone();
-      ghost.material = ghostMaterial;
-      ghost.renderOrder = 1;
+    const edge = new MeshBasicMaterial({
+      color: SILHOUETTE_EDGE_COLOR,
+      side: BackSide,
+      depthWrite: false,
+      depthFunc: GreaterDepth,
+      toneMapped: false,
+      stencilWrite: true,
+      stencilRef: 1,
+      stencilFunc: NotEqualStencilFunc,
+      stencilZPass: ReplaceStencilOp,
+    });
+    edge.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <project_vertex>',
+        `#include <project_vertex>
+        mvPosition.xyz += normalize( normalMatrix * objectNormal ) * ${SILHOUETTE_EDGE_WIDTH.toFixed(3)};
+        gl_Position = projectionMatrix * mvPosition;`,
+      );
+    };
+    const copies = skinned.flatMap((mesh) => {
       mesh.renderOrder = 2;
-      mesh.parent?.add(ghost);
-      return ghost;
+      return [
+        [fill, 1],
+        [edge, 1.5],
+      ].map(([material, order]) => {
+        const copy = mesh.clone();
+        copy.material = material as MeshBasicMaterial;
+        copy.renderOrder = order as number;
+        mesh.parent?.add(copy);
+        return copy;
+      });
     });
     return () => {
-      for (const g of ghosts) g.removeFromParent();
-      ghostMaterial.dispose();
+      for (const c of copies) c.removeFromParent();
+      fill.dispose();
+      edge.dispose();
     };
   }, [gltf.scene]);
 
@@ -317,11 +439,28 @@ function Player({
     if (paused) keys.current.clear();
   }, [paused]);
 
-  const offset = useMemo(() => {
-    // Narrow (portrait) screens: step back a little so the plaza still fits.
-    const aspect = size.width / Math.max(1, size.height);
-    return CAMERA_OFFSET.clone().multiplyScalar(aspect < 0.65 ? 1.7 : aspect < 0.9 ? 1.4 : aspect < 1.2 ? 1.12 : 1);
-  }, [size.width, size.height]);
+  // Framing: the player in the lower third, the two nearest stands and every sign on screen at the spawn
+  // point; closer camera and wider field of view on portrait phones (lib/jelajah/engine/camera.ts).
+  const framePoints = useMemo(() => spawnFramePoints(scene), [scene]);
+  const frame = useMemo(
+    () => frameCamera(size.width / Math.max(1, size.height), framePoints),
+    [size.width, size.height, framePoints],
+  );
+
+  // Entry glide from a higher view (full tier only, never with reduced motion); any input skips it.
+  const intro = useRef({ active: tier === 'full' && !reducedMotion, elapsed: 0 });
+  useEffect(() => {
+    if (!intro.current.active) return;
+    const skip = () => {
+      intro.current.active = false;
+    };
+    const events = ['keydown', 'pointerdown', 'wheel', 'touchstart'] as const;
+    for (const e of events) window.addEventListener(e, skip, { passive: true });
+    return () => {
+      for (const e of events) window.removeEventListener(e, skip);
+    };
+  }, []);
+  const follow = useRef<{ x: DampState; z: DampState }>({ x: { value: 0, velocity: 0 }, z: { value: 0, velocity: 0 } });
 
   const setAction = (moving: boolean, strength: number) => {
     const walk = actions.walk as AnimationAction | null | undefined;
@@ -335,8 +474,13 @@ function Player({
     from?.fadeOut(0.18);
   };
 
-  useFrame((_, rawDt) => {
+  useFrame((three, rawDt) => {
     const dt = Math.min(rawDt, 0.1);
+    const cam = three.camera as PerspectiveCamera;
+    if (cam.fov !== frame.fov) {
+      cam.fov = frame.fov;
+      cam.updateProjectionMatrix();
+    }
     const s = state.current;
     const input = latest.current.paused ? ZERO_INPUT : combineInput(keysToVector(keys.current), joystickRef.current);
     const strength = Math.hypot(input.x, input.y);
@@ -356,16 +500,32 @@ function Player({
     }
     blob.current?.position.set(s.pos[0], 0.05, s.pos[1]);
 
-    // Camera: follow a smoothed focus point at a constant offset (constant pitch, no rotation).
-    const target = new Vector3(s.pos[0], 0, s.pos[1]);
+    // Camera: a critically damped focus point (no jitter at low frame rates) at a constant offset,
+    // constant pitch, no rotation around the vertical axis. No allocations per frame.
+    const f = follow.current;
     if (!s.snapped) {
-      s.focus.copy(target);
+      f.x.value = s.pos[0];
+      f.z.value = s.pos[1];
       s.snapped = true;
     } else {
-      s.focus.lerp(target, 1 - Math.exp(-dt * 7));
+      smoothDamp(f.x, s.pos[0], FOLLOW_SMOOTH_TIME, dt);
+      smoothDamp(f.z, s.pos[1], FOLLOW_SMOOTH_TIME, dt);
     }
-    camera.position.copy(s.focus).add(offset);
-    camera.lookAt(s.focus.x, s.focus.y + 1.1, s.focus.z);
+    let pitch = frame.pitch;
+    let off = frame.offset;
+    const i = intro.current;
+    if (i.active) {
+      if (moving) i.active = false;
+      else {
+        i.elapsed += dt;
+        const pose = introPose(frame, i.elapsed);
+        pitch = pose.pitch;
+        off = pose.offset;
+        if (pose.done) i.active = false;
+      }
+    }
+    cam.position.set(f.x.value + off.x, off.y, f.z.value + off.z);
+    cam.rotation.set(-pitch, 0, 0);
 
     const near = nearestStand(s.pos, scene.stands);
     if (near !== s.near) {
@@ -444,8 +604,8 @@ export default function VillageScene3D(props: VillageScene3DProps) {
       <Canvas
         key={tier}
         dpr={settings.dpr}
-        gl={{ antialias: settings.antialias, powerPreference: 'default' }}
-        camera={{ fov: FOV, near: 0.5, far: 140, position: [0, 10, 25] }}
+        gl={{ antialias: settings.antialias, powerPreference: 'default', stencil: true }}
+        camera={{ fov: 50, near: 0.5, far: 140, position: [0, 10, 25] }}
         aria-label={`Desa virtual 3D ${scene.nama}`}
         role="img"
         tabIndex={0}
@@ -455,7 +615,7 @@ export default function VillageScene3D(props: VillageScene3DProps) {
         <ambientLight color={scene.colors.ambient} intensity={1.45} />
         <directionalLight color={scene.colors.sun} position={[-22, 20, 14]} intensity={1.3} />
         <Suspense fallback={null}>
-          <World scene={scene} tier={tier} />
+          <World scene={scene} tier={tier} animate={tier === 'full' && !props.reducedMotion} />
           <Signs scene={scene} stands={props.stands} />
           <Player
             scene={scene}
@@ -464,6 +624,7 @@ export default function VillageScene3D(props: VillageScene3DProps) {
             paused={props.paused}
             onNearStand={props.onNearStand}
             onInteract={props.onInteract}
+            reducedMotion={props.reducedMotion}
           />
           <ReadySignal onReady={handleReady} />
         </Suspense>

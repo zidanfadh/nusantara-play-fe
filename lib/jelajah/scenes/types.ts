@@ -71,6 +71,20 @@ export interface StandDef {
   rotation: number;
 }
 
+/**
+ * Neutral centrepiece of the plaza (Phase 12): a small open pavilion (a roof on four posts on a low
+ * platform), built procedurally. The UI never names it; it carries no cultural claim.
+ */
+export interface PavilionDef {
+  x: number;
+  z: number;
+  rotation: number;
+  /** Side of the square platform (metres). */
+  size: number;
+  postHeight: number;
+  roofHeight: number;
+}
+
 export interface DecorDef {
   model: NatureModel;
   x: number;
@@ -132,6 +146,8 @@ export interface SceneDefinition {
   /** River strip along the north side: z from `north` to `south` (north < south). */
   river: { north: number; south: number; bank: number };
   plaza: { x: number; z: number; radius: number };
+  /** Optional centrepiece in the plaza (blocks the player). */
+  centrepiece?: PavilionDef;
   paths: readonly PathDef[];
   spawn: { x: number; z: number; rotation: number };
   /** The player stays inside this rectangle. */

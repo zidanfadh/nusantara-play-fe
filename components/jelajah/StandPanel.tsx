@@ -33,7 +33,8 @@ export function StandPanel({ content, onClose, onSelectProt }: StandPanelProps) 
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      // A modal dialog above the panel (Paspor, Misi) handles its own Esc.
+      if (e.key === 'Escape' && !document.querySelector('dialog[open]')) {
         e.preventDefault();
         latestClose.current();
       }

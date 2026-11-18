@@ -164,6 +164,7 @@ export const SUMATERA_SELATAN_SCENE: SceneDefinition = {
   ground: { width: 160, depth: 160 },
   river: { north: -21, south: -14, bank: 1.8 },
   plaza: PLAZA,
+  centrepiece: { x: PLAZA.x, z: PLAZA.z, rotation: 0, size: 3.6, postHeight: 2.3, roofHeight: 1.9 },
   paths: [
     { from: [0, 45], to: [0, PLAZA.z + PLAZA.radius - 0.5], width: 2.6 },
     { from: [0, PLAZA.z - PLAZA.radius + 0.5], to: [0, -12.6], width: 2.2 },
