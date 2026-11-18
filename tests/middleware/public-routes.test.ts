@@ -17,3 +17,16 @@ describe('middleware public routes', () => {
     },
   );
 });
+
+describe('middleware public routes: Jelajah Nusantara (Phase 10)', () => {
+  it.each(['/jelajah', '/jelajah/sumatera-selatan', '/jelajah/unknown-slug', '/jelajah/geo/indonesia-provinces.json'])(
+    'treats %s as public',
+    (path) => {
+      expect(isPublicPath(path)).toBe(true);
+    },
+  );
+
+  it.each(['/jelajahx', '/jelajah-admin'])('does not widen to %s', (path) => {
+    expect(isPublicPath(path)).toBe(false);
+  });
+});

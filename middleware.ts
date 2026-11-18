@@ -11,6 +11,7 @@ const publicExactRoutes = [
   '/events',
   '/calendar',
   '/nfts',
+  '/jelajah',
 ];
 
 const publicPrefixes = [
@@ -18,6 +19,8 @@ const publicPrefixes = [
   /^\/prot$/,
   /^\/prot\/(?!create$|verifikasi(?:\/.*)?$)[^/]+$/,
   /^\/nfts\/[^/]+$/,
+  // Jelajah Nusantara (Phase 10): province pages and the map's static geo files under /jelajah/geo/.
+  /^\/jelajah\/.+$/,
 ];
 
 export function isPublicPath(pathname: string) {
