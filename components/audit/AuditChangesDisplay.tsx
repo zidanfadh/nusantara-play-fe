@@ -1,11 +1,16 @@
 import type { AuditChanges, AuditAction } from '@/types/audit';
+import { redactSecrets } from './redact-secrets';
 
 interface AuditChangesDisplayProps {
   changes: AuditChanges | null;
   action: AuditAction;
 }
 
-export function AuditChangesDisplay({ changes, action }: AuditChangesDisplayProps) {
+export function AuditChangesDisplay({ changes: rawChanges, action }: AuditChangesDisplayProps) {
+  // Never display secret-looking values (password, token, secret, api key,
+  // authorization) at any nesting level: old audit rows still contain them.
+  const changes = rawChanges ? redactSecrets(rawChanges) : rawChanges;
+
   if (!changes || Object.keys(changes).length === 0) {
     return <span className="text-gray-500 text-sm">Tidak ada perubahan</span>;
   }
