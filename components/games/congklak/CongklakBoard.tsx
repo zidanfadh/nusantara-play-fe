@@ -5,8 +5,11 @@
  * clustered in each pit, the count always written next to it. Holes are buttons (tap, click, or arrow keys
  * + Enter); illegal holes are dimmed and disabled. The hand marker follows the sowing; with reduced motion
  * it is not shown and nothing moves (only the counts change, with a short highlight).
+ *
+ * Every pit is a memoized component, so one sowing step re-renders only the pits that changed (cheap on
+ * mid-range phones even in long relay chains).
  */
-import { memo, useMemo, useRef, type KeyboardEvent } from 'react';
+import { memo, useCallback, useMemo, useRef, type KeyboardEvent } from 'react';
 import { SEED_RADIUS, seedOffsets, type BoardGeometry, type PitGeometry } from '@/lib/games/congklak/layout';
 import type { Player } from '@/lib/games/congklak/state';
 
@@ -81,6 +84,111 @@ function CountLabel({ g, count, strong }: { g: PitGeometry; count: number; stron
   );
 }
 
+interface PitProps {
+  g: PitGeometry;
+  count: number;
+  ownerName: string;
+  orientation: BoardGeometry['orientation'];
+  playable: boolean;
+  /** Focusable (roving tabindex). */
+  tabStop: boolean;
+  selected: boolean;
+  dimmed: boolean;
+  /** 0 = no highlight; otherwise a key that restarts the highlight animation. */
+  flashKey: number;
+  captured: boolean;
+  reducedMotion: boolean;
+  onPlay: (pit: number) => void;
+  onSelect: (pit: number) => void;
+  registerRef: (pit: number, el: SVGGElement | null) => void;
+}
+
+const Pit = memo(function Pit({
+  g,
+  count,
+  ownerName,
+  orientation,
+  playable,
+  tabStop,
+  selected,
+  dimmed,
+  flashKey,
+  captured,
+  reducedMotion,
+  onPlay,
+  onSelect,
+  registerRef,
+}: PitProps) {
+  const pulse = reducedMotion ? undefined : { animation: 'congklak-pulse 0.9s ease-in-out infinite' };
+  const flashStyle = { animation: 'congklak-flash 0.7s ease-out forwards' };
+  if (g.kind === 'store') {
+    return (
+      <g role="img" aria-label={`Lumbung ${ownerName}: ${count} biji`} data-pit={g.pit}>
+        <ellipse cx={g.x} cy={g.y} rx={g.rx} ry={g.ry} fill="url(#ck-hole)" stroke="#5B321A" strokeWidth={3} />
+        <Seeds g={g} count={count} />
+        {captured && <ellipse cx={g.x} cy={g.y} rx={g.rx + 6} ry={g.ry + 6} fill="none" stroke="#FFD86B" strokeWidth={5} style={pulse} aria-hidden />}
+        {flashKey > 0 && (
+          <ellipse key={`f${flashKey}`} cx={g.x} cy={g.y} rx={g.rx + 4} ry={g.ry + 4} fill="none" stroke="#FFF1C2" strokeWidth={4} style={flashStyle} aria-hidden />
+        )}
+        <text
+          x={g.labelX}
+          y={g.labelY + 12}
+          textAnchor="middle"
+          fontSize={38}
+          fontWeight={800}
+          fill="#FFF7E8"
+          stroke="#3B2412"
+          strokeWidth={6}
+          paintOrder="stroke"
+          aria-hidden
+        >
+          {count}
+        </text>
+        <text
+          x={g.labelX}
+          y={orientation === 'horizontal' ? g.y + g.ry - 16 : g.y + 40}
+          textAnchor="middle"
+          fontSize={15}
+          fontWeight={700}
+          fill="#FFF1D6"
+          stroke="#3B2412"
+          strokeWidth={4}
+          paintOrder="stroke"
+          aria-hidden
+        >
+          {ownerName}
+        </text>
+      </g>
+    );
+  }
+  return (
+    <g
+      ref={(el) => registerRef(g.pit, el)}
+      role="button"
+      data-pit={g.pit}
+      tabIndex={playable ? (tabStop ? 0 : -1) : undefined}
+      aria-disabled={!playable}
+      aria-label={`Lubang ${g.hole + 1} milik ${ownerName}: ${count} biji${playable ? '' : ', tidak bisa dipilih'}`}
+      onClick={() => playable && onPlay(g.pit)}
+      onFocus={() => playable && onSelect(g.pit)}
+      className={playable ? 'cursor-pointer outline-none' : 'outline-none'}
+      style={{ opacity: dimmed ? 0.55 : 1 }}
+    >
+      <circle cx={g.x} cy={g.y} r={g.rx} fill="url(#ck-hole)" stroke="#5B321A" strokeWidth={3} />
+      {playable && <circle cx={g.x} cy={g.y} r={g.rx + 5} fill="none" stroke="#FFE7A3" strokeWidth={2.5} strokeDasharray="6 5" aria-hidden />}
+      {selected && <circle cx={g.x} cy={g.y} r={g.rx + 8} fill="none" stroke="#FFFFFF" strokeWidth={4} aria-hidden />}
+      <Seeds g={g} count={count} />
+      {captured && <circle cx={g.x} cy={g.y} r={g.rx + 5} fill="none" stroke="#FFD86B" strokeWidth={5} style={pulse} aria-hidden />}
+      {flashKey > 0 && (
+        <circle key={`f${flashKey}`} cx={g.x} cy={g.y} r={g.rx + 3} fill="#FFF1C2" fillOpacity={0.35} stroke="#FFF1C2" strokeWidth={4} style={flashStyle} aria-hidden />
+      )}
+      <CountLabel g={g} count={count} strong={selected} />
+      {/* A larger invisible tap area. */}
+      <circle cx={g.x} cy={g.y} r={g.rx + 6} fill="transparent" aria-hidden />
+    </g>
+  );
+});
+
 function CongklakBoardInner({
   geometry,
   pits,
@@ -98,6 +206,10 @@ function CongklakBoardInner({
 }: CongklakBoardProps) {
   const { width, height, orientation } = geometry;
   const holeRefs = useRef(new Map<number, SVGGElement>());
+  const registerRef = useCallback((pit: number, el: SVGGElement | null) => {
+    if (el) holeRefs.current.set(pit, el);
+    else holeRefs.current.delete(pit);
+  }, []);
 
   // Arrow keys move between the playable holes along the board's long axis; Enter or Space plays.
   const onKeyDown = (e: KeyboardEvent<SVGSVGElement>) => {
@@ -122,7 +234,7 @@ function CongklakBoardInner({
     }
   };
 
-  const activeBand = (() => {
+  const activeBand = useMemo(() => {
     if (activePlayer === null) return null;
     const holes = geometry.pits.filter((g) => g.kind === 'hole' && g.owner === activePlayer);
     const xs = holes.map((g) => g.x);
@@ -134,7 +246,7 @@ function CongklakBoardInner({
       w: Math.max(...xs) - Math.min(...xs) + 2 * r,
       h: Math.max(...ys) - Math.min(...ys) + 2 * r,
     };
-  })();
+  }, [activePlayer, geometry]);
 
   const handG = hand ? geometry.pits[hand.pit] : null;
   // The hand floats towards the board's centre line, so it never hides the count label.
@@ -146,6 +258,17 @@ function CongklakBoardInner({
 
   const flashSet = new Set(flash);
   const captureSet = new Set(captureFlash);
+  // Roving tabindex: the selected playable hole, otherwise the first playable hole of the side.
+  let tabStop = selected !== null && playable.has(selected) ? selected : null;
+  if (tabStop === null) {
+    let bestHole = Number.POSITIVE_INFINITY;
+    for (const p of playable) {
+      if (geometry.pits[p].hole < bestHole) {
+        bestHole = geometry.pits[p].hole;
+        tabStop = p;
+      }
+    }
+  }
 
   return (
     <svg
@@ -200,83 +323,25 @@ function CongklakBoardInner({
       )}
 
       {geometry.pits.map((g) => {
-        const count = pits[g.pit];
         const isPlayable = playable.has(g.pit);
-        const isSelected = selected === g.pit && isPlayable;
-        const ownerName = names[g.owner];
-        if (g.kind === 'store') {
-          return (
-            <g key={g.pit} role="img" aria-label={`Lumbung ${ownerName}: ${count} biji`} data-pit={g.pit}>
-              <ellipse cx={g.x} cy={g.y} rx={g.rx} ry={g.ry} fill="url(#ck-hole)" stroke="#5B321A" strokeWidth={3} />
-              <Seeds g={g} count={count} />
-              {captureSet.has(g.pit) && (
-                <ellipse cx={g.x} cy={g.y} rx={g.rx + 6} ry={g.ry + 6} fill="none" stroke="#FFD86B" strokeWidth={5} style={reducedMotion ? undefined : { animation: 'congklak-pulse 0.9s ease-in-out infinite' }} aria-hidden />
-              )}
-              {flashSet.has(g.pit) && (
-                <ellipse key={`f${flashKey}`} cx={g.x} cy={g.y} rx={g.rx + 4} ry={g.ry + 4} fill="none" stroke="#FFF1C2" strokeWidth={4} style={{ animation: 'congklak-flash 0.7s ease-out forwards' }} aria-hidden />
-              )}
-              <text
-                x={g.labelX}
-                y={g.labelY + 12}
-                textAnchor="middle"
-                fontSize={38}
-                fontWeight={800}
-                fill="#FFF7E8"
-                stroke="#3B2412"
-                strokeWidth={6}
-                paintOrder="stroke"
-                aria-hidden
-              >
-                {count}
-              </text>
-              <text
-                x={g.labelX}
-                y={orientation === 'horizontal' ? g.y + g.ry - 16 : g.y + 40}
-                textAnchor="middle"
-                fontSize={15}
-                fontWeight={700}
-                fill="#FFF1D6"
-                stroke="#3B2412"
-                strokeWidth={4}
-                paintOrder="stroke"
-                aria-hidden
-              >
-                {ownerName}
-              </text>
-            </g>
-          );
-        }
         return (
-          <g
+          <Pit
             key={g.pit}
-            ref={(el) => {
-              if (el) holeRefs.current.set(g.pit, el);
-              else holeRefs.current.delete(g.pit);
-            }}
-            role="button"
-            data-pit={g.pit}
-            tabIndex={isPlayable ? (isSelected || (selected === null && g.hole === firstPlayableHole(playable, geometry)) ? 0 : -1) : undefined}
-            aria-disabled={!isPlayable}
-            aria-label={`Lubang ${g.hole + 1} milik ${ownerName}: ${count} biji${isPlayable ? '' : ', tidak bisa dipilih'}`}
-            onClick={() => isPlayable && onPlay(g.pit)}
-            onFocus={() => isPlayable && onSelect(g.pit)}
-            className={isPlayable ? 'cursor-pointer outline-none' : 'outline-none'}
-            style={{ opacity: playable.size > 0 && !isPlayable && g.owner === activePlayer ? 0.55 : 1 }}
-          >
-            <circle cx={g.x} cy={g.y} r={g.rx} fill="url(#ck-hole)" stroke="#5B321A" strokeWidth={3} />
-            {isPlayable && <circle cx={g.x} cy={g.y} r={g.rx + 5} fill="none" stroke="#FFE7A3" strokeWidth={2.5} strokeDasharray="6 5" aria-hidden />}
-            {isSelected && <circle cx={g.x} cy={g.y} r={g.rx + 8} fill="none" stroke="#FFFFFF" strokeWidth={4} aria-hidden />}
-            <Seeds g={g} count={count} />
-            {captureSet.has(g.pit) && (
-              <circle cx={g.x} cy={g.y} r={g.rx + 5} fill="none" stroke="#FFD86B" strokeWidth={5} style={reducedMotion ? undefined : { animation: 'congklak-pulse 0.9s ease-in-out infinite' }} aria-hidden />
-            )}
-            {flashSet.has(g.pit) && (
-              <circle key={`f${flashKey}`} cx={g.x} cy={g.y} r={g.rx + 3} fill="#FFF1C2" fillOpacity={0.35} stroke="#FFF1C2" strokeWidth={4} style={{ animation: 'congklak-flash 0.7s ease-out forwards' }} aria-hidden />
-            )}
-            <CountLabel g={g} count={count} strong={isSelected} />
-            {/* A larger invisible tap area. */}
-            <circle cx={g.x} cy={g.y} r={g.rx + 6} fill="transparent" aria-hidden />
-          </g>
+            g={g}
+            count={pits[g.pit]}
+            ownerName={names[g.owner]}
+            orientation={orientation}
+            playable={isPlayable}
+            tabStop={tabStop === g.pit}
+            selected={selected === g.pit && isPlayable}
+            dimmed={g.kind === 'hole' && playable.size > 0 && !isPlayable && g.owner === activePlayer}
+            flashKey={flashSet.has(g.pit) ? flashKey : 0}
+            captured={captureSet.has(g.pit)}
+            reducedMotion={reducedMotion}
+            onPlay={onPlay}
+            onSelect={onSelect}
+            registerRef={registerRef}
+          />
         );
       })}
 
@@ -294,12 +359,6 @@ function CongklakBoardInner({
       )}
     </svg>
   );
-}
-
-function firstPlayableHole(playable: ReadonlySet<number>, geometry: BoardGeometry): number {
-  let best = Number.POSITIVE_INFINITY;
-  for (const p of playable) best = Math.min(best, geometry.pits[p].hole);
-  return best;
 }
 
 export const CongklakBoard = memo(CongklakBoardInner);

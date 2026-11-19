@@ -114,7 +114,7 @@ export function CongklakGame() {
   const endTimer = useRef<number | null>(null);
   const endHeadingRef = useRef<HTMLHeadingElement>(null);
 
-  const names = playerNames(running.mode);
+  const names = useMemo(() => playerNames(running.mode), [running.mode]);
   const vsComputer = running.mode === 'komputer';
   const isComputer = useCallback((p: Player) => vsComputer && p === 1, [vsComputer]);
   const instant = running.speed === 'tanpa' || reducedMotion;
@@ -221,6 +221,14 @@ export function CongklakGame() {
       step();
     },
     [instant, names, step],
+  );
+
+  const playPit = useCallback(
+    (pit: number) => {
+      const h = holeOf(pit);
+      if (h && h.player === gameRef.current.toMove) playMove(h.hole);
+    },
+    [playMove],
   );
 
   // The computer's turn: ask the worker, wait at least THINK_MS, then play.
@@ -380,10 +388,7 @@ export function CongklakGame() {
           playable={playable}
           selected={selected}
           onSelect={setSelected}
-          onPlay={(pit) => {
-            const h = holeOf(pit);
-            if (h && h.player === gameRef.current.toMove) playMove(h.hole);
-          }}
+          onPlay={playPit}
           activePlayer={game.over ? null : toMove}
           names={names}
           hand={view.hand}
