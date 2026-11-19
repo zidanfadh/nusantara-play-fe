@@ -12,6 +12,7 @@
 import { memo, useCallback, useMemo, useRef, type KeyboardEvent } from 'react';
 import { SEED_RADIUS, seedOffsets, type BoardGeometry, type PitGeometry } from '@/lib/games/congklak/layout';
 import type { Player } from '@/lib/games/congklak/state';
+import { STORE_LABEL_FONT_SIZE, storeLabelPlacement } from './store-label';
 
 export interface HandView {
   pit: number;
@@ -122,6 +123,9 @@ const Pit = memo(function Pit({
   const pulse = reducedMotion ? undefined : { animation: 'congklak-pulse 0.9s ease-in-out infinite' };
   const flashStyle = { animation: 'congklak-flash 0.7s ease-out forwards' };
   if (g.kind === 'store') {
+    // Phase 18: the total sits on a solid pill at one end of the store, never on the seeds (store-label.ts).
+    const place = storeLabelPlacement(g, orientation, count);
+    const pill = place.count;
     return (
       <g role="img" aria-label={`Lumbung ${ownerName}: ${count} biji`} data-pit={g.pit}>
         <ellipse cx={g.x} cy={g.y} rx={g.rx} ry={g.ry} fill="url(#ck-hole)" stroke="#5B321A" strokeWidth={3} />
@@ -130,23 +134,31 @@ const Pit = memo(function Pit({
         {flashKey > 0 && (
           <ellipse key={`f${flashKey}`} cx={g.x} cy={g.y} rx={g.rx + 4} ry={g.ry + 4} fill="none" stroke="#FFF1C2" strokeWidth={4} style={flashStyle} aria-hidden />
         )}
+        <g aria-hidden data-store-label={g.owner}>
+          <rect
+            x={pill.x - pill.width / 2}
+            y={pill.y - pill.height / 2}
+            width={pill.width}
+            height={pill.height}
+            rx={pill.height / 2}
+            fill="#FFF4DF"
+            stroke="#3B2412"
+            strokeWidth={3}
+          />
+          <text
+            x={pill.x}
+            y={pill.y + STORE_LABEL_FONT_SIZE * 0.35}
+            textAnchor="middle"
+            fontSize={STORE_LABEL_FONT_SIZE}
+            fontWeight={800}
+            fill="#3B2412"
+          >
+            {count}
+          </text>
+        </g>
         <text
-          x={g.labelX}
-          y={g.labelY + 12}
-          textAnchor="middle"
-          fontSize={38}
-          fontWeight={800}
-          fill="#FFF7E8"
-          stroke="#3B2412"
-          strokeWidth={6}
-          paintOrder="stroke"
-          aria-hidden
-        >
-          {count}
-        </text>
-        <text
-          x={g.labelX}
-          y={orientation === 'horizontal' ? g.y + g.ry - 16 : g.y + 40}
+          x={place.name.x}
+          y={place.name.y}
           textAnchor="middle"
           fontSize={15}
           fontWeight={700}
