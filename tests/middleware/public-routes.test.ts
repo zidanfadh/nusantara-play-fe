@@ -41,7 +41,7 @@ describe('middleware: Jelajah needs a login (Phase 18; public in Phases 10 to 17
 });
 
 describe('middleware public routes: games (Phase 17)', () => {
-  it.each(['/main', '/main/congklak'])('treats %s as public', (path) => {
+  it.each(['/main', '/main/congklak', '/main/gasing'])('treats %s as public', (path) => {
     expect(isPublicPath(path)).toBe(true);
   });
 

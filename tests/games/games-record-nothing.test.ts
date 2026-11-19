@@ -37,6 +37,7 @@ describe('games record nothing (Phase 17)', () => {
         'lib/games/gasing/texts.ts',
         'components/games/gasing/GasingGame.tsx',
         'components/games/gasing/GasingArena.tsx',
+        'app/main/gasing/page.tsx',
       ]),
     );
   });
