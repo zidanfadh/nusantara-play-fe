@@ -93,10 +93,10 @@ describe('concept video loading (Phase 19)', () => {
     const imports = (hub.match(/^import[^;]*;/gm) ?? []).filter((l) => l.includes('/concept/'));
     expect(imports.map((l) => l.match(/from\s+'([^']+)'/)?.[1]).sort()).toEqual([
       '@/lib/jelajah/concept/gate',
-      '@/lib/jelajah/concept/script',
       '@/lib/jelajah/concept/seen',
     ]);
-    expect(hub).toMatch(/import \{ CONCEPT_REPLAY_LABEL \} from '@\/lib\/jelajah\/concept\/script'/);
+    // Never the script: it would put every caption into /jelajah's initial JS (found in the Phase 19 build).
+    expect(hub).not.toMatch(/concept\/script/);
   });
 
   it('gate and seen stay tiny (no React, no scenes, no script)', () => {
@@ -111,7 +111,8 @@ describe('concept video loading (Phase 19)', () => {
     expect(hub).toContain('onClick={replayConcept}');
     expect(hub).toMatch(/min-h-\[44px\] min-w-\[44px\]/);
     expect(hub).toContain('<span className="hidden md:inline">{CONCEPT_REPLAY_LABEL}</span>');
-    expect(read('lib/jelajah/concept/script.ts')).toContain("CONCEPT_REPLAY_LABEL = 'Tonton pengenalan'");
+    expect(read('lib/jelajah/concept/gate.ts')).toContain("CONCEPT_REPLAY_LABEL = 'Tonton pengenalan'");
+    expect(read('lib/jelajah/concept/script.ts')).toContain('export { CONCEPT_REPLAY_LABEL };');
   });
 
   it('while the film plays, the 3D map chunk is prefetched (the 2d tier never fetches it)', () => {

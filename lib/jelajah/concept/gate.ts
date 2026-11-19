@@ -6,6 +6,13 @@
 
 export type IntroStep = 'bumper' | 'concept';
 
+/**
+ * Label of the map's replay button. It lives here (not in script.ts) because the map page loads it before
+ * the film: importing script.ts there would put every caption into /jelajah's initial JS. script.ts
+ * re-exports it, so the copy is still edited from the script's list of texts.
+ */
+export const CONCEPT_REPLAY_LABEL = 'Tonton pengenalan';
+
 export interface IntroInputs {
   /** The bumper's daily rule says it plays today. */
   bumperDue: boolean;

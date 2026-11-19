@@ -13,6 +13,7 @@
  * Run `pnpm test` after editing: `tests/jelajah/concept-script.test.ts` checks all of the above.
  */
 import { SITE_NAME } from '@/lib/brand';
+import { CONCEPT_REPLAY_LABEL } from './gate';
 import type { ConceptScene } from './types';
 
 export const CONCEPT_SCENES: readonly ConceptScene[] = [
@@ -108,8 +109,12 @@ export const BEATS = {
 /** Archive cards in scene 4 (real PROT names when available, otherwise neutral cards without names). */
 export const ARCHIVE_CARD_COUNT = 6;
 
-/** The map's replay button (the hub imports only this constant, not the film). */
-export const CONCEPT_REPLAY_LABEL = 'Tonton pengenalan';
+/**
+ * The map's replay button "Tonton pengenalan" is the one text kept outside this file: it is defined in
+ * ./gate.ts (the map page loads it before the film; importing this file there would put every caption into
+ * the page's initial JS) and re-exported here.
+ */
+export { CONCEPT_REPLAY_LABEL };
 
 /** Fixed texts of the player and the scenes (Bahasa Indonesia; the brand from lib/brand.ts). */
 export const CONCEPT_TEXT = {

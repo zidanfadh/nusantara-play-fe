@@ -21,9 +21,8 @@ import { TierMenu } from './TierMenu';
 import { WebGLBoundary } from './WebGLBoundary';
 import { JelajahBumper } from './bumper/JelajahBumper';
 import { shouldAutoPlayBumper } from '@/lib/jelajah/bumper/session';
-import { isConceptForced, nextIntroStep, planIntro, type IntroStep } from '@/lib/jelajah/concept/gate';
+import { CONCEPT_REPLAY_LABEL, isConceptForced, nextIntroStep, planIntro, type IntroStep } from '@/lib/jelajah/concept/gate';
 import { hasSeenConcept } from '@/lib/jelajah/concept/seen';
-import { CONCEPT_REPLAY_LABEL } from '@/lib/jelajah/concept/script';
 
 /**
  * Intro before the map (Phase 19): 'pending' until mounted (storage is read after hydration), then the
