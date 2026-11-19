@@ -2,11 +2,11 @@
 
 /**
  * Shared layout and motion of the bumper scenes (Phase 16). Movement is only translate/scale on top of
- * opacity; `<MotionConfig reducedMotion="user">` in JelajahBumper drops the transforms with reduced motion,
- * so the scenes then only cross-fade.
+ * opacity. With reduced motion (`BumperReducedMotion`) every variant is a plain fade, so the scenes only
+ * cross-fade.
  */
 import { motion, type Variants } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -26,6 +26,20 @@ export const popVariants: Variants = {
   show: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: EASE } },
 };
 
+/** Reduced motion (set by JelajahBumper): opacity only, shorter fades, no stagger. */
+export const BumperReducedMotion = createContext(false);
+
+const fadeOnly: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.3 } },
+};
+
+/** The item and pop variants, or plain fades with reduced motion. */
+export function useSceneVariants() {
+  const reduced = useContext(BumperReducedMotion);
+  return reduced ? { item: fadeOnly, pop: fadeOnly } : { item: itemVariants, pop: popVariants };
+}
+
 interface SceneLayoutProps {
   kicker: string;
   title: ReactNode;
@@ -37,6 +51,7 @@ interface SceneLayoutProps {
 }
 
 export function SceneLayout({ kicker, title, text, visual, children }: SceneLayoutProps) {
+  const { item, pop } = useSceneVariants();
   return (
     <motion.div
       variants={sceneVariants}
@@ -46,29 +61,29 @@ export function SceneLayout({ kicker, title, text, visual, children }: SceneLayo
       className="mx-auto flex w-full max-w-md flex-col items-center px-6 text-center md:max-w-xl"
     >
       {visual && (
-        <motion.div variants={popVariants} className="mb-6 w-full">
+        <motion.div variants={pop} className="mb-6 w-full">
           {visual}
         </motion.div>
       )}
       <motion.p
-        variants={itemVariants}
+        variants={item}
         className="text-xs font-bold uppercase tracking-[0.2em] text-primary md:text-sm"
       >
         {kicker}
       </motion.p>
       <motion.h2
-        variants={itemVariants}
+        variants={item}
         className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-foreground md:text-5xl"
       >
         {title}
       </motion.h2>
       {text && (
-        <motion.p variants={itemVariants} className="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
+        <motion.p variants={item} className="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
           {text}
         </motion.p>
       )}
       {children && (
-        <motion.div variants={itemVariants} className="mt-6 w-full">
+        <motion.div variants={item} className="mt-6 w-full">
           {children}
         </motion.div>
       )}

@@ -37,6 +37,7 @@ import { CommunityScene } from './CommunityScene';
 import { GameScene } from './GameScene';
 import { MapScene } from './MapScene';
 import { ProtScene } from './ProtScene';
+import { BumperReducedMotion } from './SceneLayout';
 import { StartScene } from './StartScene';
 
 const FILL_KEYFRAMES = '@keyframes jelajah-bumper-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}';
@@ -140,6 +141,7 @@ export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperPr
 
   return (
     <MotionConfig reducedMotion="user">
+      <BumperReducedMotion.Provider value={reduced}>
       <motion.div
         ref={rootRef}
         role="dialog"
@@ -221,6 +223,7 @@ export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperPr
           </span>
         </p>
       </motion.div>
+      </BumperReducedMotion.Provider>
     </MotionConfig>
   );
 }

@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { ProtSceneData } from '@/lib/jelajah/bumper/scene-data';
-import { popVariants, SceneLayout } from './SceneLayout';
+import { SceneLayout, useSceneVariants } from './SceneLayout';
 
 /**
  * Scene 2: the real number of public PROT and up to 4 real PROT photos through ProtPhoto `cover` (the same
@@ -11,6 +11,7 @@ import { popVariants, SceneLayout } from './SceneLayout';
  */
 export function ProtScene({ scene }: { scene: ProtSceneData }) {
   const { photos } = scene;
+  const { pop } = useSceneVariants();
   return (
     <SceneLayout
       kicker="Arsip PROT"
@@ -26,7 +27,7 @@ export function ProtScene({ scene }: { scene: ProtSceneData }) {
             {photos.map((p, i) => (
               <motion.li
                 key={p.id}
-                variants={popVariants}
+                variants={pop}
                 className={`relative aspect-[4/3] overflow-hidden rounded-xl bg-muted shadow ${
                   photos.length === 3 && i === 0 ? 'col-span-2 aspect-[2/1]' : ''
                 }`}
