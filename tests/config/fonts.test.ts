@@ -34,4 +34,14 @@ describe('self-hosted fonts (no build-time download from Google Fonts)', () => {
     expect(readFileSync(join(root, 'app/fonts/PlusJakartaSans-latin.woff2')).subarray(0, 4).toString()).toBe('wOF2');
     expect(readFileSync(join(root, 'app/fonts/GeistMono-latin.woff2')).subarray(0, 4).toString()).toBe('wOF2');
   });
+
+  it('the fonts are actually used (Phase 14): font theme lines inline, body on the next/font variable', () => {
+    const css = readFileSync(join(root, 'app/globals.css'), 'utf8');
+    const inline = css.match(/@theme inline\s*\{([^}]*)\}/)?.[1] ?? '';
+    expect(inline).toContain('--font-sans: var(--font-jakarta-sans);');
+    expect(inline).toContain('--font-mono: var(--font-geist-mono);');
+    // No font line left in a plain @theme block (it would be resolved on :root, where next/font sets nothing).
+    for (const block of css.matchAll(/@theme\s*\{([^}]*)\}/g)) expect(block[1]).not.toMatch(/--font-(sans|mono)\s*:/);
+    expect(css).toMatch(/body\s*\{[^}]*font-family:\s*var\(--font-jakarta-sans\)/);
+  });
 });

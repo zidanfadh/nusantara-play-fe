@@ -34,8 +34,9 @@ describe('isOptimizableProtPhoto (Phase 13)', () => {
     ]);
   });
 
-  it('changes nothing else in the image config (defaults stay)', () => {
-    expect(Object.keys(nextConfig.images ?? {})).toEqual(['remotePatterns']);
+  it('sets only minimumCacheTTL (31 days, Phase 14) besides remotePatterns (other defaults stay)', () => {
+    expect(Object.keys(nextConfig.images ?? {}).sort()).toEqual(['minimumCacheTTL', 'remotePatterns']);
+    expect(nextConfig.images?.minimumCacheTTL).toBe(31 * 24 * 60 * 60);
   });
 });
 
