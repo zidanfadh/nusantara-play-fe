@@ -22,8 +22,11 @@ import { WebGLBoundary } from './WebGLBoundary';
 import { JelajahBumper } from './bumper/JelajahBumper';
 import { shouldAutoPlayBumper } from '@/lib/jelajah/bumper/session';
 
-/** pending: server render and hydration (cover, no decision yet); playing; off. */
-type BumperState = 'pending' | 'playing' | 'off';
+/** auto: the once-per-session rule decides (first visit); playing: replay from "Putar intro"; off: closed. */
+type BumperState = 'auto' | 'playing' | 'off';
+
+/** Longest wait for the automatic tier before the bumper starts anyway (its probe normally takes 0.7 s). */
+const BUMPER_TIER_WAIT_MS = 3000;
 
 // three.js lives only in this chunk; it is requested only when the tier is full or lite.
 const Map3D = dynamic(() => import('./Map3D'), {
@@ -54,14 +57,24 @@ export function JelajahHub() {
 
   // Intro bumper (Phase 16): once per browser session, decided after mount (sessionStorage). The hub stays
   // mounted behind it, so the data, the geometry and (tier full/lite) the 3D chunk load meanwhile.
-  const [bumper, setBumper] = useState<BumperState>('pending');
+  // On a first visit the automatic tier runs a 0.7 s frame-rate probe; the bumper's animations would lower
+  // that (cached) measurement, so the auto-played bumper waits on its plain cover until the automatic tier is
+  // known (at most BUMPER_TIER_WAIT_MS).
+  const [bumper, setBumper] = useState<BumperState>('auto');
+  const [autoPlay, setAutoPlay] = useState<boolean | null>(null);
+  const [tierWaitOver, setTierWaitOver] = useState(false);
   const [bumperRun, setBumperRun] = useState(0);
   const returnFocus = useRef(false);
   useEffect(() => {
     // Reading sessionStorage is only possible after mount; one extra render is intended here.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setBumper(shouldAutoPlayBumper() ? 'playing' : 'off');
+    setAutoPlay(shouldAutoPlayBumper());
+    const id = setTimeout(() => setTierWaitOver(true), BUMPER_TIER_WAIT_MS);
+    return () => clearTimeout(id);
   }, []);
+  const tierKnown = autoTier !== null || tierWaitOver;
+  const bumperShown = bumper === 'playing' || (bumper === 'auto' && autoPlay === true && tierKnown);
+  const bumperCover = bumper === 'auto' && (autoPlay === null || (autoPlay && !tierKnown));
   const closeBumper = useCallback(() => {
     returnFocus.current = true;
     setBumper('off');
@@ -147,7 +160,7 @@ export function JelajahHub() {
 
   return (
     <>
-    <div className="bg-background text-foreground" inert={bumper !== 'off'}>
+    <div className="bg-background text-foreground" inert={bumperShown || bumperCover}>
       <section
         ref={mapRef}
         aria-label="Peta Jelajah Nusantara"
@@ -276,9 +289,9 @@ export function JelajahHub() {
       </section>
     </div>
     <AnimatePresence>
-      {bumper === 'pending' && (
-        // Server render and hydration: a plain cover in the bumper's colour, so a first visit never flashes
-        // the hub before the bumper; on later visits it fades out right after hydration.
+      {bumperCover && (
+        // Server render, hydration and the first-visit tier probe: a plain cover in the bumper's colour, so a
+        // first visit never flashes the hub before the bumper; on later visits it fades out right after hydration.
         <motion.div
           key="bumper-cover"
           aria-hidden
@@ -286,7 +299,7 @@ export function JelajahHub() {
           exit={{ opacity: 0, transition: { duration: 0.2 } }}
         />
       )}
-      {bumper === 'playing' && (
+      {bumperShown && (
         <JelajahBumper key={`bumper-${bumperRun}`} data={data} status={status} shapes={shapes} onClose={closeBumper} />
       )}
     </AnimatePresence>
