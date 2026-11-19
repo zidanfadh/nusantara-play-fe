@@ -42,7 +42,7 @@ Never chain navigation with git using `&&` — always run them as separate comma
 - `app/(auth)/` — public auth pages (login, signup)
 - `app/(protected)/` — authenticated pages with shared layout
 - `app/prot/` — public-facing PROT browsing pages
-- `app/jelajah/` — Jelajah Nusantara (public): hub map `/jelajah`, province pages `/jelajah/[provinsi]` (Phase 10)
+- `app/jelajah/` — Jelajah Nusantara (login required since Phase 18): hub map `/jelajah`, province pages `/jelajah/[provinsi]` (Phase 10)
 - `app/main/` — hosted games (public, Phase 17): `/main` lists them, `/main/congklak`
 - `app/api/` — Next.js API routes
 - `app/page.tsx` — landing page; a **server component** that fetches stats and featured PROT on the server
@@ -65,6 +65,8 @@ URL with `getBackendApiUrl()`.
 **Auth**: `contexts/AuthContext.tsx` exposes `user`, `session`, `signIn`, `signOut`,
 `getAccessToken`. `middleware.ts` handles session refresh and redirects unauthenticated users
 to `/login` (Next.js 16 warns that the `middleware` file convention is deprecated in favour of `proxy`).
+Since Phase 18 the redirect carries `redirectTo` (and `reason=jelajah` for Jelajah pages), and every login path honours
+it; see "Brand, navbar and the Jelajah login gate (Phase 18)".
 
 ## Key Conventions
 
@@ -77,6 +79,7 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 - Audit log `changes` are always displayed through `redactSecrets()` (`components/audit/redact-secrets.ts`): values of secret-looking keys (password, token, secret, api key, authorization) show as `[REDACTED]` at any depth (Phase 07).
 - PROT photos are rendered with `ProtPhoto` (`components/prot/ProtPhoto.tsx`, Phase 13), never with a plain `<img>`, on
   every page including the landing page (Phase 14). Image rules for all public pages: "Public page images (Phase 14)".
+- The brand is `SITE_NAME` from `lib/brand.ts` (Phase 18); never write the site name as text in a page or component.
 - Components are grouped by domain: `components/events/`, `components/prot/`, `components/marketplace/`, etc.
 
 ## Feature Modules
@@ -97,7 +100,8 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
 
 - `app/jelajah/page.tsx` (static) renders `JelajahHub` (client). `app/jelajah/[provinsi]/page.tsx`: `generateStaticParams` +
   `dynamicParams = false`, so only `ENTERABLE_PROVINCES` (`sumatera-selatan`) exist; every other slug is a 404.
-  `/jelajah` and `/jelajah/*` are public in `middleware.ts` (that also covers the static geo file). No navbar link yet.
+  Since Phase 18 `/jelajah` and `/jelajah/*` need a login (`middleware.ts`); only the static files under
+  `/jelajah/geo/`, `/jelajah/assets/` and `/jelajah/demo/` stay public. Navbar link "Jelajah" since Phase 18.
 - Data (`lib/jelajah/data.ts`): provinces (`/daerah/provinces?limit=100`) and every public PROT (`/prot`, always
   `status=ARSIP_NASIONAL`, because `apiClient` sends the login token and kurator/admin would otherwise get drafts; 100 per
   page, max 50 pages), counted per province on the client. While loading or after an error, every province from
@@ -249,8 +253,8 @@ A short animated tour of the whole site that covers `/jelajah` before the map (o
   `StartScene`. `lib/jelajah/bumper/` = `timeline.ts` (framework-free controller: auto-advance per scene, `next`, `skip`,
   pause while the tab is hidden with the remaining time kept, manual mode; fake-timer tests), `use-bumper-timeline.ts`
   (React wrapper, `visibilitychange`), `session.ts` (once-per-session rule), `scene-data.ts` (storyboard, data and texts,
-  fallbacks). `lib/jelajah/brand.ts`: `SITE_NAME` and `SITE_TAGLINE` (the landing hero's first sentence); the navbar and
-  the landing page still hold their own copies of the name.
+  fallbacks). `SITE_NAME` and `SITE_TAGLINE` come from `lib/brand.ts` (Phase 18; `lib/jelajah/brand.ts` was removed),
+  like every other place that shows the name.
 - **Storyboard** (`BUMPER_SCENES`, 19 s): 1 brand (site icon `/apple-icon.png`, `SITE_NAME`, tagline) · 2 Arsip PROT (the
   hub's `totalProt` and up to 4 PROT photos through `ProtPhoto` `cover`, one per province first) · 3 Jelajah Nusantara
   (flat SVG of the hub's own province shapes via `svgPath`, provinces with public PROT in the primary colour, their
@@ -324,6 +328,49 @@ imports, only local settings (`tests/games/games-record-nothing.test.ts`). three
   nothing (the worker is a Blob). Scripted games: no long task during AI turns (all levels; Sulit also at 4x CPU
   throttling); at 4x throttling the only long tasks were mounting the board (58 to 102 ms) and the end screen (54 to
   64 ms).
+  Phase 18 (navbar links to `/calendar`, `/menu`, `/jelajah` no longer prefetched): phone 341 KB, desktop 355 KB
+  (`main` 342 / 361 KB).
+
+## Brand, navbar and the Jelajah login gate (Phase 18)
+
+- **Brand**: `lib/brand.ts` has `SITE_NAME` ("Nusantara Legacy"), `SITE_TAGLINE`, `SITE_DESCRIPTION` and
+  `SITE_NAME_WORDS` (the landing hero's two lines). Navbars, footer, landing page, auth layout and forms, admin
+  header and sidebar, calendar, the old `/landing-page/1` and `/2`, metadata (title, description, Open Graph) and
+  the bumper all read it. `<html lang="id">`. `tests/config/brand.test.ts` fails if "Nusantara Virtual" appears in
+  `app/`, `components/`, `lib/` or `public/`. "Tur Virtual" is a feature name, not the brand. The logo is unchanged.
+- **Navbar links** (`components/ui/nav-links.ts`, one list for every menu): app navbar Menu, Kalender, Jelajah, Game
+  (desktop from `md`; below `md` a menu button next to the theme toggle opens the same links, closes on a link, Esc
+  or an outside click); landing navbar "Tur Virtual" and "Game" from `md` (section anchors from `xl`) and in a
+  second row below the bar on phones (`main` starts at 7.5rem there). `prefetch={false}` for `/jelajah`,
+  `/calendar`, `/menu` (`NO_PREFETCH_ROUTES`, tested), also for the landing hero links to `/menu` and `/jelajah`
+  and the carousel slide. The active link gets `aria-current="page"` (`isActiveLink`: the page or a sub-page).
+- **Login gate**: `middleware.ts` `routeDecision(loggedIn, pathname, search)` (pure, tested). `loggedIn` is whatever
+  the frontend's login says today (Supabase `updateSession`); when the frontend switches to the self-hosted login,
+  only the caller changes (and the Google flow below). Logged out on `/jelajah` or `/jelajah/*` →
+  `/login?redirectTo=<path+query>&reason=jelajah`; other protected pages → `/login?redirectTo=…`; logged in on
+  `/login`/`/signup` → the valid `redirectTo`, else `/profile`. `/main` and `/main/*` stay public.
+- **redirectTo rules** (`components/auth/login-redirect.ts`, `safeRedirectPath`): a same-site path only. Starts with
+  exactly one `/`, no `\`, no control characters or whitespace, at most 2048 characters, resolves to the same origin,
+  not `/login` or `/signup`; anything else falls back to `/menu`. Attack strings (`//evil.com`, `https://evil.com`,
+  `/\evil.com`, `javascript:`, `@evil.com`) are tested.
+- **Login paths**: the login and signup pages read `redirectTo`, `reason` (and `error`) from `searchParams` (dynamic
+  pages) and pass them to the forms. Email/password → `loginAndRedirect()` → `router.push(target)`. Google → the
+  button stores the target in the cookie `np_post_login` (10 minutes, SameSite=Lax) and keeps the Supabase redirect
+  URL exactly `/auth/callback` (allowlist unchanged); the callback takes a valid `next` query, else the cookie, else
+  `/menu`, clears the cookie, and on failure goes back to `/login?error=auth_callback_error` with the target and the
+  notice. (Before Phase 18 the callback followed `next` unvalidated: an open redirect.) The signup page shows the same
+  notice and keeps `redirectTo`/`reason` on its links. Signup by email still confirms through Supabase's own link
+  (lands on the Supabase Site URL; unchanged).
+- **Notice**: `components/auth/LoginNotice.tsx` (`role="status"`) for `reason=jelajah`: "Masuk dulu untuk memulai Tur
+  Virtual. Setelah masuk, kamu langsung diarahkan ke peta." The landing "Mulai Tur Virtual" button still links to
+  `/jelajah`; logged-out visitors see "Perlu masuk akun" under it (`aria-describedby`).
+- **Landing statistics** (`components/landing/published-stats.ts`): PROT and provinces from published PROT only, with
+  the map's own code (`fetchPublicProt` + `shapeProvinceSummaries` over `KNOWN_PROVINCES`, server-side, no login
+  token, 60 s cache); events and members from `/stats/landing`. Tiles that are 0 or unknown are hidden; with no tile
+  the section is hidden. Production on 2026-11-19: 5 Permainan, 5 Provinsi, 1 Events, 53 Anggota.
+- **Congklak store totals** (`components/games/congklak/store-label.ts`): a solid pill (#FFF4DF, dark outline, 26 px
+  bold) at one end of the store and the owner's name at the other, outside the seed cluster in both orientations
+  (tested against the seed spiral's reach for every possible total).
 
 ## Public page images (Phase 14)
 
@@ -340,9 +387,12 @@ imports, only local settings (`tests/games/games-record-nothing.test.ts`). three
   download nothing (`components/ui/HeroCarousel.tsx`, `tests/landing/landing-images.test.tsx`). The slide visible on
   load is eager with `fetchPriority="high"`; others are lazy. File names in `public/images/` use only `a-z0-9.-`
   (tested for `public/images/landing/`).
-- **Still plain `<img>` on `/`** (not PROT and not the carousel, so not in Phase 14's scope): `nusantara-legacy.webp`
-  (126 KB, 1920 px for a 320 px high box), `sertifikasi.webp` 85 KB, `arsip.webp` 39 KB, `komunitas.webp` 31 KB,
-  `blockchain.webp` 15 KB (hidden below `lg`, still downloaded on phones).
+- **Other landing images** (Phase 18): `nusantara-legacy.webp`, `arsip.webp`, `komunitas.webp`, `sertifikasi.webp` are
+  static imports through `next/image` (`fill`, lazy, `sizes` in `components/landing/image-sizes.ts`, computed from
+  their boxes); `blockchain.webp` (`hidden lg:block`) goes through `components/landing/DesktopOnlyImage.tsx`
+  (`getImageProps` + `<picture>`/`<source media="(min-width: 1024px)">`, data-URI `<img>`), so phones never
+  download it. No plain `<img>` is left on `/` (tested). Phone `/` cold load 674 → 433 KB (939 → 765 KB after
+  scrolling to the bottom), desktop 801 → 600 KB (production API read-only, headless Chrome, cache off).
 - **Measured** (production API read-only, production build, headless Chrome, cache off; phone 390x844 dpr 3):
   `/` phone 1597 → 666 KB cold (893 KB after scrolling to the bottom), desktop 1594 → 754 KB; `/prot` 616 KB;
   `/events` 334 KB, event detail 348 KB, `/nfts` 334 KB, NFT detail 370 KB (unchanged, no images);
@@ -391,7 +441,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
    - Rewards and multiplayer shown in demo phases are SIMULATED until the backend exists: clearly labelled in the UI
      ("Demo"; simulated rewards "Simulasi · tidak disimpan" since Phase 12) and never sent to or saved on the backend.
    - Demos are built on phase branches and shown to the boss through the Vercel preview link before anything is merged
-     to production. No navbar link to /jelajah until the boss has reviewed it.
+     to production. Navbar links to /jelajah and /main exist since Phase 18 (owner decision).
    - Jelajah Nusantara V1 (Phase 10): `/jelajah` hub map of Indonesia (3D with three.js / @react-three/fiber /
      @react-three/drei, plus an SVG 2D fallback) and `/jelajah/sumatera-selatan` ("Segera hadir" placeholder). Frontend
      code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/`; details in the frontend
@@ -430,7 +480,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      three.js), once per browser session (`sessionStorage`), always skippable ("Lewati", Esc), replayable from
      "Putar intro" in the hub's "Tampilan" menu, never on a province deep link. The hub loads its data and the 3D chunk
      behind it. Only real data or neutral text. The site name it shows is one constant, `SITE_NAME` in
-     `nusantara-play-fe/lib/jelajah/brand.ts` (today "Nusantara Virtual", like the navbar). Details in the frontend
+     `nusantara-play-fe/lib/brand.ts` (since Phase 18 "Nusantara Legacy", shared by the whole site). Details in the frontend
      CLAUDE.md "Intro bumper (Phase 16)". Since Phase 17 it plays once per DAY per browser (local date in
      `localStorage['jelajah.bumperLastPlayed.v1']`, falling back to once per session when localStorage is
      unavailable), and its scene 4 has a "Main Congklak" button instead of "Segera hadir".
@@ -444,6 +494,16 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      comes from); the game page links back ("Kembali ke desa"). The landing page's "Mulai Tur Virtual" button and the
      carousel slide that pointed to external tour sites now open `/jelajah`. No navbar link yet. Details in the
      frontend CLAUDE.md "Games (Phase 17)".
+   - Brand, navbar and login gate (Phase 18, owner decisions): the brand is "Nusantara Legacy" everywhere users see
+     it, from one constant (`nusantara-play-fe/lib/brand.ts`, `SITE_NAME`); the navbar links to the Jelajah map
+     ("Jelajah"; "Tur Virtual" on the landing page) and the games ("Game", `/main`), on phones too. **The Jelajah map
+     requires login**: a logged-out visitor of `/jelajah` or `/jelajah/*` is sent to
+     `/login?redirectTo=…&reason=jelajah`, sees "Masuk dulu untuk memulai Tur Virtual. …", and after logging in
+     (email/password or Google) lands on the page they wanted; `redirectTo` is always a validated same-site path.
+     The games under `/main` stay public. The gate uses the frontend's current login (Supabase today) and must move
+     with it when the frontend switches to the self-hosted login. Landing statistics count only published content
+     (ARSIP_NASIONAL PROT and their provinces), like the map and the bumper; numbers that are 0 are hidden. Details
+     in the frontend CLAUDE.md "Brand, navbar and the Jelajah login gate (Phase 18)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -567,6 +627,9 @@ column, so running the migration first is safe for the old code too.
      migrations). down() drops the triggers, the function and the four tables.
    - Env: optionally `POINTS_HOLD_DAYS` (default 7). Nothing else.
    - After deployment: `npm run rewards:reconcile` should report 0 differences (read-only).
+11. Phase 18 landing statistics (no migration, no env): `GET /api/stats/landing` counts `totalProt` and
+   `totalProvinsi` from PROT with status ARSIP_NASIONAL only (`src/modules/stats/stats.service.ts`); events and
+   users unchanged. The frontend already computes the published counts itself, so the order does not matter.
 
 ## Local development
 
@@ -720,6 +783,11 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Frontend after Phase 17: unchanged, 44 errors, 82 warnings (every new and touched file is clean except the existing
   unused `LandingStats` import warning in `app/page.tsx`).
 - Backend after Phase 17: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 18: 44 errors, 80 warnings (two warnings fewer in touched files: the unused `LandingStats`
+  import in `app/page.tsx` and the unused `router` in `components/auth/SignupForm.tsx`; every new and touched file
+  has 0 errors; the remaining warnings in touched files existed before: `UserNav.tsx` and `AdminHeader.tsx`
+  no-img-element, two unused imports in the admin dashboard page).
+- Backend after Phase 18: unchanged, 220 errors, 29 warnings (`src/modules/stats/` is clean).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -987,6 +1055,27 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   no movement); the computer waits at least 250 to 550 ms (by speed) before playing so its moves are readable;
   `from=` on the game page is allowlisted (`jelajah` → "Kembali ke peta", `jelajah-<enterable slug>` → "Kembali ke
   desa"), never an open redirect. The bumper's "Main Congklak" opens `/main/congklak?from=jelajah`.
+- 2026-11-19: Owner decisions for Phase 18: the brand is renamed from "Nusantara Virtual" to "Nusantara Legacy"
+  everywhere users see it; navbar links to the Jelajah map and the games are shown now; the Jelajah map requires login
+  (a logged-out visitor of `/jelajah` or `/jelajah/*` sees a notice, logs in and lands on the page they wanted);
+  the games under `/main` stay public; "Mulai Tur Virtual" goes straight to the map for logged-in users (the daily
+  bumper rules still apply); landing statistics count only published content (ARSIP_NASIONAL PROT and their
+  provinces); the gate uses whatever the frontend uses to know a user is logged in (Supabase today) and moves with it
+  when the frontend switches to the self-hosted login.
+- 2026-11-19: Login gate details (Phase 18): the static files under `public/jelajah/geo|assets|demo/` stay public (data,
+  not pages); `redirectTo` keeps the query (`/jelajah?debug=1`), is a validated same-site path, never `/login` or
+  `/signup`, and falls back to `/menu` (the old default); a logged-in visitor on `/login` with a valid `redirectTo`
+  goes there instead of `/profile`. Google sign-in carries the target in a 10-minute `np_post_login` cookie instead of
+  a query on the Supabase redirect URL, so the Supabase redirect allowlist needs no change. The OAuth callback's
+  `next` parameter is validated (it was an open redirect, e.g. `next=@evil.com`). Existing `/login?redirectTo=…`
+  links (events, menu) now work too.
+- 2026-11-19: Navbar on phones (Phase 18): app navbar = a menu button (below `md`) with the same four links, the brand
+  one size smaller and the account chevron hidden below `sm` (fits 360 px with 16 px to spare); landing navbar = a
+  second row with "Tur Virtual" and "Game" below `md`, because its bar (brand, theme, Masuk, Daftar) is already full.
+- 2026-11-19: Landing statistics (Phase 18): computed in the frontend from the public PROT list with the Jelajah map's
+  own code, so they agree with the map and the bumper before the backend change is deployed; the backend
+  `/stats/landing` change (published-only PROT and province counts) waits in "Pending deployment". A province
+  counts when a published PROT has its code and the code is one of the 35 known provinces (the map's rule).
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
