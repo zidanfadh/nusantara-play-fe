@@ -74,7 +74,8 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 - Use `useCurrentUser()` to get the authenticated user and check roles (`user.role`).
 - Admin role is `'admin_kpoti'`. Check via `user.role === 'admin_kpoti'` or `['kurator_daerah', 'admin_kpoti'].includes(user.role)`.
 - Audit log `changes` are always displayed through `redactSecrets()` (`components/audit/redact-secrets.ts`): values of secret-looking keys (password, token, secret, api key, authorization) show as `[REDACTED]` at any depth (Phase 07).
-- PROT photos are rendered with `ProtPhoto` (`components/prot/ProtPhoto.tsx`, Phase 13), never with a plain `<img>`.
+- PROT photos are rendered with `ProtPhoto` (`components/prot/ProtPhoto.tsx`, Phase 13), never with a plain `<img>`, on
+  every page including the landing page (Phase 14). Image rules for all public pages: "Public page images (Phase 14)".
 - Components are grouped by domain: `components/events/`, `components/prot/`, `components/marketplace/`, etc.
 
 ## Feature Modules
@@ -220,13 +221,13 @@ on a loopback host), shortened texts), `help-hint.ts` (controls hint shown once,
   "Beralih ke Peta 2D agar lebih lancar"). A manually chosen tier is never overridden.
 - **PROT photos** (`components/prot/ProtPhoto.tsx`, tests in `tests/prot/prot-photo.test.tsx`): next/image through Vercel
   Image Optimization for https URLs on `nusantara-play-storage.s3.ap-southeast-2.amazonaws.com` under `/prot/` without a
-  query (the only `next.config.ts` image setting: `images.remotePatterns`, kept in sync by a test); every other URL is
+  query (`images.remotePatterns`, kept in sync by a test; since Phase 14 also `minimumCacheTTL`); every other URL is
   shown unoptimized. Two display sizes only: `cover` 400 px (srcset 640 / 828; /prot cards, detail main image, stand
   panel) and `thumb` 80 px (96 / 256; detail thumbnails, equipment photos, Jelajah 2d cards and hub card). The first
   visible photo is eager with `fetchpriority="high"`, all others lazy. On an optimizer error (for example the Hobby
   limit's 402) the original URL is shown. Used by `components/prot/ProtCard.tsx`, `app/prot/page.tsx`,
-  `app/prot/[id]/page.tsx`, `components/jelajah/StandPanel.tsx`, `ProvinceScene2D.tsx`, `ProvinceCard.tsx`. The landing
-  page (`app/page.tsx`) still uses plain `<img>`.
+  `app/prot/[id]/page.tsx`, `components/jelajah/StandPanel.tsx`, `ProvinceScene2D.tsx`, `ProvinceCard.tsx`, and since
+  Phase 14 the featured PROT on the landing page (`app/page.tsx`).
 - **Local DEMO photo**: `public/jelajah/demo/foto-contoh.svg` (neutral placeholder, "Gambar contoh, bukan foto PROT") is
   the one photo of "DEMO PROT Sumsel 1" in the local seed. `firstPhoto()` accepts http only for a loopback photo host and
   only while the page itself is on a loopback host (`isLocalPage()`); the deployed site stays https-only.
@@ -234,6 +235,31 @@ on a loopback host), shortened texts), `help-hint.ts` (controls hint shown once,
   3009 → 567 KB); PROT detail 4606 → 455 KB and 2813 → 410 KB; `/jelajah` 670 to 690 KB; `/jelajah/sumatera-selatan` 727
   to 745 KB; the three.js chunk (241 KB) loads only on the two /jelajah routes. Debug overlay at spawn (1440x900,
   SwiftShader): full 45 draw calls / 18.7k triangles, lite 37 / 10.3k; hub 3 / 39.3k.
+
+## Public page images (Phase 14)
+
+- **Remote photos** (S3 uploads): `ProtPhoto` only, two display sizes (`cover` 400 px → 640 / 828, `thumb` 80 px →
+  96 / 256). Only `https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/**` without a query is
+  optimized (`images.remotePatterns`, one entry, synced by `tests/prot/prot-photo.test.tsx`); anything else is shown
+  unoptimized. Before optimizing another bucket folder (for example NFT images under `/images/nfts/`), generalize
+  `ProtPhoto` into a small `RemotePhoto` and add that exact prefix (https, `search: ''`), still at most two sizes.
+  Events and NFT pages load no remote images in production today (Phase 14), so they still use plain `<img>`.
+- **Cache**: `images.minimumCacheTTL` 31 days (`IMAGE_MINIMUM_CACHE_TTL_SECONDS` in `next.config.ts`). It relies on
+  the backend never reusing an S3 key (`<folder>/<uuid>.<ext>`); lower it if that changes.
+- **Static images that are not always visible**: use `getImageProps` from `next/image` with a static import inside
+  `<picture>`, the optimized srcset on a `<source media=...>` and a data-URI `<img>` fallback, so hidden viewports
+  download nothing (`components/ui/HeroCarousel.tsx`, `tests/landing/landing-images.test.tsx`). The slide visible on
+  load is eager with `fetchPriority="high"`; others are lazy. File names in `public/images/` use only `a-z0-9.-`
+  (tested for `public/images/landing/`).
+- **Still plain `<img>` on `/`** (not PROT and not the carousel, so not in Phase 14's scope): `nusantara-legacy.webp`
+  (126 KB, 1920 px for a 320 px high box), `sertifikasi.webp` 85 KB, `arsip.webp` 39 KB, `komunitas.webp` 31 KB,
+  `blockchain.webp` 15 KB (hidden below `lg`, still downloaded on phones).
+- **Measured** (production API read-only, production build, headless Chrome, cache off; phone 390x844 dpr 3):
+  `/` phone 1597 → 666 KB cold (893 KB after scrolling to the bottom), desktop 1594 → 754 KB; `/prot` 616 KB;
+  `/events` 334 KB, event detail 348 KB, `/nfts` 334 KB, NFT detail 370 KB (unchanged, no images);
+  `/jelajah` 669 to 694 KB, `/jelajah/sumatera-selatan` 729 to 761 KB; three.js only on the two /jelajah routes.
+- **Fonts**: Plus Jakarta Sans (body, `font-sans`) and Geist Mono (`font-mono`) are really displayed since Phase 14
+  (`@theme inline` in `app/globals.css`); before, every page used the system font stack.
 
 ## Env Vars
 
@@ -302,6 +328,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      stays low (never over a manual choice), and PROT photos through Vercel Image Optimization (`/prot` phone cold load
      2983 KB → 617 KB). Still no navbar link to /jelajah and no brand rename (both wait for the boss). Details in the
      frontend CLAUDE.md "Finish, real-device measurement and PROT photos".
+   - Public page images (Phase 14): the landing page uses the same optimized photo approach as /prot (featured PROT
+     through `ProtPhoto`; the desktop-only hero carousel through next/image and never downloaded on phones), so `/` on a
+     phone cold load went from 1597 KB to 666 KB. Optimized images stay cached 31 days (`images.minimumCacheTTL`),
+     which is safe only because every upload gets a new UUID object key (backend `StorageService.uploadFile()`). The
+     site now really displays Plus Jakarta Sans and Geist Mono (separate commit, revertible). Details in the frontend
+     CLAUDE.md "Public page images (Phase 14)".
 
 ## Deployment facts
 
@@ -519,6 +551,10 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   photo files are gone; every new and touched file is clean). Per rule: no-unused-vars 47 (warn), no-explicit-any 39,
   no-img-element 21 (warn), exhaustive-deps 14 (warn), no-empty-object-type 4, set-state-in-effect 1.
 - Backend after Phase 13: unchanged, 220 errors, 29 warnings (`src/scripts/db-local-setup.ts` is clean).
+- Frontend after Phase 14: unchanged, 44 errors, 82 warnings (every new and touched file is clean except the existing
+  unused `LandingStats` import warning in `app/page.tsx`, also on main; no-img-element stays 21: the replaced `<img>`
+  elements already had disable comments).
+- Backend after Phase 14: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -674,6 +710,30 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   build downloads fonts any more; `tests/config/fonts.test.ts` fails on a `next/font/google` import. Finding, not changed:
   `globals.css` sets `--font-sans: var(--font-jakarta-sans)` in a plain `@theme` block (emitted on `:root`, where the
   next/font variable does not exist), so the site actually renders in Tailwind's system font stack, before and after.
+  Fixed in Phase 14 (see below).
+- 2026-11-19: Owner decisions for Phase 14: the landing page `/` uses the same optimized photo approach as /prot;
+  `images.minimumCacheTTL` may be raised to 31 days only if every upload gets a new file name; the Phase 13 http-photo
+  rule (http only when both the photo and the page are on a loopback host) is accepted.
+- 2026-11-19: Image cache TTL (Phase 14): `images.minimumCacheTTL` = 2678400 (31 days). Checked in the backend: every
+  upload path (PROT foto/video/dokumen/peralatan, NFT image, `/upload/image|avatar|document|video`) goes through
+  `StorageService.uploadFile()`, which builds the key `<folder>/<randomUUID()>.<ext>` (unchanged since the first
+  commit); `getPresignedUrl(key)` takes a caller key but has no caller; nothing else writes to S3. A replaced photo is
+  a new upload with a new URL, so no cache entry can go stale. Rule: S3 object keys are never reused; if that ever
+  changes, lower the TTL again. Effect: each variant (source URL × width) is transformed at most about once per
+  31 days instead of once per 4 hours of being requested.
+- 2026-11-19: Landing carousel (Phase 14): shown only from `lg` (1024 px), so its photos are static imports passed
+  through `getImageProps` into a `<picture>` whose `<source media="(min-width: 1024px)">` carries the optimized srcset;
+  below `lg` the `<img>` shows a 1x1 data URI and downloads nothing. The first slide (the one visible on load,
+  `hero.webp`) is eager with high fetch priority; `nusland.webp` (renamed from `nusland (1).webp`) is the second slide
+  and lazy. The featured PROT on `/` use `ProtPhoto` `cover` (the /prot variants, no extra transformations).
+- 2026-11-19: Events and NFT pages (Phase 14): no `RemotePhoto` and no new `remotePatterns`, because in production the
+  only event has no banner and the only NFT has no image or gallery, so these pages load no remote images. Revisit when
+  they get images (likely prefixes `/images/nfts/` for NFT uploads; event banners are a free-text URL).
+- 2026-11-19: Fonts displayed (Phase 14, own commit so it can be reverted alone): the two font lines moved to
+  `@theme inline` in `app/globals.css` and the `body` rule uses `var(--font-jakarta-sans)` directly (with the
+  Arial/Helvetica fallbacks), so Plus Jakarta Sans and Geist Mono are used as intended
+  (`tests/config/fonts.test.ts`). Jakarta is wider: the landing navbar's right-hand group got tighter spacing below
+  `sm` (it overflowed by 1 px at 390 px); nothing else overflowed on `/`, `/prot`, a PROT detail and the Jelajah pages.
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
