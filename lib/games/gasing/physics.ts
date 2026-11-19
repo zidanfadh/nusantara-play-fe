@@ -12,8 +12,10 @@
  * - Wobble: the tilted top precesses; precession pushes it around (it wanders). That push is paid for with
  *   spin energy, so the total energy never grows without a throw.
  * - Two tops on the ground collide as discs: normal impulse with restitution, Coulomb friction between the
- *   spinning rims (spin turns into deflection, capped by friction and never adding energy), then a spin loss
- *   and a tilt kick proportional to the impact speed.
+ *   spinning rims (spin turns into deflection, capped by friction and never adding energy), then each top
+ *   loses spin and gets a tilt kick proportional to its own change of speed. A top that lands on the other
+ *   one hits it from its first contact point ("pangkah tepat").
+ * - A shaky release scatters the landing point a little; a clean or perfect release lands where aimed.
  * - A top whose centre leaves the ring is out.
  *
  * Mutating functions (`applyThrow`, `step`) work on a world the caller owns; `simulate` is the pure wrapper
@@ -54,6 +56,13 @@ export const PHYSICS = {
   tiltBad: 0.24,
   perfectSpin: 1.07,
   perfectTilt: 0.5,
+  /**
+   * Landing scatter of a shaky release: up to ±(1 − quality) · scatter / 2 of the distance (fraction) and of
+   * the aim (radians); a perfect release keeps a third of it. The aim preview shows the clean landing point.
+   */
+  distScatter: 0.3,
+  aimScatter: 0.2,
+  perfectScatter: 0.33,
   /** Landing direction jitter (radians) per unit of starting tilt. */
   landJitter: 1.2,
   /** Ground: rolling deceleration (units/s²) and linear drag (1/s). */
@@ -79,15 +88,7 @@ export const PHYSICS = {
   friction: 0.25,
   hitSpinLoss: 0.1,
   hitTilt: 0.13,
-  /** Extra tilt for the top that is landed on directly (per unit of landing speed). */
-  directTilt: 0.05,
-  /** Pangkah: the striking top is heavier (the archive's gasing pemangkah has a thicker body). */
-  pemangkahMass: 1.5,
-  pemangkahRadius: 0.092,
 } as const;
-
-/** `biasa` = the normal top; `pemangkah` = the heavier striking top of the Pangkah mode. */
-export type TopKind = 'biasa' | 'pemangkah';
 
 function rand(world: World): number {
   const [v, next] = mulberry32Step(world.rng);
@@ -188,28 +189,21 @@ export function throwTilt(t: Throw): number {
 }
 
 /** Starts a throw for `side` (mutates). Ignored when that top is not in the hand any more. */
-export function applyThrow(
-  world: World,
-  side: Side,
-  input: Throw,
-  events?: WorldEvent[],
-  rules: GasingRules = DEFAULT_RULES,
-  kind: TopKind = 'biasa',
-): void {
+export function applyThrow(world: World, side: Side, input: Throw, events?: WorldEvent[], rules: GasingRules = DEFAULT_RULES): void {
   const top = world.tops[side];
   if (top.phase !== 'held') return;
   const t = normalizeThrow(side, input);
-  top.mass = kind === 'pemangkah' ? PHYSICS.pemangkahMass : PHYSICS.topMass;
-  top.radius = kind === 'pemangkah' ? PHYSICS.pemangkahRadius : PHYSICS.topRadius;
-  top.inertia = PHYSICS.inertiaFactor * top.mass * top.radius * top.radius;
   const o = throwOrigin(side, rules);
   const dur = PHYSICS.flightBase + PHYSICS.flightPower * t.power;
-  const speed = landingDistance(t.power, rules) / dur;
+  const shake = (1 - t.quality) * (t.perfect ? PHYSICS.perfectScatter : 1);
+  const scatterD = 1 + (rand(world) - 0.5) * PHYSICS.distScatter * shake;
+  const angle = t.angle + (rand(world) - 0.5) * PHYSICS.aimScatter * shake;
+  const speed = (landingDistance(t.power, rules) * scatterD) / dur;
   top.phase = 'flying';
   top.x = o.x;
   top.y = o.y;
-  top.vx = Math.cos(t.angle) * speed;
-  top.vy = Math.sin(t.angle) * speed;
+  top.vx = Math.cos(angle) * speed;
+  top.vy = Math.sin(angle) * speed;
   top.flightT = 0;
   top.flightDur = dur;
   top.spin = throwSpin(t);
@@ -281,7 +275,6 @@ function land(world: World, top: TopState, events: WorldEvent[] | undefined, rul
   const vy = (top.vx * s + top.vy * c) * keep;
   top.vx = vx;
   top.vy = vy;
-  if (direct) other.tilt += PHYSICS.directTilt * speed;
   events?.push({ type: 'land', side: top.side, x: top.x, y: top.y, strength: speed, direct });
 }
 
@@ -417,7 +410,7 @@ export function simulate(
   const start = w.steps;
   for (let i = 0; i < steps; i++) {
     for (const input of inputs) {
-      if (input.atStep === w.steps - start) applyThrow(w, input.side, input.throw, sink, rules, input.kind);
+      if (input.atStep === w.steps - start) applyThrow(w, input.side, input.throw, sink, rules);
     }
     step(w, sink, rules);
     if (options.until?.(w)) break;

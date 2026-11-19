@@ -40,7 +40,7 @@ describe('gasing physics: determinism (Phase 20)', () => {
   it('the same seed and inputs give the same world and events', () => {
     const inputs: ScheduledThrow[] = [
       { atStep: 0, side: 1, throw: { angle: Math.PI / 2, power: 0.42, quality: 0.7, perfect: false } },
-      { atStep: 200, side: 0, throw: { angle: -Math.PI / 2 + 0.02, power: 0.5, quality: 0.8, perfect: true }, kind: 'pemangkah' },
+      { atStep: 200, side: 0, throw: { angle: -Math.PI / 2 + 0.02, power: 0.5, quality: 0.8, perfect: true } },
     ];
     const a = simulate(createWorld(42), inputs, 1500);
     const b = simulate(createWorld(42), inputs, 1500);
@@ -80,7 +80,7 @@ describe('gasing physics: energy (Phase 20)', () => {
         let thrown = false;
         for (const side of [0, 1] as const) {
           if (throwAt[side] === i) {
-            applyThrow(w, side, throws[side], undefined, undefined, rng() < 0.5 ? 'pemangkah' : 'biasa');
+            applyThrow(w, side, throws[side]);
             thrown = true;
           }
         }
@@ -230,7 +230,7 @@ describe('gasing physics: collisions (Phase 20)', () => {
     const t = w0.tops[1];
     const o = throwOrigin(0);
     const strike: Throw = { angle: Math.atan2(t.y - o.y, t.x - o.x), power: powerForDistance(Math.hypot(t.x - o.x, t.y - o.y)), quality: 0.8, perfect: false };
-    const r = simulate(w0, [{ atStep: 0, side: 0, throw: strike, kind: 'pemangkah' }], 600);
+    const r = simulate(w0, [{ atStep: 0, side: 0, throw: strike }], 600);
     const land = r.events.find((e) => e.type === 'land' && e.side === 0);
     expect(land && land.type === 'land' && land.direct).toBe(true);
     const hits = r.events.filter((e) => e.type === 'hit');
@@ -238,13 +238,13 @@ describe('gasing physics: collisions (Phase 20)', () => {
     expect(hits[0].type === 'hit' && hits[0].strength).toBeGreaterThan(1);
     // The target spins much shorter than without the strike.
     const alone = simulate(w0, [], 120 * 20, { until: (w) => w.tops[1].phase !== 'spinning' }).world.tops[1].spinTime;
-    const struck = simulate(w0, [{ atStep: 0, side: 0, throw: strike, kind: 'pemangkah' }], 120 * 20, { until: (w) => w.tops[1].phase !== 'spinning' }).world.tops[1].spinTime;
+    const struck = simulate(w0, [{ atStep: 0, side: 0, throw: strike }], 120 * 20, { until: (w) => w.tops[1].phase !== 'spinning' }).world.tops[1].spinTime;
     expect(struck).toBeLessThan(alone - 2);
   });
 
-  it('the heavier pemangkah suffers less from the same impact', () => {
+  it('a heavier top suffers less from the same impact', () => {
     const w = createWorld(1);
-    spinningTop(w, 0, { x: -0.2, y: 0, vx: 2.5, vy: 0, spin: 100, tilt: 0.02, mass: PHYSICS.pemangkahMass, radius: PHYSICS.pemangkahRadius, inertia: PHYSICS.inertiaFactor * PHYSICS.pemangkahMass * PHYSICS.pemangkahRadius ** 2 });
+    spinningTop(w, 0, { x: -0.2, y: 0, vx: 2.5, vy: 0, spin: 100, tilt: 0.02, mass: 1.5, inertia: PHYSICS.inertiaFactor * 1.5 * PHYSICS.topRadius ** 2 });
     spinningTop(w, 1, { x: 0, y: 0, vx: 0, vy: 0, spin: 100, tilt: 0.02 });
     run(w, 20);
     expect(w.tops[1].tilt).toBeGreaterThan(w.tops[0].tilt);
@@ -261,9 +261,9 @@ describe('gasing physics: throws (Phase 20)', () => {
     expect(bad).toEqual({ angle: forwardAngle(1), power: 0, quality: 0, perfect: false });
   });
 
-  it('lands where predictLanding says', () => {
+  it('a clean release lands where predictLanding says; a shaky one scatters a little', () => {
     for (const side of [0, 1] as const) {
-      const thr: Throw = { angle: forwardAngle(side) + 0.3, power: 0.55, quality: 0.6, perfect: false };
+      const thr: Throw = { angle: forwardAngle(side) + 0.3, power: 0.55, quality: 1, perfect: false };
       const p = predictLanding(side, thr);
       const r = simulate(createWorld(1), [{ atStep: 0, side, throw: thr }], 200);
       const land = r.events.find((e) => e.type === 'land');
@@ -271,6 +271,15 @@ describe('gasing physics: throws (Phase 20)', () => {
       expect(land && land.type === 'land' && land.y).toBeCloseTo(p.y, 1);
       expect(powerForDistance(Math.hypot(p.x - throwOrigin(side).x, p.y - throwOrigin(side).y))).toBeCloseTo(0.55, 6);
     }
+    const p = predictLanding(0, { angle: forwardAngle(0), power: 0.5, quality: 0, perfect: false });
+    let maxMiss = 0;
+    for (let seed = 1; seed <= 30; seed++) {
+      const r = simulate(createWorld(seed), [{ atStep: 0, side: 0, throw: { angle: forwardAngle(0), power: 0.5, quality: 0, perfect: false } }], 200);
+      const land = r.events.find((e) => e.type === 'land');
+      if (land && land.type === 'land') maxMiss = Math.max(maxMiss, Math.hypot(land.x - p.x, land.y - p.y));
+    }
+    expect(maxMiss).toBeGreaterThan(0.03);
+    expect(maxMiss).toBeLessThan(0.25);
   });
 
   it('a top can be thrown only once', () => {
