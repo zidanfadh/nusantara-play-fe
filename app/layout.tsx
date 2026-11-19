@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/brand";
 
 // Self-hosted (app/fonts/, OFL): the build never downloads from Google Fonts. Same CSS variables, latin
 // subset, font-display swap and preload as the former next/font/google setup.
@@ -23,8 +24,16 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Nusantara Virtual",
-  description: "Nusantara Virtual - Your gateway to Indonesian culture and entertainment",
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -33,7 +42,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="id" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

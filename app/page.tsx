@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { HeroCarousel } from '@/components/ui/HeroCarousel';
@@ -6,7 +7,20 @@ import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import { getBackendApiUrl } from '@/lib/api/base-url';
 import type { PaginatedResponse, PROTEntity } from '@/types/prot';
 import { getLandingStats } from '@/lib/api/stats';
-import type { LandingStats } from '@/lib/api/stats';
+import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
+import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
+import { getPublishedCounts, landingStatTiles } from '@/components/landing/published-stats';
+import { DesktopOnlyImage } from '@/components/landing/DesktopOnlyImage';
+import { LANDING_IMAGE_SIZES } from '@/components/landing/image-sizes';
+import tourPreviewImage from '@/public/images/landing/nusantara-legacy.webp';
+import arsipImage from '@/public/images/landing/arsip.webp';
+import komunitasImage from '@/public/images/landing/komunitas.webp';
+import sertifikasiImage from '@/public/images/landing/sertifikasi.webp';
+import blockchainImage from '@/public/images/landing/blockchain.webp';
+
+
+/** md:grid-cols-N as literal class names (Tailwind only sees full strings). */
+const STAT_COLUMNS = ['', 'md:grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4'];
 import {
   LockKeyhole,
   ShieldCheck,
@@ -62,7 +76,7 @@ function getGameSummary(game: PROTEntity): string {
   return (
     game.nilaiMoral ||
     game.caraBermain ||
-    'Permainan rakyat dan olahraga tradisional yang terdokumentasi dalam arsip Nusantara Virtual.'
+    `Permainan rakyat dan olahraga tradisional yang terdokumentasi dalam arsip ${SITE_NAME}.`
   );
 }
 
@@ -76,8 +90,13 @@ export default async function Home() {
       data: { session },
     },
   ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
-  const featuredGames = await getFeaturedGames(session?.access_token);
-  const stats = await getLandingStats(session?.access_token);
+  const [featuredGames, stats, published] = await Promise.all([
+    getFeaturedGames(session?.access_token),
+    getLandingStats(session?.access_token),
+    // Phase 18: PROT and provinces from published PROT only, so they match the map and the bumper.
+    getPublishedCounts(),
+  ]);
+  const statTiles = landingStatTiles(published, stats);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
@@ -89,10 +108,11 @@ export default async function Home() {
             href="/"
             className="text-2xl font-bold tracking-tighter text-primary"
           >
-            Nusantara Virtual
+            {SITE_NAME}
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Section anchors from xl; the page links (Tur Virtual, Game) from md. Phones: the row below. */}
+          <div className="hidden md:flex items-center gap-6 xl:gap-8">
             {[
               { label: 'Ekosistem', href: '#tentang' },
               { label: 'Blockchain', href: '#blockchain' },
@@ -103,10 +123,20 @@ export default async function Home() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-foreground/70 font-medium hover:text-primary transition-colors"
+                className="hidden xl:inline text-foreground/70 font-medium hover:text-primary transition-colors"
               >
                 {link.label}
               </a>
+            ))}
+            {LANDING_PAGE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={link.prefetch ? undefined : false}
+                className="text-foreground font-semibold hover:text-primary transition-colors whitespace-nowrap"
+              >
+                {link.label}
+              </Link>
             ))}
           </div>
 
@@ -115,6 +145,7 @@ export default async function Home() {
             {user ? (
               <Link
                 href="/menu"
+                prefetch={false}
                 className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all"
               >
                 Main Menu
@@ -137,9 +168,24 @@ export default async function Home() {
             )}
           </div>
         </div>
+        {/* Phones and small tablets: the page links get their own row (the bar above is full there). */}
+        <div className="md:hidden border-t border-border/20">
+          <div className="max-w-7xl mx-auto px-6 h-10 flex items-center justify-center gap-8 text-sm">
+            {LANDING_PAGE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={link.prefetch ? undefined : false}
+                className="font-semibold text-foreground/80 hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </nav>
 
-      <main className="pt-20">
+      <main className="pt-[7.5rem] md:pt-20">
         {/* Hero Section */}
         <section className="relative min-h-[90vh] flex items-center overflow-hidden px-6">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -149,23 +195,25 @@ export default async function Home() {
                 Platform Pelestarian Budaya Digital Indonesia
               </div>
               <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-foreground mb-8 leading-[0.9]">
-                Nusantara <br />
-                <span className="text-primary">Virtual</span>
+                {SITE_NAME_WORDS[0]} <br />
+                <span className="text-primary">{SITE_NAME_WORDS.slice(1).join(' ')}</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
-                Menjaga warisan, memainkan masa depan. Platform budaya digital
+                {SITE_TAGLINE} Platform budaya digital
                 untuk mendokumentasikan, memverifikasi, dan menghidupkan kembali
                 permainan tradisional Indonesia bersama komunitas.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href={user ? '/menu' : '/login'}
+                  prefetch={false}
                   className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center"
                 >
                   Mulai Sekarang
                 </Link>
                 <Link
                   href="/menu"
+                  prefetch={false}
                   className="px-8 py-4 bg-muted text-foreground rounded-xl font-bold text-lg hover:bg-muted/70 transition-all duration-300 text-center"
                 >
                   Jelajahi Menu
@@ -189,7 +237,7 @@ export default async function Home() {
                 }}
               >
                 <p className="text-sm font-medium text-muted-foreground italic leading-relaxed">
-                  &ldquo;Budaya adalah identitas. Nusantara Virtual membawa
+                  &ldquo;Budaya adalah identitas. {SITE_NAME} membawa
                   identitas tersebut ke era digital.&rdquo;
                 </p>
               </div>
@@ -227,7 +275,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* New Nusantara Virtual Tour Banner */}
+        {/* Tur Virtual banner (Jelajah Nusantara) */}
         <section className="py-12 lg:py-12 px-6 pt-0 lg:pt-0">
           <div className="max-w-7xl mx-auto">
             <div className="relative overflow-hidden rounded-[3rem] bg-muted/80 flex flex-col lg:flex-row items-center border border-border/10 shadow-[0_24px_40px_-10px_rgba(0,0,0,0.05)] pt-0">
@@ -236,7 +284,7 @@ export default async function Home() {
                   Baru: Pengalaman Imersif
                 </span>
                 <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-6 leading-tight">
-                  Nusantara <br className="hidden md:block" /> Virtual Tour
+                  Tur Virtual <br className="hidden md:block" /> Jelajah Nusantara
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
                   Jelajahi warisan budaya dalam pengalaman 3D interaktif dan
@@ -244,36 +292,47 @@ export default async function Home() {
                   lebih hidup, dekat, dan imersif.
                 </p>
                 {/* Phase 17: our own Jelajah Nusantara instead of the external tour site (same tab). */}
+                {/* Phase 18: the map needs a login; logged-out visitors pass the login notice first. */}
                 <Link
                   href="/jelajah"
+                  prefetch={false}
+                  aria-describedby={user ? undefined : 'tur-virtual-login-hint'}
                   className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center group w-fit"
                 >
                   Mulai Tur Virtual
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
+                {!user && (
+                  <p
+                    id="tur-virtual-login-hint"
+                    data-login-hint=""
+                    className="mt-3 flex items-center gap-1.5 text-sm font-medium text-muted-foreground"
+                  >
+                    <LockKeyhole aria-hidden="true" className="h-4 w-4" />
+                    Perlu masuk akun
+                  </p>
+                )}
               </div>
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  alt="Nusantara Virtual Tour Preview"
-                  className="absolute inset-0 w-full h-full object-contain p-8" /* Saya tambahkan p-8 di sini agar paddingnya teraplikasi ke gambar yang absolute */
-                  src="/images/landing/nusantara-legacy.webp"
+                {/* next/image (Phase 18): optimized and lazy; p-8 inside the padded box as before. */}
+                <Image
+                  src={tourPreviewImage}
+                  alt={`Pratinjau Tur Virtual ${SITE_NAME}`}
+                  fill
+                  sizes={LANDING_IMAGE_SIZES.tourPreview}
+                  className="object-contain p-8"
                 />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats Bar */}
-        <section className="py-12 bg-muted/50 border-y border-border/10">
+        {/* Stats Bar: published content only; numbers that are 0 or unknown are hidden (Phase 18). */}
+        {statTiles.length > 0 && (
+        <section data-landing-stats="" className="py-12 bg-muted/50 border-y border-border/10">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
-              {[
-                { value: stats.totalProt.toLocaleString('id-ID'), label: 'Permainan' },
-                { value: stats.totalProvinsi.toString(), label: 'Provinsi' },
-                { value: stats.totalEvents.toLocaleString('id-ID'), label: 'Events' },
-                { value: stats.totalUsers.toLocaleString('id-ID'), label: 'Anggota' },
-              ].map((stat, i) => (
+            <div className={`grid grid-cols-2 ${STAT_COLUMNS[statTiles.length]} gap-8 md:gap-4`}>
+              {statTiles.map((stat, i) => (
                 <div
                   key={stat.label}
                   className={`text-center ${i > 0 ? 'md:border-l border-border/20' : ''}`}
@@ -289,6 +348,7 @@ export default async function Home() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Features - Membangun Ekosistem Budaya */}
         <section id="tentang" className="py-24 md:py-32 px-6">
@@ -305,29 +365,30 @@ export default async function Home() {
                 {
                   title: 'Arsip Terverifikasi',
                   desc: 'Dokumentasi yang merangkum aturan main, sejarah, konteks daerah, dan nilai budaya dari berbagai penjuru Nusantara.',
-                  img: '/images/landing/arsip.webp',
+                  img: arsipImage,
                   imgAlt: 'Old manuscript of traditional Indonesian rules',
                 },
                 {
                   title: 'Komunitas & Event',
                   desc: 'Temukan sesama pegiat budaya, ikuti agenda komunitas, dan hadir dalam ruang perjumpaan yang menghidupkan tradisi.',
-                  img: '/images/landing/komunitas.webp',
+                  img: komunitasImage,
                   imgAlt: 'Indonesian youth gathering at a cultural event',
                 },
                 {
                   title: 'Sertifikasi Budaya',
                   desc: 'Kontribusi data dan partisipasi kegiatan dapat terhubung dengan sertifikasi digital sebagai bentuk apresiasi yang terdokumentasi.',
-                  img: '/images/landing/sertifikasi.webp',
+                  img: sertifikasiImage,
                   imgAlt: 'Traditional batik patterns and stamps',
                 },
               ].map((feature) => (
                 <div key={feature.title} className="group">
                   <div className="mb-8 aspect-[4/5] bg-muted rounded-2xl overflow-hidden relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
-                      alt={feature.imgAlt}
+                    <Image
                       src={feature.img}
+                      alt={feature.imgAlt}
+                      fill
+                      sizes={LANDING_IMAGE_SIZES.feature}
+                      className="object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
@@ -408,11 +469,12 @@ export default async function Home() {
                     boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.3)',
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="w-full h-full object-cover"
+                  {/* lg only: phones download nothing (Phase 18, <picture> like the hero carousel). */}
+                  <DesktopOnlyImage
+                    image={blockchainImage}
                     alt="Abstract 3D blockchain representation with cultural patterns"
-                    src="/images/landing/blockchain.webp"
+                    sizes={LANDING_IMAGE_SIZES.blockchain}
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
@@ -557,16 +619,16 @@ export default async function Home() {
               <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl mx-auto">
                 Beberapa hal yang biasanya ingin diketahui sebelum mulai
                 menjelajahi arsip permainan tradisional, mengikuti event, atau
-                berkontribusi ke ekosistem Nusantara Virtual.
+                berkontribusi ke ekosistem {SITE_NAME}.
               </p>
             </div>
 
             <div className="space-y-4">
               {[
                 {
-                  question: 'Apa itu Nusantara Virtual?',
+                  question: `Apa itu ${SITE_NAME}?`,
                   answer:
-                    'Nusantara Virtual adalah platform digital untuk mendokumentasikan, menampilkan, dan merayakan permainan tradisional Indonesia. Di dalamnya, pengguna dapat menjelajahi arsip budaya, mempelajari nilai dan aturan permainan, serta ikut terlibat dalam komunitas yang aktif menjaga warisan budaya.',
+                    `${SITE_NAME} adalah platform digital untuk mendokumentasikan, menampilkan, dan merayakan permainan tradisional Indonesia. Di dalamnya, pengguna dapat menjelajahi arsip budaya, mempelajari nilai dan aturan permainan, serta ikut terlibat dalam komunitas yang aktif menjaga warisan budaya.`,
                 },
                 {
                   question: 'Apa itu PROT di platform ini?',
@@ -685,7 +747,7 @@ export default async function Home() {
               href="/"
               className="text-xl font-bold text-primary mb-4 block"
             >
-              Nusantara Virtual
+              {SITE_NAME}
             </Link>
             <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
               Platform digital terdesentralisasi pertama yang fokus pada
@@ -763,7 +825,7 @@ export default async function Home() {
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
           <p className="text-foreground/60 text-sm">
-            &copy; {new Date().getFullYear()} Nusantara Virtual. Menjaga Warisan,
+            &copy; {new Date().getFullYear()} {SITE_NAME}. Menjaga Warisan,
             Memainkan Masa Depan.
           </p>
         </div>

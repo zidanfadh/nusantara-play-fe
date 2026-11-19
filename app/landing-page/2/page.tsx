@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
+import { SITE_NAME } from '@/lib/brand';
 import {
   LockKeyhole,
   ShieldCheck,
@@ -29,7 +30,7 @@ export default async function LandingPageV2() {
             href="/"
             className="text-2xl font-bold tracking-tighter text-primary"
           >
-            Nusantara Virtual
+            {SITE_NAME}
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
@@ -134,7 +135,7 @@ export default async function LandingPageV2() {
                 }}
               >
                 <p className="text-sm font-medium text-muted-foreground italic leading-relaxed">
-                  &ldquo;Budaya adalah identitas. Nusantara Virtual membawa
+                  &ldquo;Budaya adalah identitas. {SITE_NAME} membawa
                   identitas tersebut ke era digital.&rdquo;
                 </p>
               </div>
@@ -534,7 +535,7 @@ export default async function LandingPageV2() {
               href="/"
               className="text-xl font-bold text-primary mb-4 block"
             >
-              Nusantara Virtual
+              {SITE_NAME}
             </Link>
             <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
               Platform digital terdesentralisasi pertama yang fokus pada
@@ -612,7 +613,7 @@ export default async function LandingPageV2() {
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
           <p className="text-foreground/60 text-sm">
-            &copy; {new Date().getFullYear()} Nusantara Virtual. Menjaga Warisan,
+            &copy; {new Date().getFullYear()} {SITE_NAME}. Menjaga Warisan,
             Memainkan Masa Depan.
           </p>
         </div>

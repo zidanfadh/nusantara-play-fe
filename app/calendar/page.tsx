@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CalendarViewComponent } from '@/components/calendar/CalendarView';
 import { CalendarAgenda } from '@/components/calendar/CalendarAgenda';
 import { CalendarItemDetail } from '@/components/calendar/CalendarItemDetail';
+import { SITE_NAME } from '@/lib/brand';
 
 export default function CalendarPage() {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -12,7 +13,7 @@ export default function CalendarPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-1">Kalender Nusantara Virtual</h1>
+        <h1 className="text-3xl font-bold mb-1">Kalender {SITE_NAME}</h1>
         <p className="text-muted-foreground">
           Lihat tanggal penting, jadwal, dan event budaya Indonesia
         </p>

@@ -1,12 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialAuthButtons } from './SocialAuthButtons';
+import { LoginNotice } from './LoginNotice';
+import { authQuery, type LoginReason } from './login-redirect';
+import { SITE_NAME } from '@/lib/brand';
 
-export function SignupForm() {
+export interface SignupFormProps {
+  /** Kept on the way back to the login page and through Google sign-up (Phase 18). */
+  redirectTo?: string | null;
+  reason?: LoginReason | null;
+}
+
+export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps) {
+  const loginHref = `/login${authQuery(redirectTo, reason)}`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,7 +23,6 @@ export function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { signUp } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +60,7 @@ export function SignupForm() {
         <p className="text-sm text-muted-foreground">
           Kami telah mengirimkan tautan konfirmasi ke {email}
         </p>
-        <Link href="/login" className="text-secondary hover:underline text-sm font-medium">
+        <Link href={loginHref} className="text-secondary hover:underline text-sm font-medium">
           Kembali ke halaman masuk
         </Link>
       </div>
@@ -64,11 +72,13 @@ export function SignupForm() {
       <div className="text-center sm:text-left">
         <h2 className="text-2xl font-bold text-foreground">Daftar</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Bergabung dengan komunitas Nusantara Virtual
+          Bergabung dengan komunitas {SITE_NAME}
         </p>
       </div>
 
-      <SocialAuthButtons />
+      <LoginNotice reason={reason} />
+
+      <SocialAuthButtons redirectTo={redirectTo} />
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -139,7 +149,7 @@ export function SignupForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Sudah punya akun?{' '}
-          <Link href="/login" className="text-secondary font-medium hover:underline">
+          <Link href={loginHref} className="text-secondary font-medium hover:underline">
             Masuk sekarang
           </Link>
         </p>

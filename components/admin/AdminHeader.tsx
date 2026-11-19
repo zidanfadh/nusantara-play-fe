@@ -4,6 +4,7 @@ import { UserProfile } from '@/types/user';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { formatUserRole } from '@/lib/api/users';
+import { SITE_NAME } from '@/lib/brand';
 
 interface AdminHeaderProps {
   user: UserProfile;
@@ -32,7 +33,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
               Admin Panel
             </h2>
             <p className="text-xs text-[#F7F3E8]/80 font-medium">
-              Kelola sistem Nusantara Virtual
+              Kelola sistem {SITE_NAME}
             </p>
           </div>
         </div>
