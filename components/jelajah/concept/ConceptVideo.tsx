@@ -87,6 +87,8 @@ const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1
 const SEEN_AFTER_MS = 1000;
 /** The frame rate is measured only after this much film time (the chunk has just loaded and laid out). */
 const FPS_WARMUP_MS = 1500;
+/** The particles are dropped only when the 2 s average stays below LOW_FPS this long. */
+const LOW_FPS_FOR_MS = 3000;
 
 function subscribeResize(onChange: () => void) {
   window.addEventListener('resize', onChange);
@@ -142,18 +144,26 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
     let frame = 0;
     let lastShown = 0;
     let wasRunning = false;
+    let lowSince: number | null = null;
     const loop = (now: number) => {
       frame = requestAnimationFrame(loop);
       const running = controls.running() && controls.now() >= FPS_WARMUP_MS;
       if (!running) {
         if (wasRunning) fps.reset();
         wasRunning = false;
+        lowSince = null;
         return;
       }
       wasRunning = true;
       fps.push(now);
       const avg = fps.fps(now);
-      if (avg !== null && avg < LOW_FPS && !reduced) setLowFps(true);
+      // Sustained only: a one-off stall (a scene's first paint) must not drop the particles for the whole film.
+      if (avg !== null && avg < LOW_FPS) {
+        lowSince ??= now;
+        if (now - lowSince >= LOW_FPS_FOR_MS && !reduced) setLowFps(true);
+      } else {
+        lowSince = null;
+      }
       if (debug && now - lastShown > 500) {
         lastShown = now;
         setFpsShown(avg);
@@ -371,7 +381,7 @@ function SceneLayer({ i, time, children }: { i: number; time: MotionValue<number
   const lt = useTransform(time, (t) => t - start);
   const opacity = useTransform(time, (t) => sceneOpacity(i, t));
   return (
-    <motion.div className="absolute inset-0" style={{ opacity, zIndex: i }}>
+    <motion.div className="absolute inset-0" style={{ opacity, zIndex: i, willChange: 'opacity' }}>
       {children(lt)}
     </motion.div>
   );
@@ -439,7 +449,7 @@ function Progress({ time, total }: { time: MotionValue<number>; total: number })
   const ref = useStyle(time, (t) => ({ transform: `scaleX(${Math.min(1, Math.max(0, t / total)).toFixed(4)})` }));
   return (
     <div aria-hidden className="absolute inset-x-0 bottom-0 z-[6] h-1 bg-white/15">
-      <div ref={ref} className="h-full origin-left bg-[#F7C95C]" style={{ transform: 'scaleX(0)' }} />
+      <div ref={ref} className="h-full origin-left bg-[#F7C95C]" style={{ transform: 'scaleX(0)', willChange: 'transform' }} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { STAGE, type ConceptLayout } from '@/lib/jelajah/concept/layout';
 import { BEATS } from '@/lib/jelajah/concept/script';
 import { easeInCubic, seg } from '@/lib/jelajah/concept/timeline';
 import { COURTYARD, Courtyard } from '../art/Courtyard';
-import { Stage, useAttr, useDerived, useStyle, type SceneProps } from '../scene-kit';
+import { LIVE, LIVE_OPACITY, useAttr, useDerived, useStyle, type SceneProps } from '../scene-kit';
 
 /** Static film grain: SVG noise rasterised once, moved by whole pixels (transform) 12 times a second. */
 const GRAIN =
@@ -26,19 +26,18 @@ export function TerlupaScene({ lt, layout, still, canvas }: SceneProps) {
 
   return (
     <div className="absolute inset-0 overflow-hidden" data-cv-scene="terlupa">
-      <div ref={camera} className="absolute inset-0" style={{ transformOrigin: '50% 68%' }}>
-        <Stage layout={layout}>
-          <Courtyard lt={lt} layout={layout} tone="sepia" still={still} kidsOpacity={kids} toysOpacity={toys} fireflies={false} />
+      <div ref={camera} className="absolute inset-0" style={{ transformOrigin: '50% 68%', ...LIVE }}>
+        <Courtyard lt={lt} layout={layout} tone="sepia" still={still} kidsOpacity={kids} toysOpacity={toys} fireflies={false}>
           {!canvas && !still && <SvgDust lt={lt} layout={layout} from={dustFrom} to={dustTo} />}
-        </Stage>
+        </Courtyard>
       </div>
       <div
         ref={grain}
         aria-hidden
-        className="pointer-events-none absolute -inset-[40px] opacity-[0.22] mix-blend-overlay"
-        style={{ backgroundImage: GRAIN }}
+        className="pointer-events-none absolute -inset-[40px] opacity-[0.16]"
+        style={{ backgroundImage: GRAIN, ...LIVE }}
       />
-      <div ref={scratch} aria-hidden className="pointer-events-none absolute inset-y-0 left-[31%] w-px bg-[#E8D9B8]" />
+      <div ref={scratch} aria-hidden className="pointer-events-none absolute inset-y-0 left-[31%] w-px bg-[#E8D9B8]" style={LIVE_OPACITY} />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"

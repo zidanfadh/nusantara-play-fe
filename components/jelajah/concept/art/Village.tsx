@@ -111,11 +111,11 @@ function House({ iso, x, y }: { iso: Iso; x: number; y: number }) {
   );
 }
 
-function Stand({ iso, x, y, lt, i, still }: { iso: Iso; x: number; y: number; lt: MotionValue<number>; i: number; still: boolean }) {
+function Stand({ iso, x, y }: { iso: Iso; x: number; y: number }) {
   const [gx, gy] = iso([x + 0.35, y + 0.3, 0]);
   return (
     <g>
-      <Glow lt={lt} x={gx} y={gy} r={iso([1, 0, 0])[0] * 0.95} i={i} still={still} />
+      <GlowBase x={gx} y={gy} r={iso([1, 0, 0])[0] * 0.95} />
       {[
         [x, y],
         [x + 0.64, y],
@@ -130,7 +130,13 @@ function Stand({ iso, x, y, lt, i, still }: { iso: Iso; x: number; y: number; lt
   );
 }
 
-function Glow({ lt, x, y, r, i, still }: { lt: MotionValue<number>; x: number; y: number; r: number; i: number; still: boolean }) {
+/** The still part of a glow: a soft pool of light on the ground (static layer). */
+function GlowBase({ x, y, r }: { x: number; y: number; r: number }) {
+  return <ellipse cx={x} cy={y} rx={r * 0.9} ry={r * 0.5} fill={C.glow} opacity="0.35" />;
+}
+
+/** The pulsing ring of a glow (live layer). */
+function Ring({ lt, x, y, r, i, still }: { lt: MotionValue<number>; x: number; y: number; r: number; i: number; still: boolean }) {
   const ring = useAttrs<SVGEllipseElement>(lt, (t) => {
     const k = (((still ? 700 : t) + i * 230) % 1400) / 1400;
     return {
@@ -138,12 +144,7 @@ function Glow({ lt, x, y, r, i, still }: { lt: MotionValue<number>; x: number; y
       opacity: (0.85 * (1 - k)).toFixed(3),
     };
   });
-  return (
-    <g>
-      <ellipse cx={x} cy={y} rx={r * 0.9} ry={r * 0.5} fill={C.glow} opacity="0.35" />
-      <ellipse ref={ring} rx={r} ry={r * 0.56} fill="none" stroke={C.glow} strokeWidth="2.5" />
-    </g>
-  );
+  return <ellipse ref={ring} rx={r} ry={r * 0.56} fill="none" stroke={C.glow} strokeWidth="2.5" />;
 }
 
 function Palm({ iso, x, y, h }: { iso: Iso; x: number; y: number; h: number }) {
@@ -184,7 +185,40 @@ function Canoe({ iso, lt, still }: { iso: Iso; lt: MotionValue<number>; still: b
   );
 }
 
-export function Village({ lt, layout, still }: { lt: MotionValue<number>; layout: ConceptLayout; still: boolean }) {
+/** Stand positions around the plaza (tiles) and the pavilion's glow point. */
+const STANDS: [number, number][] = [
+  [3.25, 2.55],
+  [4.7, 2.3],
+  [6.15, 2.55],
+  [3.15, 4.9],
+  [4.7, 5.2],
+  [6.25, 4.9],
+];
+const PAVILION_GLOW: P3 = [5, 4.15, 0];
+
+/**
+ * The moving parts of the village (pulsing rings, the canoe) on their own layer above the static drawing,
+ * so the village itself is never repainted per frame (Phase 19 frame-rate measurement).
+ */
+export function VillageLive({ lt, layout, still }: { lt: MotionValue<number>; layout: ConceptLayout; still: boolean }) {
+  const { u, cx, cy } = VILLAGE[layout];
+  const iso = makeIso(u);
+  const [ox, oy] = iso([5, 5, 0]);
+  const [px, py] = iso(PAVILION_GLOW);
+  return (
+    <g transform={`translate(${cx - ox} ${cy - oy})`}>
+      <Canoe iso={iso} lt={lt} still={still} />
+      {STANDS.map(([x, y], i) => {
+        const [gx, gy] = iso([x + 0.35, y + 0.3, 0]);
+        return <Ring key={i} lt={lt} x={gx} y={gy} r={iso([1, 0, 0])[0] * 0.95} i={i} still={still} />;
+      })}
+      <Ring lt={lt} x={px} y={py} r={u * 1.5} i={7} still={still} />
+    </g>
+  );
+}
+
+/** The static village drawing. */
+export function Village({ layout }: { layout: ConceptLayout }) {
   const { u, cx, cy } = VILLAGE[layout];
   const iso = makeIso(u);
   const [ox, oy] = iso([5, 5, 0]);
@@ -198,22 +232,12 @@ export function Village({ lt, layout, still }: { lt: MotionValue<number>; layout
     [3.6, 0.3],
   ];
   houses.forEach(([x, y]) => objects.push({ depth: x + y + 1.3, node: <House key={`h${x}`} iso={iso} x={x} y={y} /> }));
-  const stands: [number, number][] = [
-    [3.25, 2.55],
-    [4.7, 2.3],
-    [6.15, 2.55],
-    [3.15, 4.9],
-    [4.7, 5.2],
-    [6.25, 4.9],
-  ];
-  stands.forEach(([x, y], i) =>
-    objects.push({ depth: x + y + 0.6, node: <Stand key={`s${i}`} iso={iso} x={x} y={y} lt={lt} i={i} still={still} /> }),
-  );
+  STANDS.forEach(([x, y], i) => objects.push({ depth: x + y + 0.6, node: <Stand key={`s${i}`} iso={iso} x={x} y={y} /> }));
   objects.push({
     depth: 9.2,
     node: (
       <g key="pav">
-        <Glow lt={lt} x={iso([5, 4.15, 0])[0]} y={iso([5, 4.15, 0])[1]} r={u * 1.5} i={7} still={still} />
+        <GlowBase x={iso(PAVILION_GLOW)[0]} y={iso(PAVILION_GLOW)[1]} r={u * 1.5} />
         {[
           [4.35, 3.5],
           [5.55, 3.5],
@@ -251,7 +275,6 @@ export function Village({ lt, layout, still }: { lt: MotionValue<number>; layout
       <polygon points={pts(iso, [[4.6, 0, 0], [5.4, 0, 0], [5.4, 6.75, 0], [4.6, 6.75, 0]])} fill={C.path} />
       <polygon points={pts(iso, [[0, 3.2, 0], [10, 3.2, 0], [10, 3.8, 0], [0, 3.8, 0]])} fill={C.path} />
       <polygon points={pts(iso, [[3.0, 2.3, 0], [7.0, 2.3, 0], [7.0, 6.0, 0], [3.0, 6.0, 0]])} fill={C.plaza} />
-      <Canoe iso={iso} lt={lt} still={still} />
       {objects.map((o) => o.node)}
     </g>
   );

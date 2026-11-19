@@ -6,7 +6,7 @@ import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { BEATS, CONCEPT_SCENES, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeInCubic, easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
 import { MiniBoard } from '../art/MiniBoard';
-import { BLEED, Stage, useStyle, type SceneProps } from '../scene-kit';
+import { BLEED, LIVE, Stage, useStyle, type SceneProps } from '../scene-kit';
 
 const SCENE = CONCEPT_SCENES.find((s) => s.id === 'main')!;
 const STILL_T = SCENE.still * SCENE.duration;
@@ -27,8 +27,8 @@ export function MainScene({ lt, layout, still }: SceneProps) {
       <Stage layout={layout}>
         <rect {...BLEED} fill="url(#cv-kawung-gold)" opacity="0.12" />
       </Stage>
-      <div ref={enter} className={`absolute inset-x-0 top-0 flex ${row} ${layout === 'portrait' ? 'bottom-[30%]' : 'bottom-[32%]'}`}>
-        <div className={`relative ${layout === 'portrait' ? 'w-full' : 'flex-[1.5]'}`}>
+      <div ref={enter} className={`absolute inset-x-0 top-0 flex ${row} ${layout === 'portrait' ? 'bottom-[30%]' : 'bottom-[32%]'}`} style={LIVE}>
+        <div className={`relative ${layout === 'portrait' ? 'w-full' : 'flex-[1.5]'}`} style={LIVE}>
           <MiniBoard lt={lt} still={still} stillTime={STILL_T} />
           {BEATS.main.moveStarts.map((start, i) => (
             <XpChip key={i} lt={lt} at={start + BEATS.main.moveDuration} i={i} still={still} />
@@ -51,7 +51,7 @@ function XpChip({ lt, at, i, still }: { lt: MotionValue<number>; at: number; i: 
     <span
       ref={ref}
       className="pointer-events-none absolute -top-3 inline-flex items-center gap-1 rounded-full bg-[#F7C95C] px-3 py-1 text-base font-extrabold text-[#3B1E0E] shadow-lg"
-      style={{ left: `${30 + i * 20}%` }}
+      style={{ left: `${30 + i * 20}%`, ...LIVE }}
     >
       <Sparkles className="h-4 w-4" aria-hidden /> {CONCEPT_TEXT.xpChip}
     </span>
@@ -77,6 +77,7 @@ function Passport({ lt, still, layout }: { lt: MotionValue<number>; still: boole
   return (
     <div
       ref={shake}
+      style={LIVE}
       className={`relative mx-auto flex shrink-0 flex-col rounded-2xl border-2 border-[#C9A876] bg-[#FBF3E4] shadow-[0_18px_40px_-16px_rgba(0,0,0,0.8)] ${
         layout === 'portrait' ? 'w-[min(78%,300px)] p-3' : compact ? 'w-[34%] p-3' : 'w-[30%] p-6'
       }`}

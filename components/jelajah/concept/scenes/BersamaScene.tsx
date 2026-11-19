@@ -6,7 +6,7 @@ import { seededRandom } from '@/lib/jelajah/concept/particles';
 import { BEATS, CONCEPT_SCENES, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeInOutCubic, easeOutBack, easeOutCubic, lerp, seg } from '@/lib/jelajah/concept/timeline';
 import { CONCEPT_PROVINCE_PATHS, mapCenter, mapTransformAttr, ProvincePaths } from '../art/MapArt';
-import { BLEED, Stage, useAttr, useAttrs, useDerived, useStyle, type SceneProps } from '../scene-kit';
+import { BLEED, cameraCss, LIVE, Stage, useAttrs, useDerived, useStyle, type SceneProps } from '../scene-kit';
 
 const SCENE = CONCEPT_SCENES.find((s) => s.id === 'bersama')!;
 const STILL_T = SCENE.still * SCENE.duration;
@@ -58,18 +58,23 @@ function quad(a: [number, number], c: [number, number], b: [number, number], u: 
 /** Scene 7 "bersama" (39–44 s): back to the whole map; people (dots) across provinces, linked by soft arcs. */
 export function BersamaScene({ lt, layout, still }: SceneProps) {
   const time = (t: number) => (still ? STILL_T : t);
-  const [mx, my] = mapCenter(layout);
-  const camera = useAttr<SVGGElement>(lt, (t) => {
-    const s = lerp(1.18, 1, easeInOutCubic(seg(time(t), -500, 2600)));
-    return `translate(${mx} ${my}) scale(${s.toFixed(4)}) translate(${-mx} ${-my})`;
-  });
+  const center = mapCenter(layout);
+  // Camera pull-back as a CSS transform of a compositor layer; the map is static inside it and the moving
+  // dots and arcs have their own layer, so the province paths are never repainted per frame.
+  const camera = useStyle(lt, (t) => cameraCss(layout, center, center, lerp(1.18, 1, easeInOutCubic(seg(time(t), -500, 2600)))));
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(90% 70% at 50% 40%, #2B2350 0%, #120F2A 75%)' }}>
       <Stage layout={layout}>
         <rect {...BLEED} fill="url(#cv-kawung-gold)" opacity="0.07" />
-        <g ref={camera}>
+      </Stage>
+      <div ref={camera} className="absolute inset-0" style={LIVE}>
+        <Stage layout={layout}>
           <g transform={mapTransformAttr(layout)}>
             <ProvincePaths fill="#2F2960" stroke="#5A5294" strokeWidth={1.2} />
+          </g>
+        </Stage>
+        <Stage layout={layout} live>
+          <g transform={mapTransformAttr(layout)}>
             {ARCS.map((arc, i) => (
               <Arc key={i} arc={arc} i={i} lt={lt} still={still} />
             ))}
@@ -77,8 +82,8 @@ export function BersamaScene({ lt, layout, still }: SceneProps) {
               <Dot key={d.order} x={d.x} y={d.y} order={d.order} lt={lt} still={still} />
             ))}
           </g>
-        </g>
-      </Stage>
+        </Stage>
+      </div>
       <Audiences lt={lt} still={still} layout={layout} />
     </div>
   );
@@ -166,6 +171,7 @@ function Pill({
     <div className={`pointer-events-none absolute ${className}`}>
       <span
         ref={ref}
+        style={LIVE}
         className="inline-flex items-center gap-2 rounded-full border border-[#F7C95C]/60 bg-[#1E1840]/85 px-4 py-2 text-base font-bold text-[#FFE6A8] shadow-lg md:text-lg"
       >
         <Icon className="h-5 w-5" aria-hidden /> {label}

@@ -100,7 +100,7 @@ export const BEATS = {
   terlupa: { drainEnd: 1600, dustFrom: 1200, dustTo: 4600 },
   nusantara: { gatherFrom: 0, gatherTo: 3200, lightFrom: 2200, lightTo: 5600, wordmarkAt: 4200 },
   arsip: { cardsFrom: 200, cardStagger: 260, cardFlight: 900, stampAt: 4700 },
-  jelajah: { diveFrom: 300, diveTo: 3000, villageAt: 2600 },
+  jelajah: { diveFrom: 300, diveTo: 3000, villageAt: 2400 },
   main: { moveStarts: [400, 2000, 3600] as readonly number[], moveDuration: 1400, stampAt: 5400 },
   bersama: { dotsFrom: 300, dotStagger: 60, arcsFrom: 1300, arcStagger: 220 },
   mulai: { buttonAt: 700 },

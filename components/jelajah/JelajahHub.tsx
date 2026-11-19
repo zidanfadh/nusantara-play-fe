@@ -228,7 +228,8 @@ export function JelajahHub() {
 
   return (
     <>
-    <div className="bg-background text-foreground" inert={introOpen}>
+    {/* While the concept video covers it, the hub is not painted at all (it still lays out and loads). */}
+    <div className={`bg-background text-foreground ${conceptShown ? 'invisible' : ''}`} inert={introOpen}>
       <section
         ref={mapRef}
         aria-label="Peta Jelajah Nusantara"

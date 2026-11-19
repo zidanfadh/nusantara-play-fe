@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import type { RefObject } from 'react';
 import { BEATS, CONCEPT_SCENES, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeOutBack, easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
-import { BLEED, Stage, useStyle, type SceneProps } from '../scene-kit';
+import { BLEED, LIVE, Stage, useStyle, type SceneProps } from '../scene-kit';
 
 const SCENE = CONCEPT_SCENES.find((s) => s.id === 'mulai')!;
 const STILL_T = SCENE.still * SCENE.duration;
@@ -43,6 +43,7 @@ export function MulaiScene({
         className="absolute left-1/2 top-[42%] h-[220vmax] w-[220vmax] opacity-25"
         style={{
           background: 'repeating-conic-gradient(from 0deg, rgba(255,230,168,0.55) 0deg 5deg, transparent 5deg 18deg)',
+          willChange: 'transform',
           maskImage: 'radial-gradient(closest-side, black 10%, transparent 60%)',
           WebkitMaskImage: 'radial-gradient(closest-side, black 10%, transparent 60%)',
         }}
@@ -55,7 +56,7 @@ export function MulaiScene({
           layout === 'landscape' ? 'bottom-[30%] gap-2' : 'bottom-[30%] md:gap-6'
         }`}
       >
-        <div ref={mark}>
+        <div ref={mark} style={LIVE}>
           <Image
             src="/apple-icon.png"
             alt=""
@@ -69,13 +70,14 @@ export function MulaiScene({
         </div>
         <p
           ref={name}
+          style={LIVE}
           className={`font-extrabold tracking-tight text-[#FFF4D6] ${
             layout === 'landscape' ? 'text-3xl' : layout === 'portrait' ? 'text-[2.1rem] leading-tight' : 'text-6xl'
           }`}
         >
           {CONCEPT_TEXT.wordmark}
         </p>
-        <div ref={button} className="flex flex-col items-center gap-2">
+        <div ref={button} className="flex flex-col items-center gap-2" style={LIVE}>
           <button
             ref={startRef}
             type="button"

@@ -75,7 +75,7 @@ export function useAttrs<E extends Element = SVGGElement>(mv: MotionValue<number
 /** Same as useAttr for an HTML element's CSS transform/opacity. */
 export function useStyle<E extends HTMLElement = HTMLDivElement>(
   mv: MotionValue<number>,
-  fmt: (v: number) => { transform?: string; opacity?: number },
+  fmt: (v: number) => { transform?: string; opacity?: number; transformOrigin?: string },
 ) {
   const ref = useRef<E>(null);
   const fmtRef = useRef(fmt);
@@ -87,6 +87,7 @@ export function useStyle<E extends HTMLElement = HTMLDivElement>(
     if (!el) return;
     const write = (v: number) => {
       const s = fmtRef.current(v);
+      if (s.transformOrigin !== undefined) el.style.transformOrigin = s.transformOrigin;
       if (s.transform !== undefined) el.style.transform = s.transform;
       if (s.opacity !== undefined) el.style.opacity = String(s.opacity);
     };
@@ -96,8 +97,12 @@ export function useStyle<E extends HTMLElement = HTMLDivElement>(
   return ref;
 }
 
-/** Full-screen SVG art board of the layout; `meet` keeps the composition, backgrounds bleed past it. */
-export function Stage({ layout, children, label }: { layout: ConceptLayout; children: ReactNode; label?: string }) {
+/**
+ * Full-screen SVG art board of the layout; `meet` keeps the composition, backgrounds bleed past it.
+ * Performance (Phase 19 measurement): a static board and a `live` board (its own compositor layer) are kept
+ * apart, so a moving element repaints only its own transparent layer, never the full-screen backgrounds.
+ */
+export function Stage({ layout, children, live = false }: { layout: ConceptLayout; children: ReactNode; live?: boolean }) {
   const { w, h } = STAGE[layout];
   return (
     <svg
@@ -105,13 +110,36 @@ export function Stage({ layout, children, label }: { layout: ConceptLayout; chil
       viewBox={`0 0 ${w} ${h}`}
       preserveAspectRatio="xMidYMid meet"
       overflow="visible"
-      aria-hidden={label ? undefined : true}
-      role={label ? 'img' : undefined}
-      aria-label={label}
+      aria-hidden
+      style={live ? LIVE : undefined}
     >
       {children}
     </svg>
   );
+}
+
+/** Own compositor layer for an element that moves every frame (transform / opacity only). */
+export const LIVE = { willChange: 'transform' } as const;
+export const LIVE_OPACITY = { willChange: 'opacity' } as const;
+
+/** Art board point → viewport pixels (the `meet` mapping of Stage), for CSS camera moves. */
+export function stageToScreen(layout: ConceptLayout, x: number, y: number): [number, number] {
+  if (typeof window === 'undefined') return [x, y];
+  const { w, h } = STAGE[layout];
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  const k = Math.min(W / w, H / h);
+  return [(W - w * k) / 2 + x * k, (H - h * k) / 2 + y * k];
+}
+
+/** CSS transform that scales by `s` about art-board point `about` and moves it to art-board point `to`. */
+export function cameraCss(layout: ConceptLayout, about: [number, number], to: [number, number], s: number) {
+  const [ax, ay] = stageToScreen(layout, about[0], about[1]);
+  const [tx, ty] = stageToScreen(layout, to[0], to[1]);
+  return {
+    transformOrigin: '0 0',
+    transform: `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px) scale(${s.toFixed(4)}) translate(${(-ax).toFixed(2)}px, ${(-ay).toFixed(2)}px)`,
+  };
 }
 
 /** A rectangle far larger than any art board (backgrounds that bleed to every screen edge). */

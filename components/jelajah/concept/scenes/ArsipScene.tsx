@@ -5,7 +5,7 @@ import { ScrollText } from 'lucide-react';
 import type { ArchiveCard } from '@/lib/jelajah/concept/live';
 import { BEATS, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeInCubic, easeOutBack, easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
-import { BLEED, Stage, useStyle, type SceneProps } from '../scene-kit';
+import { BLEED, LIVE, Stage, useStyle, type SceneProps } from '../scene-kit';
 
 const MOTIFS = ['url(#cv-parang)', 'url(#cv-truntum)', 'url(#cv-kawung-tile)'] as const;
 
@@ -41,7 +41,7 @@ export function ArsipScene({ lt, layout, still, cards }: SceneProps & { cards: r
       <Stage layout={layout}>
         <rect {...BLEED} fill="url(#cv-kawung-brown)" opacity="0.55" />
       </Stage>
-      <div ref={shake} className={`absolute grid ${grid}`}>
+      <div ref={shake} className={`absolute grid ${grid}`} style={LIVE}>
         {cards.map((card, i) => (
           <Card key={i} card={card} i={i} lt={lt} still={still} layout={layout} />
         ))}
@@ -68,7 +68,7 @@ function Card({ card, i, lt, still, layout }: { card: ArchiveCard; i: number; lt
   const motif = MOTIFS[i % MOTIFS.length];
   const compact = layout !== 'desktop';
   return (
-    <div ref={ref} className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#C9A876] bg-[#FFFBF2] shadow-[0_10px_24px_-12px_rgba(60,30,10,0.55)]">
+    <div ref={ref} className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#C9A876] bg-[#FFFBF2] shadow-[0_10px_24px_-12px_rgba(60,30,10,0.55)]" style={LIVE}>
       <svg className={`w-full shrink-0 ${compact ? 'h-6' : 'h-10'}`} aria-hidden>
         <rect width="100%" height="100%" fill={motif} />
       </svg>
@@ -129,9 +129,10 @@ function Stamp({ lt, still, layout }: { lt: MotionValue<number>; still: boolean;
   const size = layout === 'desktop' ? 'h-44 w-44 text-xl' : 'h-32 w-32 text-[15px]';
   return (
     <>
-      <div ref={ink} aria-hidden className={`pointer-events-none absolute left-1/2 top-1/2 rounded-full border-[6px] border-[#B3261E] ${size}`} />
+      <div ref={ink} aria-hidden className={`pointer-events-none absolute left-1/2 top-1/2 rounded-full border-[6px] border-[#B3261E] ${size}`} style={LIVE} />
       <div
         ref={stamp}
+        style={LIVE}
         className={`pointer-events-none absolute left-1/2 top-1/2 flex items-center justify-center rounded-full border-[5px] border-double border-[#B3261E] bg-[#FFFBF2]/70 p-3 text-center font-extrabold uppercase leading-tight tracking-wide text-[#B3261E] ${size}`}
       >
         {CONCEPT_TEXT.stamp}

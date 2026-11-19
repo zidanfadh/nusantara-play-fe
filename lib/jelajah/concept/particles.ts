@@ -3,8 +3,8 @@
  * tests/jelajah/concept-clock.test.ts.
  *
  * - Budget per device tier (lib/jelajah/device-tier.ts): full 300, lite 120, 2d none (SVG-only fallback).
- *   Reduced motion: none. A low frame rate while the film plays (2 s average below LOW_FPS) also switches
- *   to the SVG-only fallback for the rest of the film.
+ *   Reduced motion: none. A low frame rate while the film plays (2 s average below LOW_FPS for 3 s) also
+ *   switches to the SVG-only fallback for the rest of the film.
  * - Every particle's motion is a pure function of the film time and its seed, so pausing, seeking and
  *   screenshots are deterministic.
  */
@@ -12,7 +12,7 @@ import type { Tier } from '../device-tier';
 
 export const PARTICLE_LIMITS: Readonly<Record<Tier, number>> = { full: 300, lite: 120, '2d': 0 };
 
-/** Below this 2 s average (after the first full window) the canvas is dropped. */
+/** Below this 2 s average, sustained for 3 s (ConceptVideo), the canvas is dropped for the rest of the film. */
 export const LOW_FPS = 30;
 
 export function particleBudget(tier: Tier | null, opts: { reduced: boolean; lowFps: boolean }): number {
