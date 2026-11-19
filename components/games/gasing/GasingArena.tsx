@@ -294,9 +294,11 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
     };
 
     const updateHud = () => {
+      // After the decision the timers stay at the decided times (the tops keep moving on screen).
+      const decided = m.stage === 'round-over' || m.stage === 'match-over' ? lastResult(m) : null;
       for (const side of [0, 1] as const) {
         const t = m.world.tops[side];
-        const time = `${formatSeconds(t.spinTime)} ${UI.seconds}`;
+        const time = `${formatSeconds(decided ? decided.times[side] : t.spinTime)} ${UI.seconds}`;
         if (time !== hudText[side] && timeRefs[side].current) {
           hudText[side] = time;
           timeRefs[side].current!.textContent = time;
@@ -644,13 +646,13 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         )}
 
         {overlay === 'round' && result && ui && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/25 p-4" data-testid="gasing-round-result">
-            <section className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center text-card-foreground shadow-xl" aria-labelledby="gasing-round-title">
+          <div className={`absolute inset-0 flex items-center justify-center overflow-y-auto bg-background/25 ${compact ? 'p-1' : 'p-4'}`} data-testid="gasing-round-result">
+            <section className={`w-full rounded-2xl border border-border bg-card text-center text-card-foreground shadow-xl ${compact ? 'max-w-md p-3' : 'max-w-sm p-5'}`} aria-labelledby="gasing-round-title">
               <h2 id="gasing-round-title" className="text-xl font-extrabold text-primary">
                 {roundHeading(result.winner)}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">{roundResultText(ui.round, result.winner, result.reason, result.times)}</p>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+              <div className={`mt-3 grid-cols-2 gap-2 text-sm ${compact ? 'hidden' : 'grid'}`}>
                 {([0, 1] as const).map((s) => (
                   <div key={s} className="flex items-center justify-center gap-2 rounded-xl bg-muted px-2 py-1.5">
                     <span className="h-4 w-4 rounded-full" style={{ background: SWATCH_CSS[s] }} aria-hidden />
@@ -674,18 +676,18 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         )}
 
         {overlay === 'end' && ui && ui.winner !== null && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/40 p-4" data-testid="gasing-end">
-            <section className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center text-card-foreground shadow-xl" aria-labelledby="gasing-result">
+          <div className={`absolute inset-0 flex items-center justify-center overflow-y-auto bg-background/40 ${compact ? 'p-1' : 'p-4'}`} data-testid="gasing-end">
+            <section className={`w-full rounded-2xl border border-border bg-card text-center text-card-foreground shadow-xl ${compact ? 'max-w-md p-3' : 'max-w-sm p-5'}`} aria-labelledby="gasing-result">
               <h2 id="gasing-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary outline-none">
                 {matchHeading(ui.winner)}
               </h2>
               <p className="mt-1 text-sm font-semibold">{matchSummary(ui.wins)}</p>
-              <ol className="mt-3 space-y-1 text-left text-xs text-muted-foreground">
+              <ol className={`mt-3 space-y-1 text-left text-xs text-muted-foreground ${compact ? 'hidden' : ''}`}>
                 {ui.results.map((r, i) => (
                   <li key={i}>{roundResultText(i + 1, r.winner, r.reason, r.times)}</li>
                 ))}
               </ol>
-              <div className="mt-4 flex flex-col gap-2">
+              <div className={`flex gap-2 ${compact ? 'mt-2 flex-row [&>*]:flex-1' : 'mt-4 flex-col'}`}>
                 <button type="button" onClick={onRestart} data-testid="gasing-main-lagi" className="rounded-xl bg-primary px-5 py-3 font-bold text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-4 focus-visible:ring-ring">
                   {UI.playAgain}
                 </button>
