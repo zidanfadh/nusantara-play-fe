@@ -8,7 +8,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { initialFrame, shapesBounds, svgPath } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
-import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { ENTERABLE_PROVINCES, markerLabel } from '@/lib/jelajah/provinces';
 
 const MAX_ZOOM = 8;
 const PAD = 1;
@@ -58,7 +58,11 @@ export default function Map2D({
 
   const paths = useMemo(() => shapes.map((s) => svgPath(s)), [shapes]);
   const maxCount = maxProtCount(summaryByKode);
-  const pilot = shapes.find((s) => s.kode === PILOT_PROVINCE.kode);
+  // Phase 22: a marker for every enterable province (before: the pilot only).
+  const markers = ENTERABLE_PROVINCES.flatMap((p) => {
+    const shape = shapes.find((s) => s.kode === p.kode);
+    return shape ? [{ kode: p.kode, shape }] : [];
+  });
   const strokeWidth = 0.06 * (v.w / full.w);
 
   /** Keeps the view inside the map and the zoom within [1, MAX_ZOOM]. */
@@ -196,9 +200,10 @@ export default function Map2D({
             />
           );
         })}
-        {pilot && (
+        {markers.map(({ kode, shape }) => (
           <g
-            transform={`translate(${pilot.anchor[0]} ${-pilot.anchor[1]}) scale(${v.w / full.w})`}
+            key={kode}
+            transform={`translate(${shape.anchor[0]} ${-shape.anchor[1]}) scale(${v.w / full.w})`}
             className="pointer-events-none"
             aria-hidden
           >
@@ -211,11 +216,11 @@ export default function Map2D({
               fontWeight={700}
               fill="var(--color-primary-foreground)"
             >
-              ★ Pilot
+              {markerLabel(kode)}
             </text>
             <circle r={0.35} fill="var(--color-primary)" stroke="var(--color-background)" strokeWidth={0.12} />
           </g>
-        )}
+        ))}
       </svg>
     </div>
   );

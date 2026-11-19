@@ -14,7 +14,7 @@ import { Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'thre
 import { canvasSettings } from '@/lib/jelajah/device-tier';
 import { hitTest, initialFrame, shapesBounds, type Bounds } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
-import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { ENTERABLE_PROVINCES, markerLabel, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { buildMapGeometry, paintRange } from '@/lib/jelajah/three/map-geometry';
 import { StatsOverlay, StatsProbe, type DebugStats } from './three/StatsProbe';
 
@@ -239,7 +239,8 @@ function Controls({ bounds }: { bounds: Bounds }) {
 
 /**
  * Reports the screen position of a 3D point on every rendered frame (so it follows pan and zoom).
- * Used to keep the pilot marker button, a plain DOM element, over its province.
+ * Used to keep the marker buttons of the enterable provinces (Phase 22; before: the pilot), plain DOM elements,
+ * over their provinces.
  */
 function TrackScreenPoint({
   position,
@@ -278,10 +279,18 @@ export default function Map3D(props: Map3DProps) {
   const bounds = useMemo(() => shapesBounds(shapes), [shapes]);
   const [stats, setStats] = useState<DebugStats | null>(null);
   const showStats = IS_DEV || props.debug;
-  const pilot = shapes.find((s) => s.kode === PILOT_PROVINCE.kode);
-  const pilotRef = useRef<HTMLButtonElement>(null);
-  const movePilotMarker = (x: number, y: number, visible: boolean) => {
-    const el = pilotRef.current;
+  // Phase 22: a marker for every enterable province ("★ Pilot" for the pilot, "★ Desa" for the others).
+  const markers = useMemo(
+    () =>
+      ENTERABLE_PROVINCES.flatMap((p) => {
+        const shape = shapes.find((s) => s.kode === p.kode);
+        return shape ? [{ province: p, shape }] : [];
+      }),
+    [shapes],
+  );
+  const markerRefs = useRef(new Map<string, HTMLButtonElement>());
+  const moveMarker = (kode: string) => (x: number, y: number, visible: boolean) => {
+    const el = markerRefs.current.get(kode);
     if (!el) return;
     el.style.transform = `translate(-50%, -100%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
     el.style.visibility = visible ? 'visible' : 'hidden';
@@ -310,12 +319,13 @@ export default function Map3D(props: Map3DProps) {
           selectedKode={props.selectedKode}
           palette={palette}
         />
-        {pilot && (
+        {markers.map(({ province, shape }) => (
           <TrackScreenPoint
-            position={[pilot.anchor[0], HEIGHT_ACTIVE, -pilot.anchor[1]]}
-            onMove={movePilotMarker}
+            key={province.kode}
+            position={[shape.anchor[0], HEIGHT_ACTIVE, -shape.anchor[1]]}
+            onMove={moveMarker(province.kode)}
           />
-        )}
+        ))}
         <Picker
           shapes={shapes}
           summaryByKode={props.summaryByKode}
@@ -325,21 +335,26 @@ export default function Map3D(props: Map3DProps) {
         <Controls bounds={bounds} />
         {showStats && <StatsProbe onStats={setStats} />}
       </Canvas>
-      {pilot && (
+      {markers.map(({ province }) => (
         <button
-          ref={pilotRef}
+          key={province.kode}
+          ref={(el) => {
+            if (el) markerRefs.current.set(province.kode, el);
+            else markerRefs.current.delete(province.kode);
+          }}
           type="button"
-          onClick={() => props.onSelect(PILOT_PROVINCE.kode)}
+          onClick={() => props.onSelect(province.kode)}
           style={{ visibility: 'hidden' }}
           className="absolute left-0 top-0 z-10 flex flex-col items-center focus:outline-none [&:focus-visible>span]:ring-accent"
-          aria-label={`${PILOT_PROVINCE.nama}, provinsi pilot`}
+          aria-label={`${province.nama}, ${province.kode === PILOT_PROVINCE.kode ? 'provinsi pilot' : 'desa virtual'}`}
+          data-marker={province.slug}
         >
           <span className="whitespace-nowrap rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-md ring-2 ring-background">
-            ★ Pilot
+            {markerLabel(province.kode)}
           </span>
           <span className="h-2.5 w-0.5 bg-primary" aria-hidden />
         </button>
-      )}
+      ))}
       {props.debug && stats && <StatsOverlay stats={stats} tier={tier} className="right-3 top-1/2 -translate-y-1/2" />}
     </div>
   );

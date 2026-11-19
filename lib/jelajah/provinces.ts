@@ -57,11 +57,37 @@ export const PILOT_PROVINCE = {
   slug: 'sumatera-selatan',
 } as const;
 
-/** Provinces that have a /jelajah/[provinsi] page. Every other slug is a 404. */
-export const ENTERABLE_PROVINCES = [PILOT_PROVINCE] as const;
+export interface EnterableProvince {
+  kode: string;
+  nama: string;
+  slug: string;
+}
 
-export function findEnterableProvince(slug: string) {
+/**
+ * Provinces that have a /jelajah/[provinsi] page (a scene in lib/jelajah/scenes; kept equal to the scene registry by a
+ * test). Every other slug is a 404. Phase 22: the pilot plus four provinces with published PROT (Jawa Barat is left
+ * out on purpose: its only published record is a test record).
+ */
+export const ENTERABLE_PROVINCES: readonly EnterableProvince[] = [
+  PILOT_PROVINCE,
+  { kode: '11', nama: 'Aceh', slug: 'aceh' },
+  { kode: '21', nama: 'Kepulauan Riau', slug: 'kepulauan-riau' },
+  { kode: '33', nama: 'Jawa Tengah', slug: 'jawa-tengah' },
+  { kode: '73', nama: 'Sulawesi Selatan', slug: 'sulawesi-selatan' },
+];
+
+export function findEnterableProvince(slug: string): EnterableProvince | null {
   return ENTERABLE_PROVINCES.find((p) => p.slug === slug) ?? null;
+}
+
+/** Phase 22: the enterable province with this code, or null. */
+export function enterableByKode(kode: string | null | undefined): EnterableProvince | null {
+  return ENTERABLE_PROVINCES.find((p) => p.kode === kode) ?? null;
+}
+
+/** Phase 22: the map marker text of an enterable province ("★ Pilot" for the pilot, "★ Desa" for the others). */
+export function markerLabel(kode: string): string {
+  return kode === PILOT_PROVINCE.kode ? '★ Pilot' : '★ Desa';
 }
 
 /** "Daerah Istimewa Yogyakarta" → "daerah-istimewa-yogyakarta". */

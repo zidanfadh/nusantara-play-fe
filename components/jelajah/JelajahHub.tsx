@@ -7,7 +7,7 @@ import { Clapperboard, MapPin, RefreshCw } from 'lucide-react';
 import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
 import { PALETTES } from '@/lib/jelajah/palette';
-import { ENTERABLE_PROVINCES, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { ENTERABLE_PROVINCES, enterableByKode, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { useDebugFlag } from '@/lib/jelajah/use-debug-flag';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useJelajahData } from '@/lib/jelajah/use-jelajah-data';
@@ -318,6 +318,10 @@ export function JelajahHub() {
             <span className="h-2.5 w-5 rounded-sm" style={{ background: palette.pilot }} /> Pilot
           </div>
           <div className="flex items-center gap-2">
+            <span className="rounded-full bg-primary px-1.5 text-[9px] font-bold leading-4 text-primary-foreground">★</span> Desa
+            virtual: bisa dimasuki
+          </div>
+          <div className="flex items-center gap-2">
             <span className="h-2.5 w-5 rounded-sm border border-border" style={{ background: palette.muted }} /> Belum
             ada PROT
           </div>
@@ -342,9 +346,9 @@ export function JelajahHub() {
                 <span className="flex items-center gap-2 font-medium">
                   <MapPin className="h-4 w-4 text-primary" aria-hidden />
                   {p.nama}
-                  {p.kode === PILOT_PROVINCE.kode && (
+                  {enterableByKode(p.kode) && (
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                      Pilot
+                      {p.kode === PILOT_PROVINCE.kode ? 'Pilot' : 'Desa'}
                     </span>
                   )}
                 </span>

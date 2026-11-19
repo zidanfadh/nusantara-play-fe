@@ -25,6 +25,7 @@ import {
   GreaterDepth,
   InstancedMesh,
   Matrix4,
+  Mesh,
   MeshBasicMaterial,
   MeshLambertMaterial,
   NotEqualStencilFunc,
@@ -39,7 +40,6 @@ import {
   Vector3,
   type AnimationAction,
   type Group,
-  type Mesh,
   type PerspectiveCamera,
 } from 'three';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
@@ -60,12 +60,15 @@ import { nearestTarget } from '@/lib/jelajah/engine/pavilion';
 import type { StandContent } from '@/lib/jelajah/engine/stands';
 import type { DecorDef, NatureModel, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
 import { SIGN_CENTER_Y, SIGN_HEIGHT, SIGN_WIDTH } from '@/lib/jelajah/engine/sign-text';
-import { createBlobTexture, createSignTexture, type SignContent } from '@/lib/jelajah/three/canvas-textures';
+import { GAME_SOON_TITLE } from '@/lib/games/links';
+import { GAME_SOON_BOARD } from '@/lib/jelajah/engine/game-soon';
+import { createBlobTexture, createNoticeTexture, createSignTexture, type SignContent } from '@/lib/jelajah/three/canvas-textures';
 import { bakeModel } from '@/lib/jelajah/three/model-bake';
 import { buildVillageGeometry, buildWaterGeometry } from '@/lib/jelajah/three/village-geometry';
 import { AutoFallbackProbe, StatsOverlay, StatsProbe, type DebugStats } from './StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
+const DEFAULT_FOG = { near: 34, far: 80 } as const;
 const PLAYER_SCALE = 2.5;
 const WALK_SPEED = 4.2; // m/s at full input
 const TURN_SPEED = 10; // rad/s
@@ -235,7 +238,7 @@ function World({ scene, tier, animate }: { scene: SceneDefinition; tier: 'full' 
   useEffect(
     () => () => {
       village.dispose();
-      water.dispose();
+      water?.dispose();
     },
     [village, water],
   );
@@ -259,15 +262,48 @@ function World({ scene, tier, animate }: { scene: SceneDefinition; tier: 'full' 
   return (
     <>
       <mesh geometry={village} material={material} />
-      <mesh ref={waterRef} geometry={water}>
-        <meshLambertMaterial vertexColors />
-      </mesh>
+      {water && (
+        <mesh ref={waterRef} geometry={water}>
+          <meshLambertMaterial vertexColors />
+        </mesh>
+      )}
       {instanced.map((mesh) => (
         <primitive key={mesh.name} object={mesh} />
       ))}
       <primitive object={blobs} />
     </>
   );
+}
+
+/**
+ * Phase 22: the text of the "Game segera hadir" board, one plane in front of the board (the post and the board's back
+ * are in the merged village mesh). Facing the board's rotation, not the camera: it is a sign in the scene.
+ */
+function GameSoonBoard({ scene }: { scene: SceneDefinition }) {
+  const g = scene.gameSoon;
+  const mesh = useMemo(() => {
+    if (!g) return null;
+    const { width, height, centerY, tilt } = GAME_SOON_BOARD;
+    const material = new MeshBasicMaterial({ map: createNoticeTexture(GAME_SOON_TITLE), toneMapped: false });
+    const plane = new Mesh(new PlaneGeometry(width, height), material);
+    // Same frame as the board in the merged mesh: post position, turned by `rotation`, leaned back by `tilt`,
+    // a few millimetres in front of the board's face.
+    plane.position.set(g.x, centerY, g.z);
+    plane.rotation.set(tilt, g.rotation, 0, 'YXZ');
+    plane.translateZ(0.002);
+    return plane;
+  }, [g]);
+  useEffect(
+    () => () => {
+      if (!mesh) return;
+      mesh.geometry.dispose();
+      const mat = mesh.material as MeshBasicMaterial;
+      mat.map?.dispose();
+      mat.dispose();
+    },
+    [mesh],
+  );
+  return mesh ? <primitive object={mesh} /> : null;
 }
 
 /** One canvas-texture sprite per stand, above its roof. */
@@ -594,6 +630,9 @@ function LoadingScreen({ ready }: { ready: boolean }) {
 export default function VillageScene3D(props: VillageScene3DProps) {
   const { scene, tier } = props;
   const settings = canvasSettings(tier);
+  // Phase 22: per-scene fog (default the Phase 11 34 to 80 m); the far plane stays 140 m unless the fog reaches further.
+  const fog = scene.fog ?? DEFAULT_FOG;
+  const cameraFar = Math.max(140, fog.far + 30);
   const [ready, setReady] = useState(false);
   // Start both downloads at once (Suspense would otherwise request them one after the other).
   useState(() => {
@@ -618,18 +657,19 @@ export default function VillageScene3D(props: VillageScene3DProps) {
         key={tier}
         dpr={settings.dpr}
         gl={{ antialias: settings.antialias, powerPreference: 'default', stencil: true }}
-        camera={{ fov: 50, near: 0.5, far: 140, position: [0, 10, 25] }}
+        camera={{ fov: 50, near: 0.5, far: cameraFar, position: [0, 10, 25] }}
         aria-label={`Desa virtual 3D ${scene.nama}`}
         role="img"
         tabIndex={0}
       >
         <color attach="background" args={[scene.colors.background]} />
-        <fog attach="fog" args={[scene.colors.background, 34, 80]} />
+        <fog attach="fog" args={[scene.colors.background, fog.near, fog.far]} />
         <ambientLight color={scene.colors.ambient} intensity={1.45} />
         <directionalLight color={scene.colors.sun} position={[-22, 20, 14]} intensity={1.3} />
         <Suspense fallback={null}>
           <World scene={scene} tier={tier} animate={tier === 'full' && !props.reducedMotion} />
           <Signs scene={scene} stands={props.stands} />
+          <GameSoonBoard scene={scene} />
           <Player
             scene={scene}
             tier={tier}

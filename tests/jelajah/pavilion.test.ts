@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GAME_LINK_PROVINCES } from '@/lib/games/congklak/from-link';
+import { GAME_LINK_PROVINCES, JELAJAH_GAMES } from '@/lib/games/links';
 import { pavilionCollider, sceneColliders } from '@/lib/jelajah/engine/collision';
 import { gamePavilion, nearestTarget } from '@/lib/jelajah/engine/pavilion';
 import { findScene, SCENES } from '@/lib/jelajah/scenes';
@@ -14,9 +14,16 @@ describe('game pavilion (Phase 17)', () => {
     expect(c.game).toBe('congklak');
   });
 
-  it('the scenes that link to the game are exactly those with a game pavilion', () => {
-    expect(SCENES.filter((s) => gamePavilion(s)).map((s) => s.slug)).toEqual([...GAME_LINK_PROVINCES]);
-    for (const slug of GAME_LINK_PROVINCES) expect(findScene(slug)?.centrepiece?.game).toBe('congklak');
+  it('per game (Phase 22): the allowlisted provinces are exactly the scenes whose pavilion opens that game', () => {
+    for (const game of JELAJAH_GAMES) {
+      const withGame = SCENES.filter((s) => gamePavilion(s)?.game === game).map((s) => s.slug);
+      expect([...withGame].sort()).toEqual([...GAME_LINK_PROVINCES[game]].sort());
+      for (const slug of GAME_LINK_PROVINCES[game]) expect(findScene(slug)?.centrepiece?.game).toBe(game);
+    }
+  });
+
+  it('every scene has either a game pavilion or the "Game segera hadir" sign, never both (Phase 22)', () => {
+    for (const s of SCENES) expect(Boolean(gamePavilion(s)) !== Boolean(s.gameSoon)).toBe(true);
   });
 
   it('within 2 m of the pavilion: the pavilion is the target', () => {

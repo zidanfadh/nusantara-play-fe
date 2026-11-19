@@ -8,7 +8,11 @@
  *
  * This file and the scene files may only use `import type` (scripts/check-jelajah-budget.mjs loads
  * them with Node's type stripping).
+ *
+ * Phase 22: every field added for more provinces is OPTIONAL and its default is the Phase 11 to 17 behaviour,
+ * so the Sumatera Selatan data and its 3D output stay exactly the same (tests/jelajah/sumatera-selatan-identity.test.ts).
  */
+import type { JelajahGame } from '@/lib/games/links';
 
 /** Nature Kit model names available in the scene assets (see scripts/optimize-jelajah-assets.mjs). */
 export type NatureModel =
@@ -50,6 +54,12 @@ export interface RectBounds {
   maxZ: number;
 }
 
+/**
+ * Roof and detail style of a procedural house (Phase 22). `limas` = the Phase 11 two-tier hip roof (default). The UI
+ * never names a style; the styles are loose, low-poly hints ("terinspirasi"), not reconstructions.
+ */
+export type HouseStyle = 'limas' | 'malay' | 'aceh' | 'bugis';
+
 /** Raised house (rumah panggung), built procedurally. Described in the UI only as "terinspirasi rumah limas". */
 export interface HouseDef {
   x: number;
@@ -62,6 +72,12 @@ export interface HouseDef {
   floorHeight: number;
   wallHeight: number;
   roofHeight: number;
+  /** Phase 22: roof and detail style (default `limas`). */
+  style?: HouseStyle;
+  /** Phase 22: the stilts reach this far below the ground (a house standing in the water). Default 0. */
+  stiltDepth?: number;
+  /** Phase 22: stairs up to the door (default true). */
+  stairs?: boolean;
 }
 
 /** A PROT stand (procedural wooden pavilion). Size is fixed by the engine (STAND_SIZE). */
@@ -70,6 +86,9 @@ export interface StandDef {
   z: number;
   rotation: number;
 }
+
+/** Look of the centrepiece (Phase 22). `pavilion` = the Phase 12 open pavilion (default). */
+export type PavilionStyle = 'pavilion' | 'arena' | 'meunasah' | 'joglo';
 
 /**
  * Neutral centrepiece of the plaza (Phase 12): a small open pavilion (a roof on four posts on a low
@@ -86,9 +105,54 @@ export interface PavilionDef {
   /**
    * Phase 17: the pavilion is an interaction point that opens this game (within INTERACT_DISTANCE it shows
    * a "Main Congklak" button). Neutral wording only: no claim about where the game comes from.
+   * Phase 22: any hosted game (label and link from lib/games/links.ts).
    */
-  game?: 'congklak';
+  game?: JelajahGame;
+  /** Phase 22: look of the centrepiece (default `pavilion`). */
+  style?: PavilionStyle;
 }
+
+/**
+ * Phase 22: the "Game segera hadir" sign of a province without a playable game: a small board on a post next to the
+ * PROT stand (the post is part of the merged mesh, the text one canvas-textured plane facing `rotation`).
+ */
+export interface GameSoonDef {
+  x: number;
+  z: number;
+  rotation: number;
+}
+
+/**
+ * Phase 22: procedural landmarks of a province, merged into the village mesh (no extra draw call). Each kind is
+ * drawn by lib/jelajah/three/structures.ts; `collide` blocks the player with the structure's footprint.
+ */
+export type StructureDef =
+  /** Plank walkway on posts in the water (deck height default 0.35 m). */
+  | { kind: 'jetty'; from: Vec2; to: Vec2; width: number; deckY?: number }
+  /** Low-poly mound: an island or, with `crater`, a distant mountain seen through the haze. Not walkable. */
+  | { kind: 'mountain'; x: number; z: number; radius: number; height: number; color: string; crater?: boolean; y?: number }
+  /**
+   * Rice terraces rising away from the village (local -z): `steps` levels of `stepDepth` and `stepHeight`, the front
+   * edge of each level gently curved; every other level flooded. Outside the walkable area.
+   */
+  | {
+      kind: 'terraces';
+      x: number;
+      z: number;
+      rotation: number;
+      width: number;
+      steps: number;
+      stepDepth: number;
+      stepHeight: number;
+      field: string;
+      wall: string;
+      water: string;
+    }
+  /**
+   * A large wooden sailing boat drawn up on the beach (pinisi-like, a loose low-poly hint): hull along local x with
+   * the bow at +x, two masts, fore-and-aft sails. Blocks the player with its hull.
+   */
+  | { kind: 'boat'; x: number; z: number; rotation: number; length: number; hull: string; sail: string };
 
 export interface DecorDef {
   model: NatureModel;
@@ -138,6 +202,9 @@ export interface SceneColors {
   materials: Record<string, string>;
 }
 
+/** Phase 22: what lies north of the village. `river` = the Phase 11 river with a far bank (default). */
+export type WaterStyle = 'river' | 'sea' | 'none';
+
 export interface SceneDefinition {
   slug: string;
   provinsiKode: string;
@@ -148,8 +215,13 @@ export interface SceneDefinition {
   modelScale: number;
   /** Ground plane size, centred on the origin. */
   ground: { width: number; depth: number };
-  /** River strip along the north side: z from `north` to `south` (north < south). */
+  /**
+   * River strip along the north side: z from `north` to `south` (north < south). With `waterStyle: 'sea'` only
+   * `south` (the shoreline) and `bank` (the beach width south of it) are used; with `'none'` it is ignored.
+   */
   river: { north: number; south: number; bank: number };
+  /** Phase 22: river (default), sea up to the horizon, or no water at all (no water mesh). */
+  waterStyle?: WaterStyle;
   plaza: { x: number; z: number; radius: number };
   /** Optional centrepiece in the plaza (blocks the player). */
   centrepiece?: PavilionDef;
@@ -161,5 +233,11 @@ export interface SceneDefinition {
   /** Exactly the stands that get PROT, in assignment order. */
   stands: readonly StandDef[];
   decor: readonly DecorDef[];
+  /** Phase 22: procedural landmarks (jetty, boat, terraces, a distant mountain ...). */
+  structures?: readonly StructureDef[];
+  /** Phase 22: provinces without a playable game show this sign next to their PROT stand. */
+  gameSoon?: GameSoonDef;
+  /** Phase 22: fog distances in metres (default 34 to 80), e.g. to let a distant silhouette show through the haze. */
+  fog?: { near: number; far: number };
   colors: SceneColors;
 }

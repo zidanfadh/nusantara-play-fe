@@ -3,7 +3,8 @@
  * on the ground plane, a rectangular walkable area, and push-out resolution (which also gives sliding
  * along walls). Pure functions, unit-tested.
  */
-import type { PavilionDef, RectBounds, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
+import type { PavilionDef, RectBounds, SceneDefinition, StructureDef, Vec2 } from '@/lib/jelajah/scenes/types';
+import { gameSoonCollider } from './game-soon';
 
 export interface CircleCollider {
   kind: 'circle';
@@ -54,8 +55,47 @@ function toWorld(box: BoxCollider, lx: number, lz: number): Vec2 {
 
 /** Box collider of the plaza centrepiece (the platform plus a small margin). */
 export function pavilionCollider(c: PavilionDef): BoxCollider {
+  if (c.style === 'arena') {
+    // Phase 22: the ring plus the shade shelter behind it (local -z), see addArena in village-geometry.ts.
+    const shift = -ARENA_SHELTER_DEPTH / 2;
+    return {
+      kind: 'box',
+      x: c.x + Math.sin(c.rotation) * shift,
+      z: c.z + Math.cos(c.rotation) * shift,
+      halfW: c.size / 2 + 0.2,
+      halfD: c.size / 2 + 0.2 + ARENA_SHELTER_DEPTH / 2,
+      rotation: c.rotation,
+    };
+  }
+  if (c.style === 'joglo') {
+    // Phase 22: the wide stepped plinth (JOGLO_PLINTH beyond the platform on every side).
+    const half = c.size / 2 + JOGLO_PLINTH;
+    return { kind: 'box', x: c.x, z: c.z, halfW: half, halfD: half, rotation: c.rotation };
+  }
+  if (c.style === 'meunasah') {
+    // Phase 22: the raised hall plus its front steps (local +z).
+    const shift = OPEN_HALL_STEPS / 2;
+    return {
+      kind: 'box',
+      x: c.x + Math.sin(c.rotation) * shift,
+      z: c.z + Math.cos(c.rotation) * shift,
+      halfW: c.size / 2 + 0.2,
+      halfD: c.size / 2 + 0.2 + shift,
+      rotation: c.rotation,
+    };
+  }
   return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation };
 }
+
+/** Phase 22 (Jawa Tengah pendopo): how far the plinth reaches beyond the platform, metres. */
+export const JOGLO_PLINTH = 0.6;
+
+/** Phase 22 (Aceh open hall): floor height and the depth of the front steps, metres. */
+export const OPEN_HALL_FLOOR = 1.1;
+export const OPEN_HALL_STEPS = 1.0;
+
+/** Phase 22: how far the gasing arena's shade shelter reaches beyond the ring's collider (north, local -z). */
+export const ARENA_SHELTER_DEPTH = 1.3;
 
 /** Distance from a point to the collider's outline (0 when inside). */
 export function distanceToCollider(col: Collider, x: number, z: number): number {
@@ -162,5 +202,22 @@ export function sceneColliders(scene: SceneDefinition, includeDetail = true): Co
     if (typeof d.collide === 'number') out.push({ kind: 'circle', x: d.x, z: d.z, r: d.collide });
     else out.push({ kind: 'box', x: d.x, z: d.z, rotation: d.rotation ?? 0, ...d.collide });
   }
+  // Phase 22 (appended after the Phase 11 colliders, so existing scenes keep the same list).
+  if (scene.gameSoon) out.push(gameSoonCollider(scene.gameSoon));
+  for (const s of scene.structures ?? []) out.push(...structureColliders(s));
   return out;
+}
+
+/** Phase 22: the footprint colliders of a procedural landmark (none for landmarks outside the walkable area). */
+export function structureColliders(s: StructureDef): Collider[] {
+  if (s.kind === 'boat') {
+    const { halfLength, halfBeam } = boatSize(s.length);
+    return [{ kind: 'box', x: s.x, z: s.z, halfW: halfLength, halfD: halfBeam + 0.2, rotation: s.rotation }];
+  }
+  return [];
+}
+
+/** Phase 22: half length and half beam of the boat landmark (the hull's widest point). */
+export function boatSize(length: number) {
+  return { halfLength: length / 2, halfBeam: length * 0.12 };
 }

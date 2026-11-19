@@ -4,6 +4,7 @@
  * plain text.
  */
 import { CanvasTexture, SRGBColorSpace } from 'three';
+import { GAME_SOON_CANVAS } from '@/lib/jelajah/engine/game-soon';
 import { fitSignText, SIGN_CANVAS, SIGN_TEXT_BOX, wrapLines } from '@/lib/jelajah/engine/sign-text';
 
 export { SIGN_CANVAS };
@@ -76,6 +77,41 @@ export function createSignTexture(content: SignContent): CanvasTexture {
           : content.names.slice(0, 2).map(oneLine);
       drawLines(names, 34, 42, 128);
     }
+  }
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  return texture;
+}
+
+/**
+ * Phase 22: text of the "Game segera hadir" board (neutral UI text), the size of GAME_SOON_CANVAS. Same colours as
+ * an empty stand sign, so it reads as "not yet" rather than as a button.
+ */
+export function createNoticeTexture(text: string): CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = GAME_SOON_CANVAS.width;
+  canvas.height = GAME_SOON_CANVAS.height;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    const { width: W, height: H } = GAME_SOON_CANVAS;
+    roundRect(ctx, 6, 6, W - 12, H - 12, 24);
+    ctx.fillStyle = '#F6EEDF';
+    ctx.fill();
+    ctx.lineWidth = 9;
+    ctx.strokeStyle = '#B9A78E';
+    ctx.stroke();
+    ctx.fillStyle = '#5A4A3A';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const measure = (t: string, px: number) => {
+      ctx.font = `700 ${px}px ${FONT}`;
+      return ctx.measureText(t).width;
+    };
+    const fit = fitSignText(text, measure, { width: W - 56, height: H - 40 }, 2, [72, 64, 56]);
+    ctx.font = `700 ${fit.fontPx}px ${FONT}`;
+    const top = H / 2 + 2 - ((fit.lines.length - 1) * fit.lineHeightPx) / 2;
+    fit.lines.forEach((l, k) => ctx.fillText(l, W / 2, top + k * fit.lineHeightPx));
   }
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
