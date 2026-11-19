@@ -89,11 +89,13 @@ describe('gasing renderer helpers (Phase 20)', () => {
 });
 
 describe('gasing links (Phase 20)', () => {
-  it('builds the game link and reuses the allowlisted back link', () => {
+  it('builds the game link and the back link allowlisted for gasing (Phase 22: per game)', () => {
     expect(gasingHref()).toBe('/main/gasing');
     expect(gasingHref('jelajah')).toBe('/main/gasing?from=jelajah');
     expect(backLinkFor('jelajah')).toEqual({ href: '/jelajah', label: 'Kembali ke peta' });
-    expect(backLinkFor('jelajah-sumatera-selatan')).toEqual({ href: '/jelajah/sumatera-selatan', label: 'Kembali ke desa' });
+    expect(backLinkFor('jelajah-kepulauan-riau')).toBeNull(); // no Kepulauan Riau scene yet (Phase 22 step 2)
+    // Sumatera Selatan's pavilion opens congklak, not gasing.
+    expect(backLinkFor('jelajah-sumatera-selatan')).toBeNull();
     expect(backLinkFor('https://evil.example')).toBeNull();
   });
 });

@@ -1,12 +1,18 @@
 /**
- * Links into and out of the gasing page (Phase 20). The back link reuses congklak's allowlist
- * (`jelajah` → "Kembali ke peta", `jelajah-<province with a game pavilion>` → "Kembali ke desa"), so it is
- * never an open redirect.
+ * Links into and out of the gasing page (Phase 20). Since Phase 22 the back link is allowlisted for gasing's own
+ * provinces (`lib/games/links.ts`): `jelajah-<province whose pavilion opens gasing>` → "Kembali ke desa",
+ * `jelajah` → "Kembali ke peta"; never an open redirect.
  */
-export { backLinkFor, type BackLink } from '../congklak/from-link';
+import { backLinkFor as gameBackLink, GAME_PATHS, gameHref, type BackLink } from '../links';
 
-export const GASING_PATH = '/main/gasing';
+export type { BackLink };
+
+export const GASING_PATH = GAME_PATHS.gasing;
 
 export function gasingHref(from?: string): string {
-  return from ? `${GASING_PATH}?from=${encodeURIComponent(from)}` : GASING_PATH;
+  return gameHref('gasing', from);
+}
+
+export function backLinkFor(from: string | null | undefined): BackLink | null {
+  return gameBackLink(from, 'gasing');
 }

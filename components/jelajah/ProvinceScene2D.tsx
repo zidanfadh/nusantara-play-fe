@@ -8,17 +8,25 @@ import type { ReactNode } from 'react';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import type { StandContent } from '@/lib/jelajah/engine/stands';
+import { illustrationLook, type IllustrationLook } from '@/lib/jelajah/engine/illustration';
+import type { SceneDefinition } from '@/lib/jelajah/scenes/types';
 
 interface ProvinceScene2DProps {
   nama: string;
   stands: readonly StandContent<SceneProt>[];
   onOpen: (index: number, trigger: HTMLElement) => void;
-  /** Phase 17: shown between the header and the stands (the game pavilion's "Main Congklak" card). */
+  /** Phase 22: the scene, for the header illustration (water, roofs, plants, landmarks). */
+  scene: SceneDefinition;
+  /** Phase 17: shown between the header and the stands (the game pavilion's card; Phase 22: or "Game segera hadir"). */
   extra?: ReactNode;
 }
 
-/** Decorative village illustration (river, raised houses, palms); colours follow the site theme. */
-function VillageIllustration() {
+/**
+ * Decorative village illustration; colours follow the site theme. Phase 11: river, raised houses, palms. Phase 22:
+ * drawn from the scene's look (IllustrationLook), so each province shows its own water, roofs, plants and landmarks.
+ */
+function VillageIllustration({ look }: { look: IllustrationLook }) {
+  void look;
   return (
     <svg viewBox="0 0 640 200" className="h-auto w-full" aria-hidden focusable="false">
       <rect width="640" height="200" className="fill-accent/15" />
@@ -61,11 +69,11 @@ function VillageIllustration() {
   );
 }
 
-export function ProvinceScene2D({ nama, stands, onOpen, extra }: ProvinceScene2DProps) {
+export function ProvinceScene2D({ nama, stands, onOpen, scene, extra }: ProvinceScene2DProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
-        <VillageIllustration />
+        <VillageIllustration look={illustrationLook(scene)} />
         <div className="px-4 py-3">
           <h2 className="text-lg font-bold text-foreground">Stand PROT {nama}</h2>
           <p className="text-sm text-muted-foreground">Tampilan 2D. Pilih stand untuk melihat PROT-nya.</p>

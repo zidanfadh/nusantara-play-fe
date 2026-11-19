@@ -5,84 +5,14 @@
  *
  * Only imported by components/jelajah/three/* (three.js isolation, see tests/jelajah/three-isolation.test.ts).
  */
-import { BoxGeometry, BufferGeometry, CircleGeometry, Color, Float32BufferAttribute, Matrix4, PlaneGeometry, Vector3 } from 'three';
+import { BufferGeometry, CircleGeometry, Color, Matrix4 } from 'three';
 import { HOUSE_STAIRS_DEPTH, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
-import type { HouseDef, PavilionDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
+import type { GameSoonDef, HouseDef, PavilionDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
+import { GAME_SOON_BOARD } from '@/lib/jelajah/engine/game-soon';
+import { Builder, flat, placement, v } from './mesh-builder';
 
 /** Water surface height (ground = 0). */
 export const WATER_Y = -0.22;
-
-class Builder {
-  positions: number[] = [];
-  normals: number[] = [];
-  colors: number[] = [];
-  private tmp = new Vector3();
-
-  /** Appends a (non-indexed or indexed) geometry transformed by `matrix`, in one colour. */
-  addGeometry(geometry: BufferGeometry, matrix: Matrix4, color: Color) {
-    const g = geometry.index ? geometry.toNonIndexed() : geometry;
-    g.applyMatrix4(matrix);
-    const pos = g.getAttribute('position');
-    const nor = g.getAttribute('normal');
-    for (let i = 0; i < pos.count; i += 1) {
-      this.positions.push(pos.getX(i), pos.getY(i), pos.getZ(i));
-      this.normals.push(nor.getX(i), nor.getY(i), nor.getZ(i));
-      this.colors.push(color.r, color.g, color.b);
-    }
-    if (g !== geometry) g.dispose();
-    geometry.dispose();
-  }
-
-  box(matrix: Matrix4, w: number, h: number, d: number, cx: number, cy: number, cz: number, color: Color) {
-    const local = new Matrix4().makeTranslation(cx, cy, cz);
-    this.addGeometry(new BoxGeometry(w, h, d), matrix.clone().multiply(local), color);
-  }
-
-  /** One triangle in local space, wound so that its normal points away from `inside`. */
-  tri(matrix: Matrix4, a: Vector3, b: Vector3, c: Vector3, inside: Vector3, color: Color) {
-    const pa = a.clone().applyMatrix4(matrix);
-    let pb = b.clone().applyMatrix4(matrix);
-    let pc = c.clone().applyMatrix4(matrix);
-    const inner = inside.clone().applyMatrix4(matrix);
-    let n = this.tmp.copy(pb).sub(pa).cross(pc.clone().sub(pa)).normalize();
-    const centroid = pa.clone().add(pb).add(pc).divideScalar(3);
-    if (n.dot(centroid.sub(inner)) < 0) {
-      [pb, pc] = [pc, pb];
-      n = this.tmp.copy(pb).sub(pa).cross(pc.clone().sub(pa)).normalize();
-    }
-    for (const p of [pa, pb, pc]) {
-      this.positions.push(p.x, p.y, p.z);
-      this.normals.push(n.x, n.y, n.z);
-      this.colors.push(color.r, color.g, color.b);
-    }
-  }
-
-  quad(matrix: Matrix4, a: Vector3, b: Vector3, c: Vector3, d: Vector3, inside: Vector3, color: Color) {
-    this.tri(matrix, a, b, c, inside, color);
-    this.tri(matrix, a, c, d, inside, color);
-  }
-
-  build(): BufferGeometry {
-    const g = new BufferGeometry();
-    g.setAttribute('position', new Float32BufferAttribute(this.positions, 3));
-    g.setAttribute('normal', new Float32BufferAttribute(this.normals, 3));
-    g.setAttribute('color', new Float32BufferAttribute(this.colors, 3));
-    g.computeBoundingSphere();
-    return g;
-  }
-}
-
-const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
-
-function placement(x: number, z: number, rotation: number, y = 0): Matrix4 {
-  return new Matrix4().makeRotationY(rotation).setPosition(x, y, z);
-}
-
-/** Flat horizontal plane (local XZ) of size w × d centred at (x, y, z). */
-function flat(b: Builder, x: number, y: number, z: number, w: number, d: number, rotation: number, color: Color) {
-  const m = placement(x, z, rotation, y).multiply(new Matrix4().makeRotationX(-Math.PI / 2));
-  b.addGeometry(new PlaneGeometry(w, d), m, color);
-}
 
 function addGround(b: Builder, scene: SceneDefinition) {
   const c = scene.colors;
@@ -90,6 +20,32 @@ function addGround(b: Builder, scene: SceneDefinition) {
   const { north, south, bank } = scene.river;
   const halfW = width / 2;
   const halfD = depth / 2;
+  const waterStyle = scene.waterStyle ?? 'river';
+  if (waterStyle === 'river') addRiverGround(b, c, width, halfW, halfD, north, south, bank);
+  else if (waterStyle === 'sea') {
+    // Phase 22: village ground south of the shore, a sand beach, and the sea up to the horizon (no far bank).
+    flat(b, 0, 0, (south + halfD) / 2, width, halfD - south, 0, new Color(c.grass));
+    flat(b, 0, 0.012, south + bank / 2, width, bank, 0, new Color(c.bank));
+    const wall = new Color(c.bank).multiplyScalar(0.8);
+    b.quad(new Matrix4(), v(-halfW, 0, south), v(halfW, 0, south), v(halfW, -0.6, south), v(-halfW, -0.6, south), v(0, -0.3, south + 1), wall);
+  } else {
+    // Phase 22: no water at all, one ground plane.
+    flat(b, 0, 0, 0, width, depth, 0, new Color(c.grass));
+  }
+  addPlazaAndPaths(b, scene);
+}
+
+/** The Phase 11 ground: the village side, the far bank and both river banks (unchanged). */
+function addRiverGround(
+  b: Builder,
+  c: SceneDefinition['colors'],
+  width: number,
+  halfW: number,
+  halfD: number,
+  north: number,
+  south: number,
+  bank: number,
+) {
   // South (village) side and the far bank north of the river.
   flat(b, 0, 0, (south + halfD) / 2, width, halfD - south, 0, new Color(c.grass));
   flat(b, 0, 0, (north - halfD) / 2, width, north + halfD, 0, new Color(c.farGrass));
@@ -101,6 +57,10 @@ function addGround(b: Builder, scene: SceneDefinition) {
   const id = new Matrix4();
   b.quad(id, v(-halfW, 0, south), v(halfW, 0, south), v(halfW, -0.6, south), v(-halfW, -0.6, south), v(0, -0.3, south + 1), wall);
   b.quad(id, v(-halfW, 0, north), v(halfW, 0, north), v(halfW, -0.6, north), v(-halfW, -0.6, north), v(0, -0.3, north - 1), wall);
+}
+
+function addPlazaAndPaths(b: Builder, scene: SceneDefinition) {
+  const c = scene.colors;
   // Plaza and paths (slightly raised to avoid z-fighting).
   const plaza = new Matrix4()
     .makeTranslation(scene.plaza.x, 0.03, scene.plaza.z)
@@ -121,10 +81,8 @@ function addHouse(b: Builder, h: HouseDef, scene: SceneDefinition) {
   const post = new Color(c.housePost);
   const floor = new Color(c.houseFloor);
   const wall = new Color(c.houseWall);
-  const roof = new Color(c.houseRoof);
-  const trim = new Color(c.houseTrim);
   const dark = new Color(c.housePost).multiplyScalar(0.55);
-  const { width: w, depth: d, floorHeight: fh, wallHeight: wh, roofHeight: rh } = h;
+  const { width: w, depth: d, floorHeight: fh, wallHeight: wh } = h;
 
   // Stilts.
   const cols = 4;
@@ -133,7 +91,8 @@ function addHouse(b: Builder, h: HouseDef, scene: SceneDefinition) {
     for (let j = 0; j < rows; j += 1) {
       const x = -w / 2 + 0.2 + (i * (w - 0.4)) / (cols - 1);
       const z = -d / 2 + 0.2 + (j * (d - 0.4)) / (rows - 1);
-      b.box(m, 0.26, fh, 0.26, x, fh / 2, z, post);
+      if (h.stiltDepth) b.box(m, 0.26, fh + h.stiltDepth, 0.26, x, (fh - h.stiltDepth) / 2, z, post);
+      else b.box(m, 0.26, fh, 0.26, x, fh / 2, z, post);
     }
   }
   // Raised floor with a small veranda edge, walls, door, windows.
@@ -147,15 +106,31 @@ function addHouse(b: Builder, h: HouseDef, scene: SceneDefinition) {
     b.box(m, 0.06, 0.7, 0.8, -w / 2 - 0.02, fh + 1.35, z, dark);
   }
   // Stairs up to the door (front = local +z).
-  const steps = 6;
-  for (let s = 0; s < steps; s += 1) {
-    const top = (fh * (steps - s)) / steps;
-    const z = d / 2 + 0.65 + (s * HOUSE_STAIRS_DEPTH) / steps;
-    b.box(m, 1.3, 0.12, HOUSE_STAIRS_DEPTH / steps + 0.02, 0, top - 0.06, z, floor);
+  if (h.stairs !== false) {
+    const steps = 6;
+    for (let s = 0; s < steps; s += 1) {
+      const top = (fh * (steps - s)) / steps;
+      const z = d / 2 + 0.65 + (s * HOUSE_STAIRS_DEPTH) / steps;
+      b.box(m, 1.3, 0.12, HOUSE_STAIRS_DEPTH / steps + 0.02, 0, top - 0.06, z, floor);
+    }
+    b.box(m, 0.12, fh, HOUSE_STAIRS_DEPTH, 0.68, fh / 2, d / 2 + 0.65 + HOUSE_STAIRS_DEPTH / 2 - 0.1, post);
+    b.box(m, 0.12, fh, HOUSE_STAIRS_DEPTH, -0.68, fh / 2, d / 2 + 0.65 + HOUSE_STAIRS_DEPTH / 2 - 0.1, post);
   }
-  b.box(m, 0.12, fh, HOUSE_STAIRS_DEPTH, 0.68, fh / 2, d / 2 + 0.65 + HOUSE_STAIRS_DEPTH / 2 - 0.1, post);
-  b.box(m, 0.12, fh, HOUSE_STAIRS_DEPTH, -0.68, fh / 2, d / 2 + 0.65 + HOUSE_STAIRS_DEPTH / 2 - 0.1, post);
 
+  const style = h.style ?? 'limas';
+  switch (style) {
+    case 'limas':
+      addLimasRoof(b, m, h, scene);
+      break;
+  }
+}
+
+/** The Phase 11 roof: a steep hip roof with a short ridge above a flatter skirt (unchanged). */
+function addLimasRoof(b: Builder, m: Matrix4, h: HouseDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const roof = new Color(c.houseRoof);
+  const trim = new Color(c.houseTrim);
+  const { width: w, depth: d, floorHeight: fh, wallHeight: wh, roofHeight: rh } = h;
   // Steep hip roof with a short ridge, plus a flatter skirt below it (two tiers).
   const y0 = fh + wh;
   const skirtW = w + 1.5;
@@ -223,6 +198,16 @@ function addStand(b: Builder, s: StandDef, scene: SceneDefinition) {
  * platform. Part of the merged village mesh, so it costs no extra draw call.
  */
 function addPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
+  const style = p.style ?? 'pavilion';
+  switch (style) {
+    case 'pavilion':
+      addOpenPavilion(b, p, scene);
+      break;
+  }
+}
+
+/** The Phase 12 open pavilion (unchanged). */
+function addOpenPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
   const c = scene.colors;
   const m = placement(p.x, p.z, p.rotation);
   const post = new Color(c.housePost);
@@ -266,11 +251,32 @@ export function buildVillageGeometry(scene: SceneDefinition): BufferGeometry {
   for (const h of scene.houses) addHouse(b, h, scene);
   for (const s of scene.stands) addStand(b, s, scene);
   if (scene.centrepiece) addPavilion(b, scene.centrepiece, scene);
+  if (scene.gameSoon) addGameSoonPost(b, scene.gameSoon, scene);
   return b.build();
 }
 
-/** The river surface plus a few lighter streaks (vertex colours, one geometry). */
-export function buildWaterGeometry(scene: SceneDefinition, streaks: boolean): BufferGeometry {
+/**
+ * Phase 22: the post and the wooden back of the "Game segera hadir" board. The text is a separate canvas-textured
+ * plane in front of the board (GAME_SOON_BOARD, drawn by VillageScene3D).
+ */
+function addGameSoonPost(b: Builder, g: GameSoonDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const m = placement(g.x, g.z, g.rotation);
+  const post = new Color(c.standPost);
+  const { width, height, centerY } = GAME_SOON_BOARD;
+  b.box(m, 0.16, centerY + height / 2, 0.16, 0, (centerY + height / 2) / 2, -0.08, post);
+  b.box(m, width + 0.16, height + 0.16, 0.08, 0, centerY, -0.02, new Color(c.standPost).multiplyScalar(0.8));
+  b.box(m, width + 0.4, 0.1, 0.2, 0, centerY + height / 2 + 0.1, 0, new Color(c.standRoof));
+}
+
+/**
+ * The river surface plus a few lighter streaks (vertex colours, one geometry). Phase 22: the sea (shallow near the
+ * shore, deep towards the horizon) or null when the scene has no water.
+ */
+export function buildWaterGeometry(scene: SceneDefinition, streaks: boolean): BufferGeometry | null {
+  const waterStyle = scene.waterStyle ?? 'river';
+  if (waterStyle === 'none') return null;
+  if (waterStyle === 'sea') return buildSeaGeometry(scene, streaks);
   const b = new Builder();
   const { north, south } = scene.river;
   const width = scene.ground.width;
@@ -287,6 +293,29 @@ export function buildWaterGeometry(scene: SceneDefinition, streaks: boolean): Bu
       const x = -26 + ((i * 37) % 52);
       const z = north + 1 + ((i * 2.7) % (south - north - 2));
       flat(b, x, WATER_Y + 0.01, z, 1.6 + (i % 3), 0.08, 0, light);
+    }
+  }
+  return b.build();
+}
+
+function buildSeaGeometry(scene: SceneDefinition, streaks: boolean): BufferGeometry {
+  const b = new Builder();
+  const { south } = scene.river;
+  const { width, depth } = scene.ground;
+  const north = -depth / 2;
+  const deep = new Color(scene.colors.waterDeep);
+  const shallow = new Color(scene.colors.water);
+  const mid = new Color(scene.colors.water).lerp(deep, 0.5);
+  // Shallow along the shore, a middle band, then deep water to the horizon.
+  flat(b, 0, WATER_Y, south - 2.5, width, 5, 0, shallow);
+  flat(b, 0, WATER_Y, south - 9, width, 8, 0, mid);
+  flat(b, 0, WATER_Y, (south - 13 + north) / 2, width, south - 13 - north, 0, deep);
+  if (streaks) {
+    const light = new Color(scene.colors.water).lerp(new Color('#ffffff'), 0.4);
+    for (let i = 0; i < 14; i += 1) {
+      const x = -28 + ((i * 37) % 56);
+      const z = south - 1.2 - ((i * 2.3) % 14);
+      flat(b, x, WATER_Y + 0.01, z, 1.4 + (i % 3) * 0.8, 0.08, 0, light);
     }
   }
   return b.build();

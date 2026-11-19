@@ -3,7 +3,8 @@
  * on the ground plane, a rectangular walkable area, and push-out resolution (which also gives sliding
  * along walls). Pure functions, unit-tested.
  */
-import type { PavilionDef, RectBounds, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
+import type { PavilionDef, RectBounds, SceneDefinition, StructureDef, Vec2 } from '@/lib/jelajah/scenes/types';
+import { gameSoonCollider } from './game-soon';
 
 export interface CircleCollider {
   kind: 'circle';
@@ -162,5 +163,14 @@ export function sceneColliders(scene: SceneDefinition, includeDetail = true): Co
     if (typeof d.collide === 'number') out.push({ kind: 'circle', x: d.x, z: d.z, r: d.collide });
     else out.push({ kind: 'box', x: d.x, z: d.z, rotation: d.rotation ?? 0, ...d.collide });
   }
+  // Phase 22 (appended after the Phase 11 colliders, so existing scenes keep the same list).
+  if (scene.gameSoon) out.push(gameSoonCollider(scene.gameSoon));
+  for (const s of scene.structures ?? []) out.push(...structureColliders(s));
   return out;
+}
+
+/** Phase 22: the footprint colliders of a procedural landmark (none for landmarks outside the walkable area). */
+export function structureColliders(s: StructureDef): Collider[] {
+  void s;
+  return [];
 }
