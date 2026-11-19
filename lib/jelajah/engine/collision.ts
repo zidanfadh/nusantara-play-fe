@@ -3,7 +3,7 @@
  * on the ground plane, a rectangular walkable area, and push-out resolution (which also gives sliding
  * along walls). Pure functions, unit-tested.
  */
-import type { RectBounds, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
+import type { PavilionDef, RectBounds, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
 
 export interface CircleCollider {
   kind: 'circle';
@@ -50,6 +50,11 @@ function toWorld(box: BoxCollider, lx: number, lz: number): Vec2 {
   const c = Math.cos(box.rotation);
   const s = Math.sin(box.rotation);
   return [box.x + lx * c + lz * s, box.z - lx * s + lz * c];
+}
+
+/** Box collider of the plaza centrepiece (the platform plus a small margin). */
+export function pavilionCollider(c: PavilionDef): BoxCollider {
+  return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation };
 }
 
 /** Distance from a point to the collider's outline (0 when inside). */
@@ -151,8 +156,7 @@ export function sceneColliders(scene: SceneDefinition, includeDetail = true): Co
     });
   }
   for (const s of scene.stands) out.push(standCollider(s));
-  const c = scene.centrepiece;
-  if (c) out.push({ kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation });
+  if (scene.centrepiece) out.push(pavilionCollider(scene.centrepiece));
   for (const d of scene.decor) {
     if (d.collide === undefined || (d.detail && !includeDetail)) continue;
     if (typeof d.collide === 'number') out.push({ kind: 'circle', x: d.x, z: d.z, r: d.collide });

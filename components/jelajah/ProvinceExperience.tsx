@@ -10,10 +10,13 @@
  */
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, Hand, Map as MapIcon, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { congklakHref } from '@/lib/games/congklak/from-link';
 import { markBumperSeen } from '@/lib/jelajah/bumper/session';
+import { gamePavilion } from '@/lib/jelajah/engine/pavilion';
 import { enterProvince, openProt } from '@/lib/jelajah/demo-rewards';
 import { ZERO_INPUT, type InputVector } from '@/lib/jelajah/engine/input';
 import { hasSeenHelp, markHelpSeen } from '@/lib/jelajah/engine/help-hint';
@@ -26,6 +29,7 @@ import { useDebugFlag } from '@/lib/jelajah/use-debug-flag';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
 import { useToastClearance } from '@/lib/jelajah/use-toast-clearance';
+import { GameCard, GamePrompt, PLAY_CONGKLAK } from './GamePrompt';
 import { Joystick } from './Joystick';
 import { grantDemoReward, RewardHud } from './RewardHud';
 import { ProvinceScene2D } from './ProvinceScene2D';
@@ -110,6 +114,10 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
   );
 
   const [near, setNear] = useState<number | null>(null);
+  // Phase 17: the plaza pavilion opens the congklak page (scene data `centrepiece.game`).
+  const [nearPavilion, setNearPavilion] = useState(false);
+  const router = useRouter();
+  const gameHref = gamePavilion(scene) ? congklakHref(`jelajah-${scene.slug}`) : null;
   const [panel, setPanel] = useState<PanelContent | null>(null);
   const [ready, setReady] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -158,8 +166,9 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
     setShowHelp(false);
   };
   const onInteract = useCallback(() => {
-    if (near !== null) openStand(near);
-  }, [near, openStand]);
+    if (nearPavilion && gameHref) router.push(gameHref);
+    else if (near !== null) openStand(near);
+  }, [near, nearPavilion, gameHref, router, openStand]);
 
   const nearContent = near !== null ? stands[near] : null;
   const is3D = tier === 'full' || tier === 'lite';
@@ -264,7 +273,12 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
           {emptyBanner}
         </div>
         {data.status === 'loading' && <p className="px-6 pt-4 text-sm text-muted-foreground">Memuat data PROT…</p>}
-        <ProvinceScene2D nama={scene.nama} stands={stands} onOpen={(i, el) => openStand(i, el)} />
+        <ProvinceScene2D
+          nama={scene.nama}
+          stands={stands}
+          onOpen={(i, el) => openStand(i, el)}
+          extra={gameHref ? <GameCard href={gameHref} /> : undefined}
+        />
         {panel && <div className="fixed inset-0 z-30 md:pointer-events-none [&>aside]:pointer-events-auto">{panelView}</div>}
       </div>
     );
@@ -289,6 +303,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
             joystickRef={joystickRef}
             paused={panel !== null || hudOverlay}
             onNearStand={setNear}
+            onNearPavilion={setNearPavilion}
             onInteract={onInteract}
             onReady={onReady}
             reducedMotion={reducedMotion}
@@ -341,6 +356,12 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
         </div>
       )}
 
+      {ready && nearPavilion && gameHref && !panel && (
+        <div className={`absolute z-20 ${touch ? 'bottom-8 left-[10.5rem] right-3' : 'bottom-6 left-1/2 w-[min(92%,22rem)] -translate-x-1/2'}`}>
+          <GamePrompt href={gameHref} compact={touch} />
+        </div>
+      )}
+
       {ready && touch && !panel && <Joystick outputRef={joystickRef} />}
 
       {/* Text alternative of the stands for screen readers and keyboard users. */}
@@ -357,6 +378,11 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
               )}
             </li>
           ))}
+          {gameHref && (
+            <li>
+              <Link href={gameHref}>Paviliun permainan: {PLAY_CONGKLAK}</Link>
+            </li>
+          )}
         </ul>
       </nav>
 

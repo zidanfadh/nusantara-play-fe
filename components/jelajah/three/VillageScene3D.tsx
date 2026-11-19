@@ -56,7 +56,8 @@ import {
   type InputVector,
 } from '@/lib/jelajah/engine/input';
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
-import { nearestStand, type StandContent } from '@/lib/jelajah/engine/stands';
+import { nearestTarget } from '@/lib/jelajah/engine/pavilion';
+import type { StandContent } from '@/lib/jelajah/engine/stands';
 import type { DecorDef, NatureModel, SceneDefinition, Vec2 } from '@/lib/jelajah/scenes/types';
 import { SIGN_CENTER_Y, SIGN_HEIGHT, SIGN_WIDTH } from '@/lib/jelajah/engine/sign-text';
 import { createBlobTexture, createSignTexture, type SignContent } from '@/lib/jelajah/three/canvas-textures';
@@ -86,6 +87,8 @@ export interface VillageScene3DProps {
   /** True while a panel is open: movement keys are ignored. */
   paused: boolean;
   onNearStand: (index: number | null) => void;
+  /** Phase 17: the player is near the game pavilion (closer to it than to any stand). */
+  onNearPavilion?: (near: boolean) => void;
   /** E (or Enter on the canvas) pressed. */
   onInteract: () => void;
   onReady: () => void;
@@ -311,9 +314,10 @@ function Player({
   joystickRef,
   paused,
   onNearStand,
+  onNearPavilion,
   onInteract,
   reducedMotion,
-}: Pick<VillageScene3DProps, 'scene' | 'tier' | 'joystickRef' | 'paused' | 'onNearStand' | 'onInteract' | 'reducedMotion'>) {
+}: Pick<VillageScene3DProps, 'scene' | 'tier' | 'joystickRef' | 'paused' | 'onNearStand' | 'onNearPavilion' | 'onInteract' | 'reducedMotion'>) {
   const gltf = useGLTF(scene.assets.player, false, true);
   const group = useRef<Group>(null);
   const blob = useRef<Group>(null);
@@ -325,12 +329,13 @@ function Player({
     heading: scene.spawn.rotation,
     moving: false,
     near: null as number | null,
+    nearPavilion: false,
     snapped: false,
   });
   const keys = useRef(new Set<string>());
-  const latest = useRef({ paused, onNearStand, onInteract });
+  const latest = useRef({ paused, onNearStand, onNearPavilion, onInteract });
   useEffect(() => {
-    latest.current = { paused, onNearStand, onInteract };
+    latest.current = { paused, onNearStand, onNearPavilion, onInteract };
   });
   const blobTexture = useMemo(() => createBlobTexture(), []);
   useEffect(() => () => blobTexture.dispose(), [blobTexture]);
@@ -420,7 +425,7 @@ function Player({
       }
       const onCanvas = e.target === document.body || e.target instanceof HTMLCanvasElement;
       if (!latest.current.paused && (e.code === 'KeyE' || (e.code === 'Enter' && onCanvas))) {
-        if (state.current.near !== null) {
+        if (state.current.near !== null || state.current.nearPavilion) {
           e.preventDefault();
           latest.current.onInteract();
         }
@@ -530,10 +535,14 @@ function Player({
     cam.position.set(f.x.value + off.x, off.y, f.z.value + off.z);
     cam.rotation.set(-pitch, 0, 0);
 
-    const near = nearestStand(s.pos, scene.stands);
-    if (near !== s.near) {
-      s.near = near;
-      latest.current.onNearStand(near);
+    const target = nearestTarget(s.pos, scene);
+    if (target.stand !== s.near) {
+      s.near = target.stand;
+      latest.current.onNearStand(target.stand);
+    }
+    if (target.pavilion !== s.nearPavilion) {
+      s.nearPavilion = target.pavilion;
+      latest.current.onNearPavilion?.(target.pavilion);
     }
   });
 
@@ -627,6 +636,7 @@ export default function VillageScene3D(props: VillageScene3DProps) {
             joystickRef={props.joystickRef}
             paused={props.paused}
             onNearStand={props.onNearStand}
+            onNearPavilion={props.onNearPavilion}
             onInteract={props.onInteract}
             reducedMotion={props.reducedMotion}
           />

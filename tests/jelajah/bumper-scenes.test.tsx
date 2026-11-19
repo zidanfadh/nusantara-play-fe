@@ -28,9 +28,14 @@ describe('bumper scenes (Phase 16)', () => {
     expect(html).not.toContain('Contoh foto PROT');
   });
 
-  it('game scene: the placeholder sentence', () => {
-    expect(GAME_SCENE_TEXT).toBe('Segera hadir: mainkan permainan tradisional langsung di sini.');
-    expect(renderToStaticMarkup(<GameScene />)).toContain(GAME_SCENE_TEXT);
+  it('game scene: a short line and the Main Congklak button (Phase 17)', () => {
+    // Phase 17: no longer "Segera hadir"; a short line and the "Main Congklak" button.
+    expect(GAME_SCENE_TEXT).toBe('Main congklak langsung di sini, tanpa masuk akun.');
+    const html = renderToStaticMarkup(<GameScene onPlay={() => {}} />);
+    expect(html).toContain(GAME_SCENE_TEXT);
+    expect(html).toContain('Main Congklak');
+    expect(html).toContain('data-bumper-action');
+    expect(html).not.toContain('Segera hadir');
   });
 
   it('community scene: numbers only when the stats loaded', () => {
