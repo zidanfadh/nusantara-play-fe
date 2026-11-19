@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialAuthButtons } from './SocialAuthButtons';
 import { LoginNotice } from './LoginNotice';
-import { authQuery, redirectTargetOr, type LoginReason } from './login-redirect';
+import { JELAJAH_GUEST_NOTE, authQuery, redirectTargetOr, type LoginReason } from './login-redirect';
 import { SITE_NAME } from '@/lib/brand';
 
 /**
@@ -151,12 +151,23 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
         </div>
       </div>
 
-      <Link
-        href="/menu"
-        className="block w-full py-2 px-4 border border-border text-foreground font-medium rounded-md hover:bg-muted transition-colors text-center"
-      >
-        Masuk sebagai Tamu
-      </Link>
+      {reason === 'jelajah' ? (
+        // Phase 19: the map needs an account, so no guest entry here; the games stay open without one.
+        <p data-login-guest-note className="text-center text-sm text-muted-foreground">
+          {JELAJAH_GUEST_NOTE.before}
+          <Link href={JELAJAH_GUEST_NOTE.href} className="font-medium text-secondary hover:underline">
+            {JELAJAH_GUEST_NOTE.link}
+          </Link>
+          {JELAJAH_GUEST_NOTE.after}
+        </p>
+      ) : (
+        <Link
+          href="/menu"
+          className="block w-full py-2 px-4 border border-border text-foreground font-medium rounded-md hover:bg-muted transition-colors text-center"
+        >
+          Masuk sebagai Tamu
+        </Link>
+      )}
     </div>
   );
 }

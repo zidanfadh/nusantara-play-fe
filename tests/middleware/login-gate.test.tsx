@@ -137,6 +137,19 @@ describe('login page notice and post-login redirect (Phase 18)', () => {
     expect(html).toContain('href="/signup"');
   });
 
+  it('reason=jelajah: no "Masuk sebagai Tamu", a short note with a link to the games instead (Phase 19)', () => {
+    const html = renderToStaticMarkup(<LoginForm redirectTo="/jelajah" reason="jelajah" />);
+    expect(html).not.toContain('Masuk sebagai Tamu');
+    expect(html).toContain('data-login-guest-note');
+    const text = html.replace(/<[^>]+>/g, '');
+    expect(text).toContain('Peta Jelajah memerlukan akun. Game di menu Game tetap bisa dimainkan tanpa akun.');
+    expect(html).toMatch(/<a [^>]*href="\/main"[^>]*>menu Game<\/a>/);
+    // Without the reason the guest entry is unchanged.
+    const plain = renderToStaticMarkup(<LoginForm />);
+    expect(plain).toContain('Masuk sebagai Tamu');
+    expect(plain).not.toContain('data-login-guest-note');
+  });
+
   it('the signup form keeps redirectTo and reason on its login link', () => {
     const html = renderToStaticMarkup(<SignupForm redirectTo="/jelajah" reason="jelajah" />);
     expect(html).toContain('href="/login?redirectTo=%2Fjelajah&amp;reason=jelajah"');

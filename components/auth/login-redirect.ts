@@ -17,6 +17,17 @@ export const JELAJAH_LOGIN_NOTICE =
   'Masuk dulu untuk memulai Tur Virtual. Setelah masuk, kamu langsung diarahkan ke peta.';
 
 /**
+ * Phase 19: with `reason=jelajah` the login page shows this instead of "Masuk sebagai Tamu" (the map
+ * needs an account; the games do not). "menu Game" links to /main.
+ */
+export const JELAJAH_GUEST_NOTE = {
+  before: 'Peta Jelajah memerlukan akun. Game di ',
+  link: 'menu Game',
+  after: ' tetap bisa dimainkan tanpa akun.',
+  href: '/main',
+} as const;
+
+/**
  * Cookie that carries the target through Google sign-in: the Supabase OAuth redirect URL stays exactly
  * `/auth/callback` (as allowlisted in Supabase today), and the callback reads the target from here.
  */
