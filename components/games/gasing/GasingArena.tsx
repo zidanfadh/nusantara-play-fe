@@ -204,11 +204,12 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
-    // CPU-backed canvas by default (`willReadFrequently`): Phase 20 headless measurement, Pangkah collision,
-    // 4x CPU throttling: desktop 52 fps (GPU-backed 24), phone 52 (41); the scene is a few small shapes, so
-    // the GPU round trip costs more than it saves. `?debug=1&canvas=gpu` switches back for a real-device check.
+    // The browser's default (GPU-backed) 2D canvas. `?debug=1&canvas=cpu` switches to a CPU-backed canvas for
+    // comparison on real devices (Phase 20, headless software rendering, Pangkah collision: GPU-backed phone
+    // 41 / 40 fps at 1x / 4x CPU, desktop 22 / 26; CPU-backed phone 53 / 35, desktop 36 / 36).
+    // No `desynchronized`: it bypassed the compositor and the tops were missing from screenshots.
     const backend = debug ? new URLSearchParams(window.location.search).get('canvas') : null;
-    const ctx = canvas.getContext('2d', { desynchronized: true, willReadFrequently: backend !== 'gpu' });
+    const ctx = canvas.getContext('2d', { willReadFrequently: backend === 'cpu' });
     if (!ctx) return;
     const m = createMatch(settings.mode, settings.level, seed);
     matchRef.current = m;
@@ -621,7 +622,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
           </div>
         )}
 
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {flash && overlay === 'none' && (
             <motion.div
               key={flash.key}
