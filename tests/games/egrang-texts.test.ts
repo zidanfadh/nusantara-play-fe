@@ -101,7 +101,7 @@ describe('egrang texts (Phase 23)', () => {
   it('generates the rules from the config, per variant', () => {
     const bambu = rulesSections(ATURAN_DASAR, 'bambu');
     expect(bambu.map((s) => s.title)).toEqual(['Lintasan', 'Melangkah', 'Keseimbangan', 'Rintangan', 'Pemenang']);
-    expect(bambu[0].text).toContain('60 meter');
+    expect(bambu[0].text).toContain(`${ATURAN_DASAR.bambu.trackLength} meter`);
     expect(bambu[2].text).toContain('1,7 detik');
     const batok = rulesSections(ATURAN_DASAR, 'batok');
     expect(batok.map((s) => s.title)).toEqual(['Lintasan', 'Melangkah', 'Irama', 'Rintangan', 'Pemenang']);

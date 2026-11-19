@@ -47,8 +47,8 @@ export const ATURAN_DASAR: EgrangRules = {
   countdownSeconds: 3,
   slope: true,
   timeLimitSeconds: 180,
-  bambu: { trackLength: 60, penaltySeconds: 1.7, obstacles: 4 },
-  batok: { trackLength: 48, penaltySeconds: 0.8, obstacles: 4 },
+  bambu: { trackLength: 64, penaltySeconds: 1.7, obstacles: 4 },
+  batok: { trackLength: 52, penaltySeconds: 0.8, obstacles: 4 },
 };
 
 /** The ruleset the game uses. */

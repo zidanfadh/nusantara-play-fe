@@ -43,13 +43,13 @@ export const TUNING = {
     /** Growth of the amplitude per second while walking (the stilts are unstable). */
     growth: 0.16,
     /** Phase error (rad) where a step's quality reaches 0, and the "perfect" window (≈ ±45 ms). */
-    timingWindow: 0.95,
+    timingWindow: 1.25,
     perfectWindow: 0.29,
     /** Amplitude added by a step of quality 0; extra for the same foot twice. */
-    kickBad: 0.3,
+    kickBad: 0.22,
     sameFootKick: 0.2,
     /** Fraction of (amp − restAmp) removed by a step of quality 1. */
-    settle: 0.6,
+    settle: 0.7,
     /** How far a step pulls the sway phase toward that foot's ideal (fraction of the error). */
     phaseNudge: 0.5,
     /** Quality of the first step of a walk (any foot, any time). */
@@ -68,7 +68,7 @@ export const TUNING = {
     /** Beat period (s): the kendang pulse and the step rhythm (≈ 143 bpm). */
     beat: 0.42,
     /** A step farther than this from its beat slips (s); the perfect window; the obstacle window. */
-    goodWindow: 0.11,
+    goodWindow: 0.13,
     perfectWindow: 0.045,
     obstacleWindow: 0.075,
     stride: 0.62,
