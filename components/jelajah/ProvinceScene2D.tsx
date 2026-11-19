@@ -37,7 +37,7 @@ function House({ x, y, roof }: { x: number; y: number; roof: IllustrationLook['r
   );
 }
 
-/** Phase 22 gable roofs: a gable with crossed ridge ends (malay). */
+/** Phase 22 gable roofs: crossed ridge ends (malay), a steep gable with a decorated panel (aceh). */
 function GableRoof({ roof }: { roof: Exclude<IllustrationLook['roof'], 'limas'> }) {
   switch (roof) {
     case 'malay':
@@ -45,6 +45,13 @@ function GableRoof({ roof }: { roof: Exclude<IllustrationLook['roof'], 'limas'> 
         <>
           <path d="M -58 -46 L 58 -46 L 40 -84 L -40 -84 Z" className="fill-primary" />
           <path d="M -48 -94 L -32 -74 M -32 -94 L -48 -74 M 48 -94 L 32 -74 M 32 -94 L 48 -74" className="stroke-foreground/70" strokeWidth={4} />
+        </>
+      );
+    case 'aceh':
+      return (
+        <>
+          <path d="M -62 -44 L 62 -44 L 46 -104 L -46 -104 Z" className="fill-primary" />
+          <path d="M -40 -50 L -40 -98 L -58 -50 Z M 40 -50 L 40 -98 L 58 -50 Z" className="fill-accent" />
         </>
       );
   }
@@ -106,6 +113,12 @@ function VillageIllustration({ look }: { look: IllustrationLook }) {
           <rect y="74" width="640" height="10" className="fill-accent/30" />
         </>
       )}
+      {look.water === 'none' && (
+        <>
+          {has('mountain') && <path d="M 0 70 Q 120 20 260 70 Z M 330 70 Q 480 12 640 70 Z" className="fill-accent/30" />}
+          <rect y="70" width="640" height="14" className="fill-secondary/10" />
+        </>
+      )}
       <rect y="84" width="640" height="116" className="fill-secondary/10" />
       {has('jetty') && (
         <g className="fill-foreground/50">
@@ -128,12 +141,22 @@ function VillageIllustration({ look }: { look: IllustrationLook }) {
           <rect x={45} y={-40} width={5} height={30} className="fill-foreground/60" />
         </g>
       )}
+      {look.centre === 'meunasah' && (
+        <g transform="translate(320 160)">
+          {[-26, 0, 26].map((px) => (
+            <rect key={px} x={px - 3} y={-46} width={6} height={52} className="fill-foreground/60" />
+          ))}
+          <rect x={-34} y={-24} width={68} height={7} className="fill-foreground/70" />
+          <path d="M -38 -44 L 38 -44 L 0 -86 Z" className="fill-primary" />
+          <path d="M -18 -48 L 18 -48 L 0 -70 Z" className="fill-accent" />
+        </g>
+      )}
       {[
         [190, 120],
         [300, 112],
         [430, 124],
       ]
-        .filter(([x]) => !(look.centre === 'arena' && x === 300))
+        .filter(([x]) => !(look.centre !== null && look.centre !== 'pavilion' && x === 300))
         .map(([x, y]) => (look.plants === 'bamboo' ? <Bamboo key={x} x={x} y={y} /> : <Palm key={x} x={x} y={y} />))}
     </svg>
   );

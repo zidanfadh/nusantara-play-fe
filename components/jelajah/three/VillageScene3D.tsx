@@ -283,12 +283,14 @@ function GameSoonBoard({ scene }: { scene: SceneDefinition }) {
   const g = scene.gameSoon;
   const mesh = useMemo(() => {
     if (!g) return null;
-    const { width, height, centerY } = GAME_SOON_BOARD;
+    const { width, height, centerY, tilt } = GAME_SOON_BOARD;
     const material = new MeshBasicMaterial({ map: createNoticeTexture(GAME_SOON_TITLE), toneMapped: false });
     const plane = new Mesh(new PlaneGeometry(width, height), material);
-    const forward = 0.03;
-    plane.position.set(g.x + Math.sin(g.rotation) * forward, centerY, g.z + Math.cos(g.rotation) * forward);
-    plane.rotation.y = g.rotation;
+    // Same frame as the board in the merged mesh: post position, turned by `rotation`, leaned back by `tilt`,
+    // a few millimetres in front of the board's face.
+    plane.position.set(g.x, centerY, g.z);
+    plane.rotation.set(tilt, g.rotation, 0, 'YXZ');
+    plane.translateZ(0.002);
     return plane;
   }, [g]);
   useEffect(

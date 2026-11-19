@@ -67,8 +67,24 @@ export function pavilionCollider(c: PavilionDef): BoxCollider {
       rotation: c.rotation,
     };
   }
+  if (c.style === 'meunasah') {
+    // Phase 22: the raised hall plus its front steps (local +z).
+    const shift = OPEN_HALL_STEPS / 2;
+    return {
+      kind: 'box',
+      x: c.x + Math.sin(c.rotation) * shift,
+      z: c.z + Math.cos(c.rotation) * shift,
+      halfW: c.size / 2 + 0.2,
+      halfD: c.size / 2 + 0.2 + shift,
+      rotation: c.rotation,
+    };
+  }
   return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation };
 }
+
+/** Phase 22 (Aceh open hall): floor height and the depth of the front steps, metres. */
+export const OPEN_HALL_FLOOR = 1.1;
+export const OPEN_HALL_STEPS = 1.0;
 
 /** Phase 22: how far the gasing arena's shade shelter reaches beyond the ring's collider (north, local -z). */
 export const ARENA_SHELTER_DEPTH = 1.3;

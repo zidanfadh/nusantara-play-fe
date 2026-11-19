@@ -33,6 +33,8 @@ export interface GableOptions {
 export const GABLE_STYLES: Readonly<Record<Exclude<HouseStyle, 'limas'>, GableOptions>> = {
   // Kepulauan Riau: a gable along the house with crossed ridge ends.
   malay: { axis: 'x', overhang: 0.6, endOverhang: 0.3, crossedEnds: 1.2, gablePanel: false, tiers: 0, eaveBand: false },
+  // Aceh: a long, steep gable with decorated gable panels and a carved band under the eaves.
+  aceh: { axis: 'x', overhang: 0.75, endOverhang: 0.4, crossedEnds: 0, gablePanel: true, tiers: 0, eaveBand: true },
 };
 
 export function addGableRoof(b: Builder, m: Matrix4, h: HouseDef, c: SceneColors, o: GableOptions) {

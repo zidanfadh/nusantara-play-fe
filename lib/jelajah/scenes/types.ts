@@ -58,7 +58,7 @@ export interface RectBounds {
  * Roof and detail style of a procedural house (Phase 22). `limas` = the Phase 11 two-tier hip roof (default). The UI
  * never names a style; the styles are loose, low-poly hints ("terinspirasi"), not reconstructions.
  */
-export type HouseStyle = 'limas' | 'malay';
+export type HouseStyle = 'limas' | 'malay' | 'aceh';
 
 /** Raised house (rumah panggung), built procedurally. Described in the UI only as "terinspirasi rumah limas". */
 export interface HouseDef {
@@ -88,7 +88,7 @@ export interface StandDef {
 }
 
 /** Look of the centrepiece (Phase 22). `pavilion` = the Phase 12 open pavilion (default). */
-export type PavilionStyle = 'pavilion' | 'arena';
+export type PavilionStyle = 'pavilion' | 'arena' | 'meunasah';
 
 /**
  * Neutral centrepiece of the plaza (Phase 12): a small open pavilion (a roof on four posts on a low

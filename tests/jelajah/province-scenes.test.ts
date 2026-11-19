@@ -165,3 +165,27 @@ describe('Kepulauan Riau', () => {
     expect(col.z).toBeLessThan(scene.centrepiece!.z);
   });
 });
+
+describe('Aceh', () => {
+  const scene = findScene('aceh')!;
+
+  it('a dry-season village: no water, long timber stilt houses with steep decorated gables, many palms', () => {
+    expect(scene.provinsiKode).toBe('11');
+    expect(scene.waterStyle).toBe('none');
+    expect(buildWaterGeometry(scene, true)).toBeNull();
+    expect(scene.houses.every((h) => h.style === 'aceh' && h.floorHeight >= 2 && h.width > h.depth)).toBe(true);
+    expect(scene.decor.filter((d) => d.model.startsWith('tree_palm') && d.collide).length).toBeGreaterThanOrEqual(8);
+  });
+
+  it('the raised open hall is the centrepiece, without a game; its collider covers the front steps', () => {
+    expect(scene.centrepiece).toMatchObject({ style: 'meunasah' });
+    expect(scene.centrepiece?.game).toBeUndefined();
+    const col = pavilionCollider(scene.centrepiece!);
+    expect(col.z).toBeGreaterThan(scene.centrepiece!.z);
+    expect(col.halfD).toBeGreaterThan(col.halfW);
+  });
+
+  it('shows the "Game segera hadir" sign', () => {
+    expect(scene.gameSoon).toBeDefined();
+  });
+});

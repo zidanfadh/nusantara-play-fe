@@ -6,7 +6,7 @@
  * Only imported by components/jelajah/three/* (three.js isolation, see tests/jelajah/three-isolation.test.ts).
  */
 import { BufferGeometry, CircleGeometry, Color, Matrix4 } from 'three';
-import { HOUSE_STAIRS_DEPTH, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
+import { HOUSE_STAIRS_DEPTH, OPEN_HALL_FLOOR, OPEN_HALL_STEPS, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
 import type { GameSoonDef, HouseDef, PavilionDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
 import { GAME_SOON_BOARD } from '@/lib/jelajah/engine/game-soon';
 import { Builder, flat, placement, v } from './mesh-builder';
@@ -212,6 +212,9 @@ function addPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
     case 'arena':
       addArena(b, p, scene);
       break;
+    case 'meunasah':
+      addOpenHall(b, p, scene);
+      break;
   }
 }
 
@@ -310,6 +313,52 @@ function addArena(b: Builder, p: PavilionDef, scene: SceneDefinition) {
 }
 
 /**
+ * Phase 22 (Aceh): a raised open hall without walls (inspired by a village meunasah, never named in the UI): posts,
+ * a floor on stilts with a low rail on three sides, front steps and a steep gable roof with decorated gables.
+ */
+/** The open hall's roof: the Aceh gable turned so the decorated gable faces the front (and the camera). */
+const OPEN_HALL_ROOF = { ...GABLE_STYLES.aceh, axis: 'z' as const, overhang: 0.6, endOverhang: 0.55 };
+
+function addOpenHall(b: Builder, p: PavilionDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const m = placement(p.x, p.z, p.rotation);
+  const post = new Color(c.housePost);
+  const floor = new Color(c.houseFloor);
+  const S = p.size;
+  const fh = OPEN_HALL_FLOOR;
+  const inset = S / 2 - 0.2;
+  for (const x of [-inset, 0, inset]) {
+    for (const z of [-inset, 0, inset]) b.box(m, 0.24, fh + p.postHeight, 0.24, x, (fh + p.postHeight) / 2, z, post);
+  }
+  b.box(m, S + 0.3, 0.2, S + 0.3, 0, fh, 0, floor);
+  // Rail on the back and the sides (the front stays open for the steps).
+  const railY = fh + 0.6;
+  b.box(m, S, 0.08, 0.08, 0, railY, -inset, post);
+  for (const x of [-inset, inset]) b.box(m, 0.08, 0.08, S, x, railY, 0, post);
+  // Beams under the roof.
+  const y0 = fh + p.postHeight;
+  for (const z of [-inset, inset]) b.box(m, S + 0.1, 0.16, 0.16, 0, y0, z, post);
+  for (const x of [-inset, inset]) b.box(m, 0.16, 0.16, S + 0.1, x, y0, 0, post);
+  // Front steps.
+  const steps = 4;
+  for (let s = 0; s < steps; s += 1) {
+    const top = (fh * (steps - s)) / steps;
+    b.box(m, 1.4, 0.12, OPEN_HALL_STEPS / steps + 0.02, 0, top - 0.06, S / 2 + 0.15 + ((s + 0.5) * OPEN_HALL_STEPS) / steps, floor);
+  }
+  const roofHouse: HouseDef = {
+    x: p.x,
+    z: p.z,
+    rotation: p.rotation,
+    width: S,
+    depth: S,
+    floorHeight: fh,
+    wallHeight: p.postHeight,
+    roofHeight: p.roofHeight,
+  };
+  addGableRoof(b, m, roofHouse, c, OPEN_HALL_ROOF);
+}
+
+/**
  * Phase 22: the post and the wooden back of the "Game segera hadir" board. The text is a separate canvas-textured
  * plane in front of the board (GAME_SOON_BOARD, drawn by VillageScene3D).
  */
@@ -317,10 +366,11 @@ function addGameSoonPost(b: Builder, g: GameSoonDef, scene: SceneDefinition) {
   const c = scene.colors;
   const m = placement(g.x, g.z, g.rotation);
   const post = new Color(c.standPost);
-  const { width, height, centerY } = GAME_SOON_BOARD;
-  b.box(m, 0.16, centerY + height / 2, 0.16, 0, (centerY + height / 2) / 2, -0.08, post);
-  b.box(m, width + 0.16, height + 0.16, 0.08, 0, centerY, -0.02, new Color(c.standPost).multiplyScalar(0.8));
-  b.box(m, width + 0.4, 0.1, 0.2, 0, centerY + height / 2 + 0.1, 0, new Color(c.standRoof));
+  const { width, height, centerY, tilt } = GAME_SOON_BOARD;
+  b.box(m, 0.16, centerY, 0.16, 0, centerY / 2, -0.12, post);
+  const board = m.clone().multiply(new Matrix4().makeTranslation(0, centerY, 0)).multiply(new Matrix4().makeRotationX(tilt));
+  b.box(board, width + 0.16, height + 0.16, 0.08, 0, 0, -0.05, new Color(c.standPost).multiplyScalar(0.8));
+  b.box(board, width + 0.36, 0.1, 0.2, 0, height / 2 + 0.12, -0.04, new Color(c.standRoof));
 }
 
 /**

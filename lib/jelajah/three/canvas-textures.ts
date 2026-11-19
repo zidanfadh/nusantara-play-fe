@@ -108,7 +108,7 @@ export function createNoticeTexture(text: string): CanvasTexture {
       ctx.font = `700 ${px}px ${FONT}`;
       return ctx.measureText(t).width;
     };
-    const fit = fitSignText(text, measure, { width: W - 56, height: H - 40 }, 2, [56, 50, 44]);
+    const fit = fitSignText(text, measure, { width: W - 56, height: H - 40 }, 2, [72, 64, 56]);
     ctx.font = `700 ${fit.fontPx}px ${FONT}`;
     const top = H / 2 + 2 - ((fit.lines.length - 1) * fit.lineHeightPx) / 2;
     fit.lines.forEach((l, k) => ctx.fillText(l, W / 2, top + k * fit.lineHeightPx));
