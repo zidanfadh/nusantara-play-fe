@@ -4,6 +4,7 @@
  * 2d tier of a province scene (Phase 11): never imports three.js. A simple illustrated header and a
  * grid of the same stands as the 3D scene (same assignment, same panel).
  */
+import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import type { StandContent } from '@/lib/jelajah/engine/stands';
 
@@ -83,8 +84,7 @@ export function ProvinceScene2D({ nama, stands, onOpen }: ProvinceScene2DProps) 
               >
                 <span className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                   {content.kind === 'prot' && content.prot.foto && (
-                    // eslint-disable-next-line @next/next/no-img-element -- remote PROT photo, lazy loaded
-                    <img src={content.prot.foto} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    <ProtPhoto src={content.prot.foto} alt="" size="thumb" />
                   )}
                 </span>
                 <span className="min-w-0">

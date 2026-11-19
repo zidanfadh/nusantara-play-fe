@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useId, useRef } from 'react';
 import { ArrowRight, X } from 'lucide-react';
+import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
 
 export type PanelContent = { kind: 'prot'; prot: SceneProt } | { kind: 'board'; prots: SceneProt[] };
@@ -100,8 +101,7 @@ function ProtDetails({ prot }: { prot: SceneProt }) {
     <div className="space-y-4">
       {prot.foto && (
         <div className="aspect-video overflow-hidden rounded-lg bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element -- remote PROT photo (any https host), lazy loaded */}
-          <img src={prot.foto} alt={`Foto ${prot.nama}`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+          <ProtPhoto src={prot.foto} alt={`Foto ${prot.nama}`} size="cover" />
         </div>
       )}
       <section>

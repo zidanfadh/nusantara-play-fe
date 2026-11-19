@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { protApi } from '@/lib/api/prot';
 import { BlockchainBadge } from '@/components/prot/BlockchainBadge';
 import { BlockchainProofCard } from '@/components/prot/BlockchainProofCard';
+import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { PROTEntity, PROTStatus, PROTJenis } from '@/types/prot';
 
@@ -268,7 +269,7 @@ export default function ProtDetailPage() {
             <div className="bg-background border border-border rounded-lg overflow-hidden shadow-sm">
               <div className="aspect-video bg-muted relative flex items-center justify-center overflow-hidden">
                 {activeImage ? (
-                  <img src={activeImage} alt={item.nama} className="w-full h-full object-cover" />
+                  <ProtPhoto src={activeImage} alt={item.nama} size="cover" priority />
                 ) : (
                   <div className="text-muted-foreground flex flex-col items-center">
                     <svg className="w-12 h-12 mb-2 opacity-30" fill="currentColor" viewBox="0 0 20 20">
@@ -287,7 +288,7 @@ export default function ProtDetailPage() {
                       onClick={() => setActiveImage(foto)}
                       className={`w-20 h-16 shrink-0 rounded overflow-hidden border-2 ${activeImage === foto ? 'border-primary' : 'border-transparent'}`}
                     >
-                      <img src={foto} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                      <ProtPhoto src={foto} alt={`Foto ${idx + 1}`} size="thumb" />
                     </button>
                   ))}
                 </div>
@@ -371,7 +372,7 @@ export default function ProtDetailPage() {
                       <div className="flex gap-4">
                         {alat.fotoAlat && alat.fotoAlat.length > 0 ? (
                           <div className="w-20 h-20 bg-muted rounded shrink-0 overflow-hidden">
-                            <img src={alat.fotoAlat[0]} alt={alat.nama} className="w-full h-full object-cover" />
+                            <ProtPhoto src={alat.fotoAlat[0]} alt={alat.nama} size="thumb" />
                           </div>
                         ) : (
                           <div className="w-20 h-20 bg-muted rounded shrink-0 flex items-center justify-center text-muted-foreground">
@@ -412,7 +413,7 @@ export default function ProtDetailPage() {
                         <div className="mt-3 flex gap-2 overflow-x-auto">
                           {alat.fotoAlat.slice(1).map((foto, fotoIdx) => (
                             <div key={fotoIdx} className="w-16 h-16 shrink-0 rounded overflow-hidden border border-border">
-                              <img src={foto} alt={`${alat.nama} foto ${fotoIdx + 2}`} className="w-full h-full object-cover" />
+                              <ProtPhoto src={foto} alt={`${alat.nama} foto ${fotoIdx + 2}`} size="thumb" />
                             </div>
                           ))}
                         </div>
