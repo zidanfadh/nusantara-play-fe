@@ -7,6 +7,7 @@ import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
 import { PALETTES } from '@/lib/jelajah/palette';
 import { ENTERABLE_PROVINCES, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { useDebugFlag } from '@/lib/jelajah/use-debug-flag';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useJelajahData } from '@/lib/jelajah/use-jelajah-data';
 import { useProvinceShapes } from '@/lib/jelajah/use-province-shapes';
@@ -37,6 +38,7 @@ export function JelajahHub() {
   const refs = useMemo(() => data.provinces.map(({ kode, nama }) => ({ kode, nama })), [data.provinces]);
   const { parsed, failed: geoFailed, retry: retryGeo } = useProvinceShapes(refs);
   const { tier, choice, autoTier, choose } = useDeviceTier();
+  const debug = useDebugFlag();
   const theme = useThemeMode();
   const palette = PALETTES[theme];
 
@@ -107,7 +109,7 @@ export function JelajahHub() {
   } else {
     map = (
       <WebGLBoundary fallback={<Map2D {...viewProps} />}>
-        <Map3D {...viewProps} tier={tier} />
+        <Map3D {...viewProps} tier={tier} debug={debug} />
       </WebGLBoundary>
     );
   }

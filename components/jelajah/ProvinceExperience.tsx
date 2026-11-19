@@ -12,12 +12,16 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, Hand, Map as MapIcon, RefreshCw, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { enterProvince, openProt } from '@/lib/jelajah/demo-rewards';
 import { ZERO_INPUT, type InputVector } from '@/lib/jelajah/engine/input';
 import { hasSeenHelp, markHelpSeen } from '@/lib/jelajah/engine/help-hint';
 import { loadSceneProt, type SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import { assignStands } from '@/lib/jelajah/engine/stands';
 import type { SceneDefinition } from '@/lib/jelajah/scenes/types';
+import { fallbackMessage } from '@/lib/jelajah/perf';
+import { placeToasts } from '@/lib/jelajah/toast-clearance';
+import { useDebugFlag } from '@/lib/jelajah/use-debug-flag';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
 import { useToastClearance } from '@/lib/jelajah/use-toast-clearance';
@@ -64,7 +68,17 @@ function DemoBadge() {
 }
 
 export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
-  const { tier, choice, autoTier, choose } = useDeviceTier();
+  const { tier, choice, autoTier, choose, fallBack } = useDeviceTier();
+  const debug = useDebugFlag();
+  // Automatic fallback (Phase 13): only while the tier is automatic; a manual choice is never overridden.
+  const onAutoFallback = useCallback(
+    (to: 'lite' | '2d') => {
+      if (!fallBack(to)) return;
+      placeToasts();
+      toast(fallbackMessage(to), { duration: 4000 });
+    },
+    [fallBack],
+  );
   const touch = useSyncExternalStore(subscribeCoarse, isCoarse, () => false);
   const reducedMotion = useReducedMotion();
 
@@ -273,6 +287,8 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
             onInteract={onInteract}
             onReady={onReady}
             reducedMotion={reducedMotion}
+            debug={debug}
+            onAutoFallback={choice === 'auto' ? onAutoFallback : undefined}
           />
         </WebGLBoundary>
       ) : null}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   readTierChoice,
   resolveAutoTier,
+  writeCachedAutoTier,
   writeTierChoice,
   type Tier,
   type TierChoice,
@@ -36,6 +37,20 @@ export function useDeviceTier() {
     setChoice(next);
   }, []);
 
+  /**
+   * Automatic fallback (Phase 13): a lower automatic tier, remembered like the measured one. Ignored when
+   * the user chose a tier manually.
+   */
+  const fallBack = useCallback(
+    (next: Tier) => {
+      if (choice !== 'auto') return false;
+      writeCachedAutoTier(next);
+      setAutoTier(next);
+      return true;
+    },
+    [choice],
+  );
+
   const tier: Tier | null = choice === null ? null : choice === 'auto' ? autoTier : choice;
-  return { tier, choice: choice ?? 'auto', autoTier, choose };
+  return { tier, choice: choice ?? 'auto', autoTier, choose, fallBack };
 }

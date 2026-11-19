@@ -42,9 +42,8 @@ import {
   type Mesh,
   type PerspectiveCamera,
 } from 'three';
-import type { RenderStats } from '@/lib/jelajah/budget';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
-import { frameCamera, introPose, smoothDamp, spawnFramePoints, type DampState } from '@/lib/jelajah/engine/camera';
+import { frameCamera, INTRO_SECONDS, introPose, smoothDamp, spawnFramePoints, type DampState } from '@/lib/jelajah/engine/camera';
 import { resolveMove, sceneColliders, STAND_SIZE } from '@/lib/jelajah/engine/collision';
 import {
   combineInput,
@@ -63,7 +62,7 @@ import { SIGN_CENTER_Y, SIGN_HEIGHT, SIGN_WIDTH } from '@/lib/jelajah/engine/sig
 import { createBlobTexture, createSignTexture, type SignContent } from '@/lib/jelajah/three/canvas-textures';
 import { bakeModel } from '@/lib/jelajah/three/model-bake';
 import { buildVillageGeometry, buildWaterGeometry } from '@/lib/jelajah/three/village-geometry';
-import { StatsOverlay, StatsProbe } from './StatsProbe';
+import { AutoFallbackProbe, StatsOverlay, StatsProbe, type DebugStats } from './StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 const PLAYER_SCALE = 2.5;
@@ -92,6 +91,10 @@ export interface VillageScene3DProps {
   onReady: () => void;
   /** prefers-reduced-motion: no entry glide and no ambient animation. */
   reducedMotion: boolean;
+  /** ?debug=1: fps, draw calls, triangles, tier, pixel ratio and canvas size overlay (Phase 13). */
+  debug: boolean;
+  /** Set only while the tier is automatic: called once when the frame rate stays too low (Phase 13). */
+  onAutoFallback?: (to: 'lite' | '2d') => void;
 }
 
 function signContent(content: StandContent<SceneProt>): SignContent {
@@ -589,8 +592,9 @@ export default function VillageScene3D(props: VillageScene3DProps) {
     useGLTF.preload(scene.assets.player, false, true);
     return true;
   });
-  const [stats, setStats] = useState<RenderStats | null>(null);
-  const { onReady } = props;
+  const [stats, setStats] = useState<DebugStats | null>(null);
+  const { onReady, onAutoFallback } = props;
+  const showStats = IS_DEV || props.debug;
   const handleReady = useMemo(
     () => () => {
       setReady(true);
@@ -627,11 +631,19 @@ export default function VillageScene3D(props: VillageScene3DProps) {
             reducedMotion={props.reducedMotion}
           />
           <ReadySignal onReady={handleReady} />
+          {onAutoFallback && (
+            // Mounted with the scene (assets loaded); measures after the entry glide.
+            <AutoFallbackProbe
+              tier={tier}
+              startAfterMs={tier === 'full' && !props.reducedMotion ? INTRO_SECONDS * 1000 : 0}
+              onFallback={(to) => to !== 'full' && onAutoFallback(to)}
+            />
+          )}
         </Suspense>
-        {IS_DEV && <StatsProbe onStats={setStats} />}
+        {showStats && <StatsProbe onStats={setStats} />}
       </Canvas>
       <LoadingScreen ready={ready} />
-      {IS_DEV && stats && <StatsOverlay stats={stats} tier={tier} className="bottom-3 right-3" />}
+      {props.debug && stats && <StatsOverlay stats={stats} tier={tier} className="right-3 top-1/2 -translate-y-1/2" />}
     </div>
   );
 }
