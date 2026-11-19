@@ -76,7 +76,19 @@ export const UI = {
   roleTarget: 'Putar gasingmu di arena. Komputer akan mencoba menghantamnya.',
   roleStriker: 'Hantam gasing komputer!',
   roleUri: 'Buat gasingmu berputar selama mungkin.',
+  computerThrows: 'Komputer melempar.',
+  legendPlayer: 'Kamu (bertitik)',
+  legendComputer: 'Komputer (bergaris)',
+  rulesTitle: 'Cara bermain gasing',
+  outShort: 'keluar',
+  debugFps: 'fps',
 } as const;
+
+/** Heading of the round overlay. */
+export function roundHeading(winner: RoundWinner): string {
+  if (winner === 'draw') return 'Seri';
+  return winner === 0 ? 'Kamu menang ronde ini!' : 'Komputer menang ronde ini';
+}
 
 export const TUTORIAL_STEPS: readonly { title: string; text: string }[] = [
   {

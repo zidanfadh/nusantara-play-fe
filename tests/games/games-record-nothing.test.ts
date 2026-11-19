@@ -30,6 +30,13 @@ describe('games record nothing (Phase 17)', () => {
         'lib/games/congklak/rules.ts',
         'components/games/congklak/CongklakGame.tsx',
         'app/main/congklak/page.tsx',
+        // Phase 20
+        'lib/games/gasing/physics.ts',
+        'lib/games/gasing/match.ts',
+        'lib/games/gasing/ai.ts',
+        'lib/games/gasing/texts.ts',
+        'components/games/gasing/GasingGame.tsx',
+        'components/games/gasing/GasingArena.tsx',
       ]),
     );
   });
@@ -42,7 +49,9 @@ describe('games record nothing (Phase 17)', () => {
   });
 
   it('the engine, rules and AI are pure (no React, no DOM storage)', () => {
-    for (const f of ['core', 'engine', 'rules', 'state', 'ai', 'random', 'replay'].map((n) => `lib/games/congklak/${n}.ts`)) {
+    const congklak = ['core', 'engine', 'rules', 'state', 'ai', 'random', 'replay'].map((n) => `lib/games/congklak/${n}.ts`);
+    const gasing = ['physics', 'match', 'ai', 'outcome', 'throw', 'rules', 'random', 'texts', 'types'].map((n) => `lib/games/gasing/${n}.ts`);
+    for (const f of [...congklak, ...gasing]) {
       const src = readFileSync(join(root, f), 'utf8');
       expect(src, f).not.toMatch(/from\s+['"]react['"]|localStorage|document\.|window\./);
     }
