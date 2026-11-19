@@ -9,7 +9,7 @@ import { fetchPublicProt, firstPhoto, PUBLIC_PROT_STATUS, type GetJson, type Raw
 export interface SceneProt {
   id: string;
   nama: string;
-  /** First https activity photo, or null. */
+  /** First https activity photo (local development: also a loopback http URL), or null. */
   foto: string | null;
   deskripsi: string;
   caraBermain: string;

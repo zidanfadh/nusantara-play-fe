@@ -29,6 +29,25 @@ describe('firstPhoto', () => {
     expect(firstPhoto(undefined)).toBeNull();
     expect(firstPhoto('https://cdn.test/a.jpg')).toBeNull();
   });
+
+  it('deployed site (allowLocalHttp false): https only, also for loopback http URLs', () => {
+    const local = 'http://localhost:3001/jelajah/demo/foto-contoh.svg';
+    expect(firstPhoto([local], false)).toBeNull();
+    expect(firstPhoto([local, 'https://cdn.test/b.webp'], false)).toBe('https://cdn.test/b.webp');
+  });
+
+  it('local development (page on a loopback host): also an http URL on a loopback host', () => {
+    expect(firstPhoto(['http://localhost:3001/jelajah/demo/foto-contoh.svg'], true)).toBe(
+      'http://localhost:3001/jelajah/demo/foto-contoh.svg',
+    );
+    expect(firstPhoto(['http://127.0.0.1:3001/a.png'], true)).toBe('http://127.0.0.1:3001/a.png');
+    // Other http hosts and other schemes stay rejected even locally.
+    expect(firstPhoto(['http://x.test/a.jpg', 'http://localhost.evil.test/a.jpg', 'ftp://localhost/a.jpg'], true)).toBeNull();
+  });
+
+  it('without a window (server, tests) the default is https only', () => {
+    expect(firstPhoto(['http://localhost:3001/a.png'])).toBeNull();
+  });
 });
 
 describe('shapeProvinceSummaries', () => {
