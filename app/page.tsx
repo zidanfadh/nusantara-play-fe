@@ -8,6 +8,10 @@ import type { PaginatedResponse, PROTEntity } from '@/types/prot';
 import { getLandingStats } from '@/lib/api/stats';
 import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
 import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
+import { getPublishedCounts, landingStatTiles } from '@/components/landing/published-stats';
+
+/** md:grid-cols-N as literal class names (Tailwind only sees full strings). */
+const STAT_COLUMNS = ['', 'md:grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4'];
 import {
   LockKeyhole,
   ShieldCheck,
@@ -77,8 +81,13 @@ export default async function Home() {
       data: { session },
     },
   ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
-  const featuredGames = await getFeaturedGames(session?.access_token);
-  const stats = await getLandingStats(session?.access_token);
+  const [featuredGames, stats, published] = await Promise.all([
+    getFeaturedGames(session?.access_token),
+    getLandingStats(session?.access_token),
+    // Phase 18: PROT and provinces from published PROT only, so they match the map and the bumper.
+    getPublishedCounts(),
+  ]);
+  const statTiles = landingStatTiles(published, stats);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20">
@@ -307,16 +316,12 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Stats Bar */}
-        <section className="py-12 bg-muted/50 border-y border-border/10">
+        {/* Stats Bar: published content only; numbers that are 0 or unknown are hidden (Phase 18). */}
+        {statTiles.length > 0 && (
+        <section data-landing-stats="" className="py-12 bg-muted/50 border-y border-border/10">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
-              {[
-                { value: stats.totalProt.toLocaleString('id-ID'), label: 'Permainan' },
-                { value: stats.totalProvinsi.toString(), label: 'Provinsi' },
-                { value: stats.totalEvents.toLocaleString('id-ID'), label: 'Events' },
-                { value: stats.totalUsers.toLocaleString('id-ID'), label: 'Anggota' },
-              ].map((stat, i) => (
+            <div className={`grid grid-cols-2 ${STAT_COLUMNS[statTiles.length]} gap-8 md:gap-4`}>
+              {statTiles.map((stat, i) => (
                 <div
                   key={stat.label}
                   className={`text-center ${i > 0 ? 'md:border-l border-border/20' : ''}`}
@@ -332,6 +337,7 @@ export default async function Home() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Features - Membangun Ekosistem Budaya */}
         <section id="tentang" className="py-24 md:py-32 px-6">
