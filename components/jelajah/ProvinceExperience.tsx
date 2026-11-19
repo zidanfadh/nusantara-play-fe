@@ -25,6 +25,7 @@ import { Joystick } from './Joystick';
 import { grantDemoReward, RewardHud } from './RewardHud';
 import { ProvinceScene2D } from './ProvinceScene2D';
 import { StandPanel, type PanelContent } from './StandPanel';
+import { StandPrompt } from './StandPrompt';
 import { TierMenu } from './TierMenu';
 import { WebGLBoundary } from './WebGLBoundary';
 
@@ -305,27 +306,17 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
       {ready && nearContent && (
         // Phones: right of the joystick, so neither the joystick nor the player (lower third) is covered.
         <div
+          data-testid="stand-prompt"
           className={`absolute z-20 ${touch ? 'bottom-8 left-[10.5rem] right-3' : 'bottom-6 left-1/2 w-[min(92%,22rem)] -translate-x-1/2'} ${panel ? 'invisible' : ''}`}
         >
-          {nearContent.kind === 'empty' ? (
-            <p className="rounded-xl border border-border bg-card/95 px-4 py-3 text-center text-sm text-card-foreground shadow-lg">
-              Segera hadir. Stand ini menunggu PROT dari {scene.nama}.
-            </p>
-          ) : (
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-card/95 px-4 py-3 text-card-foreground shadow-lg">
-              <p className="min-w-0 flex-1 truncate text-sm font-semibold">
-                {nearContent.kind === 'prot' ? nearContent.prot.nama : `${nearContent.prots.length} PROT lainnya`}
-              </p>
-              <button
-                ref={lihatRef}
-                type="button"
-                onClick={(e) => openStand(near as number, e.currentTarget)}
-                className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                Lihat
-              </button>
-            </div>
-          )}
+          <StandPrompt
+            key={near}
+            ref={lihatRef}
+            content={nearContent}
+            provinsiNama={scene.nama}
+            compact={touch}
+            onOpen={(trigger) => openStand(near as number, trigger)}
+          />
         </div>
       )}
 
