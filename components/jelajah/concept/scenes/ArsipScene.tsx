@@ -84,6 +84,25 @@ function Card({ card, i, lt, still, layout }: { card: ArchiveCard; i: number; lt
             </span>
           )}
         </div>
+        {!compact && (
+          <span className="flex flex-col gap-1.5 pl-7" aria-hidden>
+            <span className="block h-2 w-[92%] rounded bg-[#3B1E0E]/10" />
+            <span className="block h-2 w-[78%] rounded bg-[#3B1E0E]/10" />
+            <span className="block h-2 w-[64%] rounded bg-[#3B1E0E]/10" />
+          </span>
+        )}
+        <div className={`flex flex-wrap ${compact ? 'gap-1' : 'gap-1.5'}`}>
+          {CONCEPT_TEXT.cardFields.map((field) => (
+            <span
+              key={field}
+              className={`rounded-full border border-[#C9A876] bg-[#F6EAD2] font-semibold text-[#7A3E1D] ${
+                compact ? 'px-1.5 py-px text-[9px]' : 'px-2.5 py-0.5 text-xs'
+              }`}
+            >
+              {field}
+            </span>
+          ))}
+        </div>
         {card.provinsi ? (
           <p className={`truncate font-medium text-[#7A4A24] ${compact ? 'text-[11px]' : 'text-sm'}`}>{card.provinsi}</p>
         ) : (

@@ -46,6 +46,8 @@ export function useConceptClock(endMs: number, holdAtMs: number, onEnd: (reason:
       skip: () => clockRef.current?.skip(),
       finish: () => clockRef.current?.finish(),
       now: () => clockRef.current?.time ?? 0,
+      /** Frames are being scheduled (not paused, hidden, held or ended). */
+      running: () => clockRef.current?.running ?? false,
     }),
     [],
   );

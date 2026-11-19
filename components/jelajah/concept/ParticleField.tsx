@@ -59,6 +59,7 @@ export function ParticleField({ time, count, maxDpr }: { time: MotionValue<numbe
     let h = 0;
     let dpr = 1;
     let blank = true;
+    let retry = 0;
 
     const resize = () => {
       dpr = Math.min(maxDpr, window.devicePixelRatio || 1);
@@ -93,6 +94,13 @@ export function ParticleField({ time, count, maxDpr }: { time: MotionValue<numbe
       }
       if (!sources && t < S3 + 600) sources = measureSources();
       if (!ctm && t >= S3 - 600) ctm = measureMap();
+      // Right after a seek the scene that holds the anchors may not be mounted yet: draw again next frame.
+      if (((!sources && t < S3 + 600) || (!ctm && t >= S3 - 600)) && !retry) {
+        retry = requestAnimationFrame(() => {
+          retry = 0;
+          draw(time.get());
+        });
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       ctx.globalCompositeOperation = 'lighter';
@@ -157,6 +165,7 @@ export function ParticleField({ time, count, maxDpr }: { time: MotionValue<numbe
     const unsubscribe = time.on('change', draw);
     return () => {
       unsubscribe();
+      cancelAnimationFrame(retry);
       window.removeEventListener('resize', onResize);
     };
   }, [time, seeds, maxDpr]);

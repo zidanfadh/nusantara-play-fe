@@ -61,6 +61,7 @@ export function MulaiScene({
             alt=""
             width={180}
             height={180}
+            loading="eager"
             className={`rounded-3xl shadow-[0_18px_50px_-12px_rgba(0,0,0,0.7)] ring-4 ring-[#F7C95C]/40 ${
               layout === 'landscape' ? 'h-14 w-14' : layout === 'portrait' ? 'h-20 w-20' : 'h-28 w-28'
             }`}

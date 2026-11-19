@@ -12,7 +12,7 @@ import {
   archiveSubcaption,
 } from '@/lib/jelajah/concept/script';
 
-/** Two lines at 360 px with the caption size (22 px Plus Jakarta Sans ≈ 35 characters per line). */
+/** Two lines at 360 px with the caption size (18 px bold Plus Jakarta Sans ≈ 33 characters per line; checked in a browser in the phase report). */
 const MAX_CAPTION_CHARS = 70;
 /** Honest copy (Phase 19): no Points, prizes, cash or multiplayer. Word starts only ("ruang" is fine). */
 const FORBIDDEN = /\b(poin|points?|hadiah|uang|multiplayer)/i;

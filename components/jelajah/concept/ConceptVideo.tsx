@@ -85,6 +85,8 @@ const LAST = CONCEPT_SCENES.length - 1;
 const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 /** Mark the film as seen once it has played this long (a quick navigation away does not count). */
 const SEEN_AFTER_MS = 1000;
+/** The frame rate is measured only after this much film time (the chunk has just loaded and laid out). */
+const FPS_WARMUP_MS = 1500;
 
 function subscribeResize(onChange: () => void) {
   window.addEventListener('resize', onChange);
@@ -131,12 +133,39 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
     onSceneRef.current = onScene;
   });
 
+  // Frame rate of the film (debug overlay, low-fps fallback): its own rAF loop, counted only while the clock
+  // is really running (not paused, hidden, held or seeking) and after the first FPS_WARMUP_MS of film time,
+  // so loading the chunk or a test hook's seek never reads as a low frame rate.
+  useEffect(() => {
+    fpsRef.current ??= new FpsWindow();
+    const fps = fpsRef.current;
+    let frame = 0;
+    let lastShown = 0;
+    let wasRunning = false;
+    const loop = (now: number) => {
+      frame = requestAnimationFrame(loop);
+      const running = controls.running() && controls.now() >= FPS_WARMUP_MS;
+      if (!running) {
+        if (wasRunning) fps.reset();
+        wasRunning = false;
+        return;
+      }
+      wasRunning = true;
+      fps.push(now);
+      const avg = fps.fps(now);
+      if (avg !== null && avg < LOW_FPS && !reduced) setLowFps(true);
+      if (debug && now - lastShown > 500) {
+        lastShown = now;
+        setFpsShown(avg);
+      }
+    };
+    frame = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(frame);
+  }, [controls, reduced, debug]);
+
   useEffect(() => {
     let lastIndex = -1;
     let lastMounted = '';
-    let lastFpsShown = 0;
-    fpsRef.current ??= new FpsWindow();
-    const fps = fpsRef.current;
     const update = (t: number) => {
       if (t >= SEEN_AFTER_MS) markSeen();
       const i = reduced ? reducedIndexAt(t) : sceneIndexAt(t);
@@ -151,23 +180,9 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
         lastMounted = key;
         setMounted(m);
       }
-      const now = performance.now();
-      fps.push(now);
-      const avg = fps.fps(now);
-      if (avg !== null && avg < LOW_FPS && !reduced) setLowFps(true);
-      if (debug && now - lastFpsShown > 500) {
-        lastFpsShown = now;
-        setFpsShown(avg);
-      }
     };
-    const onVisibility = () => fps.reset();
-    document.addEventListener('visibilitychange', onVisibility);
-    const unsubscribe = time.on('change', update);
-    return () => {
-      unsubscribe();
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [time, reduced, debug, markSeen]);
+    return time.on('change', update);
+  }, [time, reduced, markSeen]);
 
   const budget = particleBudget(tier, { reduced, lowFps });
   const canvas = budget > 0;
@@ -288,7 +303,7 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
       onPointerDown={touched}
     >
       <ConceptDefs />
-      <div className="absolute inset-0" aria-hidden={index === LAST ? undefined : true}>
+      <div className="absolute inset-0 z-0" aria-hidden={index === LAST ? undefined : true}>
         {reduced ? (
           <AnimatePresence initial={false}>
             <motion.div
@@ -399,15 +414,17 @@ function Captions({
           exit={{ opacity: 0, y: reduced ? 0 : -6, transition: { duration: 0.25 } }}
         >
           <p
-            className="line-clamp-2 text-balance font-extrabold leading-[1.18] tracking-tight text-[#FFF8EA] [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]"
-            style={{ fontSize: 'clamp(1.375rem, 3.4vmin + 0.55rem, 2.5rem)' }}
+            data-concept-caption
+            className="line-clamp-2 text-balance font-bold leading-[1.2] tracking-tight text-[#FFF8EA] [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]"
+            style={{ fontSize: 'clamp(1.125rem, 3vmin + 0.4rem, 2.5rem)' }}
           >
             {caption}
           </p>
           {subcaption && (
             <p
+              data-concept-subcaption
               className="mt-1.5 line-clamp-2 text-balance font-semibold leading-snug text-[#F7C95C] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]"
-              style={{ fontSize: 'clamp(1.125rem, 1.9vmin + 0.55rem, 1.6rem)' }}
+              style={{ fontSize: 'clamp(1.125rem, 1.6vmin + 0.5rem, 1.6rem)' }}
             >
               {subcaption}
             </p>

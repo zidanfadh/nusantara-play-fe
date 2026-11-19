@@ -125,6 +125,8 @@ export const CONCEPT_TEXT = {
   start: 'Mulai Menjelajah',
   replay: CONCEPT_REPLAY_LABEL,
   stamp: 'Diperiksa kurator',
+  /** What an archive record holds (scene 4 cards; the PROT fields origin, how to play, story). */
+  cardFields: ['Asal', 'Cara main', 'Cerita'] as readonly string[],
   passport: 'Paspor Budaya',
   xpChip: '+10 XP',
   audiences: ['Pelajar', 'Guru', 'Komunitas'] as readonly string[],

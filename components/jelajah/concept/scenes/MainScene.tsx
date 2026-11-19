@@ -50,7 +50,7 @@ function XpChip({ lt, at, i, still }: { lt: MotionValue<number>; at: number; i: 
   return (
     <span
       ref={ref}
-      className="pointer-events-none absolute top-[18%] inline-flex items-center gap-1 rounded-full bg-[#F7C95C] px-3 py-1 text-base font-extrabold text-[#3B1E0E] shadow-lg"
+      className="pointer-events-none absolute -top-3 inline-flex items-center gap-1 rounded-full bg-[#F7C95C] px-3 py-1 text-base font-extrabold text-[#3B1E0E] shadow-lg"
       style={{ left: `${30 + i * 20}%` }}
     >
       <Sparkles className="h-4 w-4" aria-hidden /> {CONCEPT_TEXT.xpChip}
