@@ -18,13 +18,22 @@ describe('middleware public routes', () => {
   );
 });
 
-describe('middleware public routes: Jelajah Nusantara (Phase 10)', () => {
-  it.each(['/jelajah', '/jelajah/sumatera-selatan', '/jelajah/unknown-slug', '/jelajah/geo/indonesia-provinces.json'])(
-    'treats %s as public',
-    (path) => {
-      expect(isPublicPath(path)).toBe(true);
-    },
-  );
+describe('middleware: Jelajah needs a login (Phase 18; public in Phases 10 to 17)', () => {
+  it.each(['/jelajah', '/jelajah/sumatera-selatan', '/jelajah/unknown-slug'])('protects %s', (path) => {
+    expect(isPublicPath(path)).toBe(false);
+  });
+
+  it.each([
+    '/jelajah/geo/indonesia-provinces.json',
+    '/jelajah/assets/v1/nature.glb',
+    '/jelajah/demo/foto-contoh.svg',
+  ])('keeps the static file %s public (data, not a page)', (path) => {
+    expect(isPublicPath(path)).toBe(true);
+  });
+
+  it.each(['/jelajah/geo', '/jelajah/geox/a', '/jelajah/assets'])('does not open the page path %s', (path) => {
+    expect(isPublicPath(path)).toBe(false);
+  });
 
   it.each(['/jelajahx', '/jelajah-admin'])('does not widen to %s', (path) => {
     expect(isPublicPath(path)).toBe(false);

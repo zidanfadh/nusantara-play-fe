@@ -274,13 +274,26 @@ export default async function Home() {
                   lebih hidup, dekat, dan imersif.
                 </p>
                 {/* Phase 17: our own Jelajah Nusantara instead of the external tour site (same tab). */}
+                {/* Phase 18: the map needs a login; logged-out visitors pass the login notice first. */}
                 <Link
                   href="/jelajah"
+                  prefetch={false}
+                  aria-describedby={user ? undefined : 'tur-virtual-login-hint'}
                   className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center group w-fit"
                 >
                   Mulai Tur Virtual
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
+                {!user && (
+                  <p
+                    id="tur-virtual-login-hint"
+                    data-login-hint=""
+                    className="mt-3 flex items-center gap-1.5 text-sm font-medium text-muted-foreground"
+                  >
+                    <LockKeyhole aria-hidden="true" className="h-4 w-4" />
+                    Perlu masuk akun
+                  </p>
+                )}
               </div>
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

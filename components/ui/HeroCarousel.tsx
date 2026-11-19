@@ -114,7 +114,7 @@ export function HeroCarousel() {
         {images.map((img, idx) => (
           <div key={idx} className="w-full h-full flex-shrink-0 snap-center">
             {img.href ? (
-              <Link href={img.href} className="w-full h-full block">
+              <Link href={img.href} prefetch={false} className="w-full h-full block">
                 <HeroSlideImage slide={img} first={idx === 0} />
               </Link>
             ) : (

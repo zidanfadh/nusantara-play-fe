@@ -1,11 +1,15 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
+import { rememberPostLoginTarget } from './login-redirect';
 
-export function SocialAuthButtons() {
+export function SocialAuthButtons({ redirectTo = null }: { redirectTo?: string | null }) {
   const supabase = createClient();
 
   const handleGoogleSignIn = async () => {
+    // The OAuth redirect URL stays exactly /auth/callback (Supabase allowlist); the target travels in a
+    // short-lived cookie that the callback validates again (Phase 18).
+    rememberPostLoginTarget(redirectTo);
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

@@ -5,9 +5,35 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialAuthButtons } from './SocialAuthButtons';
+import { LoginNotice } from './LoginNotice';
+import { authQuery, redirectTargetOr, type LoginReason } from './login-redirect';
 import { SITE_NAME } from '@/lib/brand';
 
-export function LoginForm() {
+/**
+ * Email/password login, then the validated target (Phase 18). Returns the error message, or null after
+ * navigating. Kept outside the component so the post-login redirect is unit-tested.
+ */
+export async function loginAndRedirect(
+  signIn: (email: string, password: string) => Promise<{ error: Error | null }>,
+  navigate: (href: string) => void,
+  email: string,
+  password: string,
+  redirectTo: string | null,
+): Promise<string | null> {
+  const { error } = await signIn(email, password);
+  if (error) return error.message;
+  navigate(redirectTargetOr(redirectTo));
+  return null;
+}
+
+export interface LoginFormProps {
+  /** Validated same-site path to open after login (Phase 18), or null for the default (/menu). */
+  redirectTo?: string | null;
+  reason?: LoginReason | null;
+  callbackError?: boolean;
+}
+
+export function LoginForm({ redirectTo = null, reason = null, callbackError = false }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -20,13 +46,20 @@ export function LoginForm() {
     setError(null);
     setIsLoading(true);
 
-    const { error } = await signIn(email, password);
+    const message = await loginAndRedirect(
+      signIn,
+      (href) => {
+        router.push(href);
+        router.refresh();
+      },
+      email,
+      password,
+      redirectTo,
+    );
 
-    if (error) {
-      setError(error.message);
+    if (message) {
+      setError(message);
       setIsLoading(false);
-    } else {
-      router.push('/menu');
     }
   };
 
@@ -39,7 +72,15 @@ export function LoginForm() {
         </p>
       </div>
 
-      <SocialAuthButtons />
+      <LoginNotice reason={reason} />
+
+      {callbackError && (
+        <div role="alert" className="text-red-600 dark:text-red-400 text-sm">
+          Masuk dengan Google gagal. Silakan coba lagi.
+        </div>
+      )}
+
+      <SocialAuthButtons redirectTo={redirectTo} />
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -95,7 +136,7 @@ export function LoginForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Belum punya akun?{' '}
-          <Link href="/signup" className="text-secondary font-medium hover:underline">
+          <Link href={`/signup${authQuery(redirectTo, reason)}`} className="text-secondary font-medium hover:underline">
             Daftar sekarang
           </Link>
         </p>

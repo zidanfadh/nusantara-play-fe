@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { loginUrlFor, safeRedirectPath } from '@/components/auth/login-redirect';
 
 const publicExactRoutes = [
   '/',
@@ -11,8 +12,7 @@ const publicExactRoutes = [
   '/events',
   '/calendar',
   '/nfts',
-  '/jelajah',
-  // Games hosted on the site (Phase 17): /main lists them, /main/<game> plays one.
+  // Games hosted on the site (Phase 17): /main lists them, /main/<game> plays one. No login (Phase 18 too).
   '/main',
 ];
 
@@ -21,8 +21,9 @@ const publicPrefixes = [
   /^\/prot$/,
   /^\/prot\/(?!create$|verifikasi(?:\/.*)?$)[^/]+$/,
   /^\/nfts\/[^/]+$/,
-  // Jelajah Nusantara (Phase 10): province pages and the map's static geo files under /jelajah/geo/.
-  /^\/jelajah\/.+$/,
+  // Jelajah pages need a login since Phase 18 (owner decision). Only the static files under
+  // public/jelajah/ stay public (map geometry, 3D assets, the local DEMO photo): they are data, not pages.
+  /^\/jelajah\/(?:geo|assets|demo)\/.+$/,
   /^\/main\/.+$/,
 ];
 
@@ -33,25 +34,35 @@ export function isPublicPath(pathname: string) {
   );
 }
 
+/**
+ * Where the middleware sends a request, or null to let it through. Pure (tested). `loggedIn` is what the
+ * frontend's current login says (Supabase today, `updateSession`); when the frontend switches to the
+ * self-hosted login, only the caller below changes.
+ */
+export function routeDecision(
+  loggedIn: boolean,
+  pathname: string,
+  search: string,
+): { location: string } | null {
+  if (!loggedIn && !isPublicPath(pathname)) {
+    // Phase 18: carry the full target (path and query) and a reason (Jelajah gets its own notice).
+    return { location: loginUrlFor(`${pathname}${search}`, pathname) };
+  }
+  if (loggedIn && (pathname === '/login' || pathname === '/signup')) {
+    // Already logged in: go where the visitor wanted, otherwise the profile (as before).
+    const target = safeRedirectPath(new URLSearchParams(search).get('redirectTo'));
+    return { location: target ?? '/profile' };
+  }
+  return null;
+}
+
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
-  const isPublicRoute = isPublicPath(pathname);
-
-  // Redirect ke login jika belum login dan bukan public route
-  if (!user && !isPublicRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('redirectTo', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // Redirect user yang sudah login dari halaman login/signup
-  if (user && (pathname === '/login' || pathname === '/signup')) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/profile';
-    return NextResponse.redirect(url);
+  const decision = routeDecision(Boolean(user), pathname, search);
+  if (decision) {
+    return NextResponse.redirect(new URL(decision.location, request.nextUrl.origin));
   }
 
   return supabaseResponse;
