@@ -83,6 +83,8 @@ export interface ScheduledThrow {
   atStep: number;
   side: Side;
   throw: Throw;
+  /** `pemangkah` = the heavier striking top of the Pangkah mode (default `biasa`). */
+  kind?: 'biasa' | 'pemangkah';
 }
 
 export type RoundWinner = Side | 'draw';
