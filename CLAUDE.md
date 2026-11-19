@@ -74,6 +74,7 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 - Use `useCurrentUser()` to get the authenticated user and check roles (`user.role`).
 - Admin role is `'admin_kpoti'`. Check via `user.role === 'admin_kpoti'` or `['kurator_daerah', 'admin_kpoti'].includes(user.role)`.
 - Audit log `changes` are always displayed through `redactSecrets()` (`components/audit/redact-secrets.ts`): values of secret-looking keys (password, token, secret, api key, authorization) show as `[REDACTED]` at any depth (Phase 07).
+- PROT photos are rendered with `ProtPhoto` (`components/prot/ProtPhoto.tsx`, Phase 13), never with a plain `<img>`.
 - Components are grouped by domain: `components/events/`, `components/prot/`, `components/marketplace/`, etc.
 
 ## Feature Modules
@@ -86,7 +87,7 @@ to `/login` (Next.js 16 warns that the `middleware` file convention is deprecate
 | Marketplace | `types/marketplace.ts` | `lib/api/marketplace.ts` | `hooks/useMarketplace.ts` | `components/marketplace/` | `app/(protected)/marketplace/` |
 | Jelajah | `lib/jelajah/data.ts` | `lib/jelajah/data.ts` (via `apiClient`) | `lib/jelajah/use-*.ts` | `components/jelajah/` | `app/jelajah/` |
 
-## Jelajah Nusantara (Phases 10 to 12)
+## Jelajah Nusantara (Phases 10 to 13)
 
 Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`, `public/jelajah/` (and `scripts/build-jelajah-geo.mjs`,
 `scripts/optimize-jelajah-assets.mjs`, `scripts/check-jelajah-budget.mjs`).
@@ -111,9 +112,9 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
   no route except `/jelajah` and `/jelajah/[provinsi]`, and the 2d tier never fetches the three chunk.
 - Tiers (`lib/jelajah/device-tier.ts`, `use-device-tier.ts`): automatic tier cached in `localStorage['jelajah.autoTier.v1']`,
   user override in `localStorage['jelajah.tier']` (settings menu "Tampilan"); every storage access is in try/catch.
-- Budgets (`lib/jelajah/budget.ts`): 30 fps, 5 MB cold download for /jelajah, 100 draw calls, 100k triangles. In
-  development `Map3D` shows an fps / draw calls / triangles overlay and warns in the console when the set of exceeded
-  budgets changes.
+- Budgets (`lib/jelajah/budget.ts`): 30 fps, 5 MB cold download for /jelajah, 100 draw calls, 100k triangles. The stats
+  overlay appears only with `?debug=1` (Phase 13, see below); in development the probe still warns in the console when
+  the set of exceeded budgets changes.
 - Colours (`lib/jelajah/palette.ts`) are derived from the `app/globals.css` tokens; the theme comes from the `dark` class on
   `<html>` (`use-theme-mode.ts`, `useSyncExternalStore`), so the map recolours live when the navbar toggle is used.
 - Everything simulated is labelled in the UI ("Demo"; simulated rewards "Simulasi · tidak disimpan") and never sent to
@@ -133,7 +134,8 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
   last stand is a notice board listing the rest; `INTERACT_DISTANCE` 2 m from the stand footprint), `collision.ts` (circle and
   turned-box colliders for houses, stands and decor, walkable rectangle, push-out resolution with sliding; no physics
   library), `input.ts` (joystick and WASD/arrow keys → input vector), `scene-prot.ts` (the province's ARSIP_NASIONAL PROT from
-  `lib/jelajah/data.ts` → plain-text `SceneProt`, https photos only, shortened texts), `help-hint.ts` (controls hint shown once,
+  `lib/jelajah/data.ts` → plain-text `SceneProt`, https photos only (Phase 13: plus loopback http while the page itself runs
+on a loopback host), shortened texts), `help-hint.ts` (controls hint shown once,
   `localStorage['jelajah.sceneHelpSeen.v1']`, try/catch).
 - **Views**: `ProvinceExperience.tsx` (client: data, tiers, overlays: Demo label, back to the map, help hint, loading screen with
   progress, "Lihat" button, `StandPanel` side panel / bottom sheet with Esc and focus return, screen-reader stand list),
@@ -176,14 +178,62 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
   panel ignores Esc while a `<dialog>` is open.
 - **Simulated rewards** (`lib/jelajah/demo-rewards.ts`, no imports at all; `tests/jelajah/demo-rewards.test.ts`): pure rules
   (`enterProvince`, `openProt`, `questProgress`, `levelForXp`, constants in `DEMO_REWARD_RULES`), sessionStorage persistence
-  (`jelajah.demoRewards.v1`, validated, try/catch) and a tiny store (`demoRewardsStore`, read with `useDemoRewards()`). UI:
+  (`jelajah.demoRewards.v2` since Phase 13, validated, try/catch) and a tiny store (`demoRewardsStore`, read with `useDemoRewards()`). UI:
   `RewardHud.tsx` (level badge, XP bar, "Simulasi · tidak disimpan", Paspor and Misi buttons; on the hub and in the scene),
   `PasporModal.tsx` (35 provinces from `KNOWN_PROVINCES`, stamped first; reset button), `MisiPanel.tsx` (one quest per
   enterable province), `DemoDialog.tsx` (native `<dialog>` with `showModal()`: focus trap, Esc, focus return). Toasts
-  through sonner at the top centre (`announceRewards`); sonner turns its animations off with reduced motion. A test fails
+  through the site-wide sonner Toaster (top centre since Phase 13, `announceRewards`); sonner turns its animations off
+  with reduced motion. A test fails
   if any of these files imports API code or calls `fetch`, `XMLHttpRequest`, `sendBeacon`, `WebSocket` or `EventSource`.
 - **Measured** (Phase 12, production build): cold load `/jelajah` 664 to 684 KB, `/jelajah/sumatera-selatan` 715 to 742 KB
   (budget 5 MB / 8 MB); the three.js chunk (241 KB) loads only on the two /jelajah routes.
+
+### Finish, real-device measurement and PROT photos (Phase 13)
+
+- **Levels start at 1** (owner decision): level L needs 50 × (L − 1) × L total XP (L1 = 0, L2 = 100, L3 = 300);
+  `MIN_LEVEL = 1`, `xpForLevel`, `levelForXp` in `lib/jelajah/demo-rewards.ts`; the HUD shows "Lv 1" at 0 XP. The state
+  key moved to `sessionStorage['jelajah.demoRewards.v2']` (version 2), so Phase 12 state is ignored. The DEMO walk
+  (105 XP) levels up exactly once, 1 → 2.
+- **Toasts at the top centre, site-wide** (owner decision): `app/layout.tsx` `<Toaster position="top-center">` with
+  `offset`/`mobileOffset` top `var(--toast-top, 72px)` (below the 64 px navbar). On the Jelajah pages
+  `lib/jelajah/toast-clearance.ts` (pure, `tests/jelajah/toast-clearance.test.ts`) measures every element marked
+  `data-toast-avoid` (title bar, "Tampilan", reward HUD, stand panel close button) and sets `--toast-top` just below the
+  lowest one the toast's horizontal span would cover (sonner geometry: full width minus 16 px each side up to 600 px,
+  otherwise 356 px centred). `useToastClearance()` re-measures on resize and overlay changes and resets on unmount;
+  toast helpers call `placeToasts()` right before a toast. Measured: phone 390x844 and 360x740 toasts at y 229 (below
+  the HUD), or below the panel close button while the bottom sheet is open; desktop y 72. No per-toast `position`.
+- **Phone stand prompt** (`components/jelajah/StandPrompt.tsx`, tests in `tests/jelajah/stand-prompt.test.tsx`): on touch
+  screens an empty stand shows "Segera hadir" (one line); a tap opens the full neutral message in a bubble above it.
+  PROT names are clamped to two lines next to "Lihat". Every overlay was checked at 360x740 (no overflow, no overlap).
+- **`?debug=1`** on `/jelajah` and `/jelajah/[provinsi]` (`lib/jelajah/use-debug-flag.ts`, read after hydration): the
+  overlay (`StatsOverlay` in `components/jelajah/three/StatsProbe.tsx`, right edge, vertically centred) shows fps
+  (2 s average, `FpsWindow` in `lib/jelajah/perf.ts`), draw calls, triangles, tier, `devicePixelRatio` → renderer pixel
+  ratio, and the canvas size in device pixels. Without the flag neither probe nor overlay is mounted in production
+  (development mounts only the probe for the console warnings). The hub map renders continuously only while the flag
+  is on (otherwise on demand).
+- **Automatic fallback** (province scene only; the hub map renders on demand, so idle time would look like low fps):
+  `AutoFallbackProbe` (mounted only while the tier is automatic) feeds `fallbackStep()` (`lib/jelajah/perf.ts`, tests in
+  `tests/jelajah/perf.test.ts`): 2 s average below 24 fps for 5 s → lite; on lite below 20 fps for another 5 s → 2d.
+  Measuring starts after the 1.5 s intro (full tier) and needs a full 2 s window; a hidden tab resets the window and
+  the timer. The result is cached in `localStorage['jelajah.autoTier.v1']` like the measured automatic tier
+  (`useDeviceTier().fallBack`, exported `writeCachedAutoTier`); toast "Beralih ke mode Ringan agar lebih lancar" (or
+  "Beralih ke Peta 2D agar lebih lancar"). A manually chosen tier is never overridden.
+- **PROT photos** (`components/prot/ProtPhoto.tsx`, tests in `tests/prot/prot-photo.test.tsx`): next/image through Vercel
+  Image Optimization for https URLs on `nusantara-play-storage.s3.ap-southeast-2.amazonaws.com` under `/prot/` without a
+  query (the only `next.config.ts` image setting: `images.remotePatterns`, kept in sync by a test); every other URL is
+  shown unoptimized. Two display sizes only: `cover` 400 px (srcset 640 / 828; /prot cards, detail main image, stand
+  panel) and `thumb` 80 px (96 / 256; detail thumbnails, equipment photos, Jelajah 2d cards and hub card). The first
+  visible photo is eager with `fetchpriority="high"`, all others lazy. On an optimizer error (for example the Hobby
+  limit's 402) the original URL is shown. Used by `components/prot/ProtCard.tsx`, `app/prot/page.tsx`,
+  `app/prot/[id]/page.tsx`, `components/jelajah/StandPanel.tsx`, `ProvinceScene2D.tsx`, `ProvinceCard.tsx`. The landing
+  page (`app/page.tsx`) still uses plain `<img>`.
+- **Local DEMO photo**: `public/jelajah/demo/foto-contoh.svg` (neutral placeholder, "Gambar contoh, bukan foto PROT") is
+  the one photo of "DEMO PROT Sumsel 1" in the local seed. `firstPhoto()` accepts http only for a loopback photo host and
+  only while the page itself is on a loopback host (`isLocalPage()`); the deployed site stays https-only.
+- **Measured** (Phase 13, production build, headless Chrome, cache off): `/prot` phone cold load 2983 KB → 617 KB (desktop
+  3009 → 567 KB); PROT detail 4606 → 455 KB and 2813 → 410 KB; `/jelajah` 670 to 690 KB; `/jelajah/sumatera-selatan` 727
+  to 745 KB; the three.js chunk (241 KB) loads only on the two /jelajah routes. Debug overlay at spawn (1440x900,
+  SwiftShader): full 45 draw calls / 18.7k triangles, lite 37 / 10.3k; hub 3 / 39.3k.
 
 ## Env Vars
 
@@ -245,6 +295,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      the 35 provinces, Misi). **Simulation only:** the rewards live in `lib/jelajah/demo-rewards.ts`, only in the
      browser tab's sessionStorage, labelled "Simulasi · tidak disimpan", and never reach the backend (a test guards the
      imports). Real rewards still follow item 3. Details in the frontend CLAUDE.md "Camera, polish and simulated rewards".
+   - Jelajah Nusantara V4 (Phase 13, finishing the visual track before the backend work resumes): simulated levels start
+     at 1 (level L needs 50 × (L − 1) × L total XP; the future backend uses the same curve), site-wide toasts at the top
+     centre (kept clear of the Jelajah title bar, HUD and panel close button), a short "Segera hadir" phone stand prompt,
+     a `?debug=1` stats overlay for measuring real phones, an automatic full → lite → 2d fallback when the frame rate
+     stays low (never over a manual choice), and PROT photos through Vercel Image Optimization (`/prot` phone cold load
+     2983 KB → 617 KB). Still no navbar link to /jelajah and no brand rename (both wait for the boss). Details in the
+     frontend CLAUDE.md "Finish, real-device measurement and PROT photos".
 
 ## Deployment facts
 
@@ -360,7 +417,8 @@ public endpoints work.
    416 kabupaten, 98 kota, 7230 kecamatan, 74952 desa, 8487 kelurahan) and DEMO data (user
    `demo-kurator@example.test`, 3 PROT with status ARSIP_NASIONAL, 1 published event; names start with
    "DEMO"; since Phase 11 also `DEMO PROT Sumsel 1` to `4` in Sumatera Selatan (provinsi 16, ARSIP_NASIONAL, fixed UUIDs
-   `…de31` to `…de34`, neutral placeholder text) for the Jelajah scene). Idempotent. Flags: `-- --database=<name>`, `-- --no-demo`.
+   `…de31` to `…de34`, neutral placeholder text) for the Jelajah scene; since Phase 13 "DEMO PROT Sumsel 1" has one photo,
+   `http://localhost:3001/jelajah/demo/foto-contoh.svg`, a neutral placeholder served by the local frontend). Idempotent. Flags: `-- --database=<name>`, `-- --no-demo`.
 4. Backend: `npm run start:dev` → http://localhost:3000/api. Blockchain vars stay empty, so
    BlockchainService logs a warning and is inactive.
 5. Frontend (in `nusantara-play-fe`): `.env.local` with `NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3000/api`
@@ -457,6 +515,10 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Frontend after Phase 12: unchanged, 44 errors, 87 warnings (every new and touched file is clean, including `app/layout.tsx`
   and `components/ui/AnimatedThemeToggler.tsx`).
 - Backend after Phase 12: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 13: 44 errors, 82 warnings (@next/next/no-img-element 26 → 21: the five warnings in the touched PROT
+  photo files are gone; every new and touched file is clean). Per rule: no-unused-vars 47 (warn), no-explicit-any 39,
+  no-img-element 21 (warn), exhaustive-deps 14 (warn), no-empty-object-type 4, set-state-in-effect 1.
+- Backend after Phase 13: unchanged, 220 errors, 29 warnings (`src/scripts/db-local-setup.ts` is clean).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -580,6 +642,38 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   already in node_modules from the logo's own 256 px PNG (same design).
 - 2026-11-18: C: fell to 2.9 GB during the Phase 12 verification (builds, `next dev` and headless Chrome at the same time):
   Windows grew `C:\pagefile.sys` to 11 GB. Run one heavy process at a time and check C: again after each.
+- 2026-11-19: Owner decisions for Phase 13 (visual track V4): the boss approved continuing; this phase finishes the visual
+  track before the backend work resumes. Levels start at 1: level L needs 50 × (L − 1) × L total XP (L1 = 0, L2 = 100,
+  L3 = 300); the future backend uses the same curve (replaces the Phase 12 "level 0" reading). Site-wide toasts appear
+  at the top centre. No navbar link to /jelajah and no brand rename yet (both still wait for the boss).
+- 2026-11-19: Toast placement (Phase 13): one global sonner Toaster, `top-center`, 72 px from the top (below the 64 px
+  navbar) through `--toast-top`; Jelajah pages move it below the overlays marked `data-toast-avoid` (title bar,
+  "Tampilan", HUD, stand panel close button). Messages such as the empty-province banner and the help hint are not
+  avoided: a toast may cover them for its 2 to 4 seconds.
+- 2026-11-19: Simulated reward state key `sessionStorage['jelajah.demoRewards.v2']` (version 2) for the level-1 curve;
+  v1 state is ignored (Phase 13).
+- 2026-11-19: Real-device measurement (Phase 13): `?debug=1` overlay with the 2 s average fps, draw calls, triangles,
+  tier, devicePixelRatio and canvas size; nothing is mounted without the flag. Automatic fallback in the province scene
+  only (the hub map renders on demand): full → lite below 24 fps for 5 s, lite → 2d below 20 fps for another 5 s, after
+  the intro, paused while the tab is hidden, cached like the measured automatic tier, never over a manual choice.
+- 2026-11-19: PROT photos (Phase 13): option (a), next/image + Vercel Image Optimization, because plain lazy `<img>`
+  (option b) cannot meet the `/prot` < 1 MB target (the 2.1 MB PNG is the second card on phones, inside the lazy-load
+  distance) and leaves the detail page at 4.6 MB. Kept inside the Hobby limits (5K transformations, 300K cache reads,
+  100K cache writes per month; over the limit new images answer 402): only the PROT bucket under `/prot/**` (https, no
+  query) in `images.remotePatterns`, two display sizes (two variants per photo and size), Next 16 defaults otherwise
+  (webp only, quality 75, `minimumCacheTTL` 4 h), and the original URL as fallback when optimization fails. No
+  third-party image service. Real fix for the source sizes: resize at upload time in the backend (later phase).
+- 2026-11-19: Jelajah photo rule (Phase 13): https only; an http URL on a loopback host is accepted only while the page
+  itself runs on a loopback host (local `next dev` or `next start`), so the local DEMO placeholder also shows in a local
+  production build while the deployed site stays https-only.
+- 2026-11-19: Page file (owner, before Phase 13): `D:\pagefile.sys` system managed; a fixed 2 GB page file remains on C:.
+- 2026-11-19: Fonts are self-hosted (Phase 13, after the PR #12 Vercel preview failed): `app/layout.tsx` loads Plus Jakarta
+  Sans (variable, weights 300–800) and Geist Mono (variable, 100–900) with `next/font/local` from
+  `app/fonts/*-latin.woff2` (latin subset, downloaded once from the Google Fonts CSS API, OFL files next to them, sources
+  and SHA-256 in `app/fonts/README.md`); same CSS variables `--font-jakarta-sans` / `--font-geist-mono`, swap, preload. No
+  build downloads fonts any more; `tests/config/fonts.test.ts` fails on a `next/font/google` import. Finding, not changed:
+  `globals.css` sets `--font-sans: var(--font-jakarta-sans)` in a plain `@theme` block (emitted on `:root`, where the
+  next/font variable does not exist), so the site actually renders in Tailwind's system font stack, before and after.
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
@@ -616,3 +710,7 @@ screenshot, Docker image, volume and container lives on D:; nothing new may be w
   remains under `%LOCALAPPDATA%\Docker\wsl`. Phases may pull images and start containers when the phase asks for it (for example
   `npm run db:up`); the volume `nusantara-dev-db-data` survived the move.
 - Never connect to the production database. Local PostgreSQL uses port 5432 (Docker container `nusantara-dev-db`, bound to 127.0.0.1).
+- Drive letter case (Phase 13 finding): run backend `npm run db:setup` and the e2e tests from a working directory that
+  starts with an upper-case `D:\` (for example PowerShell `Set-Location 'D:\Project\Nusantara Legacy\nusantara-play-be'`).
+  From a lower-case `d:\` working directory Node loads the entity classes twice (once per path spelling) and the DEMO
+  seed fails with "this.subQuery is not a function".

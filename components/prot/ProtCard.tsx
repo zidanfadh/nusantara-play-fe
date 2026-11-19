@@ -1,21 +1,20 @@
 import Link from 'next/link';
 import { PROTEntity, PROTJenis } from '@/types/prot';
+import { ProtPhoto } from './ProtPhoto';
 
 interface ProtCardProps {
   item: PROTEntity;
+  /** The first card of the list: its photo loads at once with high priority (Phase 13). */
+  priority?: boolean;
 }
 
-export function ProtCard({ item }: ProtCardProps) {
+export function ProtCard({ item, priority = false }: ProtCardProps) {
   return (
     <div className="bg-background dark:bg-background border border-border rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
       {/* Image Placeholder */}
       <div className="relative h-48 bg-muted shrink-0">
         {item.fotoKegiatan && item.fotoKegiatan.length > 0 ? (
-          <img
-            src={item.fotoKegiatan[0]}
-            alt={item.nama}
-            className="w-full h-full object-cover"
-          />
+          <ProtPhoto src={item.fotoKegiatan[0]} alt={item.nama} size="cover" priority={priority} />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
             <svg className="w-16 h-16 text-muted-foreground/30" fill="currentColor" viewBox="0 0 20 20">

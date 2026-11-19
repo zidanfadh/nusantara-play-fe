@@ -12,18 +12,24 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, Hand, Map as MapIcon, RefreshCw, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { enterProvince, openProt } from '@/lib/jelajah/demo-rewards';
 import { ZERO_INPUT, type InputVector } from '@/lib/jelajah/engine/input';
 import { hasSeenHelp, markHelpSeen } from '@/lib/jelajah/engine/help-hint';
 import { loadSceneProt, type SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import { assignStands } from '@/lib/jelajah/engine/stands';
 import type { SceneDefinition } from '@/lib/jelajah/scenes/types';
+import { fallbackMessage } from '@/lib/jelajah/perf';
+import { placeToasts } from '@/lib/jelajah/toast-clearance';
+import { useDebugFlag } from '@/lib/jelajah/use-debug-flag';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
+import { useToastClearance } from '@/lib/jelajah/use-toast-clearance';
 import { Joystick } from './Joystick';
 import { grantDemoReward, RewardHud } from './RewardHud';
 import { ProvinceScene2D } from './ProvinceScene2D';
 import { StandPanel, type PanelContent } from './StandPanel';
+import { StandPrompt } from './StandPrompt';
 import { TierMenu } from './TierMenu';
 import { WebGLBoundary } from './WebGLBoundary';
 
@@ -62,7 +68,17 @@ function DemoBadge() {
 }
 
 export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
-  const { tier, choice, autoTier, choose } = useDeviceTier();
+  const { tier, choice, autoTier, choose, fallBack } = useDeviceTier();
+  const debug = useDebugFlag();
+  // Automatic fallback (Phase 13): only while the tier is automatic; a manual choice is never overridden.
+  const onAutoFallback = useCallback(
+    (to: 'lite' | '2d') => {
+      if (!fallBack(to)) return;
+      placeToasts();
+      toast(fallbackMessage(to), { duration: 4000 });
+    },
+    [fallBack],
+  );
   const touch = useSyncExternalStore(subscribeCoarse, isCoarse, () => false);
   const reducedMotion = useReducedMotion();
 
@@ -154,6 +170,8 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
     [scene.provinsiKode, scene.nama, prots],
   );
   const hud = <RewardHud quests={quests} onOverlayChange={setHudOverlay} />;
+  // Top-centre toasts below the title bar, HUD and panel close button (Phase 13).
+  useToastClearance(`${tier}:${entered}:${panel ? 'panel' : ''}`);
 
   // Friendly one-time banner when the province has no public PROT yet (production today).
   const emptyBanner = entered && prots !== null && prots.length === 0 && !emptyBannerClosed && (
@@ -204,7 +222,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
 
   const topBar = (
     <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-2">
-      <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-border bg-card/90 px-2 py-1.5 shadow-sm backdrop-blur">
+      <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-border bg-card/90 px-2 py-1.5 shadow-sm backdrop-blur" data-toast-avoid>
         <Link
           href="/jelajah"
           className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -269,6 +287,8 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
             onInteract={onInteract}
             onReady={onReady}
             reducedMotion={reducedMotion}
+            debug={debug}
+            onAutoFallback={choice === 'auto' ? onAutoFallback : undefined}
           />
         </WebGLBoundary>
       ) : null}
@@ -302,27 +322,17 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
       {ready && nearContent && (
         // Phones: right of the joystick, so neither the joystick nor the player (lower third) is covered.
         <div
+          data-testid="stand-prompt"
           className={`absolute z-20 ${touch ? 'bottom-8 left-[10.5rem] right-3' : 'bottom-6 left-1/2 w-[min(92%,22rem)] -translate-x-1/2'} ${panel ? 'invisible' : ''}`}
         >
-          {nearContent.kind === 'empty' ? (
-            <p className="rounded-xl border border-border bg-card/95 px-4 py-3 text-center text-sm text-card-foreground shadow-lg">
-              Segera hadir. Stand ini menunggu PROT dari {scene.nama}.
-            </p>
-          ) : (
-            <div className="flex items-center gap-3 rounded-xl border border-border bg-card/95 px-4 py-3 text-card-foreground shadow-lg">
-              <p className="min-w-0 flex-1 truncate text-sm font-semibold">
-                {nearContent.kind === 'prot' ? nearContent.prot.nama : `${nearContent.prots.length} PROT lainnya`}
-              </p>
-              <button
-                ref={lihatRef}
-                type="button"
-                onClick={(e) => openStand(near as number, e.currentTarget)}
-                className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                Lihat
-              </button>
-            </div>
-          )}
+          <StandPrompt
+            key={near}
+            ref={lihatRef}
+            content={nearContent}
+            provinsiNama={scene.nama}
+            compact={touch}
+            onOpen={(trigger) => openStand(near as number, trigger)}
+          />
         </div>
       )}
 

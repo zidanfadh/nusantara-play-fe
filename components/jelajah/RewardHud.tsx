@@ -5,6 +5,7 @@ import { ListChecks, Stamp } from 'lucide-react';
 import { toast } from 'sonner';
 import { demoRewardsStore, levelProgress, type DemoRewardsState, type RewardResult } from '@/lib/jelajah/demo-rewards';
 import { KNOWN_PROVINCES } from '@/lib/jelajah/provinces';
+import { placeToasts } from '@/lib/jelajah/toast-clearance';
 import { useDemoRewards } from '@/lib/jelajah/use-demo-rewards';
 import { MisiPanel, type QuestDef } from './MisiPanel';
 import { PasporModal } from './PasporModal';
@@ -24,14 +25,14 @@ export function announceRewards(res: RewardResult): void {
     if (e.kind === 'open-prot') return 'Membuka stan PROT';
     return `Stempel Paspor ${provinceName(e.provinsiKode)}`;
   });
-  // Top centre: clear of the HUD (left) and the stand panel (right on wide screens).
+  // The site-wide Toaster (app/layout.tsx) is top centre; keep the toast clear of the overlays (Phase 13).
+  placeToasts();
   toast.success(`+${res.xpGained} XP`, {
     description: `${reasons.join(' · ')} (${SIMULATION_LABEL})`,
     duration: 2600,
-    position: 'top-center',
   });
   if (res.levelAfter > res.levelBefore) {
-    toast(`Naik ke Level ${res.levelAfter}!`, { description: SIMULATION_LABEL, duration: 2200, position: 'top-center' });
+    toast(`Naik ke Level ${res.levelAfter}!`, { description: SIMULATION_LABEL, duration: 2200 });
   }
 }
 
@@ -75,6 +76,7 @@ export function RewardHud({
     <div
       className={`pointer-events-auto w-[14.5rem] rounded-xl border border-border bg-card/90 px-2.5 py-2 text-card-foreground shadow-sm backdrop-blur ${className}`}
       data-testid="reward-hud"
+      data-toast-avoid
     >
       <div className="flex items-center gap-2">
         <span className="shrink-0 rounded-md bg-primary px-1.5 py-0.5 text-xs font-bold text-primary-foreground">

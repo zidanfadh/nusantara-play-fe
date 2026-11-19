@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Gambar contoh DEMO, bukan foto PROT">
+  <!-- Neutral placeholder for the local DEMO data only (Phase 13). Not a photo, no cultural content. -->
+  <rect width="640" height="360" fill="#E9E2D6"/>
+  <circle cx="500" cy="96" r="38" fill="#F3EBDD"/>
+  <path d="M0 270 L150 170 L260 250 L380 150 L640 290 L640 360 L0 360 Z" fill="#CFC4B3"/>
+  <path d="M0 310 L200 240 L420 300 L640 250 L640 360 L0 360 Z" fill="#B9AD9A"/>
+  <rect x="24" y="24" width="96" height="34" rx="6" fill="#9E3C24"/>
+  <text x="72" y="47" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#FFF1DC">DEMO</text>
+  <text x="320" y="196" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="600" fill="#5B5245">Gambar contoh</text>
+  <text x="320" y="226" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" fill="#5B5245">bukan foto PROT · hanya data DEMO lokal</text>
+</svg>

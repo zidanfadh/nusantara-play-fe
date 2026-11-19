@@ -11,13 +11,12 @@ import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { MapControls } from '@react-three/drei';
 import { Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'three';
-import type { RenderStats } from '@/lib/jelajah/budget';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
 import { hitTest, initialFrame, shapesBounds, type Bounds } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
 import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { buildMapGeometry, paintRange } from '@/lib/jelajah/three/map-geometry';
-import { StatsOverlay, StatsProbe } from './three/StatsProbe';
+import { StatsOverlay, StatsProbe, type DebugStats } from './three/StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
 const FOV = 35;
@@ -30,6 +29,8 @@ const MIN_DISTANCE = 7;
 
 export interface Map3DProps extends MapViewProps {
   tier: 'full' | 'lite';
+  /** ?debug=1: stats overlay and continuous rendering (Phase 13). */
+  debug: boolean;
 }
 
 /** Camera distance that fits the whole map into the viewport at the fixed tilt. */
@@ -275,7 +276,8 @@ export default function Map3D(props: Map3DProps) {
   const { tier, shapes, palette } = props;
   const settings = canvasSettings(tier);
   const bounds = useMemo(() => shapesBounds(shapes), [shapes]);
-  const [stats, setStats] = useState<RenderStats | null>(null);
+  const [stats, setStats] = useState<DebugStats | null>(null);
+  const showStats = IS_DEV || props.debug;
   const pilot = shapes.find((s) => s.kode === PILOT_PROVINCE.kode);
   const pilotRef = useRef<HTMLButtonElement>(null);
   const movePilotMarker = (x: number, y: number, visible: boolean) => {
@@ -291,9 +293,9 @@ export default function Map3D(props: Map3DProps) {
         key={tier}
         dpr={settings.dpr}
         gl={{ antialias: settings.antialias, powerPreference: 'default' }}
-        // Production renders on demand (battery); development renders continuously so the fps
+        // Production renders on demand (battery); development and ?debug=1 render continuously so the fps
         // overlay measures real frame cost.
-        frameloop={IS_DEV ? 'always' : 'demand'}
+        frameloop={showStats ? 'always' : 'demand'}
         camera={{ fov: FOV, near: 0.5, far: 400, position: [0, 60, 40] }}
         aria-label="Peta 3D provinsi Indonesia"
         role="img"
@@ -321,7 +323,7 @@ export default function Map3D(props: Map3DProps) {
           onSelect={props.onSelect}
         />
         <Controls bounds={bounds} />
-        {IS_DEV && <StatsProbe onStats={setStats} />}
+        {showStats && <StatsProbe onStats={setStats} />}
       </Canvas>
       {pilot && (
         <button
@@ -338,7 +340,7 @@ export default function Map3D(props: Map3DProps) {
           <span className="h-2.5 w-0.5 bg-primary" aria-hidden />
         </button>
       )}
-      {IS_DEV && stats && <StatsOverlay stats={stats} tier={tier} className="left-3 top-28" />}
+      {props.debug && stats && <StatsOverlay stats={stats} tier={tier} className="right-3 top-1/2 -translate-y-1/2" />}
     </div>
   );
 }

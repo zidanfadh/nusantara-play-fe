@@ -7,10 +7,12 @@ import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
 import { PALETTES } from '@/lib/jelajah/palette';
 import { ENTERABLE_PROVINCES, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { useDebugFlag } from '@/lib/jelajah/use-debug-flag';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useJelajahData } from '@/lib/jelajah/use-jelajah-data';
 import { useProvinceShapes } from '@/lib/jelajah/use-province-shapes';
 import { useThemeMode } from '@/lib/jelajah/use-theme-mode';
+import { useToastClearance } from '@/lib/jelajah/use-toast-clearance';
 import Map2D from './Map2D';
 import { ProvinceCard } from './ProvinceCard';
 import { RewardHud } from './RewardHud';
@@ -36,6 +38,7 @@ export function JelajahHub() {
   const refs = useMemo(() => data.provinces.map(({ kode, nama }) => ({ kode, nama })), [data.provinces]);
   const { parsed, failed: geoFailed, retry: retryGeo } = useProvinceShapes(refs);
   const { tier, choice, autoTier, choose } = useDeviceTier();
+  const debug = useDebugFlag();
   const theme = useThemeMode();
   const palette = PALETTES[theme];
 
@@ -45,6 +48,8 @@ export function JelajahHub() {
 
   const summaryByKode = useMemo(() => new Map(data.provinces.map((p) => [p.kode, p])), [data.provinces]);
   const selected = selectedKode ? summaryByKode.get(selectedKode) ?? null : null;
+  // Top-centre toasts below the title card and the HUD (Phase 13).
+  useToastClearance(selectedKode);
   const hovered = hoveredKode ? summaryByKode.get(hoveredKode) ?? null : null;
 
   const onSelect = useCallback(
@@ -104,7 +109,7 @@ export function JelajahHub() {
   } else {
     map = (
       <WebGLBoundary fallback={<Map2D {...viewProps} />}>
-        <Map3D {...viewProps} tier={tier} />
+        <Map3D {...viewProps} tier={tier} debug={debug} />
       </WebGLBoundary>
     );
   }
@@ -120,7 +125,7 @@ export function JelajahHub() {
         {map}
 
         <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-2">
-          <div className="pointer-events-auto rounded-xl border border-border bg-card/90 px-3 py-2 shadow-sm backdrop-blur">
+          <div className="pointer-events-auto rounded-xl border border-border bg-card/90 px-3 py-2 shadow-sm backdrop-blur" data-toast-avoid>
             <div className="flex items-center gap-2">
               <h1 className="text-base font-bold leading-tight text-primary md:text-lg">Jelajah Nusantara</h1>
               <span

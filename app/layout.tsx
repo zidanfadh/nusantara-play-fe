@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 
-const jakartaSans = Plus_Jakarta_Sans({
+// Self-hosted (app/fonts/, OFL): the build never downloads from Google Fonts. Same CSS variables, latin
+// subset, font-display swap and preload as the former next/font/google setup.
+const jakartaSans = localFont({
+  src: "./fonts/PlusJakartaSans-latin.woff2",
   variable: "--font-jakarta-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: "300 800",
+  style: "normal",
+  display: "swap",
 });
 
-
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "./fonts/GeistMono-latin.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
+  style: "normal",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -51,7 +57,14 @@ export default function RootLayout({
       >
         <AuthProvider>
           {children}
-          <Toaster richColors position="top-right" />
+          {/* Site-wide toasts at the top centre (owner decision, Phase 13), below the 64 px navbar. The Jelajah
+              pages move them below their own overlays through --toast-top (lib/jelajah/toast-clearance.ts). */}
+          <Toaster
+            richColors
+            position="top-center"
+            offset={{ top: "var(--toast-top, 72px)" }}
+            mobileOffset={{ top: "var(--toast-top, 72px)" }}
+          />
         </AuthProvider>
 
         

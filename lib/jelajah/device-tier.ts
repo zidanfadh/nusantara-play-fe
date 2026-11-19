@@ -89,7 +89,8 @@ export function readCachedAutoTier(storage: StorageLike | null = defaultStorage(
   }
 }
 
-function writeCachedAutoTier(tier: Tier, storage: StorageLike | null = defaultStorage()) {
+/** Remembers the automatic tier (also the result of the automatic fallback, Phase 13). */
+export function writeCachedAutoTier(tier: Tier, storage: StorageLike | null = defaultStorage()) {
   try {
     storage?.setItem(AUTO_TIER_STORAGE_KEY, tier);
   } catch {

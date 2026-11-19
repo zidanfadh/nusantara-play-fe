@@ -82,6 +82,19 @@ export function domainRedirects() {
 }
 
 const nextConfig: NextConfig = {
+  images: {
+    // PROT photos through Vercel Image Optimization (Phase 13): only https, the PROT bucket and /prot/**,
+    // no query string. Same rule as isOptimizableProtPhoto() in components/prot/ProtPhoto.tsx (tested).
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "nusantara-play-storage.s3.ap-southeast-2.amazonaws.com",
+        port: "",
+        pathname: "/prot/**",
+        search: "",
+      },
+    ],
+  },
   async redirects() {
     return domainRedirects();
   },

@@ -63,13 +63,33 @@ interface Paginated<T> {
 
 export type GetJson = <T>(endpoint: string) => Promise<T>;
 
-/** First https photo URL of a PROT, or null. */
-export function firstPhoto(fotoKegiatan: unknown): string | null {
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/**
+ * Local development (Phase 13): the page itself is served from a loopback host (localhost:3001, next dev or
+ * next start). Never true on the deployed site.
+ */
+export function isLocalPage(): boolean {
+  try {
+    return typeof window !== 'undefined' && LOOPBACK_HOSTS.has(window.location.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * First usable photo URL of a PROT, or null: https only. Exception for local development (Phase 13): an
+ * http URL on a loopback host (the DEMO placeholder served by the local frontend) when `allowLocalHttp`,
+ * i.e. when the page itself runs on a loopback host. On the deployed site no http URL is ever accepted.
+ */
+export function firstPhoto(fotoKegiatan: unknown, allowLocalHttp: boolean = isLocalPage()): string | null {
   if (!Array.isArray(fotoKegiatan)) return null;
   for (const value of fotoKegiatan) {
     if (typeof value !== 'string') continue;
     try {
-      if (new URL(value).protocol === 'https:') return value;
+      const url = new URL(value);
+      if (url.protocol === 'https:') return value;
+      if (allowLocalHttp && url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname)) return value;
     } catch {
       // not a URL: skip
     }

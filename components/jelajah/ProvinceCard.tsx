@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { ArrowRight, X } from 'lucide-react';
+import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { ProvinceSummary } from '@/lib/jelajah/data';
 import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import type { JelajahDataStatus } from '@/lib/jelajah/use-jelajah-data';
@@ -81,8 +82,7 @@ export function ProvinceCard({ summary, status, onClose }: ProvinceCardProps) {
                 >
                   <span className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted">
                     {prot.foto && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={prot.foto} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      <ProtPhoto src={prot.foto} alt="" size="thumb" />
                     )}
                   </span>
                   <span className="line-clamp-2 text-sm font-medium">{prot.nama}</span>
