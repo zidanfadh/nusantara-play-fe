@@ -208,7 +208,8 @@ function jelajah(): Cue[] {
   const rnd = seededRng(505);
   add('dive into Sumatera Selatan', s + diveFrom, { id: 'whoosh', len: sec(diveTo - diveFrom), up: false }, 'sfx', 0.55, { resumable: true, wet: 0.2 });
   const tail = bedMs('jelajah') - villageAt;
-  add('village pad', s + villageAt, { id: 'pad', notes: CHORD.village, len: sec(tail) }, 'music', 0.5, { resumable: true, wet: 0.35 });
+  // The music carries through the dive (no gap after the archive's bed), the wind arrives with the village.
+  add('village pad', s + diveFrom, { id: 'pad', notes: CHORD.village, len: sec(bedMs('jelajah') - diveFrom) }, 'music', 0.5, { resumable: true, wet: 0.35, fadeIn: 1200 });
   add('village wind', s + villageAt, { id: 'wind', len: sec(tail) }, 'sfx', 0.13, { resumable: true });
   [300, 1350, 2600, 3700].forEach((t, k) =>
     add('village birds', s + villageAt + t + rnd() * 200, { id: 'bird', v: 2 + k }, 'sfx', 0.08 + rnd() * 0.03, { pan: rnd() * 1.4 - 0.7, wet: 0.35 }),

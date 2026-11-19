@@ -44,8 +44,8 @@ export function bumperStingCues(): Cue[] {
 /** The note played when scene `index` (1..) appears; none for the first scene (the sting covers it). */
 export function bumperSceneSound(index: number): { ref: SoundRef; gain: number } | null {
   if (index <= 0 || index >= BUMPER_SCENES.length) return null;
-  if (index === BUMPER_SCENES.length - 1) return { ref: { id: 'chime', hz: bemStep(10) }, gain: 0.16 };
-  return { ref: { id: 'bonang', hz: bemStep(4 + index) }, gain: 0.22 };
+  if (index === BUMPER_SCENES.length - 1) return { ref: { id: 'chime', hz: bemStep(10) }, gain: 0.22 };
+  return { ref: { id: 'bonang', hz: bemStep(4 + index) }, gain: 0.3 };
 }
 
 /** Scene start times when the bumper advances by itself (no taps). */

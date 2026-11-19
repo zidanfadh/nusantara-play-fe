@@ -26,7 +26,7 @@ export const MIX = {
   sfx: 0.8,
   voice: 1,
   reverb: 0.55,
-  master: 0.9,
+  master: 0.78,
   /** After the compressor: −1 dB. */
   trim: 0.891,
 } as const;

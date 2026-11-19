@@ -31,6 +31,8 @@ import type { ConceptEndReason } from '@/lib/jelajah/concept/types';
 
 export interface ConceptAudioHook {
   status: () => SoundStatus;
+  /** Audio clock vs page clock (getOutputTimestamp): what is heard when; the sync measurement. */
+  clock: () => { ctx: number; outCtx: number | null; outPerf: number | null; perf: number } | null;
   log: () => readonly SyncEntry[];
   stats: () => Record<string, unknown>;
   /** Offline render of the full soundtrack (or the reduced one) → { base64 WAV, numbers }. */
@@ -101,6 +103,12 @@ export function useConceptSound(time: MotionValue<number>, reduced: boolean, deb
     if (process.env.NODE_ENV !== 'production' || debug) {
       window.__nlConceptAudio = {
         status: () => session.status,
+        clock: () => {
+          const ctx = session.engine?.ctx as AudioContext | undefined;
+          if (!ctx) return null;
+          const ts = typeof ctx.getOutputTimestamp === 'function' ? ctx.getOutputTimestamp() : null;
+          return { ctx: ctx.currentTime, outCtx: ts?.contextTime ?? null, outPerf: ts?.performanceTime ?? null, perf: performance.now() };
+        },
         log: () => scheduler?.log ?? [],
         stats: () => ({
           status: session.status,
