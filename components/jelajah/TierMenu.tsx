@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { Settings2 } from 'lucide-react';
+import { PlayCircle, Settings2 } from 'lucide-react';
 import type { Tier, TierChoice } from '@/lib/jelajah/device-tier';
 
 const LABELS: Record<Tier, string> = {
@@ -14,10 +14,12 @@ interface TierMenuProps {
   choice: TierChoice;
   autoTier: Tier | null;
   onChoose: (choice: TierChoice) => void;
+  /** Hub only (Phase 16): adds "Putar intro", which replays the intro bumper. */
+  onReplayIntro?: () => void;
 }
 
 /** Small settings menu to override the automatic render tier (remembered in localStorage). */
-export function TierMenu({ choice, autoTier, onChoose }: TierMenuProps) {
+export function TierMenu({ choice, autoTier, onChoose, onReplayIntro }: TierMenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
@@ -51,6 +53,7 @@ export function TierMenu({ choice, autoTier, onChoose }: TierMenuProps) {
         type="button"
         onClick={() => setOpen((o) => !o)}
         data-toast-avoid
+        data-jelajah-menu
         aria-expanded={open}
         aria-controls={panelId}
         className="flex items-center gap-1.5 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs font-medium text-card-foreground shadow-sm backdrop-blur transition-colors hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -86,6 +89,19 @@ export function TierMenu({ choice, autoTier, onChoose }: TierMenuProps) {
           <p className="px-2 pb-1 pt-2 text-[11px] leading-snug text-muted-foreground">
             Pilih Ringan atau 2D bila peta terasa lambat.
           </p>
+          {onReplayIntro && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onReplayIntro();
+              }}
+              className="mt-1 flex w-full items-center gap-2 rounded-md border-t border-border px-2 pb-1.5 pt-2.5 text-left font-medium hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <PlayCircle className="h-4 w-4 text-primary" aria-hidden />
+              Putar intro
+            </button>
+          )}
         </fieldset>
       )}
     </div>

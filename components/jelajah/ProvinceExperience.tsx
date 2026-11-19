@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, Hand, Map as MapIcon, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { markBumperSeen } from '@/lib/jelajah/bumper/session';
 import { enterProvince, openProt } from '@/lib/jelajah/demo-rewards';
 import { ZERO_INPUT, type InputVector } from '@/lib/jelajah/engine/input';
 import { hasSeenHelp, markHelpSeen } from '@/lib/jelajah/engine/help-hint';
@@ -81,6 +82,10 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
   );
   const touch = useSyncExternalStore(subscribeCoarse, isCoarse, () => false);
   const reducedMotion = useReducedMotion();
+
+  // Intro bumper (Phase 16): never on a province page; a visitor who came in through a deep link has already
+  // entered Jelajah, so "Kembali ke peta" later in this session does not start the intro either.
+  useEffect(() => markBumperSeen(), []);
 
   const [data, setData] = useState<DataState>({ status: 'loading' });
   const [refresh, setRefresh] = useState(0);
