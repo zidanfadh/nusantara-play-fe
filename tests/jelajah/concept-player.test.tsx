@@ -52,7 +52,15 @@ describe('concept video player (Phase 19)', () => {
     expect(render(null)).not.toContain('<canvas');
   });
 
-  it('no audio element (Phase 19 is silent)', () => {
+  it('no audio or video element: the sound is Web Audio (Phase 21)', () => {
     expect(render()).not.toMatch(/<audio|<video/);
+  });
+
+  it('without Web Audio (server, old browsers) it renders without sound controls and without errors', () => {
+    const html = render();
+    expect(html).not.toContain('data-sound-toggle');
+    expect(html).not.toContain('data-sound-enable');
+    // Lewati is still there, in the top-right group.
+    expect(html).toContain(`>${CONCEPT_TEXT.skip}`);
   });
 });

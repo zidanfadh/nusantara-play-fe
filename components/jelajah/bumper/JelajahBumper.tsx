@@ -3,7 +3,9 @@
 /**
  * Jelajah intro bumper (Phase 16): a short animated tour of the whole site before the hub map. Six scenes
  * of about 3 s (19 s in total), built in React + framer-motion (already on every page through the navbar
- * theme toggle), no video, no sound, no three.js.
+ * theme toggle), no video, no three.js. Phase 21: a short sound sting and the sound toggle
+ * (`BumperSound`, loaded with next/dynamic only while the bumper shows; same engine and choice as the
+ * concept film).
  *
  * Controls: "Lewati" (always visible; Esc), tap/click anywhere or Enter for the next scene, progress dots.
  * Focus starts on "Lewati" and stays inside the bumper (Tab cycles); the hub moves it to its menu when the
@@ -14,9 +16,10 @@
  * that data (`data`, `status`, `shapes`) as it arrives.
  */
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { apiClient } from '@/lib/api/client';
 import { congklakHref } from '@/lib/games/congklak/from-link';
 import {
@@ -42,6 +45,9 @@ import { ProtScene } from './ProtScene';
 import { BumperReducedMotion } from './SceneLayout';
 import { StartScene } from './StartScene';
 
+/** Sound sting and toggle (Phase 21): its own chunk, requested only when the bumper shows. */
+const BumperSound = dynamic(() => import('./BumperSound'), { ssr: false });
+
 const FILL_KEYFRAMES = '@keyframes jelajah-bumper-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}';
 
 interface JelajahBumperProps {
@@ -57,7 +63,16 @@ const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1
 
 export function JelajahBumper({ data, status, shapes, onClose, onLeave }: JelajahBumperProps) {
   const reduced = useReducedMotion();
-  const { index, paused, next, skip } = useBumperTimeline(BUMPER_DURATIONS, !reduced, onClose);
+  // The sound fades out with the bumper (BumperSound registers its end here).
+  const soundEndRef = useRef<((reason: BumperEndReason) => void) | null>(null);
+  const close = useCallback(
+    (reason: BumperEndReason) => {
+      soundEndRef.current?.(reason);
+      onClose(reason);
+    },
+    [onClose],
+  );
+  const { index, paused, next, skip } = useBumperTimeline(BUMPER_DURATIONS, !reduced, close);
   const [stats, setStats] = useState<CommunityStats | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
@@ -94,8 +109,8 @@ export function JelajahBumper({ data, status, shapes, onClose, onLeave }: Jelaja
         e.preventDefault();
         skip();
       } else if (e.key === 'Enter' && !e.repeat) {
-        // A scene's own action button (scene 4 "Main Congklak") is pressed normally.
-        if (e.target instanceof Element && e.target.closest('[data-bumper-action]')) return;
+        // A scene's own action button (scene 4 "Main Congklak") and the sound buttons are pressed normally.
+        if (e.target instanceof Element && e.target.closest('[data-bumper-action], [data-sound-toggle], [data-sound-enable]')) return;
         // Enter always means "next" (on the last scene that is "Mulai Jelajah"); Lewati uses Space or Esc.
         e.preventDefault();
         next();
@@ -209,18 +224,21 @@ export function JelajahBumper({ data, status, shapes, onClose, onLeave }: Jelaja
               </li>
             ))}
           </ol>
-          <button
-            ref={skipRef}
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              skip();
-            }}
-            aria-keyshortcuts="Escape"
-            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card/90 px-4 py-2 text-sm font-semibold text-card-foreground shadow-sm backdrop-blur transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Lewati <X className="h-4 w-4" aria-hidden />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <BumperSound index={index} endRef={soundEndRef} />
+            <button
+              ref={skipRef}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                skip();
+              }}
+              aria-keyshortcuts="Escape"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card/90 px-4 py-2 text-sm font-semibold text-card-foreground shadow-sm backdrop-blur transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Lewati <X className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
         </div>
 
         <div className="relative z-10 flex flex-1 items-center justify-center overflow-y-auto py-6" aria-live="polite">

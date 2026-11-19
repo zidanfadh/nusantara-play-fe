@@ -114,11 +114,12 @@ function Card({ card, i, lt, still, layout }: { card: ArchiveCard; i: number; lt
 }
 
 function Stamp({ lt, still, layout }: { lt: MotionValue<number>; still: boolean; layout: SceneProps['layout'] }) {
-  const { stampAt } = BEATS.arsip;
+  const { stampAt, stampDrop } = BEATS.arsip;
   const stamp = useStyle(lt, (t) => {
     const d = (still ? 5950 : t) - stampAt;
     if (d < 0) return { opacity: 0, transform: 'translate(-50%, -50%) rotate(-12deg) scale(2.2)' };
-    const k = easeInCubic(seg(d, 0, 150));
+    // Hits the paper at stampDrop: the soundtrack's thump.
+    const k = easeInCubic(seg(d, 0, stampDrop));
     return { opacity: 1, transform: `translate(-50%, -50%) rotate(-12deg) scale(${(2.2 - 1.2 * k).toFixed(3)})` };
   });
   const ink = useStyle(lt, (t) => {

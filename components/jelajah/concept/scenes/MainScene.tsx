@@ -59,10 +59,11 @@ function XpChip({ lt, at, i, still }: { lt: MotionValue<number>; at: number; i: 
 }
 
 function Passport({ lt, still, layout }: { lt: MotionValue<number>; still: boolean; layout: SceneProps['layout'] }) {
-  const { stampAt } = BEATS.main;
+  const { stampAt, stampDrop } = BEATS.main;
   const time = (t: number) => (still ? STILL_T : t);
+  // The stamp hits the page at stampDrop and the passport shakes from then on: the soundtrack's slam.
   const shake = useStyle(lt, (t) => {
-    const d = time(t) - stampAt - 150;
+    const d = time(t) - stampAt - stampDrop;
     if (d < 0 || d > 450) return { transform: 'translate(0px, 0px) rotate(2deg)' };
     const a = 6 * Math.exp(-d / 120) * Math.sin(d / 16);
     return { transform: `translate(${a.toFixed(2)}px, ${(Math.abs(a) * 0.5).toFixed(2)}px) rotate(${(2 + a * 0.15).toFixed(2)}deg)` };
@@ -70,7 +71,7 @@ function Passport({ lt, still, layout }: { lt: MotionValue<number>; still: boole
   const stamp = useStyle(lt, (t) => {
     const d = time(t) - stampAt;
     if (d < 0) return { opacity: 0, transform: 'rotate(-14deg) scale(2.6)' };
-    const k = easeInCubic(seg(d, 0, 160));
+    const k = easeInCubic(seg(d, 0, stampDrop));
     return { opacity: 1, transform: `rotate(-14deg) scale(${(2.6 - 1.6 * k).toFixed(3)})` };
   });
   const compact = layout !== 'desktop';

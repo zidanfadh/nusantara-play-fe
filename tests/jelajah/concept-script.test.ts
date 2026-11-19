@@ -3,7 +3,7 @@ import { SITE_NAME } from '@/lib/brand';
 import {
   ARCHIVE_CARD_COUNT,
   BEATS,
-  CONCEPT_MUSIC,
+  CONCEPT_VOICEOVER,
   CONCEPT_SCENES,
   CONCEPT_TEXT,
   CONCEPT_TOTAL_MS,
@@ -119,11 +119,12 @@ describe('concept video script (Phase 19)', () => {
     expect(archiveSubcaption(Number.NaN, 3)).toBeNull();
   });
 
-  it('final hold, reduced-motion step, cards and the music hook', () => {
+  it('final hold, reduced-motion step, cards and the voice-over hook', () => {
     expect(FINAL_HOLD_MS).toBe(3000);
     expect(REDUCED_STEP_MS).toBe(5000);
     expect(ARCHIVE_CARD_COUNT).toBeGreaterThanOrEqual(4);
-    // No audio in Phase 19 (TODO hook only).
-    expect(CONCEPT_MUSIC.src).toBeNull();
+    // Phase 21: no voice-over files exist yet; listed files must live under /jelajah/concept/vo/.
+    expect(CONCEPT_VOICEOVER).toEqual([]);
+    for (const vo of CONCEPT_VOICEOVER) expect(vo.src).toMatch(/^\/jelajah\/concept\/vo\/[a-z]+\.(m4a|mp3|ogg)$/);
   });
 });
