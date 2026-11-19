@@ -110,7 +110,7 @@ export default async function Home() {
             ))}
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <AnimatedThemeToggler className="hover:bg-muted/50 transition-colors" />
             {user ? (
               <Link
@@ -123,13 +123,13 @@ export default async function Home() {
               <>
                 <Link
                   href="/login"
-                  className="px-5 py-2 text-foreground font-medium hover:opacity-80 transition-all"
+                  className="px-3 sm:px-5 py-2 text-foreground font-medium hover:opacity-80 transition-all"
                 >
                   Masuk
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all active:scale-95"
+                  className="px-4 sm:px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all active:scale-95"
                 >
                   Daftar
                 </Link>

@@ -20,8 +20,6 @@
   --radius-sm: calc(0.5rem - 2px);
   --radius-md: 0.75rem;
   --radius-lg: calc(0.5rem + 2px);
-  --font-sans: var(--font-jakarta-sans);
-  --font-mono: var(--font-geist-mono);
 
   /* Design System — "The Modern Wayfarer" tokens */
   --color-surface-container-low: #F7F3ED;
@@ -39,6 +37,17 @@
   --color-warm-btn-hover: #D5D2D1;
   --color-warm-label: #8A726C;
   --color-warm-neutral: #636262;
+}
+
+/*
+ * Fonts (Phase 14): `inline`, because next/font defines --font-jakarta-sans / --font-geist-mono only on <body>
+ * (app/layout.tsx). In a plain @theme block --font-sans was resolved on :root, where those variables do not
+ * exist, so every page fell back to the system font. Inline, the font-sans / font-mono utilities use the
+ * next/font variables directly (Tailwind v4's recommended setup for next/font).
+ */
+@theme inline {
+  --font-sans: var(--font-jakarta-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -89,6 +98,7 @@
   
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+    /* The next/font variable itself: var(--font-sans) would be the value resolved on :root (see above). */
+    font-family: var(--font-jakarta-sans), Arial, Helvetica, sans-serif;
   }
 }
