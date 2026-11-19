@@ -1,7 +1,8 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
@@ -18,6 +19,11 @@ import { ProvinceCard } from './ProvinceCard';
 import { RewardHud } from './RewardHud';
 import { TierMenu } from './TierMenu';
 import { WebGLBoundary } from './WebGLBoundary';
+import { JelajahBumper } from './bumper/JelajahBumper';
+import { shouldAutoPlayBumper } from '@/lib/jelajah/bumper/session';
+
+/** pending: server render and hydration (cover, no decision yet); playing; off. */
+type BumperState = 'pending' | 'playing' | 'off';
 
 // three.js lives only in this chunk; it is requested only when the tier is full or lite.
 const Map3D = dynamic(() => import('./Map3D'), {
@@ -45,6 +51,31 @@ export function JelajahHub() {
   const [hoveredKode, setHoveredKode] = useState<string | null>(null);
   const [selectedKode, setSelectedKode] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
+
+  // Intro bumper (Phase 16): once per browser session, decided after mount (sessionStorage). The hub stays
+  // mounted behind it, so the data, the geometry and (tier full/lite) the 3D chunk load meanwhile.
+  const [bumper, setBumper] = useState<BumperState>('pending');
+  const [bumperRun, setBumperRun] = useState(0);
+  const returnFocus = useRef(false);
+  useEffect(() => {
+    // Reading sessionStorage is only possible after mount; one extra render is intended here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBumper(shouldAutoPlayBumper() ? 'playing' : 'off');
+  }, []);
+  const closeBumper = useCallback(() => {
+    returnFocus.current = true;
+    setBumper('off');
+  }, []);
+  const replayBumper = useCallback(() => {
+    setBumperRun((n) => n + 1);
+    setBumper('playing');
+  }, []);
+  // After the bumper: focus the first control of the map overlay (the "Tampilan" menu button).
+  useEffect(() => {
+    if (bumper !== 'off' || !returnFocus.current) return;
+    returnFocus.current = false;
+    mapRef.current?.querySelector<HTMLElement>('[data-jelajah-menu]')?.focus();
+  }, [bumper]);
 
   const summaryByKode = useMemo(() => new Map(data.provinces.map((p) => [p.kode, p])), [data.provinces]);
   const selected = selectedKode ? summaryByKode.get(selectedKode) ?? null : null;
@@ -115,7 +146,8 @@ export function JelajahHub() {
   }
 
   return (
-    <div className="bg-background text-foreground">
+    <>
+    <div className="bg-background text-foreground" inert={bumper !== 'off'}>
       <section
         ref={mapRef}
         aria-label="Peta Jelajah Nusantara"
@@ -138,7 +170,7 @@ export function JelajahHub() {
             <p className="hidden text-xs text-muted-foreground sm:block">Pilih provinsi untuk melihat PROT-nya.</p>
           </div>
           <div className="pointer-events-auto">
-            <TierMenu choice={choice} autoTier={autoTier} onChoose={choose} />
+            <TierMenu choice={choice} autoTier={autoTier} onChoose={choose} onReplayIntro={replayBumper} />
           </div>
         </div>
 
@@ -243,5 +275,21 @@ export function JelajahHub() {
         <p className="mt-6 text-xs text-muted-foreground">{GEO_ATTRIBUTION}</p>
       </section>
     </div>
+    <AnimatePresence>
+      {bumper === 'pending' && (
+        // Server render and hydration: a plain cover in the bumper's colour, so a first visit never flashes
+        // the hub before the bumper; on later visits it fades out right after hydration.
+        <motion.div
+          key="bumper-cover"
+          aria-hidden
+          className="fixed inset-0 z-[60] bg-background"
+          exit={{ opacity: 0, transition: { duration: 0.2 } }}
+        />
+      )}
+      {bumper === 'playing' && (
+        <JelajahBumper key={`bumper-${bumperRun}`} data={data} status={status} shapes={shapes} onClose={closeBumper} />
+      )}
+    </AnimatePresence>
+    </>
   );
 }
