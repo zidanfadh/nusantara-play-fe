@@ -81,8 +81,17 @@ export function domainRedirects() {
   }));
 }
 
+/**
+ * How long an optimized image stays cached before it is transformed again (Phase 14, owner decision): 31 days
+ * instead of the Next 16 default of 4 hours. Safe only because every upload gets a new object key
+ * (backend StorageService.uploadFile(): `<folder>/<randomUUID()>.<ext>`), so a replaced photo always has a new
+ * URL and an old cache entry can never show a stale photo. If uploads ever reuse keys, lower this again.
+ */
+export const IMAGE_MINIMUM_CACHE_TTL_SECONDS = 2_678_400;
+
 const nextConfig: NextConfig = {
   images: {
+    minimumCacheTTL: IMAGE_MINIMUM_CACHE_TTL_SECONDS,
     // PROT photos through Vercel Image Optimization (Phase 13): only https, the PROT bucket and /prot/**,
     // no query string. Same rule as isOptimizableProtPhoto() in components/prot/ProtPhoto.tsx (tested).
     remotePatterns: [
