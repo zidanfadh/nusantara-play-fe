@@ -50,7 +50,7 @@ export function UserNav() {
           <span className="hidden sm:inline text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
             Guest
           </span>
-          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`hidden sm:block w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isOpen && (
@@ -93,7 +93,7 @@ export function UserNav() {
         <span className="hidden sm:inline text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors max-w-[100px] truncate">
           {user?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
         </span>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`hidden sm:block w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

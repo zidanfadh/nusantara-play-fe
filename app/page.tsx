@@ -7,6 +7,7 @@ import { getBackendApiUrl } from '@/lib/api/base-url';
 import type { PaginatedResponse, PROTEntity } from '@/types/prot';
 import { getLandingStats } from '@/lib/api/stats';
 import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
+import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
 import {
   LockKeyhole,
   ShieldCheck,
@@ -92,7 +93,8 @@ export default async function Home() {
             {SITE_NAME}
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Section anchors from xl; the page links (Tur Virtual, Game) from md. Phones: the row below. */}
+          <div className="hidden md:flex items-center gap-6 xl:gap-8">
             {[
               { label: 'Ekosistem', href: '#tentang' },
               { label: 'Blockchain', href: '#blockchain' },
@@ -103,10 +105,20 @@ export default async function Home() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-foreground/70 font-medium hover:text-primary transition-colors"
+                className="hidden xl:inline text-foreground/70 font-medium hover:text-primary transition-colors"
               >
                 {link.label}
               </a>
+            ))}
+            {LANDING_PAGE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={link.prefetch ? undefined : false}
+                className="text-foreground font-semibold hover:text-primary transition-colors whitespace-nowrap"
+              >
+                {link.label}
+              </Link>
             ))}
           </div>
 
@@ -115,6 +127,7 @@ export default async function Home() {
             {user ? (
               <Link
                 href="/menu"
+                prefetch={false}
                 className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all"
               >
                 Main Menu
@@ -137,9 +150,24 @@ export default async function Home() {
             )}
           </div>
         </div>
+        {/* Phones and small tablets: the page links get their own row (the bar above is full there). */}
+        <div className="md:hidden border-t border-border/20">
+          <div className="max-w-7xl mx-auto px-6 h-10 flex items-center justify-center gap-8 text-sm">
+            {LANDING_PAGE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                prefetch={link.prefetch ? undefined : false}
+                className="font-semibold text-foreground/80 hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
       </nav>
 
-      <main className="pt-20">
+      <main className="pt-[7.5rem] md:pt-20">
         {/* Hero Section */}
         <section className="relative min-h-[90vh] flex items-center overflow-hidden px-6">
           <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -160,12 +188,14 @@ export default async function Home() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href={user ? '/menu' : '/login'}
+                  prefetch={false}
                   className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center"
                 >
                   Mulai Sekarang
                 </Link>
                 <Link
                   href="/menu"
+                  prefetch={false}
                   className="px-8 py-4 bg-muted text-foreground rounded-xl font-bold text-lg hover:bg-muted/70 transition-all duration-300 text-center"
                 >
                   Jelajahi Menu
