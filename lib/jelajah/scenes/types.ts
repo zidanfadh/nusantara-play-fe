@@ -58,7 +58,7 @@ export interface RectBounds {
  * Roof and detail style of a procedural house (Phase 22). `limas` = the Phase 11 two-tier hip roof (default). The UI
  * never names a style; the styles are loose, low-poly hints ("terinspirasi"), not reconstructions.
  */
-export type HouseStyle = 'limas';
+export type HouseStyle = 'limas' | 'malay';
 
 /** Raised house (rumah panggung), built procedurally. Described in the UI only as "terinspirasi rumah limas". */
 export interface HouseDef {
@@ -88,7 +88,7 @@ export interface StandDef {
 }
 
 /** Look of the centrepiece (Phase 22). `pavilion` = the Phase 12 open pavilion (default). */
-export type PavilionStyle = 'pavilion';
+export type PavilionStyle = 'pavilion' | 'arena';
 
 /**
  * Neutral centrepiece of the plaza (Phase 12): a small open pavilion (a roof on four posts on a low
@@ -126,7 +126,11 @@ export interface GameSoonDef {
  * Phase 22: procedural landmarks of a province, merged into the village mesh (no extra draw call). Each kind is
  * drawn by lib/jelajah/three/structures.ts; `collide` blocks the player with the structure's footprint.
  */
-export type StructureDef = never;
+export type StructureDef =
+  /** Plank walkway on posts in the water (deck height default 0.35 m). */
+  | { kind: 'jetty'; from: Vec2; to: Vec2; width: number; deckY?: number }
+  /** Low-poly mound: an island or, with `crater`, a distant mountain seen through the haze. Not walkable. */
+  | { kind: 'mountain'; x: number; z: number; radius: number; height: number; color: string; crater?: boolean; y?: number };
 
 export interface DecorDef {
   model: NatureModel;

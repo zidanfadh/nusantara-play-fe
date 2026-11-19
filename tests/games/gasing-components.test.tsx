@@ -93,7 +93,7 @@ describe('gasing links (Phase 20)', () => {
     expect(gasingHref()).toBe('/main/gasing');
     expect(gasingHref('jelajah')).toBe('/main/gasing?from=jelajah');
     expect(backLinkFor('jelajah')).toEqual({ href: '/jelajah', label: 'Kembali ke peta' });
-    expect(backLinkFor('jelajah-kepulauan-riau')).toBeNull(); // no Kepulauan Riau scene yet (Phase 22 step 2)
+    expect(backLinkFor('jelajah-kepulauan-riau')).toEqual({ href: '/jelajah/kepulauan-riau', label: 'Kembali ke desa' });
     // Sumatera Selatan's pavilion opens congklak, not gasing.
     expect(backLinkFor('jelajah-sumatera-selatan')).toBeNull();
     expect(backLinkFor('https://evil.example')).toBeNull();

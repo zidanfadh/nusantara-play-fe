@@ -21,50 +21,120 @@ interface ProvinceScene2DProps {
   extra?: ReactNode;
 }
 
+/** Raised house with a roof drawn for the scene's house style. */
+function House({ x, y, roof }: { x: number; y: number; roof: IllustrationLook['roof'] }) {
+  return (
+    <g transform={`translate(${x} ${y})`} className="fill-primary">
+      {[-34, -12, 12, 34].map((px) => (
+        <rect key={px} x={px - 3} y={-6} width={6} height={26} className="fill-foreground/60" />
+      ))}
+      <rect x={-46} y={-14} width={92} height={10} className="fill-foreground/70" />
+      <rect x={-40} y={-50} width={80} height={38} className="fill-primary/70" />
+      {roof === 'limas' && <path d="M -60 -46 L 60 -46 L 22 -96 L -22 -96 Z" className="fill-primary" />}
+      {roof !== 'limas' && <GableRoof roof={roof} />}
+      <rect x={-8} y={-40} width={16} height={28} className="fill-foreground/60" />
+    </g>
+  );
+}
+
+/** Phase 22 gable roofs: a gable with crossed ridge ends (malay). */
+function GableRoof({ roof }: { roof: Exclude<IllustrationLook['roof'], 'limas'> }) {
+  switch (roof) {
+    case 'malay':
+      return (
+        <>
+          <path d="M -58 -46 L 58 -46 L 40 -84 L -40 -84 Z" className="fill-primary" />
+          <path d="M -48 -94 L -32 -74 M -32 -94 L -48 -74 M 48 -94 L 32 -74 M 32 -94 L 48 -74" className="stroke-foreground/70" strokeWidth={4} />
+        </>
+      );
+  }
+}
+
+function Palm({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M -2 2 Q 4 -30 0 -60 L 5 -60 Q 9 -30 4 2 Z" className="fill-foreground/50" />
+      {[
+        'M 2 -60 Q -20 -72 -40 -48 Q -18 -62 2 -56 Z',
+        'M 2 -60 Q 24 -72 44 -48 Q 22 -62 2 -56 Z',
+        'M 2 -60 Q -14 -84 -32 -78 Q -12 -74 2 -58 Z',
+        'M 2 -60 Q 18 -84 36 -78 Q 16 -74 2 -58 Z',
+        'M 2 -60 Q 0 -86 6 -90 Q 8 -76 4 -58 Z',
+      ].map((d) => (
+        <path key={d} d={d} className="fill-secondary/70" />
+      ))}
+    </g>
+  );
+}
+
+function Bamboo({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      {[-10, -3, 4, 11].map((dx, i) => (
+        <g key={dx}>
+          <rect x={dx - 2} y={-70 + i * 6} width={4} height={72 - i * 6} className="fill-secondary/70" />
+          <path d={`M ${dx} ${-70 + i * 6} q ${i % 2 ? 14 : -14} -6 ${i % 2 ? 22 : -22} 4`} className="stroke-secondary/70" strokeWidth={3} fill="none" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
 /**
  * Decorative village illustration; colours follow the site theme. Phase 11: river, raised houses, palms. Phase 22:
- * drawn from the scene's look (IllustrationLook), so each province shows its own water, roofs, plants and landmarks.
+ * drawn from the scene's look (IllustrationLook), so each province shows its own water, roofs, plants and landmarks;
+ * river + limas + palms is exactly the Phase 11 picture.
  */
 function VillageIllustration({ look }: { look: IllustrationLook }) {
-  void look;
+  const has = (kind: string) => look.landmarks.includes(kind);
   return (
     <svg viewBox="0 0 640 200" className="h-auto w-full" aria-hidden focusable="false">
       <rect width="640" height="200" className="fill-accent/15" />
-      <rect y="40" width="640" height="34" className="fill-secondary/30" />
-      <rect y="74" width="640" height="10" className="fill-accent/30" />
+      {look.water === 'river' && (
+        <>
+          <rect y="40" width="640" height="34" className="fill-secondary/30" />
+          <rect y="74" width="640" height="10" className="fill-accent/30" />
+        </>
+      )}
+      {look.water === 'sea' && (
+        <>
+          {has('mountain') && (
+            <path d="M 40 30 Q 90 10 140 30 Z M 470 30 Q 540 4 610 30 Z" className="fill-secondary/40" />
+          )}
+          <rect y="30" width="640" height="44" className="fill-secondary/30" />
+          <rect y="30" width="640" height="3" className="fill-secondary/40" />
+          <rect y="74" width="640" height="10" className="fill-accent/30" />
+        </>
+      )}
       <rect y="84" width="640" height="116" className="fill-secondary/10" />
+      {has('jetty') && (
+        <g className="fill-foreground/50">
+          <rect x={300} y={40} width={16} height={46} />
+          <rect x={232} y={58} width={70} height={7} />
+        </g>
+      )}
       {[
         [70, 150],
         [520, 140],
       ].map(([x, y]) => (
-        <g key={x} transform={`translate(${x} ${y})`} className="fill-primary">
-          {[-34, -12, 12, 34].map((px) => (
-            <rect key={px} x={px - 3} y={-6} width={6} height={26} className="fill-foreground/60" />
-          ))}
-          <rect x={-46} y={-14} width={92} height={10} className="fill-foreground/70" />
-          <rect x={-40} y={-50} width={80} height={38} className="fill-primary/70" />
-          <path d="M -60 -46 L 60 -46 L 22 -96 L -22 -96 Z" className="fill-primary" />
-          <rect x={-8} y={-40} width={16} height={28} className="fill-foreground/60" />
-        </g>
+        <House key={x} x={x} y={y} roof={look.roof} />
       ))}
+      {look.centre === 'arena' && (
+        <g transform="translate(320 165)">
+          <ellipse rx={46} ry={14} className="fill-accent/40" />
+          <ellipse rx={46} ry={14} className="stroke-foreground/50" strokeWidth={4} fill="none" />
+          <path d="M -54 -40 L 54 -40 L 54 -32 L -54 -24 Z" className="fill-primary/80" />
+          <rect x={-50} y={-40} width={5} height={30} className="fill-foreground/60" />
+          <rect x={45} y={-40} width={5} height={30} className="fill-foreground/60" />
+        </g>
+      )}
       {[
         [190, 120],
         [300, 112],
         [430, 124],
-      ].map(([x, y]) => (
-        <g key={x} transform={`translate(${x} ${y})`}>
-          <path d="M -2 2 Q 4 -30 0 -60 L 5 -60 Q 9 -30 4 2 Z" className="fill-foreground/50" />
-          {[
-            'M 2 -60 Q -20 -72 -40 -48 Q -18 -62 2 -56 Z',
-            'M 2 -60 Q 24 -72 44 -48 Q 22 -62 2 -56 Z',
-            'M 2 -60 Q -14 -84 -32 -78 Q -12 -74 2 -58 Z',
-            'M 2 -60 Q 18 -84 36 -78 Q 16 -74 2 -58 Z',
-            'M 2 -60 Q 0 -86 6 -90 Q 8 -76 4 -58 Z',
-          ].map((d) => (
-            <path key={d} d={d} className="fill-secondary/70" />
-          ))}
-        </g>
-      ))}
+      ]
+        .filter(([x]) => !(look.centre === 'arena' && x === 300))
+        .map(([x, y]) => (look.plants === 'bamboo' ? <Bamboo key={x} x={x} y={y} /> : <Palm key={x} x={x} y={y} />))}
     </svg>
   );
 }

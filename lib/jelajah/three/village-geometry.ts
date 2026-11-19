@@ -11,8 +11,12 @@ import type { GameSoonDef, HouseDef, PavilionDef, SceneDefinition, StandDef } fr
 import { GAME_SOON_BOARD } from '@/lib/jelajah/engine/game-soon';
 import { Builder, flat, placement, v } from './mesh-builder';
 
+import { WATER_Y } from './water-level';
+import { addGableRoof, GABLE_STYLES } from './house-roofs';
+import { addStructures } from './structures';
+
 /** Water surface height (ground = 0). */
-export const WATER_Y = -0.22;
+export { WATER_Y };
 
 function addGround(b: Builder, scene: SceneDefinition) {
   const c = scene.colors;
@@ -122,6 +126,8 @@ function addHouse(b: Builder, h: HouseDef, scene: SceneDefinition) {
     case 'limas':
       addLimasRoof(b, m, h, scene);
       break;
+    default:
+      addGableRoof(b, m, h, scene.colors, GABLE_STYLES[style]);
   }
 }
 
@@ -203,6 +209,9 @@ function addPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
     case 'pavilion':
       addOpenPavilion(b, p, scene);
       break;
+    case 'arena':
+      addArena(b, p, scene);
+      break;
   }
 }
 
@@ -252,7 +261,52 @@ export function buildVillageGeometry(scene: SceneDefinition): BufferGeometry {
   for (const s of scene.stands) addStand(b, s, scene);
   if (scene.centrepiece) addPavilion(b, scene.centrepiece, scene);
   if (scene.gameSoon) addGameSoonPost(b, scene.gameSoon, scene);
+  addStructures(b, scene);
   return b.build();
+}
+
+/**
+ * Phase 22, the gasing pavilion: a packed-earth ring with a low log rim, open to the sky, and a small lean-to shade
+ * with a bench just north of it.
+ */
+function addArena(b: Builder, p: PavilionDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const m = placement(p.x, p.z, p.rotation);
+  const r = p.size / 2;
+  const flatDisc = (radius: number, y: number, color: Color) =>
+    b.addGeometry(new CircleGeometry(radius, 36), m.clone().multiply(new Matrix4().makeTranslation(0, y, 0)).multiply(new Matrix4().makeRotationX(-Math.PI / 2)), color);
+  flatDisc(r + 0.45, 0.036, new Color(c.path).multiplyScalar(0.8));
+  flatDisc(r, 0.042, new Color(c.path).multiplyScalar(0.9));
+  // Log rim.
+  const logs = 22;
+  const log = new Color(c.housePost);
+  const segment = ((2 * Math.PI * r) / logs) * 1.04;
+  for (let i = 0; i < logs; i += 1) {
+    const a = (i / logs) * Math.PI * 2;
+    const seg = m.clone().multiply(new Matrix4().makeRotationY(a));
+    b.box(seg, segment, 0.18, 0.24, 0, 0.09, r, i % 2 ? log : new Color(c.housePost).multiplyScalar(1.18));
+  }
+  // Shade: a lean-to shelter over a bench just north of the ring (the ring itself stays open to the camera).
+  const post = new Color(c.housePost);
+  const back = -(r + 1.3);
+  const front = -(r - 0.2);
+  const half = r * 0.75;
+  const high = p.postHeight + p.roofHeight;
+  const low = p.postHeight;
+  for (const x of [-half, half]) {
+    b.box(m, 0.2, high, 0.2, x, high / 2, back, post);
+    b.box(m, 0.2, low, 0.2, x, low / 2, front, post);
+  }
+  const depth = front - back;
+  const slope = Math.atan2(high - low, depth);
+  const roofM = m
+    .clone()
+    .multiply(new Matrix4().makeTranslation(0, (high + low) / 2 + 0.1, (back + front) / 2))
+    .multiply(new Matrix4().makeRotationX(slope));
+  b.box(roofM, 2 * half + 0.8, 0.12, depth / Math.cos(slope) + 0.7, 0, 0, 0, new Color(c.houseRoof));
+  // Bench under the shade.
+  b.box(m, 2 * half - 0.4, 0.12, 0.5, 0, 0.45, (back + front) / 2, new Color(c.houseFloor));
+  for (const x of [-half + 0.5, half - 0.5]) b.box(m, 0.12, 0.42, 0.4, x, 0.21, (back + front) / 2, post);
 }
 
 /**

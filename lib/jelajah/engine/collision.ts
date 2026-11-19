@@ -55,8 +55,23 @@ function toWorld(box: BoxCollider, lx: number, lz: number): Vec2 {
 
 /** Box collider of the plaza centrepiece (the platform plus a small margin). */
 export function pavilionCollider(c: PavilionDef): BoxCollider {
+  if (c.style === 'arena') {
+    // Phase 22: the ring plus the shade shelter behind it (local -z), see addArena in village-geometry.ts.
+    const shift = -ARENA_SHELTER_DEPTH / 2;
+    return {
+      kind: 'box',
+      x: c.x + Math.sin(c.rotation) * shift,
+      z: c.z + Math.cos(c.rotation) * shift,
+      halfW: c.size / 2 + 0.2,
+      halfD: c.size / 2 + 0.2 + ARENA_SHELTER_DEPTH / 2,
+      rotation: c.rotation,
+    };
+  }
   return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation };
 }
+
+/** Phase 22: how far the gasing arena's shade shelter reaches beyond the ring's collider (north, local -z). */
+export const ARENA_SHELTER_DEPTH = 1.3;
 
 /** Distance from a point to the collider's outline (0 when inside). */
 export function distanceToCollider(col: Collider, x: number, z: number): number {

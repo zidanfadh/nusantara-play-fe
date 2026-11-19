@@ -37,7 +37,7 @@ export const GAME_SOON_DESCRIPTION = 'Permainan untuk desa ini sedang disiapkan.
 /** Province scenes whose pavilion opens each game. Kept equal to the scene data by a test. */
 export const GAME_LINK_PROVINCES: Readonly<Record<JelajahGame, readonly string[]>> = {
   congklak: ['sumatera-selatan'],
-  gasing: [],
+  gasing: ['kepulauan-riau'],
 };
 
 export interface BackLink {

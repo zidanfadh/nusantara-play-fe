@@ -27,7 +27,7 @@ describe('game links (Phase 22, multi-game pavilions)', () => {
   });
 
   it('a province is allowlisted only on the page of the game its pavilion opens', () => {
-    expect(GAME_LINK_PROVINCES).toEqual({ congklak: ['sumatera-selatan'], gasing: [] });
+    expect(GAME_LINK_PROVINCES).toEqual({ congklak: ['sumatera-selatan'], gasing: ['kepulauan-riau'] });
     for (const game of JELAJAH_GAMES) {
       for (const slug of GAME_LINK_PROVINCES[game]) {
         expect(backLinkFor(`jelajah-${slug}`, game)).toEqual({ href: `/jelajah/${slug}`, label: 'Kembali ke desa' });
