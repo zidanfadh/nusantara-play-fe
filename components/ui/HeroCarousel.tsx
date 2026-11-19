@@ -1,25 +1,82 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { getImageProps, type StaticImageData } from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import heroImage from "@/public/images/landing/hero.webp";
+import nuslandImage from "@/public/images/landing/nusland.webp";
+
+/** The carousel is shown only from Tailwind's `lg` breakpoint (`hidden lg:block` in app/page.tsx). */
+export const HERO_CAROUSEL_MEDIA = "(min-width: 1024px)";
+
+/** 1x1 transparent GIF: what the <img> shows below `lg`, so phones download no carousel photo at all. */
+export const EMPTY_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAACH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+/**
+ * Slide width in CSS px: the square box is lg:col-span-5 of the max-w-7xl hero grid, scaled 105 % (about
+ * 510 px from 1280 px up, about 44vw between 1024 and 1279 px). With object-cover a 3:2 photo is drawn
+ * 1.5 times as wide as the box, so its `sizes` is 1.5 times larger.
+ */
+export function heroSlideSizes(aspect: number): string {
+  const factor = Math.max(1, aspect);
+  return `(min-width: 1280px) ${Math.round(510 * factor)}px, ${Math.round(44 * factor)}vw`;
+}
+
+interface Slide {
+  image: StaticImageData;
+  alt: string;
+  href: string | null;
+}
+
+const SLIDES: Slide[] = [
+  {
+    image: heroImage,
+    alt: "Children playing traditional Indonesian games in a village",
+    href: null,
+  },
+  {
+    image: nuslandImage,
+    alt: "Nusantara Virtual Tour Preview",
+    href: "https://nusantaraplay.kpoti.id/",
+  },
+];
+
+const SLIDE_CLASS =
+  "w-full h-full object-cover rounded-[3rem] grayscale-[20%] hover:grayscale-0 transition-all duration-700 hover:scale-100";
+
+/**
+ * One slide through next/image (Phase 14): `getImageProps` builds the optimized srcset, which only a
+ * `<source>` for the `lg` media query receives (art direction as in the Next.js docs). The first slide is
+ * the one visible on load: eager with high fetch priority; the second slide is lazy.
+ */
+export function HeroSlideImage({ slide, first }: { slide: Slide; first: boolean }) {
+  const { image, alt } = slide;
+  const {
+    props: { srcSet, sizes, width, height },
+  } = getImageProps({ src: image, alt, sizes: heroSlideSizes(image.width / image.height) });
+  return (
+    <picture className="block w-full h-full">
+      <source media={HERO_CAROUSEL_MEDIA} srcSet={srcSet} sizes={sizes} />
+      <img
+        className={SLIDE_CLASS}
+        alt={alt}
+        src={EMPTY_IMAGE}
+        width={width}
+        height={height}
+        loading={first ? "eager" : "lazy"}
+        fetchPriority={first ? "high" : undefined}
+        decoding="async"
+      />
+    </picture>
+  );
+}
 
 export function HeroCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  const images = [
-    {
-      src: "/images/landing/hero.webp",
-      alt: "Children playing traditional Indonesian games in a village",
-      href: null,
-    },
-    {
-      src: "/images/landing/nusland (1).webp",
-      alt: "Nusantara Virtual Tour Preview",
-      href: "https://nusantaraplay.kpoti.id/",
-    },
-  ];
+  const images = SLIDES;
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -60,20 +117,10 @@ export function HeroCarousel() {
                 rel="noopener noreferrer"
                 className="w-full h-full block"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="w-full h-full object-cover rounded-[3rem] grayscale-[20%] hover:grayscale-0 transition-all duration-700 hover:scale-100"
-                  alt={img.alt}
-                  src={img.src}
-                />
+                <HeroSlideImage slide={img} first={idx === 0} />
               </a>
             ) : (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                className="w-full h-full object-cover rounded-[3rem] grayscale-[20%] hover:grayscale-0 transition-all duration-700 hover:scale-100"
-                alt={img.alt}
-                src={img.src}
-              />
+              <HeroSlideImage slide={img} first={idx === 0} />
             )}
           </div>
         ))}
