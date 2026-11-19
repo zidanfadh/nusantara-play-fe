@@ -44,7 +44,7 @@ Never chain navigation with git using `&&` — always run them as separate comma
 - `app/(protected)/` — authenticated pages with shared layout
 - `app/prot/` — public-facing PROT browsing pages
 - `app/jelajah/` — Jelajah Nusantara (login required since Phase 18): hub map `/jelajah`, province pages `/jelajah/[provinsi]` (Phase 10)
-- `app/main/` — hosted games (public, Phase 17): `/main` lists them, `/main/congklak`
+- `app/main/` — hosted games (public, Phase 17): `/main` lists them, `/main/congklak`, `/main/gasing` (Phase 20)
 - `app/api/` — Next.js API routes
 - `app/page.tsx` — landing page; a **server component** that fetches stats and featured PROT on the server
 
@@ -92,7 +92,7 @@ it; see "Brand, navbar and the Jelajah login gate (Phase 18)".
 | Calendar | `types/calendar.ts` | `lib/api/calendar.ts` | `hooks/useCalendar.ts` | `components/calendar/` | `app/(protected)/calendar/` |
 | Marketplace | `types/marketplace.ts` | `lib/api/marketplace.ts` | `hooks/useMarketplace.ts` | `components/marketplace/` | `app/(protected)/marketplace/` |
 | Jelajah | `lib/jelajah/data.ts` | `lib/jelajah/data.ts` (via `apiClient`) | `lib/jelajah/use-*.ts` | `components/jelajah/` | `app/jelajah/` |
-| Games | `lib/games/congklak/*.ts` | none (games record nothing) | none | `components/games/` | `app/main/` |
+| Games | `lib/games/congklak/*.ts`, `lib/games/gasing/*.ts` | none (games record nothing) | none | `components/games/` | `app/main/` |
 
 ## Jelajah Nusantara (Phases 10 to 13)
 
@@ -398,6 +398,69 @@ imports, only local settings (`tests/games/games-record-nothing.test.ts`). three
   Phase 18 (navbar links to `/calendar`, `/menu`, `/jelajah` no longer prefetched): phone 341 KB, desktop 355 KB
   (`main` 342 / 361 KB).
 
+## Gasing (Phase 20)
+
+The second hosted game, built like congklak: public, no login, records nothing (shared section item 11), 2D canvas
+(no three.js, no image files, no new dependency). Two modes against the computer (Mudah, Sedang, Sulit): **Uri**
+(both throw once per round, the longer spin wins) and **Pangkah** (the target spins first, the other side throws to hit
+it; roles swap each round). Best of 3; a drawn round is replayed (at most `maxRounds` 5).
+
+- **Archive basis**: the rules text and "Tentang permainan ini" paraphrase and credit the published PROT record "Gasing"
+  (Kepulauan Riau, Kabupaten Natuna, id `5ed247fd-e45b-4308-bfbe-74c49fbb6557`, fetched read-only in Phase 20), with a
+  link to `/prot/<id>`. The text is stored in `texts.ts` (games may not call the network). Nothing beyond the record is
+  claimed; the simplifications (both tops identical, fixed turn order) are stated in the rules sheet.
+- **Files**: `lib/games/gasing/` (pure, no React/DOM): `rules.ts` (THE curator file: "Aturan dasar", `roundsToWin` 2,
+  `maxRounds` 5, `arenaRadius` 1, `outIsLoss`), `texts.ts` (EVERY Indonesian string: UI, modes, tutorial, rules generated
+  from `rules.ts`, curator note, archive credit), `types.ts`, `random.ts` (mulberry32), `physics.ts`, `throw.ts`,
+  `outcome.ts`, `ai.ts`, `match.ts`, `settings.ts`, `from-link.ts` (re-exports congklak's allowlisted `backLinkFor`),
+  `sound.ts` (no audio yet: `cueSound()` hook, `GASING_SOUNDS` all null). `components/games/gasing/`: `GasingGame.tsx`
+  (start and play, toolbar, sheets, `?from=`, `?debug=1`), `GasingArena.tsx` (canvas loop, input, HUD, overlays),
+  `render.ts` (all drawing), `StartScreen.tsx`, `InfoSheets.tsx` (rules + about, `DemoDialog`), `Tutorial.tsx`.
+  `app/main/gasing/page.tsx` (static, metadata `Gasing · ${SITE_NAME}`).
+- **Physics** (`physics.ts`, tests `tests/games/gasing-physics.test.ts`): fixed step 1/120 s, seeded RNG kept in the
+  world, no Date/Math.random. Top-down 2D; arena radius 1, top radius 0.085. A throw flies from its side of the ring
+  (power → landing distance 0.3 to 1.95 and part of the spin; quality → the rest of the spin, the starting tilt and the
+  landing scatter); on the ground: rolling friction + drag, spin decay (faster when tilted), tilt grows below the
+  critical spin, precession wander paid for with spin energy, fall at tilt 1 or spin ≤ 3 rad/s (spin 0 = stopped),
+  centre outside the ring = out. Collisions: disc impulse (restitution 0.55), Coulomb rim friction, spin loss and tilt
+  kick per top proportional to its own speed change; a top landing on the other hits it from the first contact point
+  ("Pangkah tepat!"). `simulate(world, inputs, steps)` is the pure headless runner. Invariants tested: determinism,
+  energy never increases without a throw, zero spin = stopped, ring exit, collision symmetry (mirror and swap).
+- **Round rule** (`outcome.ts`): out = loses at once; otherwise the shorter spin (measured from its own landing) loses,
+  decided as soon as it is certain; within 0.05 s = draw. The HUD timers freeze at the decided times.
+- **Throw input** (`throw.ts`, tests `gasing-throw.test.ts`): pointer slingshot (press anywhere in the arena, drag back,
+  aim = opposite of the drag with the arena tilt undone, power = length / max drag, release in the dead zone = cancel)
+  and keyboard (← → aim, ↑ ↓ power, hold Space, release) share ONE rule, `evaluateRelease`: steadiness (pointer spread
+  in the last 150 ms; keyboard 0.5 if an arrow was pressed then), winding (steady hold, full after 450 ms), the perfect
+  window for 450 ms after that (bonus spin ×1.07, half the bad tilt, a third of the scatter, "Lemparan mantap!"), then
+  the string slips (quality down to ×0.85).
+- **AI** (`ai.ts`, tests `gasing-match-ai.test.ts`): plans like the player (spin: land short of the centre, away from
+  the other top; strike: land on the target with drift lead), executed with per-level noise (`AI_PROFILES`); the Sulit
+  striker simulates 12 candidates for 300 steps (about 1.5 ms median on a desktop) on the main thread, no worker.
+  Calibration test: the documented `TYPICAL_HUMAN` (±0.05 rad aim, ±0.06 power, quality 0.5 to 0.92, perfect 1 in 3)
+  plays 300 seeded matches per mode and level; measured player win rates: Uri 75.3 / 51.3 / 27.0 %, Pangkah
+  76.7 / 55.7 / 32.0 % (targets 75 / 50 / 30 ± 10).
+- **Page**: canvas loop = fixed-step accumulator with interpolated drawing, at most 12 steps per frame, dpr capped at 2,
+  paused while the tab is hidden or the tutorial or a dialog is open. The static arena is its own canvas, drawn on
+  resize only; the shake is a CSS transform of the canvas layer; spin meters use `scaleX` (no layout per frame). Do NOT
+  use `desynchronized: true` on the canvas (it bypassed the compositor: the tops were missing from screenshots).
+  Colour-blind safe sides: player warm (red/amber) with dots and a round knob, computer cool (blue/teal) with stripes
+  and a flat knob; the HUD swatches match. Reduced motion: no shake, fewer particles, no haptics (`navigator.vibrate`
+  on hits otherwise). Landscape phones (height ≤ 500 px) get the HUD in a side column and compact cards. Tutorial:
+  3 steps (Tarik, Arahkan, Lepas), skippable, `localStorage['games.gasing.tutorialSeen.v1']`; settings
+  `localStorage['games.gasing.settings.v1']` (mode, level); every access in try/catch.
+- **Debug**: `?debug=1` shows fps (2 s average, dpr, canvas size) and exposes `window.__nlGasing` (`stage`, `round`,
+  `wins`, `results`, `world`, `throw(t)`, `fps`); `&canvas=cpu` switches to a CPU-backed 2D canvas for comparison.
+- **Links**: the `/main` card sits next to Congklak (registry order), game links have `prefetch={false}`;
+  `?from=jelajah` / `?from=jelajah-<province>` give congklak's back links. The Jelajah pavilion and the bumper still
+  open congklak only (`PavilionDef.game` is typed `'congklak'`): adding gasing there needs a union type, a per-game label
+  and href in `GamePrompt` / `GameCard`, and a game-aware `GAME_LINK_PROVINCES` (Phase 20 report).
+- **Measured** (Phase 20, production build, headless Chrome with software rendering): the game's own JS 28.0 KB gzip
+  (81.7 KB raw, 2 chunks; budget 60 KB); `/main/gasing` all JS 276 KB gzip. Pangkah collision, 2.5 s after the throw:
+  phone 390x844 39.7 fps (CPU ×1) / 40.6 fps (×4); desktop 1440x900 21.1 / 21.5 fps (the large canvas is slow to
+  composite in software rendering; a CPU-backed canvas gave desktop 40 / 27, phone 52 / 39). Real devices not measured
+  yet: use `?debug=1`.
+
 ## Brand, navbar and the Jelajah login gate (Phase 18)
 
 - **Brand**: `lib/brand.ts` has `SITE_NAME` ("Nusantara Legacy"), `SITE_TAGLINE`, `SITE_DESCRIPTION` and
@@ -584,6 +647,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      `nusantara-play-fe/lib/jelajah/concept/script.ts`. The Jelajah login page no longer offers "Masuk sebagai Tamu"
      (the map needs an account; the games stay open) and the landing page's featured PROT are published only. Details
      in the frontend CLAUDE.md "Concept video (Phase 19)".
+   - Gasing (Phase 20): the second self-hosted game, `/main/gasing` (public, listed on `/main` next to Congklak), 2D
+     canvas, against the computer (Mudah, Sedang, Sulit) in two modes based on the published archive record "Gasing"
+     (Kepulauan Riau): Uri (longest spin wins) and Pangkah (strike the opponent's spinning top; roles swap). Slingshot
+     throw by touch/mouse or keyboard, best of 3, records nothing (item 11). ONE ruleset "Aturan dasar" in
+     `nusantara-play-fe/lib/games/gasing/rules.ts` and every text in `texts.ts`, awaiting curator review. Not yet linked
+     from the Jelajah pavilion or the bumper (they support one game only). Details in the frontend CLAUDE.md
+     "Gasing (Phase 20)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -612,7 +682,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 11. Games record nothing yet (owner decision, Phase 17): games are played without logging in, and nothing about a game
     (moves, results, scores, XP) is recorded or sent to the backend. Only local settings (difficulty, animation speed,
     last mode) are kept in `localStorage['games.congklak.settings.v1']` (try/catch). A test fails if a game file calls
-    the network or imports API code. A later phase may add rewards for games, but only through server-verified results
+    the network or imports API code. Gasing (Phase 20) follows the same rule: `localStorage['games.gasing.settings.v1']`
+    (mode, level) and `localStorage['games.gasing.tutorialSeen.v1']` only. A later phase may add rewards for games, but only through server-verified results
     (item 10: browser-reported results never give Points, and a game result reported by the browser is not proof).
 
 ## Deployment facts
@@ -870,6 +941,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 18: unchanged, 220 errors, 29 warnings (`src/modules/stats/` is clean).
 - Frontend after Phase 19: unchanged, 44 errors, 80 warnings (all 42 new and touched source files are clean).
 - Backend after Phase 19: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 20: unchanged, 44 errors, 80 warnings (every new and touched source file is clean).
+- Backend after Phase 20: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1175,6 +1248,15 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   checks used a fake Supabase auth endpoint on localhost (`/auth/v1/user` answering a test user) and a matching session
   cookie, in scratch files on D: only (never committed); requests to `/backend-api` had their Authorization header removed,
   so production saw only plain public read-only GETs.
+- 2026-11-19: Gasing (Phase 20): the published archive record "Gasing" (Kepulauan Riau) describes Gasing Uri and Gasing
+  Pangkah, so the game implements both, paraphrasing and crediting the record (linked to its `/prot` page). Decisions:
+  both tops are identical (a heavier "pemangkah" striker made the striker win ~90 % of rounds); the Pangkah round is
+  decided like Uri, by spin time measured from each top's own landing, plus out = loss (so a waiting striker gains
+  nothing and a hit pays off by shortening the target's spin); a shaky release scatters the landing point so release
+  quality also means accuracy; the computer's Sulit search is cheap enough for the main thread (no worker).
+- 2026-11-19: Gasing canvas (Phase 20): the browser's default (GPU-backed) 2D canvas, static arena on its own canvas,
+  compositor-only shake and meters. `desynchronized: true` is forbidden (frames bypassed the compositor and the tops
+  were missing from screenshots, while the fps looked high).
 - 2026-11-19: Phase 18 follow-ups (owner answers): the Supabase redirect allowlist needs no query variants; removing
   `/landing-page/1` and `/2` waits for the cleanup phase. Phase 19: the Jelajah login page shows a note and a link to the
   games instead of "Masuk sebagai Tamu"; the landing page's featured PROT are requested with `status=ARSIP_NASIONAL` and

@@ -9,7 +9,10 @@ export const metadata: Metadata = {
   description: 'Permainan tradisional yang bisa dimainkan langsung di browser, tanpa masuk akun.',
 };
 
-/** /main (Phase 17): the games hosted on the site. Public, no login. */
+/**
+ * /main (Phase 17): the games hosted on the site. Public, no login. Phase 20: gasing next to congklak; the
+ * game links are not prefetched (each game is its own heavy chunk, like the other heavy routes).
+ */
 export default function GamesPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -22,6 +25,7 @@ export default function GamesPage() {
             <li key={g.slug}>
               <Link
                 href={g.href}
+                prefetch={false}
                 className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-sm transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="text-xl font-bold">{g.title}</span>

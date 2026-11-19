@@ -161,7 +161,8 @@ describe('congklak animation timing', () => {
 });
 
 describe('games list', () => {
-  it('lists only congklak, under /main', () => {
-    expect(GAMES.map((g) => g.href)).toEqual(['/main/congklak']);
+  it('lists congklak and gasing (Phase 20), under /main', () => {
+    expect(GAMES.map((g) => g.href)).toEqual(['/main/congklak', '/main/gasing']);
+    expect(new Set(GAMES.map((g) => g.slug)).size).toBe(GAMES.length);
   });
 });
