@@ -114,6 +114,7 @@ describe('gasing texts (Phase 20)', () => {
     expect(formatSeconds(6.44)).toBe('6,4');
     expect(roundResultText(1, 0, 'lebih-lama', [6.44, 5.1])).toBe('Kamu menang ronde 1: 6,4 dtk lawan 5,1 dtk.');
     expect(roundResultText(2, 1, 'keluar', [1, 3])).toBe('Komputer menang ronde 2: gasingmu keluar arena.');
+    expect(roundResultText(2, 0, 'lebih-lama', [7.24, 7.17])).toBe('Kamu menang ronde 2: 7,24 dtk lawan 7,17 dtk.');
     expect(roundResultText(3, 'draw', 'lebih-lama', [4, 4])).toContain('Ronde diulang');
     expect(matchHeading(0)).toBe('Kamu menang!');
     expect(matchHeading(1)).toBe('Komputer menang');

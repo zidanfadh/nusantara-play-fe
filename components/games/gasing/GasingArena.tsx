@@ -175,6 +175,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
       const ok = playerThrow(m, t, eventsRef.current);
       if (ok) {
         cueSound('throw');
+        setMessage(UI.playerThrows);
         if (t.perfect) {
           cueSound('perfect');
           showFlash(UI.perfect);
@@ -243,7 +244,8 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         } else if (e.type === 'stop' || e.type === 'out') {
           cueSound(e.type);
           if (e.type === 'stop') dustPuff(fx, view, e.x, e.y, 0.3);
-          setMessage(endText(e.side, e.type === 'out' ? 'keluar' : 'jatuh'));
+          // After the decision the round result stays the message.
+          if (m.stage !== 'round-over' && m.stage !== 'match-over') setMessage(endText(e.side, e.type === 'out' ? 'keluar' : 'jatuh'));
         } else if (e.type === 'throw' && e.side === 1) {
           setMessage(UI.computerThrows);
         }
@@ -520,7 +522,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-1.5">
           <span className="truncate text-xs font-semibold sm:text-sm">{NAMES[side]}</span>
-          <span ref={timeRefs[side]} className="ml-auto text-xs font-bold tabular-nums sm:text-sm" aria-label={`${UI.spinMeter} ${NAMES[side]}`}>
+          <span ref={timeRefs[side]} className="ml-auto whitespace-nowrap text-xs font-bold tabular-nums sm:text-sm" aria-label={`${UI.spinMeter} ${NAMES[side]}`}>
             0,0 {UI.seconds}
           </span>
         </div>
@@ -609,7 +611,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         )}
 
         {overlay === 'round' && result && ui && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/60 p-4 backdrop-blur-sm" data-testid="gasing-round-result">
+          <div className="absolute inset-0 flex items-center justify-center bg-background/25 p-4" data-testid="gasing-round-result">
             <section className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center text-card-foreground shadow-xl" aria-labelledby="gasing-round-title">
               <h2 id="gasing-round-title" className="text-xl font-extrabold text-primary">
                 {roundHeading(result.winner)}
@@ -620,7 +622,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
                   <div key={s} className="flex items-center justify-center gap-2 rounded-xl bg-muted px-2 py-1.5">
                     <span className="h-4 w-4 rounded-full" style={{ background: SWATCH_CSS[s] }} aria-hidden />
                     <span className="font-semibold">{NAMES[s]}</span>
-                    <span className="tabular-nums">{result.ends[s] === 'keluar' ? UI.outShort : `${formatSeconds(result.times[s])} ${UI.seconds}`}</span>
+                    <span className="whitespace-nowrap tabular-nums">{result.ends[s] === 'keluar' ? UI.outShort : `${formatSeconds(result.times[s])} ${UI.seconds}`}</span>
                   </div>
                 ))}
               </div>
@@ -639,7 +641,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         )}
 
         {overlay === 'end' && ui && ui.winner !== null && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm" data-testid="gasing-end">
+          <div className="absolute inset-0 flex items-center justify-center bg-background/40 p-4" data-testid="gasing-end">
             <section className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center text-card-foreground shadow-xl" aria-labelledby="gasing-result">
               <h2 id="gasing-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary outline-none">
                 {matchHeading(ui.winner)}
@@ -683,7 +685,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
           {message}
         </p>
         <p className="text-center text-[11px] leading-snug text-muted-foreground">
-          {stage === 'aim' ? (inputMode === 'keyboard' ? UI.keyboardHint : UI.aimHint) : roleLine}
+          {stage === 'aim' ? (inputMode === 'keyboard' ? UI.keyboardHint : UI.aimHint) : stage === 'wait' && ui?.next === 1 ? roleLine : ' '}
         </p>
       </div>
       <p className="text-center text-[11px] text-muted-foreground">{NO_DATA_NOTE}</p>

@@ -77,6 +77,7 @@ export const UI = {
   roleStriker: 'Hantam gasing komputer!',
   roleUri: 'Buat gasingmu berputar selama mungkin.',
   computerThrows: 'Komputer melempar.',
+  playerThrows: 'Kamu melempar.',
   legendPlayer: 'Kamu (bertitik)',
   legendComputer: 'Komputer (bergaris)',
   rulesTitle: 'Cara bermain gasing',
@@ -121,9 +122,11 @@ export function formatSeconds(s: number): string {
 export function roundResultText(round: number, winner: RoundWinner, reason: RoundReason, times: [number, number]): string {
   if (winner === 'draw') return `Ronde ${round} seri (${formatSeconds(times[0])} dtk lawan ${formatSeconds(times[1])} dtk). Ronde diulang.`;
   const loser: Side = winner === 0 ? 1 : 0;
+  // Two different times can round to the same tenth: then show hundredths.
+  const fmt = (t: number) => (formatSeconds(times[winner]) === formatSeconds(times[loser]) ? t.toFixed(2).replace('.', ',') : formatSeconds(t));
   const head = winner === 0 ? `Kamu menang ronde ${round}` : `Komputer menang ronde ${round}`;
   if (reason === 'keluar') return `${head}: ${loser === 0 ? 'gasingmu' : 'gasing komputer'} keluar arena.`;
-  return `${head}: ${formatSeconds(times[winner])} dtk lawan ${formatSeconds(times[loser])} dtk.`;
+  return `${head}: ${fmt(times[winner])} dtk lawan ${fmt(times[loser])} dtk.`;
 }
 
 export function matchHeading(winner: RoundWinner): string {

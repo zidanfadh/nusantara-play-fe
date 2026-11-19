@@ -269,7 +269,8 @@ export function drawTop(
   const wx = held ? held.x : top.x;
   const wy = held ? held.y : top.y;
   const [gx, gy] = toScreen(v, wx, wy);
-  const rp = top.radius * v.R * 1.15;
+  // Drawn a little larger than the physics radius so the carving reads on a phone.
+  const rp = top.radius * v.R * 1.45;
   const flying = top.phase === 'flying' && top.flightDur > 0;
   const f = flying ? Math.min(1, top.flightT / top.flightDur) : 0;
   const arc = flying ? 4 * f * (1 - f) : 0;
