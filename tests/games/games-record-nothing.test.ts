@@ -25,7 +25,8 @@ describe('games record nothing (Phase 17)', () => {
     expect(GAME_FILES).toEqual(
       expect.arrayContaining([
         'lib/games/congklak/engine.ts',
-        'lib/games/congklak/ai.worker.ts',
+        'lib/games/congklak/core.ts',
+        'lib/games/congklak/ai-worker-source.ts',
         'lib/games/congklak/rules.ts',
         'components/games/congklak/CongklakGame.tsx',
         'app/main/congklak/page.tsx',
@@ -41,7 +42,7 @@ describe('games record nothing (Phase 17)', () => {
   });
 
   it('the engine, rules and AI are pure (no React, no DOM storage)', () => {
-    for (const f of ['engine', 'rules', 'state', 'ai', 'random', 'replay'].map((n) => `lib/games/congklak/${n}.ts`)) {
+    for (const f of ['core', 'engine', 'rules', 'state', 'ai', 'random', 'replay'].map((n) => `lib/games/congklak/${n}.ts`)) {
       const src = readFileSync(join(root, f), 'utf8');
       expect(src, f).not.toMatch(/from\s+['"]react['"]|localStorage|document\.|window\./);
     }

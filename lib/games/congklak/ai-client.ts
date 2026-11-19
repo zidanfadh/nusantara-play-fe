@@ -1,10 +1,12 @@
 /**
- * Browser side of the congklak computer opponent (Phase 17). Every level runs in ONE Web Worker
- * (ai.worker.ts), so the Sulit search never blocks the page. Without Worker support (very old browsers)
- * the move is computed on the main thread with a short time limit instead.
+ * Browser side of the congklak computer opponent (Phase 17). Every level runs in ONE Web Worker, started
+ * from a Blob URL of the self-contained core (ai-worker-source.ts), so the Sulit search never blocks the
+ * page. Without Blob worker support (very old browsers, a strict CSP) or after a worker error, the move is
+ * computed on the main thread with a short time limit instead.
  */
 import { chooseAiMove, type AiLevel } from './ai';
 import type { AiRequest, AiResponse } from './ai-protocol';
+import { aiWorkerSource } from './ai-worker-source';
 import { createRng, randomSeed } from './random';
 import { DEFAULT_RULES, type CongklakRules } from './rules';
 import type { CongklakState } from './state';
@@ -17,13 +19,28 @@ export interface AiClient {
   dispose(): void;
 }
 
+/** Starts the worker from a Blob URL of the self-contained AI source (see ai-worker-source.ts). */
+function spawnWorker(): { worker: Worker; url: string } {
+  const url = URL.createObjectURL(new Blob([aiWorkerSource()], { type: 'text/javascript' }));
+  try {
+    return { worker: new Worker(url, { name: 'congklak-ai' }), url };
+  } catch (e) {
+    URL.revokeObjectURL(url);
+    throw e;
+  }
+}
+
 export function createAiClient(rules: CongklakRules = DEFAULT_RULES): AiClient {
   let worker: Worker | null = null;
+  let blobUrl: string | null = null;
   try {
-    if (typeof Worker !== 'undefined') {
-      worker = new Worker(new URL('./ai.worker.ts', import.meta.url), { type: 'module', name: 'congklak-ai' });
+    if (typeof Worker !== 'undefined' && typeof Blob !== 'undefined' && typeof URL.createObjectURL === 'function') {
+      const spawned = spawnWorker();
+      worker = spawned.worker;
+      blobUrl = spawned.url;
     }
   } catch {
+    // CSP or browser without Blob workers: compute on the main thread instead
     worker = null;
   }
   let nextId = 1;
@@ -68,6 +85,8 @@ export function createAiClient(rules: CongklakRules = DEFAULT_RULES): AiClient {
     dispose() {
       worker?.terminate();
       worker = null;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+      blobUrl = null;
       pending.clear();
     },
   };

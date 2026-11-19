@@ -11,6 +11,7 @@
  * Sowing always goes to the next index (wrapping), which is anticlockwise as seen by either player and
  * leads towards the mover's own store. The hole opposite index i is 2n - i.
  */
+import { core } from './core';
 import { DEFAULT_RULES, type CongklakRules } from './rules';
 
 export type Player = 0 | 1;
@@ -26,33 +27,33 @@ export interface CongklakState {
   readonly winner: Winner | null;
 }
 
-export const other = (p: Player): Player => (p === 0 ? 1 : 0);
+export const other = (p: Player): Player => core.other(p);
 
 export function pitCount(rules: CongklakRules = DEFAULT_RULES): number {
-  return 2 * rules.holesPerSide + 2;
+  return core.pitCount(rules);
 }
 
 export function storeIndex(player: Player, rules: CongklakRules = DEFAULT_RULES): number {
-  return player === 0 ? rules.holesPerSide : 2 * rules.holesPerSide + 1;
+  return core.storeIndex(player, rules);
 }
 
 /** Ring index of a player's small hole `hole` (0 .. n-1, in sowing order). */
 export function holeIndex(player: Player, hole: number, rules: CongklakRules = DEFAULT_RULES): number {
-  return player === 0 ? hole : rules.holesPerSide + 1 + hole;
+  return core.holeIndex(player, hole, rules);
 }
 
 export function isStore(pit: number, rules: CongklakRules = DEFAULT_RULES): boolean {
-  return pit === rules.holesPerSide || pit === 2 * rules.holesPerSide + 1;
+  return core.isStore(pit, rules);
 }
 
 /** The player a pit belongs to (stores included). */
 export function ownerOf(pit: number, rules: CongklakRules = DEFAULT_RULES): Player {
-  return pit <= rules.holesPerSide ? 0 : 1;
+  return core.ownerOf(pit, rules);
 }
 
 /** The small hole across the board from a small hole. */
 export function oppositeOf(pit: number, rules: CongklakRules = DEFAULT_RULES): number {
-  return 2 * rules.holesPerSide - pit;
+  return core.oppositeOf(pit, rules);
 }
 
 /** `{ player, hole }` of a small hole's ring index (null for a store). */
@@ -63,35 +64,21 @@ export function holeOf(pit: number, rules: CongklakRules = DEFAULT_RULES): { pla
 }
 
 export function createInitialState(starting: Player = 0, rules: CongklakRules = DEFAULT_RULES): CongklakState {
-  const pits = new Array<number>(pitCount(rules)).fill(rules.seedsPerHole);
-  pits[storeIndex(0, rules)] = 0;
-  pits[storeIndex(1, rules)] = 0;
-  return { pits, toMove: starting, over: false, winner: null };
+  return core.createInitialState(starting, rules);
 }
 
 /** Seeds in a player's small holes. */
 export function seedsOnSide(pits: readonly number[], player: Player, rules: CongklakRules = DEFAULT_RULES): number {
-  let sum = 0;
-  for (let h = 0; h < rules.holesPerSide; h++) sum += pits[holeIndex(player, h, rules)];
-  return sum;
+  return core.seedsOnSide(pits, player, rules);
 }
 
 /** Holes (0 .. n-1) the player to move may play: their own non-empty small holes. Empty once the game is over. */
 export function legalMoves(state: CongklakState, rules: CongklakRules = DEFAULT_RULES): number[] {
-  if (state.over) return [];
-  const out: number[] = [];
-  for (let h = 0; h < rules.holesPerSide; h++) if (state.pits[holeIndex(state.toMove, h, rules)] > 0) out.push(h);
-  return out;
+  return core.legalMoves(state, rules);
 }
 
 export function isLegalMove(state: CongklakState, hole: number, rules: CongklakRules = DEFAULT_RULES): boolean {
-  return (
-    !state.over &&
-    Number.isInteger(hole) &&
-    hole >= 0 &&
-    hole < rules.holesPerSide &&
-    state.pits[holeIndex(state.toMove, hole, rules)] > 0
-  );
+  return core.isLegalMove(state, hole, rules);
 }
 
 export function scores(state: CongklakState, rules: CongklakRules = DEFAULT_RULES): [number, number] {
