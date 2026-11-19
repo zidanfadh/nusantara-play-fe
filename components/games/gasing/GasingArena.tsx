@@ -8,7 +8,7 @@
  */
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent } from 'react';
 import { predictLanding, throwOrigin, STEP_HZ } from '@/lib/games/gasing/physics';
 import {
   createMatch,
@@ -74,6 +74,15 @@ import {
 import { Tutorial } from './Tutorial';
 
 const STEP_MS = 1000 / STEP_HZ;
+
+// Landscape phones: the HUD moves into a side column so the arena gets the full height.
+const COMPACT = '(orientation: landscape) and (max-height: 500px)';
+function subscribeCompact(onChange: () => void) {
+  const mq = window.matchMedia(COMPACT);
+  mq.addEventListener('change', onChange);
+  return () => mq.removeEventListener('change', onChange);
+}
+const isCompact = () => window.matchMedia(COMPACT).matches;
 const MAX_STEPS_PER_FRAME = 12;
 const DPR_CAP = 2;
 /** The round / end overlay appears this long after the decision, so the last moment is visible. */
@@ -137,6 +146,9 @@ interface Props {
 export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, backLink, onRestart, onSettings }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  /** The static arena (drawn on resize only) and the layer both canvases sit in (shaken with CSS). */
+  const bgRef = useRef<HTMLCanvasElement>(null);
+  const layerRef = useRef<HTMLDivElement>(null);
   const matchRef = useRef<MatchState | null>(null);
   const viewRef = useRef<View | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -157,6 +169,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
   const [flash, setFlash] = useState<{ text: string; key: number } | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(() => !tutorialSeen());
   const [inputMode, setInputMode] = useState<'pointer' | 'keyboard'>('pointer');
+  const compact = useSyncExternalStore(subscribeCompact, isCompact, () => false);
 
   const reducedRef = useRef(reducedMotion);
   useEffect(() => {
@@ -191,13 +204,20 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
-    const ctx = canvas.getContext('2d');
+    // CPU-backed canvas by default (`willReadFrequently`): Phase 20 headless measurement, Pangkah collision,
+    // 4x CPU throttling: desktop 52 fps (GPU-backed 24), phone 52 (41); the scene is a few small shapes, so
+    // the GPU round trip costs more than it saves. `?debug=1&canvas=gpu` switches back for a real-device check.
+    const backend = debug ? new URLSearchParams(window.location.search).get('canvas') : null;
+    const ctx = canvas.getContext('2d', { desynchronized: true, willReadFrequently: backend !== 'gpu' });
     if (!ctx) return;
     const m = createMatch(settings.mode, settings.level, seed);
     matchRef.current = m;
     dragRef.current = null;
     keyRef.current = null;
-    const arena = document.createElement('canvas');
+    const arena = bgRef.current;
+    const layer = layerRef.current;
+    if (!arena || !layer) return;
+    let shaking = false;
     const fx = createEffects(reducedRef.current);
     let dpr = 1;
     let view: View = computeView(1, 1);
@@ -280,10 +300,11 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
           hudText[side] = time;
           timeRefs[side].current!.textContent = time;
         }
-        const width = `${Math.round(Math.min(1, Math.abs(t.spin) / METER_FULL) * 100)}%`;
+        // scaleX, not width: no layout per frame.
+        const width = `scaleX(${(Math.round(Math.min(1, Math.abs(t.spin) / METER_FULL) * 100) / 100).toFixed(2)})`;
         if (width !== hudWidth[side] && meterRefs[side].current) {
           hudWidth[side] = width;
-          meterRefs[side].current!.style.width = width;
+          meterRefs[side].current!.style.transform = width;
         }
       }
     };
@@ -291,9 +312,16 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
     const draw = (alpha: number, frameDt: number, now: number) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, view.w, view.h);
+      // The arena is its own canvas underneath (never repainted per frame); the shake moves the whole layer
+      // with a compositor-only transform.
       const [sx, sy] = shakeOffset(fx);
-      ctx.translate(sx, sy);
-      ctx.drawImage(arena, 0, 0, view.w, view.h);
+      if (sx || sy) {
+        layer.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;
+        shaking = true;
+      } else if (shaking) {
+        layer.style.transform = '';
+        shaking = false;
+      }
 
       // The player's live aim (pointer or keyboard).
       const aiming = m.stage === 'aim' && !pausedRef.current;
@@ -527,7 +555,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
           </span>
         </div>
         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden>
-          <div ref={meterRefs[side]} className="h-full rounded-full" style={{ width: '0%', background: side === 0 ? TOP_STYLES[0].band1 : TOP_STYLES[1].band1 }} />
+          <div ref={meterRefs[side]} className="h-full w-full origin-left rounded-full" style={{ transform: 'scaleX(0)', background: side === 0 ? TOP_STYLES[0].band1 : TOP_STYLES[1].band1 }} />
         </div>
       </div>
     </div>
@@ -545,16 +573,17 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
 
   return (
     <div className="flex min-h-0 flex-1 flex-col" data-testid="gasing-arena" data-stage={stage} data-round={ui?.round ?? 1} data-wins={ui ? `${ui.wins[0]},${ui.wins[1]}` : '0,0'} data-mode={settings.mode} data-level={settings.level} data-overlay={overlay} data-input={inputMode}>
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+      <div className={compact ? 'flex min-h-0 flex-1 gap-2' : 'contents'}>
+      <div className={compact ? 'flex w-40 shrink-0 flex-col justify-center gap-2' : 'grid grid-cols-[1fr_auto_1fr] items-center gap-2'}>
         {chip(1)}
-        <div className="flex flex-col items-center gap-0.5 px-1">
+        <div className={`flex flex-col items-center gap-0.5 px-1 ${compact ? 'order-first' : ''}`}>
           <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{ui ? UI.roundOf(ui.round) : ''}</span>
           {dots}
         </div>
         {chip(0)}
       </div>
 
-      <div className="relative mt-1.5 min-h-0 flex-1">
+      <div className={`relative min-h-0 flex-1 ${compact ? '' : 'mt-1.5'}`}>
         <div
           ref={wrapRef}
           className="absolute inset-0 touch-none select-none rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -575,7 +604,10 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
           }}
           data-testid="gasing-canvas-wrap"
         >
-          <canvas ref={canvasRef} className="block h-full w-full" aria-hidden />
+          <div ref={layerRef} className="absolute inset-0">
+            <canvas ref={bgRef} className="absolute inset-0 block h-full w-full" aria-hidden />
+            <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" aria-hidden />
+          </div>
         </div>
 
         {banner && overlay === 'none' && (
@@ -593,7 +625,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
           {flash && overlay === 'none' && (
             <motion.div
               key={flash.key}
-              className="pointer-events-none absolute inset-x-0 top-12 flex justify-center"
+              className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center"
               initial={{ opacity: 0, scale: reducedMotion ? 1 : 0.8, y: reducedMotion ? 0 : 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -678,6 +710,8 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
             }}
           />
         )}
+      </div>
+
       </div>
 
       <div className="mt-1 flex min-h-[2.5rem] flex-col justify-center">
