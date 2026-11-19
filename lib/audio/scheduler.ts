@@ -10,6 +10,9 @@
  * - A jump of the clock (seek: test hook, reduced motion's "Lanjut", a long stall) cancels the group's
  *   voices and restarts from the new time: long sounds marked `resumable` (beds, pads, drones, the gong)
  *   continue part-way through, short ones in the past are skipped. Nothing fires twice.
+ * - The anchor is refined continuously: the error between the audio clock and the anchor's prediction is
+ *   averaged over frames (one output-timestamp reading can be off by tens of ms) and the anchor moves by
+ *   that average once it exceeds 8 ms, for the cues scheduled from then on.
  * - Drift between the film clock and the audio clock (the film clock slows down on frames longer than
  *   250 ms; the context runs on its own) beyond `driftMs` re-anchors: voices not started yet are
  *   cancelled and scheduled again from the new mapping.
@@ -156,6 +159,8 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   let anchorCtx = 0;
   let last = 0;
   let stopped = false;
+  /** Smoothed error of the anchor (s), see `update`. */
+  let errAvg = 0;
 
   const toCtx = (ms: number) => anchorCtx + (ms - (anchorClock ?? 0)) / 1000 - lead;
   const paramOf = (p: AutoParam): Param | null => engine.params[p] as Param | null;
@@ -172,6 +177,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
     anchorCtx = now.t;
     lead = now.lead;
     last = clockMs;
+    errAvg = 0;
   };
 
   /** Parameters jump to their value at `clockMs`; ramps in progress continue from there. */
@@ -299,7 +305,15 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
         return;
       } else {
         const predicted = anchorCtx + (clockMs - anchorClock) / 1000;
-        if (Math.abs(audioNow().t - predicted) > driftLimit) scheduler.resync(clockMs);
+        const error = audioNow().t - predicted;
+        if (Math.abs(error) > driftLimit) scheduler.resync(clockMs);
+        else {
+          errAvg = errAvg * 0.9 + error * 0.1;
+          if (Math.abs(errAvg) > 0.008) {
+            anchorCtx += errAvg;
+            errAvg = 0;
+          }
+        }
       }
       last = clockMs;
       pump(clockMs, frameGapMs);

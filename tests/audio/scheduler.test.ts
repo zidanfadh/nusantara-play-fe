@@ -129,6 +129,26 @@ describe('cue scheduler (Phase 21)', () => {
     expect(fake.sources[1].startedAt).toBeCloseTo(2.05, 6);
   });
 
+  it('a steady small error of the anchor is corrected gradually (no resync, no double firing)', () => {
+    const { fake, scheduler } = setup([cue('late', 2000)]);
+    fake.currentTime = 1;
+    scheduler.update(0);
+    // the audio clock runs 30 ms ahead of the anchor's prediction from now on (below the 60 ms resync)
+    for (let t = 16; t <= 1600; t += 16) {
+      fake.currentTime = 1 + t / 1000 + 0.03;
+      scheduler.update(t, 16);
+    }
+    for (let t = 1616; t <= 1900; t += 16) {
+      fake.currentTime = 1 + t / 1000 + 0.03;
+      scheduler.update(t, 16);
+    }
+    const src = fake.sources.find((s) => s.startedAt !== null)!;
+    // planned at 1 + 2.0 s on the original anchor; corrected towards +30 ms
+    expect(src.startedAt! - 3).toBeGreaterThan(0.02);
+    expect(src.startedAt! - 3).toBeLessThan(0.035);
+    expect(scheduler.fired.get('late')).toBe(1);
+  });
+
   it('stop: fades the group out and ignores later frames', () => {
     const { fake, scheduler, play } = setup([cue('bed', 0, { ref: bed }), cue('later', 1000)]);
     play(0, 200);
