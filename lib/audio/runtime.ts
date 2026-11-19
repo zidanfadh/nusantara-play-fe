@@ -3,7 +3,7 @@
  * (`await import('@/lib/audio/runtime')`): the concept film and the intro bumper then share a single chunk
  * of the engine instead of each bundling its own copy, and none of it is in /jelajah's initial JavaScript.
  */
-export { outputLead } from './context';
+export { heardAtNextFrame, outputLead } from './context';
 export { createScheduler } from './scheduler';
 export { createSoundSession } from './session';
 export { loadVoiceOvers } from './voice-over';

@@ -93,7 +93,13 @@ export default function BumperSound({
         onStatus: setStatus,
         onLive: (engine) => {
           scheduler?.stop(0);
-          scheduler = audio.createScheduler({ engine, cues: bumperStingCues(), group: BUMPER_SOUND_GROUP, leadSec: audio.outputLead(engine.ctx) });
+          scheduler = audio.createScheduler({
+            engine,
+            cues: bumperStingCues(),
+            group: BUMPER_SOUND_GROUP,
+            leadSec: audio.outputLead(engine.ctx),
+            heardNow: audio.heardAtNextFrame(engine.ctx),
+          });
           scheduler.seek(elapsed());
           cancelAnimationFrame(frame);
           frame = requestAnimationFrame(loop);

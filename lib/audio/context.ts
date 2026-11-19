@@ -84,6 +84,21 @@ export function outputLead(ctx: BaseAudioContext): number {
   return Math.min(0.08, Math.max(0, latency - 1 / 60));
 }
 
+/**
+ * The context time that will be heard when the frame being drawn now reaches the screen (about one frame
+ * from now), from AudioContext.getOutputTimestamp(); null where the browser has none yet (then the
+ * scheduler falls back to currentTime and `outputLead`).
+ */
+export function heardAtNextFrame(ctx: BaseAudioContext): () => number | null {
+  const c = ctx as AudioContext;
+  return () => {
+    if (typeof c.getOutputTimestamp !== 'function') return null;
+    const ts = c.getOutputTimestamp();
+    if (!ts.performanceTime || ts.contextTime === undefined) return null;
+    return ts.contextTime + (performance.now() + 1000 / 60 - ts.performanceTime) / 1000;
+  };
+}
+
 export function suspendContext(engine: Engine): void {
   const ctx = live(engine);
   if (ctx && ctx.state === 'running') void ctx.suspend().catch(() => {});

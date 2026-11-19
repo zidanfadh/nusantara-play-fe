@@ -4,8 +4,9 @@
  *
  * - `update(clockMs)` is called every frame with the film time. Cues whose time falls within the
  *   lookahead (200 ms, or 1.5 frames when frames are slower) are scheduled on the AudioContext at
- *   `anchorCtx + (cue − anchorClock)`, minus the output latency (`leadSec`), so each sound is heard on
- *   its frame.
+ *   `anchorCtx + (cue − anchorClock)`. The anchor is the context time that will be HEARD when the current
+ *   frame reaches the screen (`heardNow`, from getOutputTimestamp); where the browser has no output
+ *   timestamp yet, `ctx.currentTime` minus the output latency (`leadSec`).
  * - A jump of the clock (seek: test hook, reduced motion's "Lanjut", a long stall) cancels the group's
  *   voices and restarts from the new time: long sounds marked `resumable` (beds, pads, drones, the gong)
  *   continue part-way through, short ones in the past are skipped. Nothing fires twice.
@@ -88,7 +89,7 @@ export interface SyncEntry {
   clockMs: number;
   ctxNow: number;
   when: number;
-  /** When it will be heard on the film clock minus `at`, ms (+ = late). */
+  /** Scheduled start minus the planned start, ms (+ = late: the cue was already due when scheduled). */
   offsetMs: number;
 }
 
@@ -104,8 +105,10 @@ export interface SchedulerOptions {
   jumpMs?: number;
   /** Re-anchor when the audio clock and the film clock drift apart by more than this (ms). */
   driftMs?: number;
-  /** Output latency compensation (s): sounds are scheduled this much earlier. */
+  /** Output latency compensation (s) when `heardNow` is not available: sounds are scheduled this much earlier. */
   leadSec?: number;
+  /** Context time heard when the current frame is displayed (null when unknown); see `heardAtNextFrame`. */
+  heardNow?: () => number | null;
   /** Most entries kept in the sync log. */
   logLimit?: number;
 }
@@ -140,7 +143,8 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   const lateOk = options.lateMs ?? 60;
   const jump = options.jumpMs ?? 400;
   const driftLimit = (options.driftMs ?? 60) / 1000;
-  let lead = options.leadSec ?? 0;
+  const fallbackLead = options.leadSec ?? 0;
+  let lead = fallbackLead;
   const logLimit = options.logLimit ?? 2000;
 
   let status = new Uint8Array(cues.length);
@@ -157,9 +161,16 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   const paramOf = (p: AutoParam): Param | null => engine.params[p] as Param | null;
   let usedParams = [...new Set(automation.map((a) => a.param))];
 
+  /** Where "now" is on the context's timeline: heard time if known (no lead needed), else currentTime. */
+  const audioNow = (): { t: number; lead: number } => {
+    const heard = options.heardNow?.() ?? null;
+    return heard !== null && Number.isFinite(heard) ? { t: heard, lead: 0 } : { t: ctx.currentTime, lead: fallbackLead };
+  };
   const anchor = (clockMs: number) => {
+    const now = audioNow();
     anchorClock = clockMs;
-    anchorCtx = ctx.currentTime;
+    anchorCtx = now.t;
+    lead = now.lead;
     last = clockMs;
   };
 
@@ -262,7 +273,8 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
     if (!voice) return;
     count(cue);
     if (log.length < logLimit) {
-      const offsetMs = (when + lead - now) * 1000 + clockMs - cue.at;
+      // Lateness against the planned time (0 unless the cue was already due when it was scheduled).
+      const offsetMs = (when - toCtx(cue.at)) * 1000;
       log.push({ id: cue.id, beat: cue.beat, at: cue.at, clockMs, ctxNow: now, when, offsetMs });
     }
   };
@@ -287,7 +299,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
         return;
       } else {
         const predicted = anchorCtx + (clockMs - anchorClock) / 1000;
-        if (Math.abs(ctx.currentTime - predicted) > driftLimit) scheduler.resync(clockMs);
+        if (Math.abs(audioNow().t - predicted) > driftLimit) scheduler.resync(clockMs);
       }
       last = clockMs;
       pump(clockMs, frameGapMs);
@@ -309,6 +321,9 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
           status[i] = IDLE;
           fired.set(cues[i].id, (fired.get(cues[i].id) ?? 1) - 1);
           if (i < lo) lo = i;
+          // It is scheduled again from the new anchor: keep only that entry in the sync log.
+          const entry = log.map((e) => e.id).lastIndexOf(cues[i].id);
+          if (entry >= 0) log.splice(entry, 1);
         }
       }
       anchor(clockMs);

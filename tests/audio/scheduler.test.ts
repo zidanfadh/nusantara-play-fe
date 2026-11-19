@@ -113,6 +113,22 @@ describe('cue scheduler (Phase 21)', () => {
     expect(scheduler.fired.get('b')).toBe(1);
   });
 
+  it('anchors on the heard time (output timestamp) when available, without the latency lead', () => {
+    const fake = new FakeAudioContext();
+    const store = createBufferStore(asCtx(fake), { worker: false });
+    store.renderNow([click]);
+    const engine = createEngine(asCtx(fake), store);
+    fake.currentTime = 2;
+    // the output is 30 ms behind currentTime; the frame shows 16.7 ms from now
+    const scheduler = createScheduler({ engine, cues: [cue('a', 100)], group: 'g', leadSec: 0.05, heardNow: () => 2.0 - 0.03 + 0.0167 });
+    scheduler.update(0);
+    expect(fake.sources[0].startedAt).toBeCloseTo(2.0867, 4);
+    // without an output timestamp: currentTime minus the lead
+    const fallback = createScheduler({ engine, cues: [cue('b', 100)], group: 'h', leadSec: 0.05, heardNow: () => null });
+    fallback.update(0);
+    expect(fake.sources[1].startedAt).toBeCloseTo(2.05, 6);
+  });
+
   it('stop: fades the group out and ignores later frames', () => {
     const { fake, scheduler, play } = setup([cue('bed', 0, { ref: bed }), cue('later', 1000)]);
     play(0, 200);

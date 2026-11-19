@@ -77,7 +77,14 @@ export function useConceptSound(time: MotionValue<number>, reduced: boolean, deb
         onStatus: setStatus,
         onLive: (engine) => {
           scheduler?.stop(0);
-          const next = audio.createScheduler({ engine, cues, automation, group: CONCEPT_SOUND_GROUP, leadSec: audio.outputLead(engine.ctx) });
+          const next = audio.createScheduler({
+            engine,
+            cues,
+            automation,
+            group: CONCEPT_SOUND_GROUP,
+            leadSec: audio.outputLead(engine.ctx),
+            heardNow: audio.heardAtNextFrame(engine.ctx),
+          });
           scheduler = next;
           // Start in sync from wherever the film is now (autoplay: 0; "Nyalakan suara": later).
           next.seek(time.get());
