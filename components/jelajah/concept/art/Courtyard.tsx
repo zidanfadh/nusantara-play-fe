@@ -118,11 +118,11 @@ const RING: [number, number][] = [
 ];
 
 function RollingSeed({ lt, index, still, fill }: { lt: MotionValue<number>; index: number; still: boolean; fill: string }) {
-  const period = 820;
   const ref = useAttr<SVGCircleElement>(lt, (t) => {
-    const { seedsFrom, seedsTo } = BEATS.halaman;
+    const { seedsFrom, seedsTo, seedPeriod, seedPhase } = BEATS.halaman;
     const time = still ? seedsFrom + 1300 : t;
-    const u = Math.max(0, time - seedsFrom) / period + index * 5.3;
+    // Arrivals at a hole (u crossing an integer) are the soundtrack's seed clicks (sound-cues.ts).
+    const u = Math.max(0, time - seedsFrom) / seedPeriod + index * seedPhase;
     const k = Math.floor(u) % RING.length;
     const f = u - Math.floor(u);
     const [x0, y0] = RING[k];
@@ -329,7 +329,7 @@ export function Courtyard({
                 </g>
               ),
             )}
-            {[0, 1, 2].map((i) => (
+            {Array.from({ length: BEATS.halaman.seeds }, (_, i) => (
               <RollingSeed key={i} lt={lt} index={i} still={still} fill={c.seed} />
             ))}
           </g>

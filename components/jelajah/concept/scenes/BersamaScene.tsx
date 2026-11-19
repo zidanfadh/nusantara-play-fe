@@ -38,7 +38,7 @@ const ARC_PAIRS: [string, string][] = [
 ];
 
 const byKode = new Map(CONCEPT_PROVINCE_PATHS.map((p) => [p.kode, p]));
-const ARCS = ARC_PAIRS.flatMap(([a, b]) => {
+const ARCS = ARC_PAIRS.slice(0, BEATS.bersama.arcs).flatMap(([a, b]) => {
   const pa = byKode.get(a);
   const pb = byKode.get(b);
   if (!pa || !pb) return [];
@@ -109,7 +109,8 @@ function Arc({ arc, i, lt, still }: { arc: { a: [number, number]; b: [number, nu
   const at = arcsFrom + i * arcStagger;
   const opacity = useDerived(lt, (t) => 0.55 * easeOutCubic(seg(still ? STILL_T : t, at, at + 700)));
   const comet = useAttrs<SVGCircleElement>(lt, (t) => {
-    const k = seg(still ? STILL_T : t, at, at + 1300);
+    // The comet reaches the far end at arcTravel: the soundtrack's kecapi pluck.
+    const k = seg(still ? STILL_T : t, at, at + BEATS.bersama.arcTravel);
     const [x, y] = quad(arc.a, arc.c, arc.b, easeInOutCubic(k));
     return { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)})`, opacity: k > 0 && k < 1 ? '1' : '0' };
   });

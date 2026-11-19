@@ -15,6 +15,8 @@ export interface DemoMove {
   frames: number[][];
   /** Ring index of the hand for each frame (where the last seed went), or -1 when not on a pit. */
   hand: number[];
+  /** The engine event behind each frame ('start' for frame 0): the soundtrack clicks on 'sow' (Phase 21). */
+  kinds: string[];
 }
 
 export interface CongklakDemo {
@@ -36,13 +38,15 @@ export function buildCongklakDemo(count = 3, minEvents = 5): CongklakDemo {
 
     const frames: number[][] = [[...state.pits]];
     const hand: number[] = [-1];
+    const kinds: string[] = ['start'];
     let pits: number[] = [...state.pits];
     for (const event of result.events) {
       pits = replayEvent(pits, event);
       frames.push(pits);
       hand.push('pit' in event && typeof event.pit === 'number' ? event.pit : hand[hand.length - 1]);
+      kinds.push(event.type);
     }
-    moves.push({ player: state.toMove, hole, frames, hand });
+    moves.push({ player: state.toMove, hole, frames, hand, kinds });
     state = result.state;
   }
   return { initial, moves, final: state };

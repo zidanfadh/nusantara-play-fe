@@ -9,6 +9,7 @@
 import type { MotionValue } from 'framer-motion';
 import type { ReactNode } from 'react';
 import type { ConceptLayout } from '@/lib/jelajah/concept/layout';
+import { BEATS } from '@/lib/jelajah/concept/script';
 import { mixHex } from '@/lib/jelajah/palette';
 import { useAttr, useAttrs } from '../scene-kit';
 
@@ -137,8 +138,10 @@ function GlowBase({ x, y, r }: { x: number; y: number; r: number }) {
 
 /** The pulsing ring of a glow (live layer). */
 function Ring({ lt, x, y, r, i, still }: { lt: MotionValue<number>; x: number; y: number; r: number; i: number; still: boolean }) {
+  const { ringPeriod, ringStagger } = BEATS.jelajah;
   const ring = useAttrs<SVGEllipseElement>(lt, (t) => {
-    const k = (((still ? 700 : t) + i * 230) % 1400) / 1400;
+    // A pulse starts when k wraps to 0: the soundtrack's soft chimes (sound-cues.ts).
+    const k = (((still ? 700 : t) + i * ringStagger) % ringPeriod) / ringPeriod;
     return {
       transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) scale(${(0.7 + k * 1.1).toFixed(3)})`,
       opacity: (0.85 * (1 - k)).toFixed(3),
@@ -212,7 +215,7 @@ export function VillageLive({ lt, layout, still }: { lt: MotionValue<number>; la
         const [gx, gy] = iso([x + 0.35, y + 0.3, 0]);
         return <Ring key={i} lt={lt} x={gx} y={gy} r={iso([1, 0, 0])[0] * 0.95} i={i} still={still} />;
       })}
-      <Ring lt={lt} x={px} y={py} r={u * 1.5} i={7} still={still} />
+      <Ring lt={lt} x={px} y={py} r={u * 1.5} i={BEATS.jelajah.pavilionRing} still={still} />
     </g>
   );
 }

@@ -14,7 +14,7 @@
  */
 import { SITE_NAME } from '@/lib/brand';
 import { CONCEPT_REPLAY_LABEL } from './gate';
-import type { ConceptScene } from './types';
+import type { ConceptScene, ConceptSceneId } from './types';
 
 export const CONCEPT_SCENES: readonly ConceptScene[] = [
   {
@@ -94,15 +94,25 @@ export const FINAL_HOLD_MS = 3000;
 /** Reduced motion: each still stays this long (or until "Lanjut"). */
 export const REDUCED_STEP_MS = 5000;
 
-/** Moments inside the scenes, ms from the scene's start. */
+/**
+ * Moments inside the scenes, ms from the scene's start. The scenes AND the soundtrack
+ * (`sound-cues.ts`, Phase 21) read them, so picture and sound stay in sync when a timing changes.
+ * - halaman: three seeds roll around the board, one hole every `seedPeriod` ms, seed i starting
+ *   `i * seedPhase` holes ahead; each arrival is a click in the soundtrack.
+ * - arsip / main: the stamp starts at `stampAt` and hits the paper `stampDrop` ms later (the thump).
+ * - jelajah: the village glows pulse every `ringPeriod` ms, ring i shifted by `i * ringStagger` (the
+ *   stands are rings 0..stands-1, the pavilion is ring `pavilionRing`); the chimes follow the pulses.
+ * - bersama: arc i starts at `arcsFrom + i * arcStagger`, its comet reaches the far end `arcTravel` ms
+ *   later (a kecapi pluck); `arcs` arcs.
+ */
 export const BEATS = {
-  halaman: { seedsFrom: 600, seedsTo: 5200 },
+  halaman: { seedsFrom: 600, seedsTo: 5200, seedPeriod: 820, seedPhase: 5.3, seeds: 3 },
   terlupa: { drainEnd: 1600, dustFrom: 1200, dustTo: 4600 },
   nusantara: { gatherFrom: 0, gatherTo: 3200, lightFrom: 2200, lightTo: 5600, wordmarkAt: 4200 },
-  arsip: { cardsFrom: 200, cardStagger: 260, cardFlight: 900, stampAt: 4700 },
-  jelajah: { diveFrom: 300, diveTo: 3000, villageAt: 2400 },
-  main: { moveStarts: [400, 2000, 3600] as readonly number[], moveDuration: 1400, stampAt: 5400 },
-  bersama: { dotsFrom: 300, dotStagger: 60, arcsFrom: 1300, arcStagger: 220 },
+  arsip: { cardsFrom: 200, cardStagger: 260, cardFlight: 900, stampAt: 4700, stampDrop: 150 },
+  jelajah: { diveFrom: 300, diveTo: 3000, villageAt: 2400, ringPeriod: 1400, ringStagger: 230, stands: 6, pavilionRing: 7 },
+  main: { moveStarts: [400, 2000, 3600] as readonly number[], moveDuration: 1400, stampAt: 5400, stampDrop: 150 },
+  bersama: { dotsFrom: 300, dotStagger: 60, arcsFrom: 1300, arcStagger: 220, arcTravel: 1300, arcs: 10 },
   mulai: { buttonAt: 700 },
 } as const;
 
@@ -152,8 +162,11 @@ export function archiveSubcaption(prot: number | null, provinces: number | null)
 }
 
 /**
- * Optional music, later (Phase 19 has no audio). TODO(music): set `src` to a licensed track under
- * public/ and let the player start it only after a user gesture (never autoplay with sound), muted by
- * default with a visible toggle, and stopped on close. The player reads this hook already.
+ * Optional voice-over per scene (Phase 21 hook; none exist yet). To add one, put the file at
+ * `public/jelajah/concept/vo/<scene>.m4a` and add `{ scene: '<scene>', src: '/jelajah/concept/vo/<scene>.m4a' }`
+ * here. The player fetches ONLY the files listed (no probing, so no 404 requests), plays each one on the
+ * voice bus from its scene's start and lowers the music by VOICEOVER_DUCK_DB while it speaks. The music and
+ * the effects themselves are synthesized in code (`sound-cues.ts`): no audio files.
  */
-export const CONCEPT_MUSIC: { src: string | null } = { src: null };
+export const CONCEPT_VOICEOVER: readonly { scene: ConceptSceneId; src: string }[] = [];
+export const VOICEOVER_DUCK_DB = -8;
