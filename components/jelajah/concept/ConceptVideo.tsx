@@ -62,7 +62,7 @@ export interface ConceptVideoProps {
   debug: boolean;
   onClose: (reason: ConceptEndReason) => void;
   /** Called when the scene on screen changes (the hub mounts the 3D map once the last scene is reached). */
-  onScene?: (index: number) => void;
+  onScene?: (index: number, last: boolean) => void;
 }
 
 /** Test hook (development, or `?debug=1`): `window.__nlConcept.seek(ms)` etc. */
@@ -143,7 +143,7 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
       if (i !== lastIndex) {
         lastIndex = i;
         setIndex(i);
-        onSceneRef.current?.(i);
+        onSceneRef.current?.(i, i === LAST);
       }
       const m = reduced ? [i] : mountedScenes(t);
       const key = m.join(',');
