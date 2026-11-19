@@ -295,7 +295,8 @@ A short animated tour of the whole site that covers `/jelajah` before the map (o
 ### Concept video (Phase 19)
 
 "Kenali" + `SITE_NAME`: a ≈48 s code-driven motion-graphics film between the intro bumper and the `/jelajah` map (owner
-decision). React + framer-motion + SVG/CSS + an optional particle canvas; no video file, no three.js, no audio.
+decision). React + framer-motion + SVG/CSS + an optional particle canvas; no video file, no three.js. Since Phase 21 it
+has a synthesized score and sound effects: see "Sound (Phase 21)".
 
 - **Gate** (`lib/jelajah/concept/gate.ts` `planIntro`, `seen.ts`; integrated in the hub's intro stage machine
   `pending → bumper → concept → done` in `JelajahHub.tsx`, tested in `tests/jelajah/concept-gate.test.ts`): the bumper keeps
@@ -315,7 +316,7 @@ decision). React + framer-motion + SVG/CSS + an optional particle canvas; no vid
 - **Script = the one file to edit copy**: `lib/jelajah/concept/script.ts`: `CONCEPT_SCENES` (id, start, duration ms,
   caption, subcaption, `fadeIn`, `still`), `BEATS` (moments inside a scene, ms from its start), `CONCEPT_TEXT` (buttons,
   stamp, passport, XP chip, audiences, card fields, dialog label), `archiveSubcaption` (scene 4's live line, null for 0 or
-  unknown), `FINAL_HOLD_MS` 3 s, `REDUCED_STEP_MS` 5 s, `CONCEPT_MUSIC` (TODO hook, `src: null`). Change the strings, keep
+  unknown), `FINAL_HOLD_MS` 3 s, `REDUCED_STEP_MS` 5 s, `CONCEPT_VOICEOVER` (Phase 21 voice-over list, empty). Change the strings, keep
   captions ≤ 70 characters and the timings contiguous (≈48 s), then `pnpm test`: `tests/jelajah/concept-script.test.ts`
   checks timings, beats, length, the brand and the forbidden words (poin, points, hadiah, uang, multiplayer). The brand
   only through `SITE_NAME`.
@@ -355,6 +356,74 @@ decision). React + framer-motion + SVG/CSS + an optional particle canvas; no vid
   throttling desktop 45.6. The first version ran at 6.3 (desktop) and 14.6 (phone) fps before the layer rules above.
   `/jelajah` JS with both intros already seen: +1.6 to 1.7 KB vs `main` (2d tier desktop 283.0 → 284.6 KB, full tier
   531.1 → 532.8 KB). Real phones not measured yet: use `?debug=1`.
+
+### Sound (Phase 21)
+
+The concept film and the intro bumper have sound: a gamelan-inspired score and synced effects, all synthesized in code
+with the Web Audio API (no audio files, no samples, no new dependency). Review material: the offline WAV renders
+(below); the code cannot be listened to by the agent that wrote it.
+
+- **Engine** (`lib/audio/`, framework-free, reusable by the games):
+  - `core.ts`: ONE self-contained function `soundCore()` (seeded mulberry32, damped-resonator partials, RBJ biquads,
+    Karplus–Strong) with every instrument: saron and bonang (inharmonic partials 1, 2.76, 5.4, 8.93 / 1, 2.01, 2.76, 4.1;
+    two voices a few Hz apart for the "ombak" beating), gong ageng (65 Hz, slowly beating partials, soft mallet, ~6 s),
+    kendang `dang`/`tak`, kecapi (Karplus–Strong), pad, drone, and the effects (whoosh, wind, gust, dust, paper, tap, stamp,
+    seed click, gasing whirr, cricket, bird, chime, sparkle, shimmer, swell, UI tick). Self-contained because
+    `buffers.ts` renders it in a Blob Web Worker (`render-worker-source.ts`, the congklak AI pattern: Turbopack does not
+    bundle `new Worker(new URL(...))`); main-thread fallback one sound per task. Each sound renders ONCE per page, in
+    first-use order (gong and scene 1 first), at 24 kHz (dark sounds 12 kHz), normalized to a 0.9 peak; deterministic
+    (seeded from its key), so the offline render equals live playback.
+  - `pitch.ts`: the ONE pelog-inspired pitch set (tonic 293.66 Hz, cents 0 120 270 540 675 785 950; frequency table in
+    the file); melodies use pelog bem 1 2 3 5 6 (`bemStep`).
+  - `engine.ts`: music bus → lowpass → duck, sfx bus, voice bus → master → DynamicsCompressor (gentle limiter) → −1 dB trim
+    → output; one shared ConvolverNode room reverb with a seeded impulse (per-voice `wet` send); a ConstantSource "bend"
+    on every music voice's playbackRate; `MIX` levels; at most `MAX_VOICES` 24 sounding at once, the oldest stolen with a
+    15 ms fade (counted by scheduled time, so also offline).
+  - `scheduler.ts`: plays a cue sheet on the player's OWN clock (the film clock, not wall time): 200 ms lookahead (1.5
+    frames when slower), clock time → context time anchored on the time that will be heard when the frame is displayed
+    (`getOutputTimestamp`, `heardAtNextFrame`; fallback `currentTime` − output latency), smoothed anchor correction,
+    re-anchor on drift > 60 ms, clock jumps = seeks (group fade; `resumable` beds/pads/gongs continue part-way, short
+    past cues skipped; nothing fires twice), automation ramps (`cutoff`, `bend`, `duck`), `scheduleAll()` offline.
+  - `session.ts` (status starting/on/blocked/muted/unsupported), `context.ts` (the ONE shared lazy AudioContext,
+    autoplay try with a 400 ms timeout, unlock in a gesture with a silent buffer for old iOS, suspend/resume,
+    `navigator.audioSession`), `mute.ts`, `voice-over.ts`, `offline.ts` (OfflineAudioContext → 16-bit WAV; debug only),
+    `runtime.ts` (what the players load), `support.ts`, `rng.ts`.
+- **Loading**: both players load the engine with `import('@/lib/audio/runtime')` (one shared chunk, 9.3 KB gz); the
+  bumper's sound component `components/jelajah/bumper/BumperSound.tsx` is a `next/dynamic` import of `JelajahBumper`;
+  the film's cue sheet is in the film's chunk. `/jelajah` initial JS +0.3 KB gz; with both intros seen no audio code is
+  requested (`tests/jelajah/bumper-sound.test.ts` checks the import structure).
+- **Cue sheets**: film = `lib/jelajah/concept/sound-cues.ts` (every time from `CONCEPT_SCENES` and `BEATS`; never fixed
+  seconds), bumper = `lib/jelajah/bumper/sound-cues.ts` (gong on `BRAND_MOMENT_MS` = SceneLayout's delayChildren + pop
+  duration, a note per later scene). `BEATS` gained the constants the scenes used inline (seed roll, ring pulses, stamp
+  drop, arc travel) so picture and sound read the same numbers. **To edit a cue**: change the scene's builder
+  (`halaman()` … `mulai()`), keep it inside its scene, run `pnpm test` (`tests/jelajah/concept-sound-cues.test.ts`:
+  scenes, beats, voice cap), re-render the WAV.
+- **Player** (`components/jelajah/concept/use-concept-sound.ts`, `components/audio/SoundControls.tsx`): sound toggle
+  🔊/🔇 (44 px, `aria-pressed`, `aria-label` "Suara") next to "Lewati"; when the browser blocks audio without a gesture
+  (direct load) the film plays muted with "Nyalakan suara" there, one tap starts the sound in sync from the current time.
+  Choice in `localStorage['np_sound_muted_v1']` ('1'/'0', try/catch, memory fallback), shared with the bumper; muted =
+  no AudioContext at all. Hidden tab / test-hook pause = `suspend()`, back = `resume()`. "Lewati"/Esc fade 300 ms,
+  reaching the map 600 ms, then the context is suspended unless the next player is live. "Mulai Menjelajah" plays a UI
+  tick. Reduced motion keeps the sound: music bed + each scene's key hits on the stills' clock ("Lanjut" fires them).
+  Without Web Audio: no controls, silent film, no errors.
+- **iOS**: where `navigator.audioSession` exists (Safari 17+), its `type` is `'playback'` while sound is on (audible with
+  the ring/silent switch on silent, like a video) and `'auto'` when muted or closed. Not measured on a device yet.
+- **Add a voice-over**: put `public/jelajah/concept/vo/<scene>.m4a` and add `{ scene, src }` to `CONCEPT_VOICEOVER` in
+  `script.ts`. Only listed files are fetched (no probing, no 404s); each plays on the voice bus from its scene's start and
+  ducks the music by `VOICEOVER_DUCK_DB` (−8 dB).
+- **Re-render the WAV / mp4**: production build + the local login harness (Phase 19), `/jelajah?concept=1&debug=1`, then
+  `await window.__nlConceptAudio.renderWav()` (or `'reduced'`) and, with the bumper due, `window.__nlBumperAudio.renderWav()`:
+  base64 16-bit stereo 48 kHz WAV (film time 0 = WAV time 0). Mux with a Playwright recording:
+  `ffmpeg -i concept-1080p.webm -itsoffset <film start in the video, s> -i concept-soundtrack.wav -map 0:v -map 1:a -c:v libx264 -preset veryfast -crf 20 -pix_fmt yuv420p -c:a aac -b:a 160k concept-1080p.mp4`
+  (no ffmpeg on this machine in Phase 21; Playwright's recorder needs its own ffmpeg component: install it with
+  `PLAYWRIGHT_BROWSERS_PATH` on D:).
+- **Debug**: `?debug=1` (or development): `window.__nlConceptAudio` (`status`, `log` = sync log, `stats` = render
+  times / voices / context state, `clock`, `renderWav`) and `window.__nlBumperAudio`.
+- **Measured** (Phase 21, production build, headless Chrome): concept soundtrack −15.6 LUFS integrated, sample peak
+  −3.5 dBFS, no clipping, −36 dB above 8 kHz; 210 cues, 74 sounds, ≤ 22 voices. Sync (sound heard vs the beat's frame on
+  screen): median 8 to 11 ms, p95 25 to 27 ms; outliers only next to visual stalls at scene changes. Sound costs 1.4 to
+  1.8 fps (desktop full, 4x CPU) and 0.7 to 2.0 fps (phone) on average. All 74 sounds render in 0.6 to 0.73 s in the
+  worker; gong + scene 1 within ~0.25 s (later beds join part-way).
 
 ## Games (Phase 17)
 
@@ -641,7 +710,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
    - Concept video (Phase 19, owner decision): on the first `/jelajah` visit per browser a ≈48 s animated film ("Kenali"
      + the brand; 8 scenes: games in the courtyard, forgotten, Indonesia lights up, the archive, a province village,
      congklak with XP and a Paspor stamp, the community, start) plays after the intro bumper and before the map. Skippable
-     ("Lewati", Esc), replayable ("Tonton pengenalan"), still frames with reduced motion, no audio, real data only
+     ("Lewati", Esc), replayable ("Tonton pengenalan"), still frames with reduced motion, real data only
      (published PROT names and counts; no Points, prizes or multiplayer promised). Code-driven (React, framer-motion, SVG,
      a particle canvas on the 3D tiers), lazy-loaded, about 38 KB gzip. Every text and timing is in ONE file,
      `nusantara-play-fe/lib/jelajah/concept/script.ts`. The Jelajah login page no longer offers "Masuk sebagai Tamu"
@@ -654,6 +723,13 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      `nusantara-play-fe/lib/games/gasing/rules.ts` and every text in `texts.ts`, awaiting curator review. Not yet linked
      from the Jelajah pavilion or the bumper (they support one game only). Details in the frontend CLAUDE.md
      "Gasing (Phase 20)".
+   - Sound (Phase 21): the concept film and the intro bumper have a gamelan-inspired score and synced sound effects,
+     synthesized in code with the Web Audio API (no audio files or samples, no licences, no new dependency). Sound starts
+     by itself only when the browser allows it (arriving by an in-app click); otherwise the film plays muted with a
+     "Nyalakan suara" button. A sound toggle ("Suara") next to "Lewati", remembered per browser
+     (`localStorage['np_sound_muted_v1']`) for both intros. Reduced motion keeps the sound. A voice-over can be added per
+     scene later (none exist). The audio code loads only with the intros. Details in the frontend CLAUDE.md
+     "Sound (Phase 21)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -943,6 +1019,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 19: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend after Phase 20: unchanged, 44 errors, 80 warnings (every new and touched source file is clean).
 - Backend after Phase 20: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 21: unchanged, 44 errors, 80 warnings (all 36 new and touched source files are clean).
+- Backend after Phase 21: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1257,6 +1335,14 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - 2026-11-19: Gasing canvas (Phase 20): the browser's default (GPU-backed) 2D canvas, static arena on its own canvas,
   compositor-only shake and meters. `desynchronized: true` is forbidden (frames bypassed the compositor and the tops
   were missing from screenshots, while the fps looked high).
+- 2026-11-20: Concept film sound (Phase 21): everything synthesized with the Web Audio API in plain JS (instrument
+  buffers rendered once in a Web Worker from a self-contained core, not with OfflineAudioContext: identical in every
+  browser and in Node tests, never blocks the film); one shared ConvolverNode reverb instead of reverb baked into each
+  buffer (render cost); pelog-inspired pitch set in `lib/audio/pitch.ts`. Sound plays automatically only when the
+  browser allows it; otherwise "Nyalakan suara". The scheduler follows the film's own clock and the audio output
+  timestamp. Cue times come only from `CONCEPT_SCENES`/`BEATS`; the scene components now read the stamp drop, seed
+  roll, ring pulse and arc travel timings from `BEATS` too (the passport stamp's drop changed from 160 to 150 ms to
+  match its shake). Both players load the engine through `lib/audio/runtime.ts` (one shared chunk).
 - 2026-11-19: Phase 18 follow-ups (owner answers): the Supabase redirect allowlist needs no query variants; removing
   `/landing-page/1` and `/2` waits for the cleanup phase. Phase 19: the Jelajah login page shows a note and a link to the
   games instead of "Masuk sebagai Tamu"; the landing page's featured PROT are requested with `status=ARSIP_NASIONAL` and
