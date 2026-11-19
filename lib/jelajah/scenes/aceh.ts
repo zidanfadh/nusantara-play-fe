@@ -151,15 +151,15 @@ export const ACEH_SCENE: SceneDefinition = {
   gameSoon: { x: round(PROT_STAND.x - 2.9), z: round(PROT_STAND.z + 1.9), rotation: 0 },
   structures: [
     // Low hills in the warm haze, far to the north.
-    { kind: 'mountain', x: -30, z: -66, radius: 26, height: 12, color: '#B7A47C' },
-    { kind: 'mountain', x: 22, z: -74, radius: 30, height: 15, color: '#AE9C78' },
+    { kind: 'mountain', x: -30, z: -52, radius: 22, height: 14, color: '#B19D74' },
+    { kind: 'mountain', x: 24, z: -58, radius: 26, height: 18, color: '#A8966F' },
   ],
   spawn: { x: 0, z: 15, rotation: Math.PI },
   walkable: { minX: -19.5, maxX: 19.5, minZ: -12.2, maxZ: 17 },
   houses,
   stands,
   decor,
-  fog: { near: 34, far: 95 },
+  fog: { near: 34, far: 110 },
   colors: {
     background: '#EED8B2',
     grass: '#C3B470',

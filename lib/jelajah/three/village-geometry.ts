@@ -6,7 +6,7 @@
  * Only imported by components/jelajah/three/* (three.js isolation, see tests/jelajah/three-isolation.test.ts).
  */
 import { BufferGeometry, CircleGeometry, Color, Matrix4 } from 'three';
-import { HOUSE_STAIRS_DEPTH, OPEN_HALL_FLOOR, OPEN_HALL_STEPS, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
+import { HOUSE_STAIRS_DEPTH, JOGLO_PLINTH, OPEN_HALL_FLOOR, OPEN_HALL_STEPS, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
 import type { GameSoonDef, HouseDef, PavilionDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
 import { GAME_SOON_BOARD } from '@/lib/jelajah/engine/game-soon';
 import { Builder, flat, placement, v } from './mesh-builder';
@@ -215,6 +215,9 @@ function addPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
     case 'meunasah':
       addOpenHall(b, p, scene);
       break;
+    case 'joglo':
+      addPendopo(b, p, scene);
+      break;
   }
 }
 
@@ -316,6 +319,61 @@ function addArena(b: Builder, p: PavilionDef, scene: SceneDefinition) {
  * Phase 22 (Aceh): a raised open hall without walls (inspired by a village meunasah, never named in the UI): posts,
  * a floor on stilts with a low rail on three sides, front steps and a steep gable roof with decorated gables.
  */
+/**
+ * Phase 22 (Jawa Tengah): an open pendopo with a stepped roof (joglo-style, never named in the UI): a stepped plinth,
+ * twelve outer posts and four taller inner posts, a shallow lower roof, a short vertical step, then a steep hipped
+ * top with a short ridge.
+ */
+function addPendopo(b: Builder, p: PavilionDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const m = placement(p.x, p.z, p.rotation);
+  const post = new Color(c.housePost);
+  const S = p.size;
+  const base = 0.45;
+  b.box(m, S + 2 * JOGLO_PLINTH, 0.2, S + 2 * JOGLO_PLINTH, 0, 0.1, 0, new Color(c.plaza).multiplyScalar(0.8));
+  b.box(m, S + 0.4, base, S + 0.4, 0, base / 2, 0, new Color(c.plaza).multiplyScalar(0.92));
+  b.box(m, S, 0.06, S, 0, base + 0.03, 0, new Color(c.houseFloor));
+  // Twelve outer posts on the edge, four taller inner posts.
+  const edge = S / 2 - 0.3;
+  const inner = S * 0.17;
+  for (const x of [-edge, -edge / 3, edge / 3, edge]) {
+    for (const z of [-edge, -edge / 3, edge / 3, edge]) {
+      const outer = Math.abs(x) === edge || Math.abs(z) === edge;
+      if (outer) b.box(m, 0.22, p.postHeight, 0.22, x, base + p.postHeight / 2, z, post);
+    }
+  }
+  const innerH = p.postHeight + 1.0;
+  for (const x of [-inner, inner]) for (const z of [-inner, inner]) b.box(m, 0.28, innerH, 0.28, x, base + innerH / 2, z, post);
+  // Roof: shallow lower tier, a vertical step, a steep hipped top.
+  const square = (half: number, y: number) => [v(-half, y, -half), v(half, y, -half), v(half, y, half), v(-half, y, half)];
+  const roof = new Color(c.houseRoof);
+  const roofUpper = new Color(c.houseRoof).multiplyScalar(0.86);
+  const band = new Color(c.housePost).multiplyScalar(1.1);
+  const y0 = base + p.postHeight;
+  const eave = square(S / 2 + 1.0, y0 - 0.1);
+  const y1 = y0 + 0.75;
+  const lower = square(S * 0.27, y1);
+  const y2 = y1 + 0.3;
+  const step = square(S * 0.27, y2);
+  const inside = v(0, y0 - 1, 0);
+  for (let i = 0; i < 4; i += 1) {
+    const j = (i + 1) % 4;
+    b.quad(m, eave[i], eave[j], lower[j], lower[i], inside, roof);
+    b.quad(m, lower[i], lower[j], step[j], step[i], v(0, y1, 0), band);
+  }
+  const half = S * 0.27;
+  const ridgeHalf = S * 0.09;
+  const top = y2 + p.roofHeight;
+  const upperInside = v(0, y2 - 0.5, 0);
+  b.quad(m, v(-half, y2, half), v(half, y2, half), v(ridgeHalf, top, 0), v(-ridgeHalf, top, 0), upperInside, roofUpper);
+  b.quad(m, v(-half, y2, -half), v(half, y2, -half), v(ridgeHalf, top, 0), v(-ridgeHalf, top, 0), upperInside, roofUpper);
+  b.tri(m, v(half, y2, half), v(half, y2, -half), v(ridgeHalf, top, 0), upperInside, roof);
+  b.tri(m, v(-half, y2, half), v(-half, y2, -half), v(-ridgeHalf, top, 0), upperInside, roof);
+  const trim = new Color(c.houseTrim);
+  b.box(m, ridgeHalf * 2 + 0.3, 0.12, 0.12, 0, top + 0.02, 0, trim);
+  for (const x of [-ridgeHalf - 0.15, ridgeHalf + 0.15]) b.box(m, 0.1, 0.4, 0.1, x, top + 0.2, 0, trim);
+}
+
 /** The open hall's roof: the Aceh gable turned so the decorated gable faces the front (and the camera). */
 const OPEN_HALL_ROOF = { ...GABLE_STYLES.aceh, axis: 'z' as const, overhang: 0.6, endOverhang: 0.55 };
 

@@ -88,7 +88,7 @@ export interface StandDef {
 }
 
 /** Look of the centrepiece (Phase 22). `pavilion` = the Phase 12 open pavilion (default). */
-export type PavilionStyle = 'pavilion' | 'arena' | 'meunasah';
+export type PavilionStyle = 'pavilion' | 'arena' | 'meunasah' | 'joglo';
 
 /**
  * Neutral centrepiece of the plaza (Phase 12): a small open pavilion (a roof on four posts on a low
@@ -130,7 +130,24 @@ export type StructureDef =
   /** Plank walkway on posts in the water (deck height default 0.35 m). */
   | { kind: 'jetty'; from: Vec2; to: Vec2; width: number; deckY?: number }
   /** Low-poly mound: an island or, with `crater`, a distant mountain seen through the haze. Not walkable. */
-  | { kind: 'mountain'; x: number; z: number; radius: number; height: number; color: string; crater?: boolean; y?: number };
+  | { kind: 'mountain'; x: number; z: number; radius: number; height: number; color: string; crater?: boolean; y?: number }
+  /**
+   * Rice terraces rising away from the village (local -z): `steps` levels of `stepDepth` and `stepHeight`, the front
+   * edge of each level gently curved; every other level flooded. Outside the walkable area.
+   */
+  | {
+      kind: 'terraces';
+      x: number;
+      z: number;
+      rotation: number;
+      width: number;
+      steps: number;
+      stepDepth: number;
+      stepHeight: number;
+      field: string;
+      wall: string;
+      water: string;
+    };
 
 export interface DecorDef {
   model: NatureModel;

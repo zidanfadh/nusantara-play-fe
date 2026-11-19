@@ -115,8 +115,22 @@ function VillageIllustration({ look }: { look: IllustrationLook }) {
       )}
       {look.water === 'none' && (
         <>
-          {has('mountain') && <path d="M 0 70 Q 120 20 260 70 Z M 330 70 Q 480 12 640 70 Z" className="fill-accent/30" />}
-          <rect y="70" width="640" height="14" className="fill-secondary/10" />
+          {has('mountain') && !has('terraces') && (
+            <path d="M 0 70 Q 120 20 260 70 Z M 330 70 Q 480 12 640 70 Z" className="fill-accent/30" />
+          )}
+          {has('mountain') && has('terraces') && (
+            <path d="M 170 60 L 300 8 L 344 8 L 480 60 Z M 0 60 Q 80 34 170 60 Z" className="fill-foreground/15" />
+          )}
+          {has('terraces') ? (
+            [0, 1, 2, 3].map((i) => (
+              <g key={i}>
+                <rect y={52 + i * 8} width="640" height="8" className={i % 2 ? 'fill-secondary/30' : 'fill-secondary/15'} />
+                <rect y={58 + i * 8} width="640" height="2" className="fill-foreground/15" />
+              </g>
+            ))
+          ) : (
+            <rect y="70" width="640" height="14" className="fill-secondary/10" />
+          )}
         </>
       )}
       <rect y="84" width="640" height="116" className="fill-secondary/10" />
@@ -139,6 +153,17 @@ function VillageIllustration({ look }: { look: IllustrationLook }) {
           <path d="M -54 -40 L 54 -40 L 54 -32 L -54 -24 Z" className="fill-primary/80" />
           <rect x={-50} y={-40} width={5} height={30} className="fill-foreground/60" />
           <rect x={45} y={-40} width={5} height={30} className="fill-foreground/60" />
+        </g>
+      )}
+      {look.centre === 'joglo' && (
+        <g transform="translate(320 162)">
+          {[-40, -14, 14, 40].map((px) => (
+            <rect key={px} x={px - 3} y={-34} width={6} height={34} className="fill-foreground/60" />
+          ))}
+          <rect x={-56} y={-2} width={112} height={8} className="fill-accent/50" />
+          <path d="M -66 -32 L 66 -32 L 26 -50 L -26 -50 Z" className="fill-primary" />
+          <rect x={-26} y={-56} width={52} height={6} className="fill-foreground/50" />
+          <path d="M -26 -56 L 26 -56 L 8 -86 L -8 -86 Z" className="fill-primary/80" />
         </g>
       )}
       {look.centre === 'meunasah' && (

@@ -158,12 +158,14 @@ export const KEPULAUAN_RIAU_SCENE: SceneDefinition = {
     { kind: 'jetty', from: [-0.9, -9.4], to: [-8.2, -9.4], width: 1.4 },
     { kind: 'jetty', from: [0.9, -9.4], to: [8.2, -9.4], width: 1.4 },
     { kind: 'jetty', from: [0.9, -17.6], to: [4.6, -17.6], width: 1.4 },
-    // Low islands on the horizon (seen through the haze).
-    { kind: 'mountain', x: -38, z: -62, radius: 13, height: 6, color: '#7FA87A', y: -0.4 },
-    { kind: 'mountain', x: 30, z: -70, radius: 18, height: 9, color: '#86AC84', y: -0.4 },
+    // Low islands in the haze (the fixed camera never shows the horizon: they must stand within about 90 m to show
+    // at the top of a portrait view).
+    { kind: 'mountain', x: -34, z: -48, radius: 12, height: 7, color: '#7FA87A', y: -0.4 },
+    { kind: 'mountain', x: 26, z: -54, radius: 16, height: 10, color: '#86AC84', y: -0.4 },
   ],
   spawn: { x: 0, z: 15, rotation: Math.PI },
   walkable: { minX: -19.5, maxX: 19.5, minZ: SHORE + 0.6, maxZ: 17 },
+  fog: { near: 34, far: 110 },
   houses,
   stands,
   decor,

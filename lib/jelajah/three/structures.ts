@@ -4,7 +4,7 @@
  *
  * Only imported by lib/jelajah/three/* (three.js isolation).
  */
-import { Color, CylinderGeometry, Matrix4 } from 'three';
+import { Color, CylinderGeometry, Matrix4, PlaneGeometry } from 'three';
 import type { SceneDefinition, StructureDef } from '@/lib/jelajah/scenes/types';
 import { WATER_Y } from './water-level';
 import { placement, type Builder } from './mesh-builder';
@@ -17,6 +17,9 @@ export function addStructures(b: Builder, scene: SceneDefinition) {
         break;
       case 'mountain':
         addMountain(b, s);
+        break;
+      case 'terraces':
+        addTerraces(b, s);
         break;
     }
   }
@@ -73,5 +76,36 @@ function addMountain(b: Builder, s: Extract<StructureDef, { kind: 'mountain' }>)
   if (s.crater) {
     const rim = new CylinderGeometry(s.radius * 0.11, s.radius * 0.13, s.height * 0.04, segments);
     b.addGeometry(rim, new Matrix4().makeTranslation(s.x, (s.y ?? 0) + s.height * 1.0, s.z), color.clone().multiplyScalar(0.78));
+  }
+}
+
+/**
+ * Rice terraces: each level is split into segments whose front edge is offset by a fixed wave, so the levels curve
+ * gently. A level's earth wall reaches back to the end of the terraces (the next, higher level covers it); its top is
+ * a field, or a flooded field with a narrow dike on every other level.
+ */
+function addTerraces(b: Builder, s: Extract<StructureDef, { kind: 'terraces' }>) {
+  const m = placement(s.x, s.z, s.rotation);
+  const segments = 6;
+  const segW = s.width / segments;
+  const end = s.steps * s.stepDepth;
+  const wall = new Color(s.wall);
+  const field = new Color(s.field);
+  const water = new Color(s.water);
+  const front = (step: number, seg: number) => (step === 0 ? 0 : step * s.stepDepth + 0.7 * Math.sin(seg * 1.7 + step * 2.3));
+  for (let i = 0; i < s.steps; i += 1) {
+    const top = (i + 1) * s.stepHeight;
+    for (let k = 0; k < segments; k += 1) {
+      const x = -s.width / 2 + (k + 0.5) * segW;
+      const f = front(i, k);
+      const nextF = i + 1 < s.steps ? front(i + 1, k) : end;
+      b.box(m, segW + 0.02, top, end - f, x, top / 2, -(f + end) / 2, wall);
+      const depth = nextF - f;
+      const flooded = i % 2 === 0;
+      const at = (y: number) =>
+        m.clone().multiply(new Matrix4().makeTranslation(x, y, -(f + nextF) / 2)).multiply(new Matrix4().makeRotationX(-Math.PI / 2));
+      b.addGeometry(new PlaneGeometry(segW + 0.02, depth), at(top + 0.012), flooded ? field.clone().lerp(water, 0.15) : field);
+      if (flooded) b.addGeometry(new PlaneGeometry(segW - 0.5, Math.max(0.2, depth - 0.7)), at(top + 0.02), water);
+    }
   }
 }

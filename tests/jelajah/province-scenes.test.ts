@@ -189,3 +189,32 @@ describe('Aceh', () => {
     expect(scene.gameSoon).toBeDefined();
   });
 });
+
+describe('Jawa Tengah', () => {
+  const scene = findScene('jawa-tengah')!;
+
+  it('a pendopo with a stepped roof in the plaza, terraces and a volcano to the north, bamboo groves', () => {
+    expect(scene.provinsiKode).toBe('33');
+    expect(scene.waterStyle).toBe('none');
+    expect(scene.centrepiece).toMatchObject({ style: 'joglo' });
+    expect(scene.centrepiece?.game).toBeUndefined();
+    const kinds = (scene.structures ?? []).map((s) => s.kind);
+    expect(kinds).toContain('terraces');
+    const volcano = (scene.structures ?? []).find((s) => s.kind === 'mountain' && s.crater);
+    expect(volcano).toBeDefined();
+    expect(scene.decor.filter((d) => d.model === 'crops_bambooStageA' && d.collide).length).toBeGreaterThanOrEqual(6);
+    expect(scene.gameSoon).toBeDefined();
+  });
+
+  it('the terraces and the volcano stay north of the walkable area', () => {
+    for (const s of scene.structures ?? []) {
+      if (s.kind === 'terraces') expect(s.z).toBeLessThan(scene.walkable.minZ);
+      if (s.kind === 'mountain') expect(s.z + s.radius).toBeLessThan(scene.walkable.minZ - 15);
+    }
+  });
+
+  it('the pendopo collider covers its wide plinth', () => {
+    const c = scene.centrepiece!;
+    expect(pavilionCollider(c).halfW).toBeCloseTo(c.size / 2 + 0.6, 5);
+  });
+});

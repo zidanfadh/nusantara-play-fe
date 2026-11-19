@@ -67,6 +67,11 @@ export function pavilionCollider(c: PavilionDef): BoxCollider {
       rotation: c.rotation,
     };
   }
+  if (c.style === 'joglo') {
+    // Phase 22: the wide stepped plinth (JOGLO_PLINTH beyond the platform on every side).
+    const half = c.size / 2 + JOGLO_PLINTH;
+    return { kind: 'box', x: c.x, z: c.z, halfW: half, halfD: half, rotation: c.rotation };
+  }
   if (c.style === 'meunasah') {
     // Phase 22: the raised hall plus its front steps (local +z).
     const shift = OPEN_HALL_STEPS / 2;
@@ -81,6 +86,9 @@ export function pavilionCollider(c: PavilionDef): BoxCollider {
   }
   return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation };
 }
+
+/** Phase 22 (Jawa Tengah pendopo): how far the plinth reaches beyond the platform, metres. */
+export const JOGLO_PLINTH = 0.6;
 
 /** Phase 22 (Aceh open hall): floor height and the depth of the front steps, metres. */
 export const OPEN_HALL_FLOOR = 1.1;
