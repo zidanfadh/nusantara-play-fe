@@ -50,6 +50,7 @@ export function TierMenu({ choice, autoTier, onChoose }: TierMenuProps) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
+        data-toast-avoid
         aria-expanded={open}
         aria-controls={panelId}
         className="flex items-center gap-1.5 rounded-full border border-border bg-card/90 px-3 py-1.5 text-xs font-medium text-card-foreground shadow-sm backdrop-blur transition-colors hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"

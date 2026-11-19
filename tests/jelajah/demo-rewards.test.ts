@@ -45,26 +45,36 @@ const throwing: StorageLike = {
   },
 };
 
-describe('levels (50 × n × (n + 1) total XP)', () => {
-  it('xpForLevel follows the placeholder curve', () => {
-    expect([0, 1, 2, 3, 10].map(xpForLevel)).toEqual([0, 100, 300, 600, 5500]);
+describe('levels start at 1 (50 × (L − 1) × L total XP)', () => {
+  it('xpForLevel follows the level-1 curve', () => {
+    expect([1, 2, 3, 4, 10].map(xpForLevel)).toEqual([0, 100, 300, 600, 4500]);
+    expect(xpForLevel(0)).toBe(0); // below the first level counts as level 1
   });
 
-  it('levelForXp is exact at the boundaries', () => {
-    expect(levelForXp(0)).toBe(0);
-    expect(levelForXp(99)).toBe(0);
-    expect(levelForXp(100)).toBe(1);
-    expect(levelForXp(299)).toBe(1);
-    expect(levelForXp(300)).toBe(2);
-    expect(levelForXp(5499)).toBe(9);
-    expect(levelForXp(5500)).toBe(10);
-    expect(levelForXp(-5)).toBe(0);
-    expect(levelForXp(Number.NaN)).toBe(0);
+  it('levelForXp is exact at the boundaries and never below 1', () => {
+    expect(levelForXp(0)).toBe(1);
+    expect(levelForXp(99)).toBe(1);
+    expect(levelForXp(100)).toBe(2);
+    expect(levelForXp(299)).toBe(2);
+    expect(levelForXp(300)).toBe(3);
+    expect(levelForXp(4499)).toBe(9);
+    expect(levelForXp(4500)).toBe(10);
+    expect(levelForXp(-5)).toBe(1);
+    expect(levelForXp(Number.NaN)).toBe(1);
   });
 
-  it('levelProgress gives the fraction towards the next level', () => {
-    expect(levelProgress(25)).toMatchObject({ level: 0, levelStartXp: 0, nextLevelXp: 100, fraction: 0.25 });
-    expect(levelProgress(200)).toMatchObject({ level: 1, levelStartXp: 100, nextLevelXp: 300, fraction: 0.5 });
+  it('levelForXp agrees with xpForLevel for every XP value up to level 30', () => {
+    for (let xp = 0; xp <= xpForLevel(30); xp += 7) {
+      const l = levelForXp(xp);
+      expect(xpForLevel(l)).toBeLessThanOrEqual(xp);
+      expect(xpForLevel(l + 1)).toBeGreaterThan(xp);
+    }
+  });
+
+  it('levelProgress gives the fraction towards the next level (the HUD shows Lv 1 at 0 XP)', () => {
+    expect(levelProgress(0)).toMatchObject({ level: 1, levelStartXp: 0, nextLevelXp: 100, fraction: 0 });
+    expect(levelProgress(25)).toMatchObject({ level: 1, levelStartXp: 0, nextLevelXp: 100, fraction: 0.25 });
+    expect(levelProgress(200)).toMatchObject({ level: 2, levelStartXp: 100, nextLevelXp: 300, fraction: 0.5 });
   });
 });
 
@@ -116,17 +126,19 @@ describe('demo rules', () => {
     expect(s.stamps).toEqual([]);
   });
 
-  it('the full DEMO walk (enter + 3 stands) reaches level 1 exactly once', () => {
-    let s = enterProvince(EMPTY_DEMO_REWARDS, SUMSEL).state;
-    let levelUps = 0;
+  it('the full DEMO walk (105 XP: enter + 3 stands) levels up exactly once, from 1 to 2', () => {
+    const entered = enterProvince(EMPTY_DEMO_REWARDS, SUMSEL);
+    expect([entered.levelBefore, entered.levelAfter]).toEqual([1, 1]);
+    let s = entered.state;
+    const levelUps: Array<[number, number]> = [];
     for (const id of ['p1', 'p2', 'p3']) {
       const r = openProt(s, SUMSEL, id, 4);
-      if (r.levelAfter > r.levelBefore) levelUps += 1;
+      if (r.levelAfter > r.levelBefore) levelUps.push([r.levelBefore, r.levelAfter]);
       s = r.state;
     }
-    expect(s.xp).toBe(25 + 30 + 50);
-    expect(levelForXp(s.xp)).toBe(1);
-    expect(levelUps).toBe(1);
+    expect(s.xp).toBe(105);
+    expect(levelForXp(s.xp)).toBe(2);
+    expect(levelUps).toEqual([[1, 2]]);
   });
 
   it('production today (0 PROT): only the +25 for entering is possible', () => {
@@ -149,13 +161,22 @@ describe('demo rules', () => {
     const snapshot = JSON.stringify(before);
     openProt(before, SUMSEL, 'p1', 1);
     expect(JSON.stringify(before)).toBe(snapshot);
-    expect(EMPTY_DEMO_REWARDS).toEqual({ version: 1, xp: 0, entered: [], opened: {}, stamps: [] });
+    expect(EMPTY_DEMO_REWARDS).toEqual({ version: 2, xp: 0, entered: [], opened: {}, stamps: [] });
   });
 });
 
 describe('persistence (sessionStorage, versioned key, try/catch)', () => {
-  it('uses a versioned key', () => {
-    expect(DEMO_REWARDS_STORAGE_KEY).toMatch(/\.v\d+$/);
+  it('uses a versioned key, bumped to v2 for the level-1 curve', () => {
+    expect(DEMO_REWARDS_STORAGE_KEY).toBe('jelajah.demoRewards.v2');
+  });
+
+  it('ignores the Phase 12 (v1) simulation state', () => {
+    const storage = memoryStorage();
+    storage.setItem('jelajah.demoRewards.v1', JSON.stringify({ version: 1, xp: 105, entered: ['16'], opened: {}, stamps: ['16'] }));
+    expect(loadDemoRewards(storage)).toEqual(EMPTY_DEMO_REWARDS);
+    // Even v1 content under the new key is rejected (version check).
+    storage.setItem(DEMO_REWARDS_STORAGE_KEY, JSON.stringify({ version: 1, xp: 105, entered: [], opened: {}, stamps: [] }));
+    expect(loadDemoRewards(storage)).toEqual(EMPTY_DEMO_REWARDS);
   });
 
   it('round-trips through storage', () => {
@@ -171,10 +192,11 @@ describe('persistence (sessionStorage, versioned key, try/catch)', () => {
       'not json',
       'null',
       '[]',
-      JSON.stringify({ version: 2, xp: 10, entered: [], opened: {}, stamps: [] }),
-      JSON.stringify({ version: 1, xp: -1, entered: [], opened: {}, stamps: [] }),
-      JSON.stringify({ version: 1, xp: 10, entered: [1], opened: {}, stamps: [] }),
-      JSON.stringify({ version: 1, xp: 10, entered: [], opened: { 16: 'x' }, stamps: [] }),
+      JSON.stringify({ version: 1, xp: 10, entered: [], opened: {}, stamps: [] }),
+      JSON.stringify({ version: 3, xp: 10, entered: [], opened: {}, stamps: [] }),
+      JSON.stringify({ version: 2, xp: -1, entered: [], opened: {}, stamps: [] }),
+      JSON.stringify({ version: 2, xp: 10, entered: [1], opened: {}, stamps: [] }),
+      JSON.stringify({ version: 2, xp: 10, entered: [], opened: { 16: 'x' }, stamps: [] }),
     ]) {
       expect(parseDemoRewards(raw)).toBeNull();
       const storage = memoryStorage();

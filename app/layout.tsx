@@ -51,7 +51,14 @@ export default function RootLayout({
       >
         <AuthProvider>
           {children}
-          <Toaster richColors position="top-right" />
+          {/* Site-wide toasts at the top centre (owner decision, Phase 13), below the 64 px navbar. The Jelajah
+              pages move them below their own overlays through --toast-top (lib/jelajah/toast-clearance.ts). */}
+          <Toaster
+            richColors
+            position="top-center"
+            offset={{ top: "var(--toast-top, 72px)" }}
+            mobileOffset={{ top: "var(--toast-top, 72px)" }}
+          />
         </AuthProvider>
 
         

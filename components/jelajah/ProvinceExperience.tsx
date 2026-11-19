@@ -20,6 +20,7 @@ import { assignStands } from '@/lib/jelajah/engine/stands';
 import type { SceneDefinition } from '@/lib/jelajah/scenes/types';
 import { useDeviceTier } from '@/lib/jelajah/use-device-tier';
 import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
+import { useToastClearance } from '@/lib/jelajah/use-toast-clearance';
 import { Joystick } from './Joystick';
 import { grantDemoReward, RewardHud } from './RewardHud';
 import { ProvinceScene2D } from './ProvinceScene2D';
@@ -154,6 +155,8 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
     [scene.provinsiKode, scene.nama, prots],
   );
   const hud = <RewardHud quests={quests} onOverlayChange={setHudOverlay} />;
+  // Top-centre toasts below the title bar, HUD and panel close button (Phase 13).
+  useToastClearance(`${tier}:${entered}:${panel ? 'panel' : ''}`);
 
   // Friendly one-time banner when the province has no public PROT yet (production today).
   const emptyBanner = entered && prots !== null && prots.length === 0 && !emptyBannerClosed && (
@@ -204,7 +207,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
 
   const topBar = (
     <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-2">
-      <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-border bg-card/90 px-2 py-1.5 shadow-sm backdrop-blur">
+      <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-border bg-card/90 px-2 py-1.5 shadow-sm backdrop-blur" data-toast-avoid>
         <Link
           href="/jelajah"
           className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"

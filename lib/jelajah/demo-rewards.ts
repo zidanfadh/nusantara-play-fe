@@ -20,12 +20,16 @@ export const DEMO_REWARD_RULES = {
   stampXp: 50,
   /** Different PROT panels needed for the stamp (fewer when the province has fewer PROT, at least 1). */
   stampProtTarget: 3,
-  /** Level n needs levelBaseXp × n × (n + 1) total XP (placeholder curve of the backend plan). */
+  /**
+   * Levels start at 1: level L needs levelBaseXp × (L − 1) × L total XP (L1 = 0, L2 = 100, L3 = 300). Owner
+   * decision, Phase 13; the future backend uses the same curve.
+   */
   levelBaseXp: 50,
 } as const;
 
-export const DEMO_REWARDS_STORAGE_KEY = 'jelajah.demoRewards.v1';
-export const DEMO_REWARDS_VERSION = 1;
+/** v2 since Phase 13 (levels start at 1): state saved by the Phase 12 build (v1) is ignored. */
+export const DEMO_REWARDS_STORAGE_KEY = 'jelajah.demoRewards.v2';
+export const DEMO_REWARDS_VERSION = 2;
 
 export interface DemoRewardsState {
   version: typeof DEMO_REWARDS_VERSION;
@@ -62,20 +66,23 @@ export interface RewardResult {
 // ---------------------------------------------------------------------------------------------------
 // Levels
 
-/** Total XP needed for level n (level 0 = 0 XP). */
-export function xpForLevel(n: number): number {
-  const level = Math.max(0, Math.floor(n));
-  return DEMO_REWARD_RULES.levelBaseXp * level * (level + 1);
+/** The first level: 0 XP is level 1. */
+export const MIN_LEVEL = 1;
+
+/** Total XP needed for level L: 50 × (L − 1) × L (level 1 = 0 XP, level 2 = 100, level 3 = 300). */
+export function xpForLevel(level: number): number {
+  const l = Math.max(MIN_LEVEL, Math.floor(level));
+  return DEMO_REWARD_RULES.levelBaseXp * (l - 1) * l;
 }
 
-/** Highest level whose total XP requirement is met. */
+/** Highest level whose total XP requirement is met (at least 1). */
 export function levelForXp(xp: number): number {
   const total = Math.max(0, Number.isFinite(xp) ? xp : 0);
-  // Solve 50 n (n + 1) <= xp, then correct for floating point at the boundaries.
-  let n = Math.floor((-1 + Math.sqrt(1 + (4 * total) / DEMO_REWARD_RULES.levelBaseXp)) / 2);
-  while (xpForLevel(n + 1) <= total) n += 1;
-  while (n > 0 && xpForLevel(n) > total) n -= 1;
-  return n;
+  // Solve 50 (L − 1) L <= xp, then correct for floating point at the boundaries.
+  let l = Math.max(MIN_LEVEL, Math.floor((1 + Math.sqrt(1 + (4 * total) / DEMO_REWARD_RULES.levelBaseXp)) / 2));
+  while (xpForLevel(l + 1) <= total) l += 1;
+  while (l > MIN_LEVEL && xpForLevel(l) > total) l -= 1;
+  return l;
 }
 
 export interface LevelProgress {

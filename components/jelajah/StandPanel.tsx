@@ -64,6 +64,7 @@ export function StandPanel({ content, onClose, onSelectProt }: StandPanelProps) 
           type="button"
           onClick={onClose}
           aria-label="Tutup"
+          data-toast-avoid
           className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="h-5 w-5" aria-hidden />
