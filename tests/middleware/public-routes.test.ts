@@ -30,3 +30,13 @@ describe('middleware public routes: Jelajah Nusantara (Phase 10)', () => {
     expect(isPublicPath(path)).toBe(false);
   });
 });
+
+describe('middleware public routes: games (Phase 17)', () => {
+  it.each(['/main', '/main/congklak'])('treats %s as public', (path) => {
+    expect(isPublicPath(path)).toBe(true);
+  });
+
+  it.each(['/mainx', '/main-admin', '/maintenance'])('does not widen to %s', (path) => {
+    expect(isPublicPath(path)).toBe(false);
+  });
+});

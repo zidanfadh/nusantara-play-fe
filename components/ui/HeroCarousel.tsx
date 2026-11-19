@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { getImageProps, type StaticImageData } from "next/image";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import heroImage from "@/public/images/landing/hero.webp";
 import nuslandImage from "@/public/images/landing/nusland.webp";
@@ -37,7 +38,8 @@ const SLIDES: Slide[] = [
   {
     image: nuslandImage,
     alt: "Nusantara Virtual Tour Preview",
-    href: "https://nusantaraplay.kpoti.id/",
+    // Phase 17: our own Jelajah Nusantara (the former external site no longer exists).
+    href: "/jelajah",
   },
 ];
 
@@ -111,14 +113,9 @@ export function HeroCarousel() {
         {images.map((img, idx) => (
           <div key={idx} className="w-full h-full flex-shrink-0 snap-center">
             {img.href ? (
-              <a
-                href={img.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full h-full block"
-              >
+              <Link href={img.href} className="w-full h-full block">
                 <HeroSlideImage slide={img} first={idx === 0} />
-              </a>
+              </Link>
             ) : (
               <HeroSlideImage slide={img} first={idx === 0} />
             )}

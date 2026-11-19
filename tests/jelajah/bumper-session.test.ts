@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  BUMPER_LAST_PLAYED_KEY,
   BUMPER_SEEN_KEY,
+  browserLocalStorage,
   browserSessionStorage,
+  browserStores,
   hasSeenBumper,
+  localDateKey,
   markBumperSeen,
   resetBumperMemoryForTests,
   shouldAutoPlayBumper,
@@ -26,52 +30,108 @@ const throwing = {
   },
 };
 
-describe('bumper once-per-session rule (Phase 16)', () => {
+// Local times (no "Z"): the rule uses the visitor's calendar date.
+const MORNING = new Date(2026, 10, 19, 8, 0);
+const LATE = new Date(2026, 10, 19, 23, 59);
+const NEXT_DAY = new Date(2026, 10, 20, 0, 1);
+
+describe('bumper once per day per browser (Phase 17)', () => {
   beforeEach(() => resetBumperMemoryForTests());
 
-  it('plays on the first visit, not after it was marked', () => {
-    const s = memoryStorage();
-    expect(shouldAutoPlayBumper(s)).toBe(true);
-    markBumperSeen(s);
-    expect(s.map.get(BUMPER_SEEN_KEY)).toBe('1');
-    expect(shouldAutoPlayBumper(s)).toBe(false);
+  it('stores the local date under a versioned key', () => {
+    expect(BUMPER_LAST_PLAYED_KEY).toBe('jelajah.bumperLastPlayed.v1');
+    expect(localDateKey(MORNING)).toBe('2026-11-19');
+    expect(localDateKey(new Date(2026, 0, 5, 12))).toBe('2026-01-05');
+    const local = memoryStorage();
+    markBumperSeen({ local, session: memoryStorage() }, MORNING);
+    expect(local.map.get(BUMPER_LAST_PLAYED_KEY)).toBe('2026-11-19');
   });
 
-  it('a new session (empty storage, new page load) plays again', () => {
-    const s = memoryStorage();
-    markBumperSeen(s);
+  it('plays on the first visit, not again the same day (new tab, new page load)', () => {
+    const local = memoryStorage();
+    expect(shouldAutoPlayBumper({ local, session: memoryStorage() }, MORNING)).toBe(true);
+    markBumperSeen({ local, session: memoryStorage() }, MORNING);
+    resetBumperMemoryForTests(); // a new page load
+    expect(shouldAutoPlayBumper({ local, session: memoryStorage() }, LATE)).toBe(false);
+  });
+
+  it('plays again on the next day', () => {
+    const local = memoryStorage();
+    markBumperSeen({ local, session: memoryStorage() }, LATE);
     resetBumperMemoryForTests();
-    expect(shouldAutoPlayBumper(memoryStorage())).toBe(true);
+    expect(shouldAutoPlayBumper({ local, session: memoryStorage() }, NEXT_DAY)).toBe(true);
+    markBumperSeen({ local, session: memoryStorage() }, NEXT_DAY);
+    expect(local.map.get(BUMPER_LAST_PLAYED_KEY)).toBe('2026-11-20');
   });
 
-  it('only the exact value counts as seen', () => {
-    const s = memoryStorage();
-    s.setItem(BUMPER_SEEN_KEY, 'yes');
-    expect(hasSeenBumper(s)).toBe(false);
+  it('within one page load the in-memory flag also stops repeats', () => {
+    const local = memoryStorage();
+    markBumperSeen({ local, session: null }, MORNING);
+    expect(shouldAutoPlayBumper({ local, session: null }, NEXT_DAY)).toBe(false);
   });
 
-  it('storage that throws: plays once, then the in-memory flag stops repeats', () => {
-    expect(shouldAutoPlayBumper(throwing)).toBe(true);
-    expect(() => markBumperSeen(throwing)).not.toThrow();
-    expect(shouldAutoPlayBumper(throwing)).toBe(false);
+  it('only a date string counts; anything else plays', () => {
+    const local = memoryStorage();
+    local.setItem(BUMPER_LAST_PLAYED_KEY, 'yes');
+    expect(hasSeenBumper({ local, session: null }, MORNING)).toBe(false);
   });
 
-  it('no storage at all (server, blocked getter): same in-memory behaviour', () => {
-    expect(browserSessionStorage()).toBeNull(); // node: no window
-    expect(shouldAutoPlayBumper(null)).toBe(true);
-    markBumperSeen(null);
-    expect(shouldAutoPlayBumper(null)).toBe(false);
+  it('localStorage throwing: falls back to the once-per-session rule', () => {
+    const session = memoryStorage();
+    expect(shouldAutoPlayBumper({ local: throwing, session }, MORNING)).toBe(true);
+    expect(() => markBumperSeen({ local: throwing, session }, MORNING)).not.toThrow();
+    expect(session.map.get(BUMPER_SEEN_KEY)).toBe('1');
+    resetBumperMemoryForTests(); // same tab, new page load: the session flag holds, even on another day
+    expect(shouldAutoPlayBumper({ local: throwing, session }, NEXT_DAY)).toBe(false);
+    resetBumperMemoryForTests(); // a new session
+    expect(shouldAutoPlayBumper({ local: throwing, session: memoryStorage() }, MORNING)).toBe(true);
   });
 
-  it('a window whose sessionStorage getter throws gives null', () => {
+  it('localStorage readable but not writable (full): the session flag is written instead', () => {
+    const session = memoryStorage();
+    const readOnly = { getItem: () => null, setItem: throwing.setItem };
+    markBumperSeen({ local: readOnly, session }, MORNING);
+    expect(session.map.get(BUMPER_SEEN_KEY)).toBe('1');
+    resetBumperMemoryForTests();
+    expect(shouldAutoPlayBumper({ local: readOnly, session }, MORNING)).toBe(false);
+  });
+
+  it('no localStorage at all (missing or blocked getter): the session rule', () => {
+    const session = memoryStorage();
+    markBumperSeen({ local: null, session }, MORNING);
+    expect(session.map.get(BUMPER_SEEN_KEY)).toBe('1');
+    resetBumperMemoryForTests();
+    expect(shouldAutoPlayBumper({ local: null, session }, MORNING)).toBe(false);
+  });
+
+  it('every storage throwing: plays once, then the in-memory flag stops repeats', () => {
+    const stores = { local: throwing, session: throwing };
+    expect(shouldAutoPlayBumper(stores, MORNING)).toBe(true);
+    expect(() => markBumperSeen(stores, MORNING)).not.toThrow();
+    expect(shouldAutoPlayBumper(stores, MORNING)).toBe(false);
+  });
+
+  it('no window (server): no storage, same in-memory behaviour', () => {
+    expect(browserLocalStorage()).toBeNull();
+    expect(browserSessionStorage()).toBeNull();
+    expect(shouldAutoPlayBumper()).toBe(true);
+    markBumperSeen();
+    expect(shouldAutoPlayBumper()).toBe(false);
+  });
+
+  it('a window whose storage getters throw gives null stores', () => {
     const g = globalThis as { window?: unknown };
-    g.window = Object.defineProperty({}, 'sessionStorage', {
-      get() {
-        throw new Error('SecurityError');
-      },
-    });
+    const blocked = {};
+    for (const k of ['localStorage', 'sessionStorage']) {
+      Object.defineProperty(blocked, k, {
+        get() {
+          throw new Error('SecurityError');
+        },
+      });
+    }
+    g.window = blocked;
     try {
-      expect(browserSessionStorage()).toBeNull();
+      expect(browserStores()).toEqual({ local: null, session: null });
       expect(shouldAutoPlayBumper()).toBe(true);
     } finally {
       delete g.window;

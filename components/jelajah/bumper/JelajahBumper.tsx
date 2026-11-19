@@ -14,9 +14,11 @@
  * that data (`data`, `status`, `shapes`) as it arrives.
  */
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { apiClient } from '@/lib/api/client';
+import { congklakHref } from '@/lib/games/congklak/from-link';
 import {
   BUMPER_DURATIONS,
   BUMPER_SCENES,
@@ -57,6 +59,7 @@ export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperPr
   const [stats, setStats] = useState<CommunityStats | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
 
   // Played once per browser session (the hub decides; replays mark it again, harmless).
   useEffect(() => {
@@ -89,6 +92,8 @@ export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperPr
         e.preventDefault();
         skip();
       } else if (e.key === 'Enter' && !e.repeat) {
+        // A scene's own action button (scene 4 "Main Congklak") is pressed normally.
+        if (e.target instanceof Element && e.target.closest('[data-bumper-action]')) return;
         // Enter always means "next" (on the last scene that is "Mulai Jelajah"); Lewati uses Space or Esc.
         e.preventDefault();
         next();
@@ -130,7 +135,15 @@ export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperPr
       content = <MapScene scene={map} shapes={shapes} />;
       break;
     case 'game':
-      content = <GameScene />;
+      // Phase 17: "Main Congklak" ends the bumper and opens the game (its back link leads to the map).
+      content = (
+        <GameScene
+          onPlay={() => {
+            skip();
+            router.push(congklakHref('jelajah'));
+          }}
+        />
+      );
       break;
     case 'komunitas':
       content = <CommunityScene stats={stats} />;

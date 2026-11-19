@@ -4,6 +4,7 @@
  * 2d tier of a province scene (Phase 11): never imports three.js. A simple illustrated header and a
  * grid of the same stands as the 3D scene (same assignment, same panel).
  */
+import type { ReactNode } from 'react';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
 import type { StandContent } from '@/lib/jelajah/engine/stands';
@@ -12,6 +13,8 @@ interface ProvinceScene2DProps {
   nama: string;
   stands: readonly StandContent<SceneProt>[];
   onOpen: (index: number, trigger: HTMLElement) => void;
+  /** Phase 17: shown between the header and the stands (the game pavilion's "Main Congklak" card). */
+  extra?: ReactNode;
 }
 
 /** Decorative village illustration (river, raised houses, palms); colours follow the site theme. */
@@ -58,7 +61,7 @@ function VillageIllustration() {
   );
 }
 
-export function ProvinceScene2D({ nama, stands, onOpen }: ProvinceScene2DProps) {
+export function ProvinceScene2D({ nama, stands, onOpen, extra }: ProvinceScene2DProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-6 sm:px-6">
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
@@ -68,6 +71,7 @@ export function ProvinceScene2D({ nama, stands, onOpen }: ProvinceScene2DProps) 
           <p className="text-sm text-muted-foreground">Tampilan 2D. Pilih stand untuk melihat PROT-nya.</p>
         </div>
       </div>
+      {extra}
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {stands.map((content, i) => (
           <li key={i}>

@@ -83,6 +83,11 @@ export interface PavilionDef {
   size: number;
   postHeight: number;
   roofHeight: number;
+  /**
+   * Phase 17: the pavilion is an interaction point that opens this game (within INTERACT_DISTANCE it shows
+   * a "Main Congklak" button). Neutral wording only: no claim about where the game comes from.
+   */
+  game?: 'congklak';
 }
 
 export interface DecorDef {

@@ -243,15 +243,14 @@ export default async function Home() {
                   lihat detail permainan tradisional dari sudut pandang yang
                   lebih hidup, dekat, dan imersif.
                 </p>
-                <a 
-                  href="https://multimedia-demo.wellmagicteam.com/nusalega/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                {/* Phase 17: our own Jelajah Nusantara instead of the external tour site (same tab). */}
+                <Link
+                  href="/jelajah"
                   className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center group w-fit"
                 >
                   Mulai Tur Virtual
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </a>
+                </Link>
               </div>
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
