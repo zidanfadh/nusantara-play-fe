@@ -1,5 +1,5 @@
 /**
- * THE script of the concept video "Kenali Nusantara Legacy" (Phase 19): every text and every timing of
+ * THE script of the concept video ("Kenali" + SITE_NAME, Phase 19): every text and every timing of
  * the film is in this file, so the copy can be edited without touching the components.
  *
  * How to edit:

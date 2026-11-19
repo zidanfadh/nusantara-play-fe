@@ -1,5 +1,5 @@
 /**
- * Types of the Jelajah concept video "Kenali Nusantara Legacy" (Phase 19). The film itself lives in
+ * Types of the Jelajah concept video ("Kenali" + SITE_NAME, Phase 19). The film itself lives in
  * `script.ts` (texts and timings) and `components/jelajah/concept/` (scenes and player).
  */
 
