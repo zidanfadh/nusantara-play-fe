@@ -49,11 +49,13 @@ interface JelajahBumperProps {
   status: HubStatus;
   shapes: readonly ProvinceShape[] | null;
   onClose: (reason: BumperEndReason) => void;
+  /** Phase 19: "Main Congklak" leaves /jelajah; the hub then starts no further intro step. */
+  onLeave?: () => void;
 }
 
 const FOCUSABLE = 'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
-export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperProps) {
+export function JelajahBumper({ data, status, shapes, onClose, onLeave }: JelajahBumperProps) {
   const reduced = useReducedMotion();
   const { index, paused, next, skip } = useBumperTimeline(BUMPER_DURATIONS, !reduced, onClose);
   const [stats, setStats] = useState<CommunityStats | null>(null);
@@ -139,6 +141,7 @@ export function JelajahBumper({ data, status, shapes, onClose }: JelajahBumperPr
       content = (
         <GameScene
           onPlay={() => {
+            onLeave?.();
             skip();
             router.push(congklakHref('jelajah'));
           }}

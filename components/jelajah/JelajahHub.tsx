@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { MapPin, RefreshCw } from 'lucide-react';
+import { Clapperboard, MapPin, RefreshCw } from 'lucide-react';
 import { GEO_ATTRIBUTION } from '@/lib/jelajah/geo';
 import { isClickable } from '@/lib/jelajah/map-model';
 import { PALETTES } from '@/lib/jelajah/palette';
@@ -21,17 +21,31 @@ import { TierMenu } from './TierMenu';
 import { WebGLBoundary } from './WebGLBoundary';
 import { JelajahBumper } from './bumper/JelajahBumper';
 import { shouldAutoPlayBumper } from '@/lib/jelajah/bumper/session';
+import { CONCEPT_REPLAY_LABEL, isConceptForced, nextIntroStep, planIntro, type IntroStep } from '@/lib/jelajah/concept/gate';
+import { hasSeenConcept } from '@/lib/jelajah/concept/seen';
 
-/** auto: the once-per-session rule decides (first visit); playing: replay from "Putar intro"; off: closed. */
-type BumperState = 'auto' | 'playing' | 'off';
+/**
+ * Intro before the map (Phase 19): 'pending' until mounted (storage is read after hydration), then the
+ * steps of `planIntro` in order (bumper once per day, concept video on the first visit), then 'done'.
+ */
+type IntroStage = 'pending' | IntroStep | 'done';
 
-/** Longest wait for the automatic tier before the bumper starts anyway (its probe normally takes 0.7 s). */
+/** Longest wait for the automatic tier before the intro starts anyway (its probe normally takes 0.7 s). */
 const BUMPER_TIER_WAIT_MS = 3000;
+
+/** Film colour of the concept video, also its loading cover (no flash of the hub between the two). */
+const CONCEPT_COVER = '#120F2A';
 
 // three.js lives only in this chunk; it is requested only when the tier is full or lite.
 const Map3D = dynamic(() => import('./Map3D'), {
   ssr: false,
   loading: () => <MapSkeleton label="Memuat peta 3D…" />,
+});
+
+// Concept video (Phase 19): its own chunk, requested only when it will actually play.
+const ConceptVideo = dynamic(() => import('./concept/ConceptVideo'), {
+  ssr: false,
+  loading: () => <div aria-hidden className="fixed inset-0 z-[60]" style={{ background: CONCEPT_COVER }} />,
 });
 
 function MapSkeleton({ label }: { label: string }) {
@@ -55,40 +69,94 @@ export function JelajahHub() {
   const [selectedKode, setSelectedKode] = useState<string | null>(null);
   const mapRef = useRef<HTMLElement>(null);
 
-  // Intro bumper (Phase 16): once per browser session, decided after mount (sessionStorage). The hub stays
-  // mounted behind it, so the data, the geometry and (tier full/lite) the 3D chunk load meanwhile.
-  // On a first visit the automatic tier runs a 0.7 s frame-rate probe; the bumper's animations would lower
-  // that (cached) measurement, so the auto-played bumper waits on its plain cover until the automatic tier is
-  // known (at most BUMPER_TIER_WAIT_MS).
-  const [bumper, setBumper] = useState<BumperState>('auto');
-  const [autoPlay, setAutoPlay] = useState<boolean | null>(null);
+  // Intro (Phase 16 bumper, Phase 19 concept video), decided after mount (storage). The hub stays mounted
+  // behind it, so the data, the geometry and (tier full/lite) the 3D chunk load meanwhile.
+  // On a first visit the automatic tier runs a 0.7 s frame-rate probe; the intro's animations would lower
+  // that (cached) measurement, so an automatic intro waits on its plain cover until the automatic tier is
+  // known (at most BUMPER_TIER_WAIT_MS). Replays ("Putar intro", "Tonton pengenalan") play one step only.
+  const [stage, setStage] = useState<IntroStage>('pending');
+  const [plan, setPlan] = useState<IntroStep[]>([]);
+  const [replay, setReplay] = useState(false);
   const [tierWaitOver, setTierWaitOver] = useState(false);
-  const [bumperRun, setBumperRun] = useState(0);
-  const returnFocus = useRef(false);
+  const [introRun, setIntroRun] = useState(0);
+  const [bumperPlayed, setBumperPlayed] = useState(false);
+  const [conceptNearEnd, setConceptNearEnd] = useState(false);
+  /** Where focus goes when the intro closes: the map menu, or the button that replayed the concept video. */
+  const returnFocus = useRef<'menu' | 'concept' | null>(null);
+  const conceptButtonRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    // Reading sessionStorage is only possible after mount; one extra render is intended here.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setAutoPlay(shouldAutoPlayBumper());
+    const steps = planIntro({
+      bumperDue: shouldAutoPlayBumper(),
+      conceptSeen: hasSeenConcept(),
+      forced: isConceptForced(window.location.search),
+    });
+    // Reading storage is only possible after mount; one extra render is intended here.
+    setPlan(steps);
+    setStage(steps[0] ?? 'done');
     const id = setTimeout(() => setTierWaitOver(true), BUMPER_TIER_WAIT_MS);
     return () => clearTimeout(id);
   }, []);
   const tierKnown = autoTier !== null || tierWaitOver;
-  const bumperShown = bumper === 'playing' || (bumper === 'auto' && autoPlay === true && tierKnown);
-  const bumperCover = bumper === 'auto' && (autoPlay === null || (autoPlay && !tierKnown));
-  const closeBumper = useCallback(() => {
-    returnFocus.current = true;
-    setBumper('off');
+  const introReady = replay || tierKnown;
+  const bumperShown = stage === 'bumper' && introReady;
+  const conceptShown = stage === 'concept' && introReady;
+  const introCover = stage === 'pending' || ((stage === 'bumper' || stage === 'concept') && !introReady);
+  const introOpen = bumperShown || conceptShown || introCover;
+  useEffect(() => {
+    if (bumperShown) setBumperPlayed(true);
+  }, [bumperShown]);
+
+  const endStep = useCallback(
+    (current: IntroStep) => {
+      const next = replay ? null : nextIntroStep(plan, current);
+      if (next) {
+        setStage(next);
+        return;
+      }
+      returnFocus.current ??= 'menu';
+      setStage('done');
+      setReplay(false);
+    },
+    [plan, replay],
+  );
+  const closeBumper = useCallback(() => endStep('bumper'), [endStep]);
+  const closeConcept = useCallback(() => endStep('concept'), [endStep]);
+  /** The bumper's "Main Congklak" leaves the page: no concept video now (it plays on the next visit). */
+  const leaveIntro = useCallback(() => {
+    setStage('done');
+    setReplay(false);
   }, []);
   const replayBumper = useCallback(() => {
-    setBumperRun((n) => n + 1);
-    setBumper('playing');
+    setIntroRun((n) => n + 1);
+    setReplay(true);
+    returnFocus.current = 'menu';
+    setStage('bumper');
   }, []);
-  // After the bumper: focus the first control of the map overlay (the "Tampilan" menu button).
+  const replayConcept = useCallback(() => {
+    setIntroRun((n) => n + 1);
+    setReplay(true);
+    returnFocus.current = 'concept';
+    setConceptNearEnd(false);
+    setStage('concept');
+  }, []);
+  const onConceptScene = useCallback((_index: number, last: boolean) => setConceptNearEnd(last), []);
+  // After the intro: focus the first control of the map overlay (the "Tampilan" menu button), or the
+  // "Tonton pengenalan" button after a replay of the concept video.
   useEffect(() => {
-    if (bumper !== 'off' || !returnFocus.current) return;
-    returnFocus.current = false;
-    mapRef.current?.querySelector<HTMLElement>('[data-jelajah-menu]')?.focus();
-  }, [bumper]);
+    if (stage !== 'done' || !returnFocus.current) return;
+    const target = returnFocus.current;
+    returnFocus.current = null;
+    if (target === 'concept') conceptButtonRef.current?.focus();
+    else mapRef.current?.querySelector<HTMLElement>('[data-jelajah-menu]')?.focus();
+  }, [stage]);
+
+  // While the concept video plays, the 3D map chunk is fetched in the background, but a 3D map that is not
+  // mounted yet (no bumper before it, e.g. ?concept=1) is mounted only from the last scene on, so building
+  // the map never competes with the film's frames. Its data and geometry load meanwhile as always.
+  const deferMap3D = stage === 'concept' && !replay && !bumperPlayed && !conceptNearEnd;
+  useEffect(() => {
+    if (stage === 'concept' && tier && tier !== '2d') void import('./Map3D');
+  }, [stage, tier]);
 
   const summaryByKode = useMemo(() => new Map(data.provinces.map((p) => [p.kode, p])), [data.provinces]);
   const selected = selectedKode ? summaryByKode.get(selectedKode) ?? null : null;
@@ -146,21 +214,22 @@ export function JelajahHub() {
         </button>
       </div>
     );
-  } else if (!viewProps || !tier) {
+  } else if (!viewProps || !tier || (deferMap3D && tier !== '2d')) {
     map = <MapSkeleton label="Menyiapkan peta…" />;
   } else if (tier === '2d') {
     map = <Map2D {...viewProps} />;
   } else {
     map = (
       <WebGLBoundary fallback={<Map2D {...viewProps} />}>
-        <Map3D {...viewProps} tier={tier} debug={debug} />
+        <Map3D {...viewProps} tier={tier} debug={debug && stage === 'done'} />
       </WebGLBoundary>
     );
   }
 
   return (
     <>
-    <div className="bg-background text-foreground" inert={bumperShown || bumperCover}>
+    {/* While the concept video covers it, the hub is not painted at all (it still lays out and loads). */}
+    <div className={`bg-background text-foreground ${conceptShown ? 'invisible' : ''}`} inert={introOpen}>
       <section
         ref={mapRef}
         aria-label="Peta Jelajah Nusantara"
@@ -220,6 +289,19 @@ export function JelajahHub() {
         )}
 
         {selected && <ProvinceCard summary={selected} status={status} onClose={closeCard} />}
+
+        {/* Phase 19: replays the concept video; small, bottom left (icon only on phones). */}
+        <button
+          ref={conceptButtonRef}
+          type="button"
+          onClick={replayConcept}
+          aria-label={CONCEPT_REPLAY_LABEL}
+          data-concept-replay
+          className={`absolute bottom-3 left-3 z-10 inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-border bg-card/90 px-3 text-sm font-medium text-card-foreground shadow-sm backdrop-blur transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-0 md:py-2 ${selected ? 'hidden md:inline-flex' : ''}`}
+        >
+          <Clapperboard className="h-4 w-4 text-primary" aria-hidden />
+          <span className="hidden md:inline">{CONCEPT_REPLAY_LABEL}</span>
+        </button>
 
         <div
           className={`pointer-events-none absolute bottom-3 right-3 z-10 rounded-lg border border-border bg-card/90 px-3 py-2 text-[11px] text-card-foreground shadow-sm backdrop-blur ${selected ? 'hidden md:block' : ''}`}
@@ -289,18 +371,38 @@ export function JelajahHub() {
       </section>
     </div>
     <AnimatePresence>
-      {bumperCover && (
-        // Server render, hydration and the first-visit tier probe: a plain cover in the bumper's colour, so a
-        // first visit never flashes the hub before the bumper; on later visits it fades out right after hydration.
+      {introCover && (
+        // Server render, hydration and the first-visit tier probe: a plain cover in the colour of the step that
+        // follows, so a first visit never flashes the hub before the intro; without an intro it fades out
+        // right after hydration.
         <motion.div
           key="bumper-cover"
           aria-hidden
           className="fixed inset-0 z-[60] bg-background"
+          style={stage === 'concept' ? { background: CONCEPT_COVER } : undefined}
           exit={{ opacity: 0, transition: { duration: 0.2 } }}
         />
       )}
       {bumperShown && (
-        <JelajahBumper key={`bumper-${bumperRun}`} data={data} status={status} shapes={shapes} onClose={closeBumper} />
+        <JelajahBumper
+          key={`bumper-${introRun}`}
+          data={data}
+          status={status}
+          shapes={shapes}
+          onClose={closeBumper}
+          onLeave={leaveIntro}
+        />
+      )}
+      {conceptShown && (
+        <ConceptVideo
+          key={`concept-${introRun}`}
+          data={data}
+          status={status}
+          tier={tier}
+          debug={debug}
+          onClose={closeConcept}
+          onScene={onConceptScene}
+        />
       )}
     </AnimatePresence>
     </>

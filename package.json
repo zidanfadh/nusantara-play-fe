@@ -10,6 +10,7 @@
     "test": "vitest run",
     "jelajah:geo": "node scripts/build-jelajah-geo.mjs",
     "jelajah:assets": "node scripts/optimize-jelajah-assets.mjs",
+    "concept:map": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-concept-map.mjs",
     "check:jelajah": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-jelajah-budget.mjs"
   },
   "dependencies": {

@@ -10,6 +10,7 @@ import { getLandingStats } from '@/lib/api/stats';
 import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
 import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
 import { getPublishedCounts, landingStatTiles } from '@/components/landing/published-stats';
+import { featuredProtQuery, onlyPublishedProt } from '@/components/landing/featured-prot';
 import { DesktopOnlyImage } from '@/components/landing/DesktopOnlyImage';
 import { LANDING_IMAGE_SIZES } from '@/components/landing/image-sizes';
 import tourPreviewImage from '@/public/images/landing/nusantara-legacy.webp';
@@ -33,10 +34,8 @@ import {
 } from 'lucide-react';
 
 async function getFeaturedGames(accessToken?: string): Promise<PROTEntity[]> {
-  const params = new URLSearchParams({
-    page: '1',
-    limit: '4',
-  });
+  // Phase 19: published PROT only (ARSIP_NASIONAL), like the map; a curator's token must not list drafts here.
+  const query = featuredProtQuery();
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
@@ -46,7 +45,7 @@ async function getFeaturedGames(accessToken?: string): Promise<PROTEntity[]> {
   }
 
   try {
-    const response = await fetch(`${getBackendApiUrl()}/prot?${params.toString()}`, {
+    const response = await fetch(`${getBackendApiUrl()}/prot?${query}`, {
       headers,
       next: {
         revalidate: 60,
@@ -58,7 +57,7 @@ async function getFeaturedGames(accessToken?: string): Promise<PROTEntity[]> {
     }
 
     const result = (await response.json()) as PaginatedResponse<PROTEntity>;
-    return result.data ?? [];
+    return onlyPublishedProt(result.data);
   } catch (error) {
     console.error('Error fetching featured PROT data:', error);
     return [];
