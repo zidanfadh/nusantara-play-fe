@@ -218,3 +218,30 @@ describe('Jawa Tengah', () => {
     expect(pavilionCollider(c).halfW).toBeCloseTo(c.size / 2 + 0.6, 5);
   });
 });
+
+describe('Sulawesi Selatan', () => {
+  const scene = findScene('sulawesi-selatan')!;
+
+  it('a coastal village: sea, a wide beach with the sailing boat, raised houses with tiered front gables, palms', () => {
+    expect(scene.provinsiKode).toBe('73');
+    expect(scene.waterStyle).toBe('sea');
+    expect(scene.houses.every((h) => h.style === 'bugis' && h.floorHeight >= 2)).toBe(true);
+    const boat = (scene.structures ?? []).find((s) => s.kind === 'boat');
+    expect(boat).toBeDefined();
+    // On the sand, inside the beach strip.
+    if (boat?.kind === 'boat') {
+      expect(boat.z).toBeGreaterThan(scene.river.south);
+      expect(boat.z).toBeLessThan(scene.river.south + scene.river.bank);
+    }
+    expect(scene.decor.filter((d) => d.model.startsWith('tree_palm') && d.collide).length).toBeGreaterThanOrEqual(6);
+    expect(scene.gameSoon).toBeDefined();
+    expect(scene.centrepiece).toBeUndefined();
+  });
+
+  it('the boat blocks the player', () => {
+    const boat = (scene.structures ?? []).find((s) => s.kind === 'boat')!;
+    if (boat.kind !== 'boat') throw new Error('no boat');
+    const cols = sceneColliders(scene);
+    expect(cols.some((c) => c.kind === 'box' && c.x === boat.x && c.z === boat.z && c.halfW === boat.length / 2)).toBe(true);
+  });
+});

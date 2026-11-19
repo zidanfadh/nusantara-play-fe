@@ -35,6 +35,8 @@ export const GABLE_STYLES: Readonly<Record<Exclude<HouseStyle, 'limas'>, GableOp
   malay: { axis: 'x', overhang: 0.6, endOverhang: 0.3, crossedEnds: 1.2, gablePanel: false, tiers: 0, eaveBand: false },
   // Aceh: a long, steep gable with decorated gable panels and a carved band under the eaves.
   aceh: { axis: 'x', overhang: 0.75, endOverhang: 0.4, crossedEnds: 0, gablePanel: true, tiers: 0, eaveBand: true },
+  // Sulawesi Selatan: a steep gable facing the front with stacked tiers on it and long crossed timbers at the ridge.
+  bugis: { axis: 'z', overhang: 0.55, endOverhang: 0.45, crossedEnds: 1.7, gablePanel: false, tiers: 3, eaveBand: false },
 };
 
 export function addGableRoof(b: Builder, m: Matrix4, h: HouseDef, c: SceneColors, o: GableOptions) {

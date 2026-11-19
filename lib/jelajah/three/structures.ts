@@ -5,9 +5,10 @@
  * Only imported by lib/jelajah/three/* (three.js isolation).
  */
 import { Color, CylinderGeometry, Matrix4, PlaneGeometry } from 'three';
+import { boatSize } from '@/lib/jelajah/engine/collision';
 import type { SceneDefinition, StructureDef } from '@/lib/jelajah/scenes/types';
 import { WATER_Y } from './water-level';
-import { placement, type Builder } from './mesh-builder';
+import { placement, v, type Builder } from './mesh-builder';
 
 export function addStructures(b: Builder, scene: SceneDefinition) {
   for (const s of scene.structures ?? []) {
@@ -20,6 +21,9 @@ export function addStructures(b: Builder, scene: SceneDefinition) {
         break;
       case 'terraces':
         addTerraces(b, s);
+        break;
+      case 'boat':
+        addBoat(b, s);
         break;
     }
   }
@@ -108,4 +112,72 @@ function addTerraces(b: Builder, s: Extract<StructureDef, { kind: 'terraces' }>)
       if (flooded) b.addGeometry(new PlaneGeometry(segW - 0.5, Math.max(0.2, depth - 0.7)), at(top + 0.02), water);
     }
   }
+}
+
+/**
+ * A pinisi-like sailing boat on the sand: a lofted hull through six stations (raised bow and stern), a deck, a stern
+ * cabin, two masts with fore-and-aft sails, a bowsprit and a jib. Sails are drawn on both sides.
+ */
+function addBoat(b: Builder, s: Extract<StructureDef, { kind: 'boat' }>) {
+  const m = placement(s.x, s.z, s.rotation);
+  const L = s.length;
+  const { halfBeam: B } = boatSize(L);
+  const hull = new Color(s.hull);
+  const hullDark = new Color(s.hull).multiplyScalar(0.8);
+  const deck = new Color(s.hull).lerp(new Color('#E8C99A'), 0.55);
+  const sail = new Color(s.sail);
+  // Stations along the hull: x (fraction of L), half beam (fraction of B), sheer height (m).
+  const stations: [number, number, number][] = [
+    [-0.5, 0.6, 2.3],
+    [-0.36, 0.92, 1.9],
+    [-0.1, 1, 1.7],
+    [0.16, 0.94, 1.75],
+    [0.38, 0.58, 2.05],
+    [0.5, 0.06, 2.6],
+  ];
+  const keelY = 0.15;
+  const bilgeY = 0.55;
+  const inside = (x: number) => v(x, 1, 0);
+  for (let i = 0; i < stations.length - 1; i += 1) {
+    const [xa, ba, ha] = stations[i];
+    const [xb, bb, hb] = stations[i + 1];
+    const Xa = xa * L;
+    const Xb = xb * L;
+    for (const side of [-1, 1]) {
+      // Topside (sheer to bilge) and the lower hull (bilge to keel).
+      b.quad(m, v(Xa, ha, side * ba * B), v(Xb, hb, side * bb * B), v(Xb, bilgeY, side * bb * B * 0.82), v(Xa, bilgeY, side * ba * B * 0.82), inside((Xa + Xb) / 2), hull);
+      b.quad(m, v(Xa, bilgeY, side * ba * B * 0.82), v(Xb, bilgeY, side * bb * B * 0.82), v(Xb, keelY, side * bb * B * 0.25), v(Xa, keelY, side * ba * B * 0.25), inside((Xa + Xb) / 2), hullDark);
+    }
+    // Deck a little below the sheer.
+    b.quad(m, v(Xa, ha - 0.25, -ba * B * 0.95), v(Xb, hb - 0.25, -bb * B * 0.95), v(Xb, hb - 0.25, bb * B * 0.95), v(Xa, hb - 0.25 + (ha - hb), ba * B * 0.95), v((Xa + Xb) / 2, 0, 0), deck);
+  }
+  // Stern transom.
+  const [xs, bs, hs] = stations[0];
+  b.quad(m, v(xs * L, hs, -bs * B), v(xs * L, hs, bs * B), v(xs * L, keelY, bs * B * 0.25), v(xs * L, keelY, -bs * B * 0.25), v(0, 1, 0), hullDark);
+  // Stern cabin.
+  b.box(m, L * 0.16, 1.2, B * 1.3, -L * 0.37, 2.1 + 0.6, 0, deck.clone().multiplyScalar(0.85));
+  b.box(m, L * 0.19, 0.12, B * 1.5, -L * 0.37, 2.1 + 1.26, 0, hullDark);
+  // Masts and sails.
+  const mast = new Color(s.hull).multiplyScalar(0.7);
+  const masts: [number, number][] = [
+    [-0.08, 8.2],
+    [0.17, 7.2],
+  ];
+  for (const [mx, h] of masts) {
+    const X = mx * L;
+    b.box(m, 0.2, h, 0.2, X, 1.7 + h / 2, 0, mast);
+    const foot = 2.5;
+    const top = 1.7 + h - 0.4;
+    const pts = [v(X - 0.15, foot, 0), v(X - 0.15, top, 0), v(X - L * 0.2, top - 1.4, 0), v(X - L * 0.24, foot + 0.3, 0)];
+    b.quad(m, pts[0], pts[1], pts[2], pts[3], v(X - 1, 3, 1), sail);
+    b.quad(m, pts[0], pts[1], pts[2], pts[3], v(X - 1, 3, -1), sail);
+  }
+  // Bowsprit and jib.
+  const bow = stations[stations.length - 1];
+  const sprit = new Matrix4().makeTranslation(bow[0] * L + 1.2, bow[2] + 0.35, 0).multiply(new Matrix4().makeRotationZ(-1.25));
+  b.box(m.clone().multiply(sprit), 0.14, 3.0, 0.14, 0, 0, 0, mast);
+  const foreTop = v(masts[1][0] * L + 0.1, 1.7 + masts[1][1] - 0.6, 0);
+  const jib = [v(masts[1][0] * L + 0.15, 2.6, 0), foreTop, v(bow[0] * L + 2.4, bow[2] + 0.75, 0)];
+  b.tri(m, jib[0], jib[1], jib[2], v(L * 0.3, 3, 1), sail);
+  b.tri(m, jib[0], jib[1], jib[2], v(L * 0.3, 3, -1), sail);
 }

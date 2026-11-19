@@ -210,6 +210,14 @@ export function sceneColliders(scene: SceneDefinition, includeDetail = true): Co
 
 /** Phase 22: the footprint colliders of a procedural landmark (none for landmarks outside the walkable area). */
 export function structureColliders(s: StructureDef): Collider[] {
-  void s;
+  if (s.kind === 'boat') {
+    const { halfLength, halfBeam } = boatSize(s.length);
+    return [{ kind: 'box', x: s.x, z: s.z, halfW: halfLength, halfD: halfBeam + 0.2, rotation: s.rotation }];
+  }
   return [];
+}
+
+/** Phase 22: half length and half beam of the boat landmark (the hull's widest point). */
+export function boatSize(length: number) {
+  return { halfLength: length / 2, halfBeam: length * 0.12 };
 }

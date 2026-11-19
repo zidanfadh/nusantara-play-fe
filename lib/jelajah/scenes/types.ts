@@ -58,7 +58,7 @@ export interface RectBounds {
  * Roof and detail style of a procedural house (Phase 22). `limas` = the Phase 11 two-tier hip roof (default). The UI
  * never names a style; the styles are loose, low-poly hints ("terinspirasi"), not reconstructions.
  */
-export type HouseStyle = 'limas' | 'malay' | 'aceh';
+export type HouseStyle = 'limas' | 'malay' | 'aceh' | 'bugis';
 
 /** Raised house (rumah panggung), built procedurally. Described in the UI only as "terinspirasi rumah limas". */
 export interface HouseDef {
@@ -147,7 +147,12 @@ export type StructureDef =
       field: string;
       wall: string;
       water: string;
-    };
+    }
+  /**
+   * A large wooden sailing boat drawn up on the beach (pinisi-like, a loose low-poly hint): hull along local x with
+   * the bow at +x, two masts, fore-and-aft sails. Blocks the player with its hull.
+   */
+  | { kind: 'boat'; x: number; z: number; rotation: number; length: number; hull: string; sail: string };
 
 export interface DecorDef {
   model: NatureModel;

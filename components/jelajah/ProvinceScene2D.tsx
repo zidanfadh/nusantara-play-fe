@@ -37,7 +37,10 @@ function House({ x, y, roof }: { x: number; y: number; roof: IllustrationLook['r
   );
 }
 
-/** Phase 22 gable roofs: crossed ridge ends (malay), a steep gable with a decorated panel (aceh). */
+/**
+ * Phase 22 gable roofs: crossed ridge ends (malay), a steep gable with a decorated panel (aceh), a front gable with
+ * stacked tiers and long crossed timbers (bugis).
+ */
 function GableRoof({ roof }: { roof: Exclude<IllustrationLook['roof'], 'limas'> }) {
   switch (roof) {
     case 'malay':
@@ -52,6 +55,14 @@ function GableRoof({ roof }: { roof: Exclude<IllustrationLook['roof'], 'limas'> 
         <>
           <path d="M -62 -44 L 62 -44 L 46 -104 L -46 -104 Z" className="fill-primary" />
           <path d="M -40 -50 L -40 -98 L -58 -50 Z M 40 -50 L 40 -98 L 58 -50 Z" className="fill-accent" />
+        </>
+      );
+    case 'bugis':
+      return (
+        <>
+          <path d="M -56 -46 L 56 -46 L 0 -104 Z" className="fill-primary" />
+          <path d="M -34 -60 L 34 -60 M -22 -74 L 22 -74 M -11 -87 L 11 -87" className="stroke-accent" strokeWidth={5} />
+          <path d="M -14 -118 L 12 -92 M 14 -118 L -12 -92" className="stroke-foreground/70" strokeWidth={4} />
         </>
       );
   }
@@ -134,6 +145,14 @@ function VillageIllustration({ look }: { look: IllustrationLook }) {
         </>
       )}
       <rect y="84" width="640" height="116" className="fill-secondary/10" />
+      {has('boat') && (
+        <g transform="translate(170 78)">
+          <path d="M -70 -6 Q 0 14 74 -14 L 66 -2 Q 0 22 -64 6 Z" className="fill-foreground/60" />
+          <rect x={-14} y={-66} width={4} height={62} className="fill-foreground/60" />
+          <rect x={22} y={-58} width={4} height={52} className="fill-foreground/60" />
+          <path d="M -12 -64 L -12 -10 L -54 -16 Z M 24 -56 L 24 -12 L -6 -16 Z M 26 -54 L 70 -14 L 30 -14 Z" className="fill-card" />
+        </g>
+      )}
       {has('jetty') && (
         <g className="fill-foreground/50">
           <rect x={300} y={40} width={16} height={46} />

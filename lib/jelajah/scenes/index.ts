@@ -2,10 +2,11 @@
 import { ACEH_SCENE } from './aceh';
 import { JAWA_TENGAH_SCENE } from './jawa-tengah';
 import { KEPULAUAN_RIAU_SCENE } from './kepulauan-riau';
+import { SULAWESI_SELATAN_SCENE } from './sulawesi-selatan';
 import { SUMATERA_SELATAN_SCENE } from './sumatera-selatan';
 import type { SceneDefinition } from './types';
 
-export const SCENES: readonly SceneDefinition[] = [SUMATERA_SELATAN_SCENE, KEPULAUAN_RIAU_SCENE, ACEH_SCENE, JAWA_TENGAH_SCENE];
+export const SCENES: readonly SceneDefinition[] = [SUMATERA_SELATAN_SCENE, KEPULAUAN_RIAU_SCENE, ACEH_SCENE, JAWA_TENGAH_SCENE, SULAWESI_SELATAN_SCENE];
 
 export function findScene(slug: string): SceneDefinition | null {
   return SCENES.find((s) => s.slug === slug) ?? null;
