@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { HeroCarousel } from '@/components/ui/HeroCarousel';
@@ -9,6 +10,14 @@ import { getLandingStats } from '@/lib/api/stats';
 import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
 import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
 import { getPublishedCounts, landingStatTiles } from '@/components/landing/published-stats';
+import { DesktopOnlyImage } from '@/components/landing/DesktopOnlyImage';
+import { LANDING_IMAGE_SIZES } from '@/components/landing/image-sizes';
+import tourPreviewImage from '@/public/images/landing/nusantara-legacy.webp';
+import arsipImage from '@/public/images/landing/arsip.webp';
+import komunitasImage from '@/public/images/landing/komunitas.webp';
+import sertifikasiImage from '@/public/images/landing/sertifikasi.webp';
+import blockchainImage from '@/public/images/landing/blockchain.webp';
+
 
 /** md:grid-cols-N as literal class names (Tailwind only sees full strings). */
 const STAT_COLUMNS = ['', 'md:grid-cols-1', 'md:grid-cols-2', 'md:grid-cols-3', 'md:grid-cols-4'];
@@ -305,11 +314,13 @@ export default async function Home() {
                 )}
               </div>
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                {/* next/image (Phase 18): optimized and lazy; p-8 inside the padded box as before. */}
+                <Image
+                  src={tourPreviewImage}
                   alt={`Pratinjau Tur Virtual ${SITE_NAME}`}
-                  className="absolute inset-0 w-full h-full object-contain p-8" /* Saya tambahkan p-8 di sini agar paddingnya teraplikasi ke gambar yang absolute */
-                  src="/images/landing/nusantara-legacy.webp"
+                  fill
+                  sizes={LANDING_IMAGE_SIZES.tourPreview}
+                  className="object-contain p-8"
                 />
               </div>
             </div>
@@ -354,29 +365,30 @@ export default async function Home() {
                 {
                   title: 'Arsip Terverifikasi',
                   desc: 'Dokumentasi yang merangkum aturan main, sejarah, konteks daerah, dan nilai budaya dari berbagai penjuru Nusantara.',
-                  img: '/images/landing/arsip.webp',
+                  img: arsipImage,
                   imgAlt: 'Old manuscript of traditional Indonesian rules',
                 },
                 {
                   title: 'Komunitas & Event',
                   desc: 'Temukan sesama pegiat budaya, ikuti agenda komunitas, dan hadir dalam ruang perjumpaan yang menghidupkan tradisi.',
-                  img: '/images/landing/komunitas.webp',
+                  img: komunitasImage,
                   imgAlt: 'Indonesian youth gathering at a cultural event',
                 },
                 {
                   title: 'Sertifikasi Budaya',
                   desc: 'Kontribusi data dan partisipasi kegiatan dapat terhubung dengan sertifikasi digital sebagai bentuk apresiasi yang terdokumentasi.',
-                  img: '/images/landing/sertifikasi.webp',
+                  img: sertifikasiImage,
                   imgAlt: 'Traditional batik patterns and stamps',
                 },
               ].map((feature) => (
                 <div key={feature.title} className="group">
                   <div className="mb-8 aspect-[4/5] bg-muted rounded-2xl overflow-hidden relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
-                      alt={feature.imgAlt}
+                    <Image
                       src={feature.img}
+                      alt={feature.imgAlt}
+                      fill
+                      sizes={LANDING_IMAGE_SIZES.feature}
+                      className="object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
@@ -457,11 +469,12 @@ export default async function Home() {
                     boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.3)',
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="w-full h-full object-cover"
+                  {/* lg only: phones download nothing (Phase 18, <picture> like the hero carousel). */}
+                  <DesktopOnlyImage
+                    image={blockchainImage}
                     alt="Abstract 3D blockchain representation with cultural patterns"
-                    src="/images/landing/blockchain.webp"
+                    sizes={LANDING_IMAGE_SIZES.blockchain}
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>

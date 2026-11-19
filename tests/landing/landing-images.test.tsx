@@ -58,3 +58,34 @@ describe('landing page images (Phase 14)', () => {
     }
   });
 });
+
+describe('remaining landing images (Phase 18)', () => {
+  const page = readFileSync(join(root, 'app', 'page.tsx'), 'utf8');
+
+  it('no plain <img> is left on the landing page; the five images are static imports', () => {
+    expect(page).not.toMatch(/<img\b/);
+    expect(page).not.toContain('no-img-element');
+    for (const name of ['nusantara-legacy', 'arsip', 'komunitas', 'sertifikasi', 'blockchain']) {
+      expect(page).toMatch(new RegExp(`from '@/public/images/landing/${name}\.webp'`));
+      expect(page).not.toContain(`'/images/landing/${name}.webp'`);
+    }
+  });
+
+  it('the lg-only blockchain image goes through DesktopOnlyImage', () => {
+    expect(page).toMatch(/<DesktopOnlyImage\s+image=\{blockchainImage\}/);
+  });
+
+  it('DesktopOnlyImage: optimized srcset only for lg, a data URI for phones, lazy', async () => {
+    const { DesktopOnlyImage, DESKTOP_ONLY_MEDIA, BLANK_IMAGE } = await import('@/components/landing/DesktopOnlyImage');
+    const html = renderToStaticMarkup(
+      <DesktopOnlyImage image={square} alt="B" sizes="(min-width: 1280px) 576px, calc(50vw - 88px)" />,
+    );
+    expect(DESKTOP_ONLY_MEDIA).toBe(HERO_CAROUSEL_MEDIA);
+    expect(html).toContain(`<source media="${DESKTOP_ONLY_MEDIA}"`);
+    expect(html).toMatch(/srcSet="\/_next\/image\?url=/);
+    const img = html.slice(html.indexOf('<img'));
+    expect(img).toContain(`src="${BLANK_IMAGE}"`);
+    expect(img).not.toContain('_next/image');
+    expect(img).toContain('loading="lazy"');
+  });
+});
