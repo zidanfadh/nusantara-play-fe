@@ -15,11 +15,15 @@
  * - Accessibility: role="dialog" aria-modal, focus moves to the player and stays inside (Tab cycles), an
  *   aria-live="polite" region announces each caption; captions are real text.
  * - Particles only on the full/lite tiers (300/120), dropped for the rest of the film when the 2 s
- *   average frame rate falls below LOW_FPS. No audio (see CONCEPT_MUSIC in the script).
+ *   average frame rate falls below LOW_FPS.
+ * - Sound (Phase 21, `use-concept-sound.ts`): a synthesized gamelan-inspired score and effects on the
+ *   film's own clock; the sound toggle (or "Nyalakan suara" when the browser blocked autoplay) sits next
+ *   to "Lewati"; "Lewati" fades the sound out in 300 ms, reaching the map in 600 ms.
  */
 import { AnimatePresence, motion, motionValue, useTransform, type MotionValue } from 'framer-motion';
 import { ArrowRight, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react';
+import { SoundControls } from '@/components/audio/SoundControls';
 import type { JelajahData } from '@/lib/jelajah/data';
 import type { Tier } from '@/lib/jelajah/device-tier';
 import { FpsWindow } from '@/lib/jelajah/perf';
@@ -52,6 +56,7 @@ import { MulaiScene } from './scenes/MulaiScene';
 import { NusantaraScene } from './scenes/NusantaraScene';
 import { TerlupaScene } from './scenes/TerlupaScene';
 import { useConceptClock } from './use-concept-clock';
+import { useConceptSound } from './use-concept-sound';
 
 export interface ConceptVideoProps {
   data: JelajahData;
@@ -115,14 +120,22 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
     seenRef.current = true;
     markConceptSeen();
   }, []);
+  // The sound fades out with the film (set once the sound hook exists, below).
+  const soundEndRef = useRef<(reason: ConceptEndReason) => void>(() => {});
   const close = useCallback(
     (reason: ConceptEndReason) => {
       markSeen();
+      soundEndRef.current(reason);
       onClose(reason);
     },
     [markSeen, onClose],
   );
   const { time, controls } = useConceptClock(endMs, holdAt, close);
+  const sound = useConceptSound(time, reduced, debug);
+  const { end: soundEnd, pause: soundPause, resume: soundResume, tick: soundTick } = sound;
+  useEffect(() => {
+    soundEndRef.current = soundEnd;
+  }, [soundEnd]);
 
   // Scene index and the mounted scenes change only at boundaries: React state, updated from the clock.
   const [index, setIndex] = useState(0);
@@ -239,8 +252,15 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
     if (process.env.NODE_ENV === 'production' && !debug) return;
     window.__nlConcept = {
       seek: controls.seek,
-      pause: controls.pause,
-      resume: controls.resume,
+      // The sound pauses with the film (the AudioContext is suspended, so both clocks stop together).
+      pause: () => {
+        controls.pause();
+        soundPause();
+      },
+      resume: () => {
+        soundResume();
+        controls.resume();
+      },
       time: controls.now,
       reduced,
       scenes: CONCEPT_SCENES.map((s, i) => ({ id: s.id, start: s.start, duration: s.duration, mid: midTime(i), still: stillTime(i) })),
@@ -248,11 +268,7 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
     return () => {
       delete window.__nlConcept;
     };
-  }, [controls, debug, reduced]);
-
-  // TODO(music): CONCEPT_MUSIC.src (lib/jelajah/concept/script.ts) is null in Phase 19. When a track is
-  // added, start it here only after a user gesture, muted by default with a visible toggle; pause it with
-  // the clock (tab hidden) and stop it on close. Never autoplay sound.
+  }, [controls, debug, reduced, soundPause, soundResume]);
 
   const cards = useMemo(() => archiveCards(data, status, ARCHIVE_CARD_COUNT), [data, status]);
   const scene = CONCEPT_SCENES[index];
@@ -291,7 +307,15 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
       case 'bersama':
         return <BersamaScene {...props} />;
       default:
-        return <MulaiScene {...props} onStart={controls.finish} />;
+        return (
+          <MulaiScene
+            {...props}
+            onStart={() => {
+              soundTick();
+              controls.finish();
+            }}
+          />
+        );
     }
   };
 
@@ -358,17 +382,20 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          controls.skip();
-        }}
-        aria-keyshortcuts="Escape"
-        className="absolute right-[max(0.75rem,env(safe-area-inset-right))] top-[max(0.75rem,env(safe-area-inset-top))] z-[7] inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border border-white/25 bg-black/45 px-4 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-black/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white md:text-base"
-      >
-        {CONCEPT_TEXT.skip} <X className="h-4 w-4" aria-hidden />
-      </button>
+      <div className="absolute right-[max(0.75rem,env(safe-area-inset-right))] top-[max(0.75rem,env(safe-area-inset-top))] z-[7] flex items-center gap-2">
+        <SoundControls status={sound.status} onToggle={sound.toggle} onEnable={sound.enable} variant="film" />
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            controls.skip();
+          }}
+          aria-keyshortcuts="Escape"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-full border border-white/25 bg-black/45 px-4 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-black/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-white md:text-base"
+        >
+          {CONCEPT_TEXT.skip} <X className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
 
       <Progress time={time} total={reduced ? REDUCED_TOTAL_MS : CONCEPT_TOTAL_MS} />
       {debug && <DebugOverlay fps={fpsShown} tier={tier} particles={budget} layout={layout} time={time} />}

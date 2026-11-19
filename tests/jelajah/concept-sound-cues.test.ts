@@ -53,7 +53,7 @@ describe('concept soundtrack cue sheet (Phase 21)', () => {
       expect(hit).toBe(true);
     }
     const [gasing] = by('gasing spins');
-    expect(gasing.ref.len! * 1000).toBeCloseTo(start.terlupa + BEATS.terlupa.dustFrom + 1500, 0);
+    expect(gasing.ref!.len! * 1000).toBeCloseTo(start.terlupa + BEATS.terlupa.dustFrom + 1500, 0);
   });
 
   it('scene 3: 12 ascending bonang notes across the light sweep (west → east), the GONG on the wordmark', () => {
@@ -62,7 +62,7 @@ describe('concept soundtrack cue sheet (Phase 21)', () => {
     expect(notes[0].at).toBe(start.nusantara + BEATS.nusantara.lightFrom);
     expect(notes.at(-1)!.at).toBe(start.nusantara + BEATS.nusantara.lightTo);
     for (let i = 1; i < notes.length; i += 1) {
-      expect(notes[i].ref.hz!).toBeGreaterThan(notes[i - 1].ref.hz!);
+      expect(notes[i].ref!.hz!).toBeGreaterThan(notes[i - 1].ref!.hz!);
       expect(notes[i].pan!).toBeGreaterThan(notes[i - 1].pan!);
     }
     const [gong] = by('wordmark lands (GONG)');
@@ -83,7 +83,7 @@ describe('concept soundtrack cue sheet (Phase 21)', () => {
     const { diveFrom, diveTo, villageAt, ringPeriod, ringStagger, pavilionRing } = BEATS.jelajah;
     const [dive] = by('dive into Sumatera Selatan');
     expect(dive.at).toBe(start.jelajah + diveFrom);
-    expect(dive.ref.len! * 1000).toBeCloseTo(diveTo - diveFrom, 0);
+    expect(dive.ref!.len! * 1000).toBeCloseTo(diveTo - diveFrom, 0);
     const pav = by('pavilion glow pulses');
     expect(pav.length).toBeGreaterThanOrEqual(3);
     for (const c of pav) {
@@ -115,7 +115,7 @@ describe('concept soundtrack cue sheet (Phase 21)', () => {
     const [chord] = by('resolving chord');
     expect(chord.at).toBe(start.mulai);
     // It rings out through the final hold.
-    expect(start.mulai + chord.ref.len! * 1000).toBeGreaterThanOrEqual(CONCEPT_END_MS);
+    expect(start.mulai + chord.ref!.len! * 1000).toBeGreaterThanOrEqual(CONCEPT_END_MS);
   });
 
   it('scene 2: the music lowpass falls and the pitch sags ("tape slowing"); both recover in scene 3', () => {

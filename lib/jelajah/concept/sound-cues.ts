@@ -14,6 +14,7 @@ import type { SoundRef } from '@/lib/audio/core';
 import { bemStep, GONG_HZ, pelog, type PelogDegree } from '@/lib/audio/pitch';
 import { seededRng } from '@/lib/audio/rng';
 import type { Automation, Cue } from '@/lib/audio/scheduler';
+import { duckRamps } from '@/lib/audio/voice-over';
 import { buildCongklakDemo } from './congklak-demo';
 import { ARCHIVE_CARD_COUNT, BEATS, CONCEPT_SCENES, CONCEPT_VOICEOVER, REDUCED_STEP_MS, VOICEOVER_DUCK_DB } from './script';
 import { easeOutBack } from './timeline';
@@ -395,7 +396,7 @@ export function soundsInOrder(cues: readonly Cue[]): SoundRef[] {
   };
   push({ id: 'gong', hz: GONG_HZ });
   push({ id: 'tick' });
-  for (const c of [...cues].sort((a, b) => a.at - b.at)) push(c.ref);
+  for (const c of [...cues].sort((a, b) => a.at - b.at)) if (c.ref) push(c.ref);
   return out;
 }
 
@@ -404,10 +405,7 @@ export function voiceOverPlan(): { scene: ConceptSceneId; src: string; at: numbe
   return CONCEPT_VOICEOVER.map((vo) => ({ ...vo, at: S(vo.scene) }));
 }
 
+/** The music duck while a voice-over speaks (VOICEOVER_DUCK_DB, script.ts). */
 export function voiceOverDuck(at: number, durationMs: number): Automation[] {
-  const level = 10 ** (VOICEOVER_DUCK_DB / 20);
-  return [
-    { param: 'duck', from: Math.max(0, at - 150), to: at + 100, v0: 1, v1: level, scene: 'voice-over' },
-    { param: 'duck', from: at + durationMs, to: at + durationMs + 500, v0: level, v1: 1, scene: 'voice-over' },
-  ];
+  return duckRamps(at, durationMs, VOICEOVER_DUCK_DB);
 }

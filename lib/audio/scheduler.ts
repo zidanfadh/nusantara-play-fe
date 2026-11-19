@@ -28,7 +28,9 @@ export interface Cue {
   id: string;
   /** Clock time, ms. */
   at: number;
-  ref: SoundRef;
+  /** A synthesized sound, or `buffer` for a decoded file (voice-over). */
+  ref?: SoundRef;
+  buffer?: AudioBuffer;
   bus: Bus;
   gain: number;
   pan?: number;
@@ -115,6 +117,8 @@ export interface Scheduler {
   resync(clockMs: number): void;
   stop(fadeMs: number): void;
   scheduleAll(startSec?: number): void;
+  /** Adds cues and ramps later (voice-overs once decoded); cues already played keep their state. */
+  extend(cues: readonly Cue[], automation?: readonly Automation[]): void;
   readonly log: readonly SyncEntry[];
   /** How often each cue started a voice (tests: never more than once per pass). */
   readonly fired: ReadonlyMap<string, number>;
@@ -130,8 +134,8 @@ type Param = AudioParam & { cancelAndHoldAtTime?: (t: number) => AudioParam };
 export function createScheduler(options: SchedulerOptions): Scheduler {
   const { engine, group } = options;
   const ctx = engine.ctx;
-  const cues = [...options.cues].sort((a, b) => a.at - b.at);
-  const automation = [...(options.automation ?? [])].sort((a, b) => a.from - b.from);
+  let cues = [...options.cues].sort((a, b) => a.at - b.at);
+  let automation = [...(options.automation ?? [])].sort((a, b) => a.from - b.from);
   const lookahead = options.lookaheadMs ?? 200;
   const lateOk = options.lateMs ?? 60;
   const jump = options.jumpMs ?? 400;
@@ -139,8 +143,8 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   let lead = options.leadSec ?? 0;
   const logLimit = options.logLimit ?? 2000;
 
-  const status = new Uint8Array(cues.length);
-  const autoDone = new Uint8Array(automation.length);
+  let status = new Uint8Array(cues.length);
+  let autoDone = new Uint8Array(automation.length);
   const fired = new Map<string, number>();
   const log: SyncEntry[] = [];
   let lo = 0;
@@ -151,7 +155,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
 
   const toCtx = (ms: number) => anchorCtx + (ms - (anchorClock ?? 0)) / 1000 - lead;
   const paramOf = (p: AutoParam): Param | null => engine.params[p] as Param | null;
-  const usedParams = [...new Set(automation.map((a) => a.param))];
+  let usedParams = [...new Set(automation.map((a) => a.param))];
 
   const anchor = (clockMs: number) => {
     anchorClock = clockMs;
@@ -203,7 +207,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
   const tryFire = (i: number, clockMs: number) => {
     const cue = cues[i];
     const late = clockMs - cue.at;
-    const buffer = engine.store.get(cue.ref);
+    const buffer = cue.buffer ?? (cue.ref ? engine.store.get(cue.ref) : null);
     const rate = cue.rate ?? 1;
     if (!buffer) {
       // Not rendered yet: wait, unless it can no longer play.
@@ -214,6 +218,7 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
     const len = cue.dur ?? (buffer.duration * 1000) / rate;
     const common = {
       ref: cue.ref,
+      buffer: cue.buffer,
       bus: cue.bus,
       group,
       gain: cue.gain,
@@ -324,6 +329,17 @@ export function createScheduler(options: SchedulerOptions): Scheduler {
       for (const name of usedParams) paramOf(name)?.setValueAtTime(automationValueAt(automation, name, 0), startSec);
       for (let i = 0; i < cues.length; i += 1) tryFire(i, cues[i].at);
       scheduleAutomation(Infinity);
+    },
+    extend(extraCues, extraAutomation = []) {
+      const previous = new Map(cues.map((c, i) => [c.id, status[i]]));
+      cues = [...cues, ...extraCues].sort((a, b) => a.at - b.at);
+      status = Uint8Array.from(cues.map((c) => previous.get(c.id) ?? IDLE));
+      lo = 0;
+      const done = new Set(automation.filter((_, i) => autoDone[i]));
+      automation = [...automation, ...extraAutomation].sort((a, b) => a.from - b.from);
+      autoDone = Uint8Array.from(automation.map((a) => (done.has(a) ? 1 : 0)));
+      usedParams = [...new Set(automation.map((a) => a.param))];
+      if (anchorClock !== null && !stopped) pump(last, 16);
     },
     get log() {
       return log;

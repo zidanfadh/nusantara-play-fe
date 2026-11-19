@@ -78,6 +78,16 @@ export function unlockInGesture(engine: Engine): Promise<boolean> {
     .catch(() => false);
 }
 
+/**
+ * Output latency compensation (s): sounds are scheduled this much earlier so they are heard on their
+ * frame. The display itself lags about one frame, so that much is subtracted; at most 80 ms.
+ */
+export function outputLead(ctx: BaseAudioContext): number {
+  const c = ctx as Partial<AudioContext>;
+  const latency = (c.outputLatency || 0) || (c.baseLatency || 0);
+  return Math.min(0.08, Math.max(0, latency - 1 / 60));
+}
+
 export function suspendContext(engine: Engine): void {
   const ctx = live(engine);
   if (ctx && ctx.state === 'running') void ctx.suspend().catch(() => {});
