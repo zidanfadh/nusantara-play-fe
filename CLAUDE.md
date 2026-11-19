@@ -100,7 +100,8 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
 `scripts/optimize-jelajah-assets.mjs`, `scripts/check-jelajah-budget.mjs`, `scripts/build-concept-map.mjs`).
 
 - `app/jelajah/page.tsx` (static) renders `JelajahHub` (client). `app/jelajah/[provinsi]/page.tsx`: `generateStaticParams` +
-  `dynamicParams = false`, so only `ENTERABLE_PROVINCES` (`sumatera-selatan`) exist; every other slug is a 404.
+  `dynamicParams = false`, so only `ENTERABLE_PROVINCES` exist (five since Phase 22, see "More provinces (Phase 22)");
+  every other slug is a 404.
   Since Phase 18 `/jelajah` and `/jelajah/*` need a login (`middleware.ts`); only the static files under
   `/jelajah/geo/`, `/jelajah/assets/` and `/jelajah/demo/` stay public. Navbar link "Jelajah" since Phase 18.
 - Data (`lib/jelajah/data.ts`): provinces (`/daerah/provinces?limit=100`) and every public PROT (`/prot`, always
@@ -136,7 +137,7 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
   rectangle, houses, stands in assignment order, decor with optional `collide` and `detail`, colours), one file per province
   (`sumatera-selatan.ts`) and the registry `index.ts` (`findScene(slug)`). Metres, +x east, -z north (river side); the camera
   looks north. Scene files may only use `import type` (the budget script loads them with Node type stripping). New province =
-  new scene file + registry entry + slug in `ENTERABLE_PROVINCES`.
+  new scene file + registry entry + slug in `ENTERABLE_PROVINCES` (checklist in "More provinces (Phase 22)").
 - **Engine** (`lib/jelajah/engine/`, pure, unit-tested in `tests/jelajah/scene-engine.test.ts` and `scene-prot.test.ts`):
   `stands.ts` (`assignStands`: PROT in name order onto the stands, empty stands = "Segera hadir", more PROT than stands → the
   last stand is a notice board listing the rest; `INTERACT_DISTANCE` 2 m from the stand footprint), `collision.ts` (circle and
@@ -425,6 +426,67 @@ with the Web Audio API (no audio files, no samples, no new dependency). Review m
   1.8 fps (desktop full, 4x CPU) and 0.7 to 2.0 fps (phone) on average. All 74 sounds render in 0.6 to 0.73 s in the
   worker; gong + scene 1 within ~0.25 s (later beds join part-way).
 
+### More provinces (Phase 22)
+
+Five provinces are enterable: Sumatera Selatan (the pilot, unchanged, also the concept film's village), Aceh, Kepulauan
+Riau, Jawa Tengah and Sulawesi Selatan, the four that have published archive records (Jawa Barat's only published
+record is a test record, so it has no scene). Each is ONE data file in `lib/jelajah/scenes/` rendered by the same
+engine; no new asset files (all use `v1/nature.glb` + `v1/player.glb`, 195.6 KB, shared URLs, so the browser cache
+serves them to every province after the first).
+
+- **Engine options** (`lib/jelajah/scenes/types.ts`, all optional; the default is the Phase 11 to 17 behaviour, so
+  Sumatera Selatan is unchanged: `tests/jelajah/sumatera-selatan-identity.test.ts` holds fingerprints of its merged
+  mesh, water, colliders, camera points and data recorded on `main` before Phase 22): `waterStyle` (`river` | `sea` =
+  shore + beach + sea to the edge | `none` = one ground plane, no water mesh), `HouseDef.style` (`limas` | `malay` |
+  `aceh` | `bugis`; the gable presets in `lib/jelajah/three/house-roofs.ts` `GABLE_STYLES`), `stiltDepth` (posts into
+  the water), `stairs`, `PavilionDef.style` (`pavilion` | `arena` (gasing ring + shade) | `meunasah` (raised open hall) |
+  `joglo` (stepped-roof pendopo)), `structures` (`jetty`, `mountain`, `terraces`, `boat`; merged into the village mesh by
+  `lib/jelajah/three/structures.ts`, 0 extra draw calls; `structureColliders()` in `collision.ts`), `gameSoon` (the
+  "Game segera hadir" board: post in the merged mesh, text = one canvas-textured plane leaning back 0.35 rad,
+  `lib/jelajah/engine/game-soon.ts`), `fog` (default 34 to 80 m; the far plane follows it). Building blocks shared
+  by those: `lib/jelajah/three/mesh-builder.ts` (moved unchanged out of `village-geometry.ts`), `water-level.ts`.
+- **The camera never shows the horizon** (fixed 40 degree pitch): a landmark meant to be "far away" must stand within
+  about 50 to 95 m of the camera (portrait phones see the furthest) and inside the fog's middle range, otherwise it is
+  never on screen or fully fogged. Desktop and landscape views see only about 45 m ahead at the spawn point.
+- **Games at pavilions**: `PavilionDef.game` is `JelajahGame` (`'congklak' | 'gasing'`, `lib/games/links.ts`); labels
+  and descriptions in `GAME_TEXTS`, links by `gameHref(game, from)`, icons in `GamePrompt.tsx` `GAME_ICONS`.
+  `GAME_LINK_PROVINCES` is keyed per game (`congklak: ['sumatera-selatan'], gasing: ['kepulauan-riau']`) and
+  `backLinkFor(from, game)` allowlists `from=jelajah-<slug>` only on the page of the game that province opens
+  (`tests/jelajah/pavilion.test.ts` keeps it equal to the scene data). A province without a game gets `gameSoon` (a
+  test requires exactly one of the two); the 2d tier shows `GameSoonCard` (no button, no link).
+- **Map**: `ENTERABLE_PROVINCES` (`lib/jelajah/provinces.ts`, kept equal to the scene registry by a test) drives the
+  routes (`generateStaticParams`), clickability (`isClickable`: PROT > 0 or enterable), the soft colour while a province
+  has no PROT, the markers on both maps (`markerLabel`: "★ Pilot" / "★ Desa", 3D markers are DOM buttons with
+  `data-marker=<slug>`), the card's "Masuk" ("Desa virtual" badge), the hub list badge and the Misi list.
+- **Paspor stamps**: `lib/jelajah/stamps.ts` `STAMP_DESIGNS` (one colour and motif per enterable province, all
+  distinct, tested) drawn by `components/jelajah/ProvinceStamp.tsx` (SVG, aria-hidden); the Paspor shows it for stamped
+  provinces and the simulated stamp toast uses it as its icon.
+- **2d tier**: the header illustration comes from the scene data (`lib/jelajah/engine/illustration.ts`
+  `illustrationLook`: water, roof, plants, centre, landmarks); river + limas + palms is the Phase 11 picture.
+- **Tests**: `tests/jelajah/province-scenes.test.ts` runs invariants on EVERY scene (shared asset URLs, `import type`
+  only, spawn clear, stands inside and not overlapping, every stand and the game pavilion reachable on foot by a
+  flood fill of the walkable grid, merged mesh < 20k triangles) and the new-province rules (3 stands, stand 1 nearest
+  to the spawn point, the sign within 3 m of stand 1, houses in the water north of the shore), plus per-province checks.
+- **Add the next province**: (1) check its published records (read-only `GET /prot?status=ARSIP_NASIONAL`); (2) copy
+  a new scene file next to the others (`import type` only; slug = `provinceSlug(nama)`; 3 stands on a ring, the first
+  nearest to the spawn point; colours; decor from the `NatureModel` list; optional styles and structures); (3) add it
+  to `SCENES` (`scenes/index.ts`) and to `ENTERABLE_PROVINCES`; (4) a stamp design in `STAMP_DESIGNS` (new colour and
+  motif; add the motif's paths to `ProvinceStamp.tsx`); (5) a game: set `centrepiece.game` and add the slug to that
+  game's `GAME_LINK_PROVINCES` list, otherwise set `gameSoon` beside stand 1; (6) `pnpm test` and `pnpm check:jelajah`
+  (8 MB per scene; new CC0 models only if needed, recorded in `ASSET_LICENSES.md`, in a new versioned folder);
+  (7) look at it at 390x844, 844x390 and 1440x900 (full and 2d) and measure fps with `?debug=1`.
+- **Bumper**: unchanged (one "Main Congklak" button). To show both games later: render one button per entry of
+  `JELAJAH_GAMES` in `GameScene` with `GAME_TEXTS[game].play`, `gameHref(game, 'jelajah')` (`from=jelajah` is already
+  allowed by both game pages) and `data-bumper-action` on each, side by side (stacked below 360 px).
+- **Measured** (Phase 22, production build, production API read-only, headless Chrome with software rendering, 4x CPU
+  throttling; 4 s standing + 4 s walking): full tier phone 390x844 dpr 2 / desktop 1440x900: Sumatera Selatan 15.5 /
+  13.7 fps, Kepulauan Riau 16.4 / 13.2, Aceh 16.0 / 13.5, Jawa Tengah 13.1 / 12.1, Sulawesi Selatan 17.5 / 13.0; lite
+  tier: 32.2 / 20.5, 33.9 / 20.0, 34.2 / 20.6, 27.4 / 18.3, 34.9 / 18.8 (Jawa Tengah is the slowest: the volcano and the
+  terraces fill much of the screen). Draw calls / triangles (full, desktop): Sumatera Selatan 45 / 18.7k, the new
+  provinces 30 to 34 / 13.6k to 17.4k. Cold load (cache off, full tier): every province page 758 to 772 KB (Sumatera
+  Selatan 758 to 770 KB), 2d tier 418 to 452 KB; `/jelajah` 706 KB; the PROT photo loads only when its panel opens.
+  Real phones not measured yet: use `?debug=1`.
+
 ## Games (Phase 17)
 
 Hosted games, public, no login. **Games record nothing yet** (shared section, item 11): no network calls, no API
@@ -453,11 +515,12 @@ imports, only local settings (`tests/games/games-record-nothing.test.ts`). three
   `RulesSheet.tsx` (reuses `components/jelajah/DemoDialog.tsx`), `CongklakBoard.tsx` (SVG wood board, memoized pits,
   roving tabindex: arrows choose, Enter plays; illegal holes disabled; hand marker; capture highlight). Portrait
   phones (max 767 px) get the vertical board; everything fits 360x740 without scrolling (holes 46 px there).
-- **Jelajah link**: `PavilionDef.game` (scene data; Sumatera Selatan's centrepiece has `game: 'congklak'`);
+- **Jelajah link** (multi-game since Phase 22, see "More provinces (Phase 22)"): `PavilionDef.game` (scene data;
+  Sumatera Selatan's centrepiece has `game: 'congklak'`, Kepulauan Riau's `game: 'gasing'`);
   `lib/jelajah/engine/pavilion.ts` `nearestTarget()` (stand or pavilion within `INTERACT_DISTANCE`, the closer
   wins); `components/jelajah/GamePrompt.tsx` ("Paviliun permainan" + "Main Congklak"; on phones one full-width
-  button right of the joystick; E opens it too) and `GameCard` on the 2d tier. `GAME_LINK_PROVINCES` in
-  `from-link.ts` must list exactly the scenes with a game pavilion (tested).
+  button right of the joystick; E opens it too) and `GameCard` on the 2d tier. `GAME_LINK_PROVINCES` (per game,
+  `lib/games/links.ts` since Phase 22) must list exactly the scenes whose pavilion opens that game (tested).
 - **Measured** (production build, headless Chrome, cache off): `/main/congklak` cold load phone 344 KB, desktop
   364 KB, of which about 20 KB is the shared navbar prefetching `/calendar` and `/menu` at idle (desktop only; the
   page's own load is about 344 KB on both). The game's own chunk is about 20 KB gzip; starting a game downloads
@@ -521,9 +584,9 @@ it; roles swap each round). Best of 3; a drawn round is replayed (at most `maxRo
 - **Debug**: `?debug=1` shows fps (2 s average, dpr, canvas size) and exposes `window.__nlGasing` (`stage`, `round`,
   `wins`, `results`, `world`, `throw(t)`, `fps`); `&canvas=cpu` switches to a CPU-backed 2D canvas for comparison.
 - **Links**: the `/main` card sits next to Congklak (registry order), game links have `prefetch={false}`;
-  `?from=jelajah` / `?from=jelajah-<province>` give congklak's back links. The Jelajah pavilion and the bumper still
-  open congklak only (`PavilionDef.game` is typed `'congklak'`): adding gasing there needs a union type, a per-game label
-  and href in `GamePrompt` / `GameCard`, and a game-aware `GAME_LINK_PROVINCES` (Phase 20 report).
+  `?from=jelajah` gives "Kembali ke peta"; since Phase 22 the Kepulauan Riau village's gasing arena opens
+  `/main/gasing?from=jelajah-kepulauan-riau` and only gasing's own provinces get "Kembali ke desa"
+  (`lib/games/links.ts`). The bumper still opens congklak only.
 - **Measured** (Phase 20, production build, headless Chrome with software rendering): the game's own JS 28.0 KB gzip
   (81.7 KB raw, 2 chunks; budget 60 KB); `/main/gasing` all JS 276 KB gzip. Pangkah collision, 2.5 s after the throw:
   phone 390x844 39.7 fps (CPU ×1) / 40.6 fps (×4); desktop 1440x900 21.1 / 21.5 fps (the large canvas is slow to
@@ -723,6 +786,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      `nusantara-play-fe/lib/games/gasing/rules.ts` and every text in `texts.ts`, awaiting curator review. Not yet linked
      from the Jelajah pavilion or the bumper (they support one game only). Details in the frontend CLAUDE.md
      "Gasing (Phase 20)".
+   - More provinces (Phase 22): four more provinces are enterable, each a distinct low-poly village built from data
+     with the same engine and the same shared CC0 assets, with its published PROT on a stand: Aceh (dry-season timber
+     stilt houses, an open hall), Kepulauan Riau (a coastal kampung with stilt houses in the sea, a jetty and a Gasing
+     arena that opens `/main/gasing`), Jawa Tengah (a stepped-roof pendopo, rice terraces, a volcano in the haze, bamboo)
+     and Sulawesi Selatan (a pinisi-like boat on the beach, raised houses with tiered gables). Buildings are loose hints
+     ("terinspirasi"), never named in the UI. Provinces without a playable game show a "Game segera hadir" sign (no
+     button). Sumatera Selatan stays the unchanged pilot. Every enterable province is marked on the map ("★ Desa") and has
+     its own simulated Paspor stamp design. Jawa Barat has no scene (its only published record is a test record).
+     Details in the frontend CLAUDE.md "More provinces (Phase 22)".
    - Sound (Phase 21): the concept film and the intro bumper have a gamelan-inspired score and synced sound effects,
      synthesized in code with the Web Audio API (no audio files or samples, no licences, no new dependency). Sound starts
      by itself only when the browser allows it (arriving by an in-app click); otherwise the film plays muted with a
@@ -1021,6 +1093,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 20: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend after Phase 21: unchanged, 44 errors, 80 warnings (all 38 new and touched source files are clean).
 - Backend after Phase 21: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 22: unchanged, 44 errors, 80 warnings (all 41 new and touched source files are clean).
+- Backend after Phase 22: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1343,6 +1417,22 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   timestamp. Cue times come only from `CONCEPT_SCENES`/`BEATS`; the scene components now read the stamp drop, seed
   roll, ring pulse and arc travel timings from `BEATS` too (the passport stamp's drop changed from 160 to 150 ms to
   match its shake). Both players load the engine through `lib/audio/runtime.ts` (one shared chunk).
+- 2026-11-20: More provinces (Phase 22): Aceh, Kepulauan Riau, Jawa Tengah and Sulawesi Selatan are enterable,
+  one scene data file each, no new asset files (the four new scenes reuse `v1/nature.glb` and `v1/player.glb`); every
+  engine extension is an optional field whose default is the old behaviour, so Sumatera Selatan is unchanged (geometry
+  fingerprints recorded on `main`, before/after screenshots differ only in the animated player). Three stands per new
+  province, the published PROT on the one nearest to the spawn point; the others say "Segera hadir" until more PROT
+  are published. Jawa Barat gets no scene (its only published record is "Test Permainan Jawa Barat"); no record is
+  filtered by name in code.
+- 2026-11-20: Multi-game pavilions (Phase 22): `PavilionDef.game` is a union (`congklak` | `gasing`), labels and links
+  from one map (`lib/games/links.ts`), and `from=jelajah-<slug>` is allowlisted per game, so a province's "Kembali ke
+  desa" only appears on the game its pavilion opens. Kepulauan Riau's Gasing arena opens Gasing; provinces without a
+  game show a "Game segera hadir" sign and card (no button). The bumper keeps its single congklak button.
+- 2026-11-20: Distant landmarks (Phase 22): the fixed 40 degree camera never shows the horizon, so islands, hills and
+  the Jawa Tengah volcano stand within about 50 to 95 m of the camera and inside the fog's middle range; they show at
+  the top of portrait views and when walking to the north edge, not on desktop at the spawn point.
+- 2026-11-20: Paspor stamps (Phase 22): one code-drawn SVG stamp per enterable province (own colour and motif), shown in
+  the Paspor and as the icon of the simulated stamp toast; other provinces keep the generic icon.
 - 2026-11-19: Phase 18 follow-ups (owner answers): the Supabase redirect allowlist needs no query variants; removing
   `/landing-page/1` and `/2` waits for the cleanup phase. Phase 19: the Jelajah login page shows a note and a link to the
   games instead of "Masuk sebagai Tamu"; the landing page's featured PROT are requested with `status=ARSIP_NASIONAL` and
