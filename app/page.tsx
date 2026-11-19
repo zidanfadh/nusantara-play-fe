@@ -6,7 +6,7 @@ import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import { getBackendApiUrl } from '@/lib/api/base-url';
 import type { PaginatedResponse, PROTEntity } from '@/types/prot';
 import { getLandingStats } from '@/lib/api/stats';
-import type { LandingStats } from '@/lib/api/stats';
+import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
 import {
   LockKeyhole,
   ShieldCheck,
@@ -62,7 +62,7 @@ function getGameSummary(game: PROTEntity): string {
   return (
     game.nilaiMoral ||
     game.caraBermain ||
-    'Permainan rakyat dan olahraga tradisional yang terdokumentasi dalam arsip Nusantara Virtual.'
+    `Permainan rakyat dan olahraga tradisional yang terdokumentasi dalam arsip ${SITE_NAME}.`
   );
 }
 
@@ -89,7 +89,7 @@ export default async function Home() {
             href="/"
             className="text-2xl font-bold tracking-tighter text-primary"
           >
-            Nusantara Virtual
+            {SITE_NAME}
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
@@ -149,11 +149,11 @@ export default async function Home() {
                 Platform Pelestarian Budaya Digital Indonesia
               </div>
               <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-foreground mb-8 leading-[0.9]">
-                Nusantara <br />
-                <span className="text-primary">Virtual</span>
+                {SITE_NAME_WORDS[0]} <br />
+                <span className="text-primary">{SITE_NAME_WORDS.slice(1).join(' ')}</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
-                Menjaga warisan, memainkan masa depan. Platform budaya digital
+                {SITE_TAGLINE} Platform budaya digital
                 untuk mendokumentasikan, memverifikasi, dan menghidupkan kembali
                 permainan tradisional Indonesia bersama komunitas.
               </p>
@@ -189,7 +189,7 @@ export default async function Home() {
                 }}
               >
                 <p className="text-sm font-medium text-muted-foreground italic leading-relaxed">
-                  &ldquo;Budaya adalah identitas. Nusantara Virtual membawa
+                  &ldquo;Budaya adalah identitas. {SITE_NAME} membawa
                   identitas tersebut ke era digital.&rdquo;
                 </p>
               </div>
@@ -227,7 +227,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* New Nusantara Virtual Tour Banner */}
+        {/* Tur Virtual banner (Jelajah Nusantara) */}
         <section className="py-12 lg:py-12 px-6 pt-0 lg:pt-0">
           <div className="max-w-7xl mx-auto">
             <div className="relative overflow-hidden rounded-[3rem] bg-muted/80 flex flex-col lg:flex-row items-center border border-border/10 shadow-[0_24px_40px_-10px_rgba(0,0,0,0.05)] pt-0">
@@ -236,7 +236,7 @@ export default async function Home() {
                   Baru: Pengalaman Imersif
                 </span>
                 <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-6 leading-tight">
-                  Nusantara <br className="hidden md:block" /> Virtual Tour
+                  Tur Virtual <br className="hidden md:block" /> Jelajah Nusantara
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
                   Jelajahi warisan budaya dalam pengalaman 3D interaktif dan
@@ -255,7 +255,7 @@ export default async function Home() {
               <div className="w-full lg:w-1/2 h-80 lg:h-[600px] relative bg-primary/5 p-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  alt="Nusantara Virtual Tour Preview"
+                  alt={`Pratinjau Tur Virtual ${SITE_NAME}`}
                   className="absolute inset-0 w-full h-full object-contain p-8" /* Saya tambahkan p-8 di sini agar paddingnya teraplikasi ke gambar yang absolute */
                   src="/images/landing/nusantara-legacy.webp"
                 />
@@ -557,16 +557,16 @@ export default async function Home() {
               <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl mx-auto">
                 Beberapa hal yang biasanya ingin diketahui sebelum mulai
                 menjelajahi arsip permainan tradisional, mengikuti event, atau
-                berkontribusi ke ekosistem Nusantara Virtual.
+                berkontribusi ke ekosistem {SITE_NAME}.
               </p>
             </div>
 
             <div className="space-y-4">
               {[
                 {
-                  question: 'Apa itu Nusantara Virtual?',
+                  question: `Apa itu ${SITE_NAME}?`,
                   answer:
-                    'Nusantara Virtual adalah platform digital untuk mendokumentasikan, menampilkan, dan merayakan permainan tradisional Indonesia. Di dalamnya, pengguna dapat menjelajahi arsip budaya, mempelajari nilai dan aturan permainan, serta ikut terlibat dalam komunitas yang aktif menjaga warisan budaya.',
+                    `${SITE_NAME} adalah platform digital untuk mendokumentasikan, menampilkan, dan merayakan permainan tradisional Indonesia. Di dalamnya, pengguna dapat menjelajahi arsip budaya, mempelajari nilai dan aturan permainan, serta ikut terlibat dalam komunitas yang aktif menjaga warisan budaya.`,
                 },
                 {
                   question: 'Apa itu PROT di platform ini?',
@@ -685,7 +685,7 @@ export default async function Home() {
               href="/"
               className="text-xl font-bold text-primary mb-4 block"
             >
-              Nusantara Virtual
+              {SITE_NAME}
             </Link>
             <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
               Platform digital terdesentralisasi pertama yang fokus pada
@@ -763,7 +763,7 @@ export default async function Home() {
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
           <p className="text-foreground/60 text-sm">
-            &copy; {new Date().getFullYear()} Nusantara Virtual. Menjaga Warisan,
+            &copy; {new Date().getFullYear()} {SITE_NAME}. Menjaga Warisan,
             Memainkan Masa Depan.
           </p>
         </div>

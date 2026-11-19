@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialAuthButtons } from './SocialAuthButtons';
+import { SITE_NAME } from '@/lib/brand';
 
 export function SignupForm() {
   const [email, setEmail] = useState('');
@@ -64,7 +65,7 @@ export function SignupForm() {
       <div className="text-center sm:text-left">
         <h2 className="text-2xl font-bold text-foreground">Daftar</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Bergabung dengan komunitas Nusantara Virtual
+          Bergabung dengan komunitas {SITE_NAME}
         </p>
       </div>
 

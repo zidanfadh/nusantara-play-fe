@@ -8,7 +8,7 @@ import { GAME_SCENE_TEXT, GameScene } from '@/components/jelajah/bumper/GameScen
 import { ProtScene } from '@/components/jelajah/bumper/ProtScene';
 import { StartScene } from '@/components/jelajah/bumper/StartScene';
 import { SIMULATION_LABEL } from '@/components/jelajah/RewardHud';
-import { SITE_NAME } from '@/lib/jelajah/brand';
+import { SITE_NAME } from '@/lib/brand';
 import { protSceneData } from '@/lib/jelajah/bumper/scene-data';
 import { emptySummaries } from '@/lib/jelajah/data';
 

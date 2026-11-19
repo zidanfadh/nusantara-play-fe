@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { SITE_NAME, SITE_TAGLINE } from '@/lib/jelajah/brand';
+import { SITE_NAME, SITE_TAGLINE } from '@/lib/brand';
 import { SceneLayout } from './SceneLayout';
 
 /** Scene 1: the logo (the site icon, app/apple-icon.png, 180 px, 6 KB), the site name and the tagline. */

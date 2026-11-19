@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { SITE_NAME } from '@/lib/brand';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -18,7 +19,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold tracking-tight">
              <div className="w-8 h-8 bg-accent rounded-sm rotate-45" />
-             Nusantara Virtual
+             {SITE_NAME}
           </Link>
         </div>
 
@@ -32,7 +33,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="relative z-10 text-xs opacity-60">
-          &copy; {new Date().getFullYear()} Nusantara Virtual. Hak cipta dilindungi.
+          &copy; {new Date().getFullYear()} {SITE_NAME}. Hak cipta dilindungi.
         </div>
       </div>
 

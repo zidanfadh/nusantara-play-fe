@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialAuthButtons } from './SocialAuthButtons';
+import { SITE_NAME } from '@/lib/brand';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -34,7 +35,7 @@ export function LoginForm() {
       <div className="text-center sm:text-left">
         <h2 className="text-2xl font-bold text-foreground">Masuk</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Selamat datang kembali di Nusantara Virtual
+          Selamat datang kembali di {SITE_NAME}
         </p>
       </div>
 

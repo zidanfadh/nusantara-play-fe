@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import heroImage from "@/public/images/landing/hero.webp";
 import nuslandImage from "@/public/images/landing/nusland.webp";
+import { SITE_NAME } from "@/lib/brand";
 
 /** The carousel is shown only from Tailwind's `lg` breakpoint (`hidden lg:block` in app/page.tsx). */
 export const HERO_CAROUSEL_MEDIA = "(min-width: 1024px)";
@@ -37,7 +38,7 @@ const SLIDES: Slide[] = [
   },
   {
     image: nuslandImage,
-    alt: "Nusantara Virtual Tour Preview",
+    alt: `Pratinjau Tur Virtual ${SITE_NAME}`,
     // Phase 17: our own Jelajah Nusantara (the former external site no longer exists).
     href: "/jelajah",
   },

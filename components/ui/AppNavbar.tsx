@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { UserNav } from '@/components/ui/UserNav';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
+import { SITE_NAME } from '@/lib/brand';
 
 export function AppNavbar() {
   return (
@@ -11,7 +12,7 @@ export function AppNavbar() {
         <div className="flex items-center gap-8">
           <Link href="/menu" className="flex items-center gap-2 text-xl font-bold tracking-tight text-primary">
             <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
-            Nusantara Virtual
+            {SITE_NAME}
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-medium">
             <Link href="/menu" className="text-foreground/80 hover:text-foreground transition-colors">

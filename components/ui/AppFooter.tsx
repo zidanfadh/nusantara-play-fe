@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Globe, Share2, Send } from 'lucide-react';
+import { SITE_NAME } from '@/lib/brand';
 
 export function AppFooter() {
   return (
@@ -7,7 +8,7 @@ export function AppFooter() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
         <div className="md:col-span-1">
           <Link href="/" className="text-xl font-bold text-primary mb-4 block">
-            Nusantara Virtual
+            {SITE_NAME}
           </Link>
           <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
             Platform digital terdesentralisasi pertama yang fokus pada
@@ -85,7 +86,7 @@ export function AppFooter() {
 
       <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
         <p className="text-foreground/60 text-sm">
-          &copy; {new Date().getFullYear()} Nusantara Virtual. Menjaga Warisan,
+          &copy; {new Date().getFullYear()} {SITE_NAME}. Menjaga Warisan,
           Memainkan Masa Depan.
         </p>
       </div>

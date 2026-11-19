@@ -5,6 +5,7 @@ import { UserProfile } from '@/types/user';
 import { Daerah } from '@/types/daerah';
 import { getUserStats } from '@/lib/api/users';
 import { getDaerahStats } from '@/lib/api/daerah';
+import { SITE_NAME } from '@/lib/brand';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -54,7 +55,7 @@ export default function AdminDashboard() {
     <div className="space-y-5">
       <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1 text-xs">Ringkasan sistem Nusantara Virtual</p>
+        <p className="text-muted-foreground mt-1 text-xs">Ringkasan sistem {SITE_NAME}</p>
       </div>
 
       {/* User Statistics */}
