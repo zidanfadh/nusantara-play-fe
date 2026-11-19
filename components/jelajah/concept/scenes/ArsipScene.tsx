@@ -91,7 +91,7 @@ function Card({ card, i, lt, still, layout }: { card: ArchiveCard; i: number; lt
             <span className="block h-2 w-[64%] rounded bg-[#3B1E0E]/10" />
           </span>
         )}
-        <div className={`flex flex-wrap ${compact ? 'gap-1' : 'gap-1.5'}`}>
+        <div className={`flex-wrap ${layout === 'landscape' ? 'hidden' : 'flex'} ${compact ? 'gap-1' : 'gap-1.5'}`}>
           {CONCEPT_TEXT.cardFields.map((field) => (
             <span
               key={field}

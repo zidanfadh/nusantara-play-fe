@@ -4,13 +4,17 @@ import type { MotionValue } from 'framer-motion';
 import type { RefObject } from 'react';
 import type { ConceptLayout } from '@/lib/jelajah/concept/layout';
 import { BEATS, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
-import { easeInOutCubic, easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
+import { easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
 import { CONCEPT_MAP_VIEW, CONCEPT_PROVINCE_PATHS, mapToStage, mapTransformAttr } from '../art/MapArt';
 import { LIVE, LIVE_OPACITY, Stage, stageToScreen, useStyle, type SceneProps } from '../scene-kit';
 
 const NIGHT = '#120F2A';
-/** Soft edge of the west-to-east light sweep, px. */
-const EDGE = 90;
+/** Soft edge of the west-to-east light sweep: a tenth of the map's width on screen, 24 to 90 px. */
+function edgeWidth(layout: ConceptLayout): number {
+  const [x0] = stageToScreen(layout, ...mapToStage(layout, 0, 0));
+  const [x1] = stageToScreen(layout, ...mapToStage(layout, CONCEPT_MAP_VIEW.width, 0));
+  return Math.max(24, Math.min(90, (x1 - x0) * 0.1));
+}
 
 /**
  * Scene 3 "nusantara" (11–18 s): the dust flows back (particle canvas) and gathers into the outline of
@@ -31,17 +35,19 @@ export function NusantaraScene({ lt, layout, still, canvas }: SceneProps) {
   const halo = useStyle(lt, (t) => ({ opacity: 0.9 * easeOutCubic(seg(time(t), wordmarkAt - 300, wordmarkAt + 600)) }));
 
   // The sweep's edge in viewport pixels, from the map's west to its east end (plus the soft edge).
+  // Constant speed, so the provinces light one after another at an even pace.
+  const edge = edgeWidth(layout);
   const edgeAt = (t: number) => {
     const [x0] = stageToScreen(layout, ...mapToStage(layout, 0, 0));
     const [x1] = stageToScreen(layout, ...mapToStage(layout, CONCEPT_MAP_VIEW.width, 0));
-    const k = easeInOutCubic(seg(time(t), lightFrom, lightTo));
-    return x0 - EDGE + k * (x1 - x0 + 2 * EDGE);
+    const k = seg(time(t), lightFrom, lightTo);
+    return x0 + k * (x1 - x0 + edge);
   };
   const wipeOuter = useStyle(lt, (t) => ({ transform: `translateX(${(edgeAt(t) - window.innerWidth).toFixed(1)}px)` }));
   const wipeInner = useStyle(lt, (t) => ({ transform: `translateX(${(window.innerWidth - edgeAt(t)).toFixed(1)}px)` }));
   const band = useStyle(lt, (t) => {
     const k = seg(time(t), lightFrom, lightTo);
-    return { transform: `translateX(${(edgeAt(t) - EDGE).toFixed(1)}px)`, opacity: 0.9 * Math.sin(Math.PI * k) };
+    return { transform: `translateX(${(edgeAt(t) - edge).toFixed(1)}px)`, opacity: 0.9 * Math.sin(Math.PI * k) };
   });
 
   return (
@@ -65,8 +71,8 @@ export function NusantaraScene({ lt, layout, still, canvas }: SceneProps) {
         className="absolute inset-0 overflow-hidden"
         style={{
           transform: 'translateX(-100%)',
-          maskImage: `linear-gradient(90deg, #000 calc(100% - ${EDGE}px), transparent)`,
-          WebkitMaskImage: `linear-gradient(90deg, #000 calc(100% - ${EDGE}px), transparent)`,
+          maskImage: `linear-gradient(90deg, #000 calc(100% - ${edge.toFixed(0)}px), transparent)`,
+          WebkitMaskImage: `linear-gradient(90deg, #000 calc(100% - ${edge.toFixed(0)}px), transparent)`,
           ...LIVE,
         }}
       >
@@ -74,7 +80,7 @@ export function NusantaraScene({ lt, layout, still, canvas }: SceneProps) {
           <LitMap layout={layout} />
         </div>
       </div>
-      <Band layout={layout} bandRef={band} />
+      <Band layout={layout} bandRef={band} edge={edge} />
       <div
         ref={halo}
         aria-hidden
@@ -108,7 +114,7 @@ function LitMap({ layout }: { layout: ConceptLayout }) {
 }
 
 /** The light band riding on the sweep's edge (a vertical glow over the map's height). */
-function Band({ layout, bandRef }: { layout: ConceptLayout; bandRef: RefObject<HTMLDivElement | null> }) {
+function Band({ layout, bandRef, edge }: { layout: ConceptLayout; bandRef: RefObject<HTMLDivElement | null>; edge: number }) {
   const [, top] = stageToScreen(layout, ...mapToStage(layout, 0, -20));
   const [, bottom] = stageToScreen(layout, ...mapToStage(layout, 0, CONCEPT_MAP_VIEW.height + 20));
   return (
@@ -119,7 +125,7 @@ function Band({ layout, bandRef }: { layout: ConceptLayout; bandRef: RefObject<H
       style={{
         top,
         height: Math.max(0, bottom - top),
-        width: EDGE * 2,
+        width: edge * 2,
         opacity: 0,
         background: 'radial-gradient(50% 50% at 50% 50%, rgba(255,230,168,0.75), rgba(247,201,92,0.25) 45%, transparent 75%)',
         ...LIVE,
