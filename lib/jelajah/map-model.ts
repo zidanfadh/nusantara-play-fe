@@ -2,7 +2,7 @@
 import type { ProvinceSummary } from './data';
 import type { ProvinceShape } from './geo';
 import { provinceFill, type MapPalette, type ProvinceVisualState } from './palette';
-import { PILOT_PROVINCE } from './provinces';
+import { enterableByKode } from './provinces';
 
 export interface MapViewProps {
   shapes: readonly ProvinceShape[];
@@ -21,13 +21,13 @@ export function maxProtCount(summaryByKode: ReadonlyMap<string, ProvinceSummary>
   return max;
 }
 
-/** Provinces with public PROT, and the pilot province, open a card. Others are muted. */
+/** Provinces with public PROT, and every enterable province (Phase 22; before: the pilot), open a card. Others are muted. */
 export function isClickable(
   kode: string | null,
   summaryByKode: ReadonlyMap<string, ProvinceSummary>,
 ): kode is string {
   if (!kode) return false;
-  if (kode === PILOT_PROVINCE.kode) return true;
+  if (enterableByKode(kode)) return true;
   return (summaryByKode.get(kode)?.protCount ?? 0) > 0;
 }
 
@@ -52,5 +52,5 @@ export function shapeFill(
   const count = shape.kode ? summaryByKode.get(shape.kode)?.protCount ?? 0 : 0;
   const clickable = isClickable(shape.kode, summaryByKode);
   const state = clickable ? visualState(shape.kode, hoveredKode, selectedKode) : 'idle';
-  return provinceFill(palette, count, maxCount, shape.kode === PILOT_PROVINCE.kode, state);
+  return provinceFill(palette, count, maxCount, enterableByKode(shape.kode) !== null, state);
 }

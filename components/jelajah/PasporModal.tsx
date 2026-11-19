@@ -2,6 +2,8 @@
 
 import { Stamp } from 'lucide-react';
 import { KNOWN_PROVINCES } from '@/lib/jelajah/provinces';
+import { stampDesign } from '@/lib/jelajah/stamps';
+import { ProvinceStamp } from './ProvinceStamp';
 import { DemoDialog } from './DemoDialog';
 
 /**
@@ -50,6 +52,8 @@ export function PasporModal({
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Provinsi di Paspor">
         {ordered.map((p) => {
           const done = stamped.has(p.kode);
+          // Phase 22: a stamped province with its own design shows that stamp instead of the generic icon.
+          const ownStamp = done && stampDesign(p.kode) !== null;
           return (
             <li
               key={p.kode}
@@ -59,14 +63,18 @@ export function PasporModal({
                   : 'border-dashed border-border text-muted-foreground'
               }`}
             >
-              <span
-                aria-hidden
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
-                  done ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground/60'
-                }`}
-              >
-                <Stamp className="h-4 w-4" />
-              </span>
+              {ownStamp ? (
+                <ProvinceStamp kode={p.kode} size={30} className="-m-0.5 shrink-0" />
+              ) : (
+                <span
+                  aria-hidden
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                    done ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground/60'
+                  }`}
+                >
+                  <Stamp className="h-4 w-4" />
+                </span>
+              )}
               <span className="min-w-0 break-words leading-tight">
                 {p.nama}
                 <span className="sr-only">{done ? ': sudah distempel' : ': belum distempel'}</span>

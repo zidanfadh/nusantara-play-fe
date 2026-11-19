@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, X } from 'lucide-react';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { ProvinceSummary } from '@/lib/jelajah/data';
-import { PILOT_PROVINCE } from '@/lib/jelajah/provinces';
+import { enterableByKode, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import type { JelajahDataStatus } from '@/lib/jelajah/use-jelajah-data';
 
 interface ProvinceCardProps {
@@ -21,6 +21,8 @@ interface ProvinceCardProps {
 export function ProvinceCard({ summary, status, onClose }: ProvinceCardProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const isPilot = summary.kode === PILOT_PROVINCE.kode;
+  // Phase 22: every enterable province has a village to enter (before: the pilot only).
+  const enterable = enterableByKode(summary.kode);
   const titleId = `jelajah-card-${summary.kode}`;
   const extra = summary.protCount - summary.prots.length;
 
@@ -49,9 +51,9 @@ export function ProvinceCard({ summary, status, onClose }: ProvinceCardProps) {
     >
       <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-border bg-card px-4 pb-3 pt-4">
         <div>
-          {isPilot && (
+          {enterable && (
             <span className="mb-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
-              Provinsi pilot
+              {isPilot ? 'Provinsi pilot' : 'Desa virtual'}
             </span>
           )}
           <h2 id={titleId} ref={headingRef} tabIndex={-1} className="text-lg font-bold leading-tight outline-none">
@@ -99,9 +101,9 @@ export function ProvinceCard({ summary, status, onClose }: ProvinceCardProps) {
         )}
         {extra > 0 && <p className="text-xs text-muted-foreground">dan {extra} PROT lainnya</p>}
 
-        {isPilot && (
+        {enterable && (
           <Link
-            href={`/jelajah/${PILOT_PROVINCE.slug}`}
+            href={`/jelajah/${enterable.slug}`}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-semibold text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             Masuk

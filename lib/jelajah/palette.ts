@@ -66,20 +66,21 @@ export type ProvinceVisualState = 'idle' | 'hover' | 'selected';
 
 /**
  * Fill colour of a province. More PROT → stronger colour (square-root scale, so one PROT is
- * already clearly coloured). Provinces without PROT are muted, except the pilot.
+ * already clearly coloured). Provinces without PROT are muted, except enterable ones (Phase 22; before: the pilot),
+ * which get the soft `pilot` colour.
  */
 export function provinceFill(
   palette: MapPalette,
   protCount: number,
   maxCount: number,
-  isPilot: boolean,
+  enterable: boolean,
   state: ProvinceVisualState = 'idle',
 ): string {
   let base: string;
   if (protCount > 0) {
     const t = maxCount <= 1 ? 0.35 : 0.35 + 0.65 * Math.sqrt((protCount - 1) / (maxCount - 1));
     base = mixHex(palette.protLow, palette.protHigh, t);
-  } else if (isPilot) {
+  } else if (enterable) {
     base = palette.pilot;
   } else {
     return palette.muted;

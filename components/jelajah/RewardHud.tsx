@@ -6,8 +6,10 @@ import { toast } from 'sonner';
 import { demoRewardsStore, levelProgress, type DemoRewardsState, type RewardResult } from '@/lib/jelajah/demo-rewards';
 import { KNOWN_PROVINCES } from '@/lib/jelajah/provinces';
 import { placeToasts } from '@/lib/jelajah/toast-clearance';
+import { stampDesign } from '@/lib/jelajah/stamps';
 import { useDemoRewards } from '@/lib/jelajah/use-demo-rewards';
 import { MisiPanel, type QuestDef } from './MisiPanel';
+import { ProvinceStamp } from './ProvinceStamp';
 import { PasporModal } from './PasporModal';
 
 export const SIMULATION_LABEL = 'Simulasi · tidak disimpan';
@@ -27,9 +29,13 @@ export function announceRewards(res: RewardResult): void {
   });
   // The site-wide Toaster (app/layout.tsx) is top centre; keep the toast clear of the overlays (Phase 13).
   placeToasts();
+  // Phase 22: a new Paspor stamp shows the province's own stamp design as the toast icon.
+  const stamp = res.events.find((e) => e.kind === 'stamp');
+  const icon = stamp && stampDesign(stamp.provinsiKode) ? <ProvinceStamp kode={stamp.provinsiKode} size={22} /> : null;
   toast.success(`+${res.xpGained} XP`, {
     description: `${reasons.join(' · ')} (${SIMULATION_LABEL})`,
-    duration: 2600,
+    duration: stamp ? 3600 : 2600,
+    ...(icon ? { icon } : {}),
   });
   if (res.levelAfter > res.levelBefore) {
     toast(`Naik ke Level ${res.levelAfter}!`, { description: SIMULATION_LABEL, duration: 2200 });

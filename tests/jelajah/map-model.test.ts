@@ -12,15 +12,17 @@ const summary = (kode: string, protCount: number): ProvinceSummary => ({
 });
 const byKode = new Map([
   ['32', summary('32', 3)],
-  ['11', summary('11', 0)],
+  ['12', summary('12', 0)],
   ['16', summary('16', 0)],
+  ['11', summary('11', 0)],
 ]);
 
 describe('map model', () => {
-  it('only provinces with PROT and the pilot are clickable', () => {
+  it('only provinces with PROT and the enterable provinces are clickable', () => {
     expect(isClickable('32', byKode)).toBe(true);
-    expect(isClickable('11', byKode)).toBe(false);
+    expect(isClickable('12', byKode)).toBe(false);
     expect(isClickable('16', byKode)).toBe(true); // pilot, even without PROT
+    expect(isClickable('11', byKode)).toBe(true); // Phase 22: enterable (Aceh), even while its PROT are loading
     expect(isClickable(null, byKode)).toBe(false);
     expect(isClickable('99', byKode)).toBe(false);
   });
