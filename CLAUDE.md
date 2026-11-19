@@ -334,6 +334,31 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      which is safe only because every upload gets a new UUID object key (backend `StorageService.uploadFile()`). The
      site now really displays Plus Jakarta Sans and Geist Mono (separate commit, revertible). Details in the frontend
      CLAUDE.md "Public page images (Phase 14)".
+10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
+    ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
+    idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
+    `PASPOR_STAMP:{userId}:{provinsiKode}`; a repeated request is answered with `duplicate: true` and no error), rows in the
+    append-only `reward_ledger` (a database trigger refuses UPDATE, DELETE and TRUNCATE; corrections are new compensating
+    rows), and atomic increments of `reward_balances` (XP, Points, level) in the same transaction.
+    - Two currencies: XP (levels, leaderboard, never redeemable) and Points (redeemable later for in-platform rewards;
+      never cashed out, never transferable).
+    - **Browser-reported actions give XP only, never Points** (a script can fake them). Points will come only from
+      server-verified actions (server-graded quizzes, organizer-confirmed event check-ins, realtime-verified mini-games).
+      Phase 15 has no rule that grants Points; only `ADMIN_ADJUST` can change them. Points need a verified email (otherwise
+      only the XP part is granted) and stay on hold for `POINTS_HOLD_DAYS` (default 7) before they become redeemable.
+    - Rules and every reward number live in ONE file, `src/modules/rewards/rewards.rules.ts` (same numbers as the Jelajah
+      simulation): PROVINCE_ENTER +25 XP once per province; PROT_VIEW +10 XP once per PROT, ARSIP_NASIONAL only;
+      PASPOR_STAMP +50 XP once per province, granted automatically when the user has viewed min(3, the province's
+      ARSIP_NASIONAL PROT count) PROT there and the province has at least one. Levels: level L needs 50 × (L − 1) × L
+      total XP (`levelForXp()` in `level.ts`).
+    - Endpoints (login required, local and legacy Supabase tokens): `POST /api/rewards/activities {type, refId}` (only
+      PROVINCE_ENTER and PROT_VIEW; the PROT's province comes from the database; 60 / min per user), `GET /api/rewards/me`,
+      `/me/ledger`, `/me/paspor`, `/leaderboard?scope=national|province&provinsiKode=` (top 50 + own rank, public user
+      shape, 60 s in-memory cache), `POST /api/admin/rewards/adjust` (admin_kpoti, audited, reason >= 5 characters).
+    - Reconciliation: `npm run rewards:reconcile` recomputes balances and levels from the ledger and reports differences;
+      `-- --fix` rewrites them. Manual walk-through: `nusantara-play-be/docs/rewards-local-testing.md`.
+    - The Jelajah HUD keeps its SIMULATION (item 9) until the frontend switches to the self-hosted login in a later phase;
+      only then may it call these endpoints.
 
 ## Deployment facts
 
@@ -419,6 +444,14 @@ column, so running the migration first is safe for the old code too.
    `https://www.nusantaralegacy.org` only if `www.` is ever served as its own host instead of redirecting; today Vercel
    redirects it). `nusantaravirtual.org` no longer needs to be listed: the frontend redirects it before any page or
    `/backend-api` call runs. Also `APP_PUBLIC_URL=https://nusantaralegacy.org` (item 8).
+10. Phase 15 rewards (run the migration BEFORE the new code; the old code never reads the new tables):
+   - Migration `1795300000000-CreateRewardsLedger`: creates `reward_ledger`, `reward_balances`, `user_prot_views`,
+     `user_province_stamps` (`IF NOT EXISTS`, explicit names), the function `reward_ledger_append_only()` and the triggers
+     `TRG_reward_ledger_append_only` / `TRG_reward_ledger_no_truncate` (refuse UPDATE, DELETE, TRUNCATE; a DELETE cascaded
+     from a deleted `users` row is allowed). Needs `uuid_generate_v4()` (uuid-ossp, already used by the Phase 07 and 09
+     migrations). down() drops the triggers, the function and the four tables.
+   - Env: optionally `POINTS_HOLD_DAYS` (default 7). Nothing else.
+   - After deployment: `npm run rewards:reconcile` should report 0 differences (read-only).
 
 ## Local development
 
@@ -451,6 +484,9 @@ public endpoints work.
    "DEMO"; since Phase 11 also `DEMO PROT Sumsel 1` to `4` in Sumatera Selatan (provinsi 16, ARSIP_NASIONAL, fixed UUIDs
    `…de31` to `…de34`, neutral placeholder text) for the Jelajah scene; since Phase 13 "DEMO PROT Sumsel 1" has one photo,
    `http://localhost:3001/jelajah/demo/foto-contoh.svg`, a neutral placeholder served by the local frontend). Idempotent. Flags: `-- --database=<name>`, `-- --no-demo`.
+   Since Phase 15 it also installs the reward ledger trigger and the `(user_id, created_at DESC)` index after
+   `synchronize()` (which cannot create them), through the migration's static
+   `CreateRewardsLedger1795300000000.installDbObjects()`.
 4. Backend: `npm run start:dev` → http://localhost:3000/api. Blockchain vars stay empty, so
    BlockchainService logs a warning and is inactive.
 5. Frontend (in `nusantara-play-fe`): `.env.local` with `NEXT_PUBLIC_BACKEND_API_URL=http://localhost:3000/api`
@@ -493,6 +529,10 @@ public endpoints work.
 - Email delivery (Phase 09): production has no SMTP credentials yet; until they are set, verification and reset
   emails are not delivered (logged as failures) while the endpoints still answer 200.
 - Same-origin cookies (including Supabase `sb-*` auth cookies) are now forwarded to the backend with every browser API call. Large cookie headers could exceed nginx header buffer limits (unknown production config).
+- Rewards (Phase 15): browser-reported XP can still be earned by a script with a valid login, but only up to the rule
+  caps (each province and each public PROT counts once per account, 60 activity requests / min per user), and it is XP
+  only, never Points. The leaderboard cache (60 s) lives in each backend instance's memory, so N instances can show
+  slightly different boards for up to a minute.
 
 ## Engineering rules
 
@@ -502,6 +542,9 @@ public endpoints work.
 - Ownership and permission checks live in the service layer and throw ForbiddenException.
 - Any multi-table write that must be atomic uses a TypeORM transaction.
 - Any read-then-write on a shared counter or claim (stock, queue claims, points) must be race-safe: use a conditional UPDATE or a pessimistic lock.
+- XP and Points change ONLY through `RewardsService` (Phase 15): never write `reward_ledger` or `reward_balances` anywhere
+  else, never edit or delete ledger rows (insert a compensating row), never build an idempotency key from client input,
+  and never give Points for a browser-reported action.
 - Never log secrets, tokens, or passwords. Never log personal data either (email, phone, user ids next to them, request bodies with personal data); log through the Nest `Logger`, not `console`.
 - Public endpoints only return the public user shape: a `@Public()` route returns other users ONLY as `{ id, full_name, avatar_url, institution }` (`toPublicUser()` in `src/common/serializers/user-shape.ts`). Logged-in endpoints that return OTHER users' records never include `supabase_user_id` or `last_login_at` (`stripPrivateUserFields()`); admin_kpoti user management keeps `last_login_at`. Add a test for every new endpoint that returns users.
 - If a requirement is ambiguous or conflicts with existing code, stop and ask instead of guessing.
@@ -555,6 +598,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   unused `LandingStats` import warning in `app/page.tsx`, also on main; no-img-element stays 21: the replaced `<img>`
   elements already had disable comments).
 - Backend after Phase 14: unchanged (only CLAUDE.md and the phase report changed).
+- Backend after Phase 15: unchanged, 220 errors, 29 warnings (every new and touched file is clean).
+- Frontend after Phase 15: unchanged (only CLAUDE.md changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -734,6 +779,45 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   Arial/Helvetica fallbacks), so Plus Jakarta Sans and Geist Mono are used as intended
   (`tests/config/fonts.test.ts`). Jakarta is wider: the landing navbar's right-hand group got tighter spacing below
   `sm` (it overflowed by 1 px at 390 px); nothing else overflowed on `/`, `/prot`, a PROT detail and the Jelajah pages.
+- 2026-11-19: Owner decisions for Phase 15 (real rewards, part 1): two currencies, XP (levels, leaderboard, never
+  redeemable) and Points (redeemable later for in-platform rewards; never cashed out, never transferable). Actions
+  reported by the browser give XP only, never Points; Points come only from server-verified actions (server-graded
+  quizzes, organizer-confirmed event check-ins, later realtime-verified mini-games), and Phase 15 has no rule that grants
+  them except admin adjustments. Levels: L needs 50 × (L − 1) × L XP. First rules PROVINCE_ENTER +25, PROT_VIEW +10
+  (ARSIP_NASIONAL only), PASPOR_STAMP +50 at min(3, province PROT count) views, constants in one file. Points need a
+  verified email when granted. No frontend changes until the frontend switches to the new auth.
+- 2026-11-19: Local databases get the ledger trigger from `db:setup` (owner decision, Phase 15): `synchronize()` cannot
+  create triggers or DESC indexes and the migration baseline only records migrations as applied, so `db-local-setup.ts`
+  calls the migration's idempotent static `installDbObjects()` after `synchronize()`. It is a static method, not a second
+  export, because TypeORM loads every exported function of a migration file as a migration ("someClass is not a
+  constructor"). The migrated and the synchronized schema were compared with `pg_dump` and are identical.
+- 2026-11-19: Leaderboard `scope=province` ranks by the XP a user earned IN that province (ledger rows tagged with its
+  `provinsi_kode`: PROVINCE_ENTER, PROT_VIEW, PASPOR_STAMP), not by a home province (owner decision, Phase 15). The
+  national board uses `reward_balances.xp_total`. Both list only `active` users with more than 0 XP, ranked with
+  `RANK()` (ties share a rank, then user id order), show the user's overall level, and return users only as
+  `toPublicUser()`. Only the top 50 is cached (60 s, per scope, in memory); the caller's own rank is computed live.
+- 2026-11-19: Ledger design details (Phase 15): `currency` is text + CHECK; the XP row of a grant uses the base key, a
+  Points row `{base}:POINTS`; a grant is a duplicate when any of its keys exists, so Points withheld for an unverified
+  email are not granted later by repeating the action (the XP row records `points_withheld`). `created_at` is
+  `clock_timestamp()` so the rows of one transaction keep their order (a PROT_VIEW before the stamp it earns). The
+  append-only trigger allows exactly one kind of DELETE: the cascade from a deleted `users` row (the user row is already
+  gone), otherwise accounts could never be deleted. `user_prot_views` has no foreign key to `prot` (a recorded view
+  survives unpublishing). The Paspor counts only views of PROT that are ARSIP_NASIONAL now, and a repeated PROT_VIEW
+  re-checks the stamp (a province whose PROT count dropped may have become complete).
+- 2026-11-19: Grant response (Phase 15): `{ granted: {xp, points}, balance: {xp, points, pointsAvailable}, level, levelUp,
+  stamp, duplicate, pointsWithheld }`. `granted` is what THIS request added (a PROT_VIEW that earns the stamp reports
+  60 XP, `stamp.xp` 50); a duplicate returns `granted` 0 and the current balance with HTTP 200. Invalid references (a
+  province code that is not a two-digit province in `daerah`, a PROT that does not exist or is not ARSIP_NASIONAL,
+  including drafts) all answer 400 with the same message per type, so drafts cannot be probed.
+- 2026-11-19: Admin adjustments (Phase 15): one ADMIN_ADJUST row per request (key `ADMIN_ADJUST:{userId}:{random uuid}`,
+  `source_id` = admin id, reason in `metadata`), refused when the balance would go below 0; added Points need a verified
+  email and are held like any Points, removed Points count at once. The response carries the new row `id`, which
+  `AuditInterceptor` stores as `entity_id`. `points_available_cache` is refreshed on every grant; the endpoints compute
+  the live value from the ledger, and the reconciliation reports a stale cache separately (not an error). Exit codes of
+  `rewards:reconcile`: 0 clean or fixed, 1 differences without `--fix`, 2 failure.
+- 2026-11-19: Existing e2e failure found in Phase 15, not changed: `test/email-flows.e2e-spec.ts` "registering an
+  existing email" expects the emails in the order verification, account_exists, but the background queue sometimes
+  delivers them the other way round (failed 2 of 2 full runs on main, about half of the full runs on the Phase 15 branch).
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
 
 ## Phase workflow
