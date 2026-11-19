@@ -79,6 +79,17 @@ describe('audio code stays out of /jelajah initial JavaScript', () => {
       expect(imports.filter((m) => m.includes('/audio') || m.includes('sound-cues') || m.includes('BumperSound')), file).toEqual([]);
     }
     expect(read('components/jelajah/bumper/JelajahBumper.tsx')).toContain("dynamic(() => import('./BumperSound'), { ssr: false })");
+    // Both players load the engine through the SAME dynamic module (one shared chunk), never statically.
+    for (const file of ['components/jelajah/bumper/BumperSound.tsx', 'components/jelajah/concept/use-concept-sound.ts']) {
+      const values = [...read(file).matchAll(/^import (?!type )[^;]*? from '([^']+)'/gm)].map((m) => m[1]);
+      expect(values.filter((m) => /lib\/audio\/(context|engine|buffers|core|scheduler|session|voice-over)$/.test(m)), file).toEqual([]);
+      expect(read(file)).toContain("import('@/lib/audio/runtime')");
+    }
+    // The cue sheets need only the pitch set and a tiny RNG, never the synthesis core.
+    for (const file of ['lib/jelajah/concept/sound-cues.ts', 'lib/jelajah/bumper/sound-cues.ts', 'lib/audio/rng.ts']) {
+      const values = [...read(file).matchAll(/^import (?!type )[^;]*? from '([^']+)'/gm)].map((m) => m[1]);
+      expect(values.filter((m) => /core$/.test(m)), file).toEqual([]);
+    }
     // The offline renderer (WAV) is a debug-only dynamic import.
     for (const file of ['components/jelajah/bumper/BumperSound.tsx', 'components/jelajah/concept/use-concept-sound.ts']) {
       expect(staticImports(file)).not.toContain('@/lib/audio/offline');

@@ -10,9 +10,9 @@
  */
 import { useEffect, useRef, useState, type MutableRefObject } from 'react';
 import { SoundControls } from '@/components/audio/SoundControls';
-import { audioContextCtor, outputLead } from '@/lib/audio/context';
-import { createScheduler, type Scheduler } from '@/lib/audio/scheduler';
-import { createSoundSession, type SoundSession, type SoundStatus } from '@/lib/audio/session';
+import type { Scheduler } from '@/lib/audio/scheduler';
+import type { SoundSession, SoundStatus } from '@/lib/audio/session';
+import { audioContextCtor } from '@/lib/audio/support';
 import {
   BUMPER_END_FADE_MS,
   BUMPER_SKIP_FADE_MS,
@@ -53,32 +53,15 @@ export default function BumperSound({
     let hiddenTotal = 0;
     const elapsed = () => (hiddenSince ?? performance.now()) - start - hiddenTotal;
     let scheduler: Scheduler | null = null;
+    let session: SoundSession | null = null;
     let frame = 0;
     let ended = false;
+    let disposed = false;
     const loop = () => {
       const t = elapsed();
       scheduler?.update(t);
       frame = t < STING_WINDOW_MS ? requestAnimationFrame(loop) : 0;
     };
-    const session = createSoundSession({
-      group: BUMPER_SOUND_GROUP,
-      sounds: bumperSounds,
-      onStatus: setStatus,
-      onLive: (engine) => {
-        scheduler?.stop(0);
-        scheduler = createScheduler({ engine, cues: bumperStingCues(), group: BUMPER_SOUND_GROUP, leadSec: outputLead(engine.ctx) });
-        scheduler.seek(elapsed());
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(loop);
-      },
-      onSilent: () => {
-        scheduler?.stop(150);
-        scheduler = null;
-      },
-    });
-    sessionRef.current = session;
-    session.start();
-
     const onVisibility = () => {
       const hidden = document.visibilityState === 'hidden';
       if (hidden && hiddenSince === null) hiddenSince = performance.now();
@@ -86,7 +69,7 @@ export default function BumperSound({
         hiddenTotal += performance.now() - hiddenSince;
         hiddenSince = null;
       }
-      session.setHidden(hidden);
+      session?.setHidden(hidden);
     };
     document.addEventListener('visibilitychange', onVisibility);
     if (document.visibilityState === 'hidden') onVisibility();
@@ -96,12 +79,38 @@ export default function BumperSound({
       ended = true;
       const fade = reason === 'skipped' ? BUMPER_SKIP_FADE_MS : BUMPER_END_FADE_MS;
       scheduler?.stop(fade);
-      session.engine?.fadeGroup(BUMPER_SOUND_GROUP, fade);
-      session.close(fade);
+      session?.engine?.fadeGroup(BUMPER_SOUND_GROUP, fade);
+      session?.close(fade);
     };
     endRef.current = end;
 
+    // The engine is a shared chunk (lib/audio/runtime.ts), the same one the concept film uses.
+    void import('@/lib/audio/runtime').then((audio) => {
+      if (disposed || ended) return;
+      const s = audio.createSoundSession({
+        group: BUMPER_SOUND_GROUP,
+        sounds: bumperSounds,
+        onStatus: setStatus,
+        onLive: (engine) => {
+          scheduler?.stop(0);
+          scheduler = audio.createScheduler({ engine, cues: bumperStingCues(), group: BUMPER_SOUND_GROUP, leadSec: audio.outputLead(engine.ctx) });
+          scheduler.seek(elapsed());
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(loop);
+        },
+        onSilent: () => {
+          scheduler?.stop(150);
+          scheduler = null;
+        },
+      });
+      session = s;
+      sessionRef.current = s;
+      s.start();
+      if (hiddenSince !== null) s.setHidden(true);
+    });
+
     return () => {
+      disposed = true;
       cancelAnimationFrame(frame);
       document.removeEventListener('visibilitychange', onVisibility);
       end('skipped');

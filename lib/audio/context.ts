@@ -6,13 +6,9 @@
 import { createBufferStore } from './buffers';
 import { createEngine, type Engine } from './engine';
 
-type AudioContextCtor = typeof AudioContext;
+import { audioContextCtor } from './support';
 
-export function audioContextCtor(): AudioContextCtor | null {
-  if (typeof window === 'undefined') return null;
-  const w = window as unknown as { AudioContext?: AudioContextCtor; webkitAudioContext?: AudioContextCtor };
-  return w.AudioContext ?? w.webkitAudioContext ?? null;
-}
+export { audioContextCtor };
 
 let shared: Engine | null = null;
 

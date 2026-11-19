@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { soundCore, type SoundId, type SoundRef } from '@/lib/audio/core';
 import { BEM, bemStep, GONG_HZ, pelog, PELOG_CENTS } from '@/lib/audio/pitch';
 import { renderWorkerSource } from '@/lib/audio/render-worker-source';
+import { seededRng } from '@/lib/audio/rng';
 
 const core = soundCore();
 const SR = 24000;
@@ -92,6 +93,12 @@ describe('sound core (Phase 21)', () => {
     const v1 = core.renderSound({ id: 'seed', v: 1 }, SR)[0];
     const v2 = core.renderSound({ id: 'seed', v: 2 }, SR)[0];
     expect(Buffer.from(v1.buffer).equals(Buffer.from(v2.buffer))).toBe(false);
+  });
+
+  it('the cue sheet generator (lib/audio/rng.ts) gives the same numbers as the core one', () => {
+    const a = seededRng(123);
+    const b = core.seededRng(123);
+    for (let i = 0; i < 100; i += 1) expect(a()).toBe(b());
   });
 
   it('keys are stable and include every parameter', () => {
