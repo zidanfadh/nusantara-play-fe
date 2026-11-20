@@ -48,7 +48,9 @@ describe('landing page images (Phase 14)', () => {
   const page = readFileSync(join(root, 'app', 'page.tsx'), 'utf8');
 
   it('featured PROT photos go through ProtPhoto, not a plain <img>', () => {
-    expect(page).toMatch(/<ProtPhoto\s+src=\{game\.fotoKegiatan\[0\]\}/);
+    // Phase 25: the photo is the first one the hidden-media denylist lets through.
+    expect(page).toMatch(/const photo = firstVisiblePhoto\(game\)/);
+    expect(page).toMatch(/<ProtPhoto\s+src=\{photo\}/);
     expect(page).not.toMatch(/<img[^>]*fotoKegiatan/);
   });
 

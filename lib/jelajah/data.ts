@@ -7,6 +7,7 @@
  */
 import { apiClient } from '@/lib/api/client';
 import { KNOWN_PROVINCES, provinceSlug, type ProvinceRef } from './provinces';
+import { isHiddenMediaUrl, visibleMedia } from '@/lib/prot/hidden-media';
 
 /** Only PROT with this status are public and may appear in Jelajah. */
 export const PUBLIC_PROT_STATUS = 'ARSIP_NASIONAL';
@@ -86,6 +87,8 @@ export function firstPhoto(fotoKegiatan: unknown, allowLocalHttp: boolean = isLo
   if (!Array.isArray(fotoKegiatan)) return null;
   for (const value of fotoKegiatan) {
     if (typeof value !== 'string') continue;
+    // Phase 25: never a hidden photo (lib/prot/hidden-media.ts).
+    if (isHiddenMediaUrl(value)) continue;
     try {
       const url = new URL(value);
       if (url.protocol === 'https:') return value;
@@ -129,7 +132,11 @@ export function shapeProvinceSummaries(
       unassignedProt += 1;
       continue;
     }
-    entry.prots.push({ id, nama: cleanName(prot.nama) || 'Tanpa nama', foto: firstPhoto(prot.fotoKegiatan) });
+    entry.prots.push({
+      id,
+      nama: cleanName(prot.nama) || 'Tanpa nama',
+      foto: firstPhoto(visibleMedia(prot.fotoKegiatan, { protId: id, field: 'fotoKegiatan' })),
+    });
   }
 
   const summaries: ProvinceSummary[] = [...byKode.values()].map(({ ref, prots: list }) => {

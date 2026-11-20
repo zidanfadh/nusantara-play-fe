@@ -7,6 +7,7 @@
  * text without the number. Nothing here invents facts.
  */
 import type { GetJson, JelajahData, JelajahProt } from '../data';
+import { isHiddenMediaUrl } from '@/lib/prot/hidden-media';
 
 export type BumperSceneId = 'brand' | 'prot' | 'peta' | 'game' | 'komunitas' | 'mulai';
 
@@ -40,7 +41,10 @@ export interface BumperPhoto {
  */
 export function pickProtPhotos(data: JelajahData, max = MAX_BUMPER_PHOTOS): BumperPhoto[] {
   const withPhoto = (list: readonly JelajahProt[]) =>
-    list.filter((p): p is JelajahProt & { foto: string } => typeof p.foto === 'string' && p.foto.length > 0);
+    list.filter(
+      (p): p is JelajahProt & { foto: string } =>
+        typeof p.foto === 'string' && p.foto.length > 0 && !isHiddenMediaUrl(p.foto), // Phase 25
+    );
   const perProvince = data.provinces.map((p) => withPhoto(p.prots));
   const picked: BumperPhoto[] = [];
   const seen = new Set<string>();
