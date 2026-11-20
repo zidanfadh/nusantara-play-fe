@@ -18,7 +18,7 @@ describe('game pavilion (Phase 17)', () => {
     for (const game of JELAJAH_GAMES) {
       const withGame = SCENES.filter((s) => gamePavilion(s)?.game === game).map((s) => s.slug);
       expect([...withGame].sort()).toEqual([...GAME_LINK_PROVINCES[game]].sort());
-      for (const slug of GAME_LINK_PROVINCES[game]) expect(findScene(slug)?.centrepiece?.game).toBe(game);
+      for (const slug of GAME_LINK_PROVINCES[game]) expect(gamePavilion(findScene(slug)!)?.game).toBe(game);
     }
   });
 

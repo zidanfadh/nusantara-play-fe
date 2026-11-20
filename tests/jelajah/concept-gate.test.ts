@@ -121,7 +121,8 @@ describe('concept video loading (Phase 19)', () => {
 
   it('the bumper\'s "Main Congklak" ends the intro without starting the concept video', () => {
     const bumper = read('components/jelajah/bumper/JelajahBumper.tsx');
-    expect(bumper).toMatch(/onPlay=\{\(\) => \{\s*onLeave\?\.\(\);\s*skip\(\);/);
+    // Phase 23: one button per game, the same exit for each.
+    expect(bumper).toMatch(/onPlay=\{\(game\) => \{\s*onLeave\?\.\(\);\s*skip\(\);/);
     expect(hub).toContain('onLeave={leaveIntro}');
   });
 });

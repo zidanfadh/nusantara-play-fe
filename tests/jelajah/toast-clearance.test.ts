@@ -60,3 +60,21 @@ describe('toastTop', () => {
     expect(toastTop(390, [box(0, 0, 0, 0), box(20, 100, 20, 300)])).toBe(72);
   });
 });
+
+describe('landscape phone with the PROT panel open (Phase 23, Phase 22 observation)', () => {
+  // 844x390: the panel is the right-hand side panel (md:), its header (title + close) inside the toast's span.
+  const TITLE = box(12, 77, 237, 115);
+  const PANEL_HEADER = box(448, 76, 832, 152);
+  const PANEL_CLOSE = box(788, 88, 820, 120);
+
+  it('the close button alone is outside the centred toast, so marking only it was not enough', () => {
+    expect(toastTop(844, [TITLE, PANEL_CLOSE])).toBe(TOAST_TOP_DEFAULT);
+  });
+
+  it('with the whole header marked, the toast moves below the title and the close button, still on screen', () => {
+    const top = toastTop(844, [TITLE, PANEL_HEADER, PANEL_CLOSE]);
+    expect(top).toBe(PANEL_HEADER.bottom + TOAST_GAP);
+    expect(top).toBeGreaterThan(PANEL_CLOSE.bottom);
+    expect(top + TOAST_HEIGHT_ESTIMATE).toBeLessThanOrEqual(390);
+  });
+});

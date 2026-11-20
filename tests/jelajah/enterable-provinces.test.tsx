@@ -112,19 +112,28 @@ describe('Paspor stamps (Phase 22)', () => {
 });
 
 describe('2d tier game cards (Phase 22)', () => {
-  it('Kepulauan Riau: "Main Gasing" with the allowlisted from; the other new provinces: "Game segera hadir"', () => {
+  it('Kepulauan Riau: "Main Gasing" with the allowlisted from; Aceh: "Game segera hadir"', () => {
     const kepri = findScene('kepulauan-riau')!;
     const game = gamePavilion(kepri)!.game!;
     const card = renderToStaticMarkup(createElement(GameCard, { game, href: gameHref(game, 'jelajah-kepulauan-riau') }));
     expect(card).toContain('Main Gasing');
     expect(card).toContain('href="/main/gasing?from=jelajah-kepulauan-riau"');
-    for (const slug of ['aceh', 'jawa-tengah', 'sulawesi-selatan']) {
-      expect(gamePavilion(findScene(slug)!)).toBeNull();
-      expect(findScene(slug)!.gameSoon).toBeDefined();
-    }
+    expect(gamePavilion(findScene('aceh')!)).toBeNull();
+    expect(findScene('aceh')!.gameSoon).toBeDefined();
     const soon = renderToStaticMarkup(createElement(GameSoonCard));
     expect(soon).toContain('Game segera hadir');
     expect(soon).not.toMatch(/<a |<button/);
+  });
+
+  it('Jawa Tengah and Sulawesi Selatan (Phase 23): "Main Egrang" with their variant and the allowlisted from', () => {
+    for (const [slug, variant] of [['jawa-tengah', 'bambu'], ['sulawesi-selatan', 'batok']] as const) {
+      const pav = gamePavilion(findScene(slug)!)!;
+      expect(pav).toMatchObject({ game: 'egrang', variant, style: 'egrang' });
+      expect(findScene(slug)!.gameSoon).toBeUndefined();
+      const card = renderToStaticMarkup(createElement(GameCard, { game: 'egrang', href: gameHref('egrang', `jelajah-${slug}`, variant) }));
+      expect(card).toContain('Main Egrang');
+      expect(card).toContain(`href="/main/egrang?varian=${variant}&amp;from=jelajah-${slug}"`);
+    }
   });
 
   it('Sumatera Selatan keeps "Main Congklak"', () => {

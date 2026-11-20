@@ -114,11 +114,13 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
   );
 
   const [near, setNear] = useState<number | null>(null);
-  // Phase 17: the plaza pavilion opens a game page (scene data `centrepiece.game`); Phase 22: any hosted game.
+  // Phase 17: the plaza pavilion opens a game page (scene data `centrepiece.game`); Phase 22: any hosted game;
+  // Phase 23: a separate game pavilion (`gamePavilion`) and the game's variant (`?varian=`).
   const [nearPavilion, setNearPavilion] = useState(false);
   const router = useRouter();
-  const game = gamePavilion(scene)?.game ?? null;
-  const gameHref = game ? linkToGame(game, `jelajah-${scene.slug}`) : null;
+  const pavilionDef = gamePavilion(scene);
+  const game = pavilionDef?.game ?? null;
+  const gameHref = game ? linkToGame(game, `jelajah-${scene.slug}`, pavilionDef?.variant) : null;
   const [panel, setPanel] = useState<PanelContent | null>(null);
   const [ready, setReady] = useState(false);
   const [showHelp, setShowHelp] = useState(false);

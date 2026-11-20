@@ -39,7 +39,11 @@ export type SoundId =
   | 'sparkle'
   | 'shimmer'
   | 'swell'
-  | 'tick';
+  | 'tick'
+  // Phase 23 (egrang)
+  | 'bamboo'
+  | 'batok'
+  | 'thud';
 
 /**
  * A sound and its parameters: `hz` pitch, `notes` chord or arpeggio (Hz), `len` length in seconds (beds,
@@ -629,6 +633,53 @@ export function soundCore() {
     return finish(tone, sr, 0.03);
   }
 
+  /**
+   * Bamboo knock (Phase 23, egrang bambu steps): a hollow tube struck at its foot. A short tuned resonance
+   * with a near-octave partial (an open tube), a woody third partial and a bright attack; variants (`v`)
+   * are two different poles (left / right foot), a few semitones apart.
+   */
+  function bamboo(sr: number, v: number, rnd: () => number): Channels {
+    const f = v === 1 ? 560 : 470;
+    const out = samples(sr, 0.32);
+    addMode(out, sr, f, 1, 0.075, 0, 0.0008);
+    addMode(out, sr, f * 2.03, 0.42, 0.045, 0, 0.0008, 1.1);
+    addMode(out, sr, f * 3.92, 0.14, 0.022, 0, 0.0008, 2.3);
+    addMode(out, sr, 180, 0.35, 0.05, 0, 0.002);
+    mix(out, burst(sr, rnd, 0.03, 1900, 1.4, 0.004), 0.45);
+    filter(out, sr, 'lowpass', 5200);
+    return finish([out], sr, 0.03);
+  }
+
+  /**
+   * Coconut-shell "tok" (Phase 23, egrang batok steps): a small, hard, hollow shell on packed earth. A high
+   * short resonance (the shell's cavity), a low body thump and a click; variants (`v`) = left / right shell.
+   */
+  function batokTok(sr: number, v: number, rnd: () => number): Channels {
+    const f = v === 1 ? 1080 : 930;
+    const out = samples(sr, 0.2);
+    addMode(out, sr, f, 1, 0.032, 0, 0.0004);
+    addMode(out, sr, f * 1.71, 0.3, 0.018, 0, 0.0004, 0.8);
+    addMode(out, sr, 240, 0.55, 0.04, 0, 0.0015);
+    mix(out, burst(sr, rnd, 0.02, 2600, 2, 0.003), 0.5);
+    filter(out, sr, 'lowpass', 6500);
+    return finish([out], sr, 0.02);
+  }
+
+  /**
+   * Thud (Phase 23): a body landing on earth (a fall from the stilts, `v` 0) or a lighter stumble (a shell
+   * slipping off, `v` 1): a falling low sine, a dull noise thump and a little scattered grit.
+   */
+  function thud(sr: number, v: number, rnd: () => number): Channels {
+    const light = v === 1;
+    const len = light ? 0.35 : 0.7;
+    const out = glide(sr, len, (t) => (light ? 90 : 62) + (light ? 70 : 60) * Math.exp(-t / 0.03), ad(0.002, light ? 0.06 : 0.13));
+    mix(out, filter(burst(sr, rnd, 0.2, 260, 0.6, light ? 0.03 : 0.06), sr, 'lowpass', 600), 0.7);
+    const grit = filter(noise(Math.ceil(len * sr), rnd), sr, 'bandpass', 2200, 0.7);
+    shape(grit, sr, (t) => (t < 0.02 ? 0 : Math.exp(-(t - 0.02) / 0.08)) * 0.25);
+    mix(out, grit, light ? 0.3 : 0.45);
+    return finish([out], sr, 0.05);
+  }
+
   /** UI tick: a tiny bright click. */
   function tick(sr: number): Channels {
     const out = samples(sr, 0.06);
@@ -699,6 +750,12 @@ export function soundCore() {
         return shimmer(sr, notes, len, rnd);
       case 'swell':
         return swellUp(sr, notes, len, rnd);
+      case 'bamboo':
+        return bamboo(sr, ref.v || 0, rnd);
+      case 'batok':
+        return batokTok(sr, ref.v || 0, rnd);
+      case 'thud':
+        return thud(sr, ref.v || 0, rnd);
       default:
         return tick(sr);
     }

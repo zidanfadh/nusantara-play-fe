@@ -3,7 +3,9 @@
  * (joglo-style, a loose low-poly hint); behind the village rice terraces step up towards a volcano silhouette in
  * the haze; bamboo groves along both sides; low houses with white walls and terracotta hip roofs.
  *
- * Jawa Tengah has a published PROT but no playable game yet: a "Game segera hadir" sign stands next to stand 1.
+ * Phase 23: beside stand 1 an egrang practice track (bamboo rails, a start line, a finish banner, bamboo stilts
+ * leaning at the start) opens Egrang with the Bambu variant (/main/egrang?varian=bambu). It replaces the Phase 22
+ * "Game segera hadir" sign.
  *
  * Only `import type` here (see types.ts). No cultural facts: visible text comes from PROT data or neutral UI text.
  */
@@ -55,6 +57,9 @@ const stands: StandDef[] = [145, 215, 35].map(ringStand);
 
 const houses: HouseDef[] = [lowHouse(-15.6, -5), lowHouse(15.6, -6.5), lowHouse(15.4, 9.5, 5.8, 4.6)];
 
+/** Phase 23: the egrang practice track, east of the entrance path, between stand 1 and the spawn point. */
+const EGRANG_TRACK = { x: 6.4, z: 13, size: 6 } as const;
+
 const decor: DecorDef[] = [];
 // Bamboo groves along both sides (block the player).
 const GROVES: [number, number][] = [
@@ -80,7 +85,7 @@ decor.push(
   { model: 'plant_bush', x: -11.2, z: 3.2, rotation: 4.1, scale: 1.3, collide: 0.5 },
   { model: 'pot_large', x: -10.6, z: -2.6, rotation: 0.4, scale: 1.2, collide: 0.6 },
   { model: 'pot_small', x: 10.8, z: -3.2, rotation: 1.2, scale: 1.3, collide: 0.4 },
-  { model: 'stump_round', x: 5.2, z: 15.2, rotation: 0.6, scale: 1.4, collide: 0.45 },
+  { model: 'stump_round', x: 11.4, z: 15.6, rotation: 0.6, scale: 1.4, collide: 0.45 },
   { model: 'fence_simple', x: -3.6, z: -11.6, rotation: 0, scale: 1, collide: { halfW: 1.5, halfD: 0.25 } },
   { model: 'fence_simple', x: 3.6, z: -11.6, rotation: 0, scale: 1, collide: { halfW: 1.5, halfD: 0.25 } },
 );
@@ -110,6 +115,7 @@ for (let tries = 0; placed < 60 && tries < 600; tries += 1) {
   if (Math.hypot(x - PLAZA.x, z - PLAZA.z) < STAND_RING + 2.2) continue;
   if (Math.abs(x) < 2 && z > 7) continue;
   if (houses.some((h) => Math.hypot(x - h.x, z - h.z) < 5)) continue;
+  if (Math.abs(x - EGRANG_TRACK.x) < 4.2 && Math.abs(z - EGRANG_TRACK.z) < 1.8) continue;
   decor.push({
     model: DETAILS[placed % DETAILS.length],
     x: round(x),
@@ -120,8 +126,6 @@ for (let tries = 0; placed < 60 && tries < 600; tries += 1) {
   });
   placed += 1;
 }
-
-const PROT_STAND = stands[0];
 
 export const JAWA_TENGAH_SCENE: SceneDefinition = {
   slug: 'jawa-tengah',
@@ -143,8 +147,8 @@ export const JAWA_TENGAH_SCENE: SceneDefinition = {
     { from: [PLAZA.radius - 0.5, -1.5], to: [12, -4.6], width: 2 },
     { from: [5, PLAZA.z + 5.4], to: [12.6, 8.4], width: 1.8 },
   ],
-  // Beside stand 1, on the side of the entrance path.
-  gameSoon: { x: round(PROT_STAND.x - 3.1), z: round(PROT_STAND.z + 1.7), rotation: 0 },
+  // Phase 23: the egrang practice track beside stand 1 (replaces the Phase 22 "Game segera hadir" sign).
+  gamePavilion: { x: EGRANG_TRACK.x, z: EGRANG_TRACK.z, rotation: 0, size: EGRANG_TRACK.size, postHeight: 2, roofHeight: 0, style: 'egrang', game: 'egrang', variant: 'bambu' },
   structures: [
     {
       kind: 'terraces',

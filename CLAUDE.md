@@ -44,7 +44,7 @@ Never chain navigation with git using `&&` — always run them as separate comma
 - `app/(protected)/` — authenticated pages with shared layout
 - `app/prot/` — public-facing PROT browsing pages
 - `app/jelajah/` — Jelajah Nusantara (login required since Phase 18): hub map `/jelajah`, province pages `/jelajah/[provinsi]` (Phase 10)
-- `app/main/` — hosted games (public, Phase 17): `/main` lists them, `/main/congklak`, `/main/gasing` (Phase 20)
+- `app/main/` — hosted games (public, Phase 17): `/main` lists them, `/main/congklak`, `/main/gasing` (Phase 20), `/main/egrang` (Phase 23)
 - `app/api/` — Next.js API routes
 - `app/page.tsx` — landing page; a **server component** that fetches stats and featured PROT on the server
 
@@ -92,7 +92,7 @@ it; see "Brand, navbar and the Jelajah login gate (Phase 18)".
 | Calendar | `types/calendar.ts` | `lib/api/calendar.ts` | `hooks/useCalendar.ts` | `components/calendar/` | `app/(protected)/calendar/` |
 | Marketplace | `types/marketplace.ts` | `lib/api/marketplace.ts` | `hooks/useMarketplace.ts` | `components/marketplace/` | `app/(protected)/marketplace/` |
 | Jelajah | `lib/jelajah/data.ts` | `lib/jelajah/data.ts` (via `apiClient`) | `lib/jelajah/use-*.ts` | `components/jelajah/` | `app/jelajah/` |
-| Games | `lib/games/congklak/*.ts`, `lib/games/gasing/*.ts` | none (games record nothing) | none | `components/games/` | `app/main/` |
+| Games | `lib/games/congklak/*.ts`, `lib/games/gasing/*.ts`, `lib/games/egrang/*.ts` | none (games record nothing) | none | `components/games/` | `app/main/` |
 
 ## Jelajah Nusantara (Phases 10 to 13)
 
@@ -448,12 +448,19 @@ serves them to every province after the first).
 - **The camera never shows the horizon** (fixed 40 degree pitch): a landmark meant to be "far away" must stand within
   about 50 to 95 m of the camera (portrait phones see the furthest) and inside the fog's middle range, otherwise it is
   never on screen or fully fogged. Desktop and landscape views see only about 45 m ahead at the spawn point.
-- **Games at pavilions**: `PavilionDef.game` is `JelajahGame` (`'congklak' | 'gasing'`, `lib/games/links.ts`); labels
+- **Games at pavilions**: `PavilionDef.game` is `JelajahGame` (`'congklak' | 'gasing' | 'egrang'`, `lib/games/links.ts`); labels
   and descriptions in `GAME_TEXTS`, links by `gameHref(game, from)`, icons in `GamePrompt.tsx` `GAME_ICONS`.
   `GAME_LINK_PROVINCES` is keyed per game (`congklak: ['sumatera-selatan'], gasing: ['kepulauan-riau']`) and
   `backLinkFor(from, game)` allowlists `from=jelajah-<slug>` only on the page of the game that province opens
   (`tests/jelajah/pavilion.test.ts` keeps it equal to the scene data). A province without a game gets `gameSoon` (a
   test requires exactly one of the two); the 2d tier shows `GameSoonCard` (no button, no link).
+  Phase 23: a game can also stand OUTSIDE the plaza: `SceneDefinition.gamePavilion` (a `PavilionDef`; `gamePavilion()`
+  prefers it over the centrepiece), style `egrang` (a practice track `size` long with rails, a start line, a finish banner
+  and the variant's stilts; `addEgrangTrack` in `village-geometry.ts`), `PavilionDef.variant` passed as `?varian=` by
+  `gameHref(game, from, variant)`. Its collider and mesh are appended after everything else, so scenes without one are
+  unchanged (fingerprints: `sumatera-selatan-identity.test.ts` and, since Phase 23, `province-identity.test.ts` for
+  Kepulauan Riau and Aceh, unchanged, and Jawa Tengah and Sulawesi Selatan, recorded after the change).
+  `GAME_LINK_PROVINCES.egrang` = Jawa Tengah (Bambu) and Sulawesi Selatan (Batok); Aceh keeps its sign.
 - **Map**: `ENTERABLE_PROVINCES` (`lib/jelajah/provinces.ts`, kept equal to the scene registry by a test) drives the
   routes (`generateStaticParams`), clickability (`isClickable`: PROT > 0 or enterable), the soft colour while a province
   has no PROT, the markers on both maps (`markerLabel`: "★ Pilot" / "★ Desa", 3D markers are DOM buttons with
@@ -475,9 +482,9 @@ serves them to every province after the first).
   game's `GAME_LINK_PROVINCES` list, otherwise set `gameSoon` beside stand 1; (6) `pnpm test` and `pnpm check:jelajah`
   (8 MB per scene; new CC0 models only if needed, recorded in `ASSET_LICENSES.md`, in a new versioned folder);
   (7) look at it at 390x844, 844x390 and 1440x900 (full and 2d) and measure fps with `?debug=1`.
-- **Bumper**: unchanged (one "Main Congklak" button). To show both games later: render one button per entry of
-  `JELAJAH_GAMES` in `GameScene` with `GAME_TEXTS[game].play`, `gameHref(game, 'jelajah')` (`from=jelajah` is already
-  allowed by both game pages) and `data-bumper-action` on each, side by side (stacked below 360 px).
+- **Bumper** (Phase 23): `GameScene` shows one button per entry of `JELAJAH_GAMES` ("Main Congklak", "Main Gasing",
+  "Main Egrang", `gameHref(game, 'jelajah')`, `data-bumper-action` on each), side by side from `sm`, stacked on phones;
+  its `SceneLayout` is `dense` (at most 500 px high: no visual, tighter type) so it fits landscape phones.
 - **Measured** (Phase 22, production build, production API read-only, headless Chrome with software rendering, 4x CPU
   throttling; 4 s standing + 4 s walking): full tier phone 390x844 dpr 2 / desktop 1440x900: Sumatera Selatan 15.5 /
   13.7 fps, Kepulauan Riau 16.4 / 13.2, Aceh 16.0 / 13.5, Jawa Tengah 13.1 / 12.1, Sulawesi Selatan 17.5 / 13.0; lite
@@ -586,12 +593,98 @@ it; roles swap each round). Best of 3; a drawn round is replayed (at most `maxRo
 - **Links**: the `/main` card sits next to Congklak (registry order), game links have `prefetch={false}`;
   `?from=jelajah` gives "Kembali ke peta"; since Phase 22 the Kepulauan Riau village's gasing arena opens
   `/main/gasing?from=jelajah-kepulauan-riau` and only gasing's own provinces get "Kembali ke desa"
-  (`lib/games/links.ts`). The bumper still opens congklak only.
+  (`lib/games/links.ts`). Since Phase 23 the bumper has a "Main Gasing" button too.
 - **Measured** (Phase 20, production build, headless Chrome with software rendering): the game's own JS 28.0 KB gzip
   (81.7 KB raw, 2 chunks; budget 60 KB); `/main/gasing` all JS 276 KB gzip. Pangkah collision, 2.5 s after the throw:
   phone 390x844 39.7 fps (CPU ×1) / 40.6 fps (×4); desktop 1440x900 21.1 / 21.5 fps (the large canvas is slow to
   composite in software rendering; a CPU-backed canvas gave desktop 40 / 27, phone 52 / 39). Real devices not measured
   yet: use `?debug=1`.
+
+## Egrang (Phase 23)
+
+The third hosted game, built like congklak and gasing: public, no login, records nothing (shared section item 11), 2D
+canvas drawn in code (no three.js, no image or audio files, no new dependency). A race against the computer (Mudah,
+Sedang, Sulit) on a short side-view track, in two variants chosen on the start screen (`?varian=bambu|batok`
+preselects): **Bambu** (tall bamboo stilts: keep the swaying body balanced, a bad step can make you fall) and **Batok**
+(coconut-shell stilts: step on the kendang beat, out of rhythm the shell slips off). One race per game, "Main lagi".
+
+- **Archive basis**: each variant is based on its own published record (fetched read-only in Phase 23), paraphrased,
+  credited and linked in "Tentang permainan ini": Bambu → "Egrang Bambu" (Jawa Tengah, Kabupaten Magelang,
+  `e32ed727-4455-434e-b1b1-b984413e9f24`), Batok → "Egrang Batok" (Sulawesi Selatan, Kabupaten Soppeng,
+  `a6ce0739-bcb5-43ae-9e13-0ea74d7b8f3f`). Text stored in `texts.ts` (games may not call the network). The rules sheet
+  states the simplifications (the race against the computer is an addition of the digital version for Bambu).
+- **Files**: `lib/games/egrang/` (pure, no React/DOM): `rules.ts` (THE curator file: "Aturan dasar", `races` 1,
+  `countdownSeconds` 3, `slope`, `timeLimitSeconds` 180 (safety), per variant `trackLength` (Bambu 64 m, Batok 52 m),
+  `penaltySeconds` (fall 1.7 s, slip 0.8 s), `obstacles` 4), `texts.ts` (EVERY Indonesian string, the rules generated
+  from `rules.ts` per variant, tutorial per variant, archive credit per record), `types.ts`, `random.ts` (gasing's
+  mulberry32 re-exported), `engine.ts` (`TUNING` = the feel of walking), `input.ts`, `ai.ts`, `sound.ts`, `settings.ts`,
+  `from-link.ts`. `components/games/egrang/`: `EgrangGame.tsx` (start / race, toolbar with `SoundControls`, sheets,
+  `?from=`, `?varian=`, `?debug=1`), `EgrangRace.tsx` (canvas loop, input, HUD, countdown, flashes, end screen, sound
+  scheduling, debug hook), `render.ts` (all drawing), `use-egrang-sound.ts`, `StartScreen.tsx`, `InfoSheets.tsx`,
+  `Tutorial.tsx`. `app/main/egrang/page.tsx` (static, metadata `Egrang · ${SITE_NAME}`).
+- **Engine** (`engine.ts`, tests `tests/games/egrang-engine.test.ts`): fixed step 1/120 s, seeded track (4 stones or
+  puddles spread over 15 to 90 % of the track, a cosine hill: shorter steps uphill), no Date/Math.random/DOM.
+  `stepWorld(world, inputs)` is THE step: the steps taken during that 1/120 s, then sway, penalties, the glide over the
+  stride, finish detection (interpolated inside the step, exactly once) and the result (first across the line; the
+  other racer gets 3 s more so both times show). Both variants share everything except how a step is judged:
+  Bambu `tilt = amp · sin(phase)` (1.0 s swing; left foot ideal at the left extreme, right foot at the right; the first
+  step of a walk starts the swing on that foot; good steps settle the amplitude and nudge the phase, bad or same-foot
+  steps kick it; it also grows by itself while walking; |tilt| ≥ 1 = fall: 35 % tipping over, 65 % climbing back up);
+  Batok beats every 0.42 s (each beat carries one step, ±130 ms window, ±45 ms "perfect", ±75 ms on an obstacle; out of
+  the window, a used beat or the same foot twice = slip). A perfect step gives a ×1.12 stride ("Langkah mantap!").
+  `simulate` / `playRace(variant, seed, [controller, controller])` are the headless runners. Invariants tested:
+  determinism (also after cloning mid-race), no progress without steps, steps ignored during the countdown and the
+  penalties, a fall / slip always costs its penalty time, finish once, end once, shared input and race code.
+- **Input** (`input.ts`, tests `egrang-input.test.ts`): taps (left / right half of the play area, every pointerdown is
+  one step, multitouch-safe, `touch-action: none`) and keys (← / → and A / L, key repeat ignored) map to a foot and go
+  through ONE `queueStep(queue, foot, simTime)` stamped with the event's own time (`event.timeStamp` → simulation time,
+  pauses taken out); the loop drains the queue per fixed step, so a step is judged at the 1/120 s in which it happened
+  whatever the frame rate. Tested: taps, arrow keys and A/L give identical races; 60 fps and uneven frames too.
+- **AI** (`ai.ts`, tests `egrang-ai.test.ts`): the same model; it plans each step for the alternate foot's ideal moment
+  (the needle's gold mark / the next beat) and executes it with timing noise. `TYPICAL_HUMAN` (documented: ±75 ms
+  Bambu / ±55 ms Batok, slightly late, a hesitation every 16 to 20 steps, the same foot twice 1 in 50, ~0.35 to 0.4 s
+  reaction) and each level = that model with its errors scaled by `LEVEL_SCALE` (Bambu 1.15 / 1 / 0.92, Batok
+  1.12 / 1 / 0.92). Calibration (300 seeded races per level): player wins Bambu 78.0 / 47.3 / 28.3 %, Batok
+  76.7 / 48.0 / 29.7 % (targets 75 / 50 / 30 ± 10); the typical player's race takes about 43 to 44 s with about 3 falls
+  (Bambu) or 4 slips (Batok).
+- **Look** (`render.ts`): backdrops matching the Jelajah villages (Bambu: volcano, rice terraces, bamboo, a hut; Batok:
+  sea, islands, a pinisi-like boat, palms), day in the light theme and dusk in the dark one (MutationObserver on the
+  `dark` class). The sky and far landmark are a static canvas; the middle band is a parallax tile (one drawImage per
+  copy); each lane's surface, obstacles and lines are pre-rendered strips (`buildLaneCaches`, at most 8192 device px
+  wide). Lanes are STACKED: the computer's path lies further back, higher and smaller (scale 0.56) with its feet above
+  the player's head, so the racers never hide each other. Player: red sarong with dots and a red iket; computer: blue
+  sarong with stripes and a dark peci (colour AND pattern, cached `CanvasPattern`). Particles batched per colour.
+  Balance arc (Bambu) at the bottom centre above the tap pads (needle, gold marks at the swing's ends, the next foot's
+  glows, red ends = fall); rhythm ring (Batok) at the player's feet (a gold ring closing onto the beat, the next foot's
+  name). Reduced motion: no camera shake, a third of the particles. Portrait zooms in (w / 4.6 px per m); landscape
+  phones (≤ 500 px high) get a slimmer HUD, smaller pads and the message over the track.
+- **Sound** (`lib/games/egrang/sound.ts`, `use-egrang-sound.ts`): the Phase 21 engine, loaded with
+  `import('@/lib/audio/runtime')` on /main/egrang only, same mute key, same autoplay rule and `SoundControls` in the game
+  toolbar ("Nyalakan suara" when blocked; "Mulai main" and a tap on the track also unlock it unless muted). New sounds in
+  `lib/audio/core.ts`: `bamboo` (hollow knock), `batok` (coconut-shell tok), `thud` (fall / lighter slip). Batok: a
+  kendang on every beat (dang odd, tak even), scheduled ≤ 200 ms ahead from the simulation clock; Bambu: a soft dang at
+  each of the player's sway extremes (follows the needle); countdown taks, start signal (dang + bonang), finish gong
+  for the player, end phrase (rising saron = win, two falling bonang notes otherwise). The computer's sounds are quieter
+  and panned. Paused with dialogs / the tutorial, suspended when the tab is hidden.
+- **Page**: fixed-step accumulator, interpolated drawing, at most 12 steps per frame, DPR capped at 2, paused while the
+  tab is hidden or the tutorial or a dialog is open (the simulation clock pauses too). No `backdrop-blur` over the canvas
+  (it made every frame re-blur the scene). Tutorial: 3 steps per variant, skippable,
+  `localStorage['games.egrang.tutorialSeen.v1']` (comma-separated variants); settings
+  `localStorage['games.egrang.settings.v1']` (variant, level); every access in try/catch.
+- **Debug**: `?debug=1` shows fps (2 s average, dpr, canvas size) and exposes `window.__nlEgrang` (`stage`, `world`,
+  `step(foot)`, `autoplay(level | null)` = the AI plays the player's side, `fps`, `renderWav()` = the race so far as a
+  base64 48 kHz WAV, time 0 = countdown start); `&canvas=cpu` switches to a CPU-backed canvas for comparison.
+- **Links**: `/main` card after Gasing (registry order), `prefetch={false}`; `?from=jelajah` → "Kembali ke peta";
+  Jawa Tengah's practice track opens `/main/egrang?varian=bambu&from=jelajah-jawa-tengah`, Sulawesi Selatan's
+  `?varian=batok&from=jelajah-sulawesi-selatan` (both "Kembali ke desa"); the intro bumper has a "Main Egrang" button.
+- **Measured** (Phase 23, production build, headless Chrome with software rendering): the game's own chunk 24.8 KB gzip
+  (69.9 KB raw); everything only /main/egrang loads compared with /main/gasing 46.1 KB gzip (including the shared audio
+  runtime 10.3 KB and a shared UI chunk 11.0 KB); /main/egrang all JS 291 KB gzip (gasing 274). Mid-race fps with
+  autoplay, 4x CPU: Bambu phone 390x844 dpr 2 18.2, landscape 844x390 23.9, desktop 1440x900 17.4; Batok 29.2 /
+  22.7 / 17.9 (CPU x1 phone: Bambu 17.6, Batok 27.6, i.e. not CPU bound). The main thread is ~70 % idle; an empty
+  canvas reaches 54 fps here, the CPU-backed canvas and dpr 1 do not help: this environment's raster/composite
+  limit (Phase 22's 3D scenes measured 13 to 17). Real phones not measured yet: use `?debug=1`. Offline race WAVs
+  (53 s, ≤ 8 voices): peak −3.2 dBFS (Bambu) / −4.4 dBFS (Batok), no clipping.
 
 ## Brand, navbar and the Jelajah login gate (Phase 18)
 
@@ -802,6 +895,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      (`localStorage['np_sound_muted_v1']`) for both intros. Reduced motion keeps the sound. A voice-over can be added per
      scene later (none exist). The audio code loads only with the intros. Details in the frontend CLAUDE.md
      "Sound (Phase 21)".
+   - Egrang (Phase 23): the third self-hosted game, `/main/egrang` (public, listed on `/main` next to Congklak and
+     Gasing), a 2D canvas race against the computer (Mudah, Sedang, Sulit) in two variants, each based on its own
+     published archive record: Bambu ("Egrang Bambu", Jawa Tengah: keep the swaying body balanced on tall stilts, a bad
+     step can make you fall) and Batok ("Egrang Batok", Sulawesi Selatan: step on the kendang beat, out of rhythm the
+     coconut shell slips off). Taps on the left / right half or ← / → keys; ONE ruleset "Aturan dasar" in
+     `nusantara-play-fe/lib/games/egrang/rules.ts` and every text in `texts.ts`, awaiting curator review; synthesized
+     sound on the Phase 21 engine; records nothing (item 11). Jawa Tengah and Sulawesi Selatan now have an egrang practice
+     track instead of the "Game segera hadir" sign (it opens the game with their variant and leads back to the village);
+     the intro bumper shows one button per game. Details in the frontend CLAUDE.md "Egrang (Phase 23)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -831,7 +933,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
     (moves, results, scores, XP) is recorded or sent to the backend. Only local settings (difficulty, animation speed,
     last mode) are kept in `localStorage['games.congklak.settings.v1']` (try/catch). A test fails if a game file calls
     the network or imports API code. Gasing (Phase 20) follows the same rule: `localStorage['games.gasing.settings.v1']`
-    (mode, level) and `localStorage['games.gasing.tutorialSeen.v1']` only. A later phase may add rewards for games, but only through server-verified results
+    (mode, level) and `localStorage['games.gasing.tutorialSeen.v1']` only; Egrang (Phase 23) `localStorage['games.egrang.settings.v1']`
+    (variant, level) and `localStorage['games.egrang.tutorialSeen.v1']` only (plus the shared sound choice `np_sound_muted_v1`).
+    A later phase may add rewards for games, but only through server-verified results
     (item 10: browser-reported results never give Points, and a game result reported by the browser is not proof).
 
 ## Deployment facts
@@ -1095,6 +1199,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 21: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend after Phase 22: unchanged, 44 errors, 80 warnings (all 41 new and touched source files are clean).
 - Backend after Phase 22: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 23: unchanged, 44 errors, 80 warnings (all 49 new and touched source files are clean).
+- Backend after Phase 23: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1431,6 +1537,16 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - 2026-11-20: Distant landmarks (Phase 22): the fixed 40 degree camera never shows the horizon, so islands, hills and
   the Jawa Tengah volcano stand within about 50 to 95 m of the camera and inside the fog's middle range; they show at
   the top of portrait views and when walking to the north edge, not on desktop at the spawn point.
+- 2026-11-20: Egrang (Phase 23): one race against the computer per game, two variants from the two published egrang
+  records (Bambu = balance with falls, Batok = rhythm with slips), both sharing one pure engine and input path
+  (`stepWorld`; taps and keys stamped with their own time and judged at the 1/120 s step they happened in). The AI is
+  the documented typical-player model with its errors scaled per level (calibrated 75 / 50 / 30 % ± 10 per variant).
+  The computer's lane is drawn further back and higher (stacked lanes) so the racers never hide each other.
+  `backdrop-blur` over the canvas was removed (re-blurring every frame); lane surfaces are pre-rendered strips. The game
+  pavilion of Jawa Tengah and Sulawesi Selatan is a separate `gamePavilion` (a practice track next to stand 1) instead of
+  the plaza centrepiece, so the Jawa Tengah pendopo stays as it was; new engine parts are appended so the other scenes'
+  meshes and colliders are byte-identical (fingerprint tests). Phase 22's toast-over-panel observation fixed: the PROT
+  panel's whole header is an avoided overlay and the panel re-measures when it opens.
 - 2026-11-20: Paspor stamps (Phase 22): one code-drawn SVG stamp per enterable province (own colour and motif), shown in
   the Paspor and as the icon of the simulated stamp toast; other provinces keep the generic icon.
 - 2026-11-19: Phase 18 follow-ups (owner answers): the Supabase redirect allowlist needs no query variants; removing
