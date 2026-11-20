@@ -34,6 +34,13 @@ const ALL: SoundRef[] = [
   { id: 'shimmer', notes: [bemStep(5, 1), bemStep(7, 1), bemStep(8, 1)], len: 3 },
   { id: 'swell', notes: [pelog(1, -1), pelog(5, -1)], len: 4.2 },
   { id: 'tick' },
+  // Phase 23 (egrang)
+  { id: 'bamboo', v: 0 },
+  { id: 'bamboo', v: 1 },
+  { id: 'batok', v: 0 },
+  { id: 'batok', v: 1 },
+  { id: 'thud', v: 0 },
+  { id: 'thud', v: 1 },
 ];
 
 const rms = (chs: Float32Array[]) => {
@@ -52,6 +59,7 @@ describe('sound core (Phase 21)', () => {
     const expected: SoundId[] = [
       'saron', 'bonang', 'gong', 'dang', 'tak', 'kecapi', 'pad', 'drone', 'whoosh', 'wind', 'gust', 'dust',
       'paper', 'tap', 'stamp', 'seed', 'gasing', 'cricket', 'bird', 'chime', 'sparkle', 'shimmer', 'swell', 'tick',
+      'bamboo', 'batok', 'thud',
     ];
     expect([...ids].sort()).toEqual([...expected].sort());
   });

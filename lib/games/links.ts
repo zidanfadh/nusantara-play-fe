@@ -9,13 +9,14 @@
  * Pure TypeScript, no React, no network (games record nothing).
  */
 
-export type JelajahGame = 'congklak' | 'gasing';
+export type JelajahGame = 'congklak' | 'gasing' | 'egrang';
 
-export const JELAJAH_GAMES: readonly JelajahGame[] = ['congklak', 'gasing'];
+export const JELAJAH_GAMES: readonly JelajahGame[] = ['congklak', 'gasing', 'egrang'];
 
 export const GAME_PATHS: Readonly<Record<JelajahGame, string>> = {
   congklak: '/main/congklak',
   gasing: '/main/gasing',
+  egrang: '/main/egrang',
 };
 
 /** Neutral texts of a game pavilion: no claim about where a game comes from. */
@@ -28,6 +29,10 @@ export const GAME_TEXTS: Readonly<Record<JelajahGame, { play: string; descriptio
     play: 'Main Gasing',
     description: 'Main gasing langsung di browser, lawan komputer: Uri atau Pangkah.',
   },
+  egrang: {
+    play: 'Main Egrang',
+    description: 'Balap egrang langsung di browser melawan komputer: egrang bambu atau egrang batok.',
+  },
 };
 
 /** Shown in provinces that have PROT but no playable game yet (a sign in the scene, a card on the 2d tier). */
@@ -38,6 +43,7 @@ export const GAME_SOON_DESCRIPTION = 'Permainan untuk desa ini sedang disiapkan.
 export const GAME_LINK_PROVINCES: Readonly<Record<JelajahGame, readonly string[]>> = {
   congklak: ['sumatera-selatan'],
   gasing: ['kepulauan-riau'],
+  egrang: [],
 };
 
 export interface BackLink {

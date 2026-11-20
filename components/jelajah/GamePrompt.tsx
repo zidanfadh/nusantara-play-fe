@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { forwardRef } from 'react';
-import { Disc3, Gamepad2, Hourglass, type LucideIcon } from 'lucide-react';
+import { Disc3, Footprints, Gamepad2, Hourglass, type LucideIcon } from 'lucide-react';
 import { GAME_SOON_DESCRIPTION, GAME_SOON_TITLE, GAME_TEXTS, type JelajahGame } from '@/lib/games/links';
 
 /** Neutral texts of the game pavilion (Phase 17): no claim about where the game comes from. */
@@ -14,6 +14,7 @@ export const PLAY_CONGKLAK = GAME_TEXTS.congklak.play;
 export const GAME_ICONS: Readonly<Record<JelajahGame, LucideIcon>> = {
   congklak: Gamepad2,
   gasing: Disc3,
+  egrang: Footprints,
 };
 
 /**
