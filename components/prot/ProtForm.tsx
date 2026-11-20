@@ -4,6 +4,8 @@ import { DaerahSelector } from '@/components/daerah/DaerahSelector';
 import { PROTEntity, PROTJenis, TargetUsia, Peralatan } from '@/types/prot';
 import type { Daerah } from '@/types/daerah';
 import { getAllProvinces, getChildrenDaerah } from '@/lib/api/daerah';
+import { FIELD_HELP, parseJumlahPemain } from '@/lib/prot/form-fields';
+import { DeskripsiCounter, FieldHelp, JelajahBadge } from '@/components/prot/FormHints';
 interface ProtFormProps {
   initialData?: Partial<PROTEntity>;
   onSubmit: (data: Partial<PROTEntity>) => Promise<void>;
@@ -20,6 +22,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
     targetUsia: TargetUsia.SEMUA_USIA,
     statusAsalUsul: '',
     alamatLengkap: '',
+    deskripsi: '',
     caraBermain: '',
     nilaiMoral: '',
     provinsiKode: '',
@@ -39,6 +42,11 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
   const [isDraggingFoto, setIsDraggingFoto] = useState(false);
   const [isDraggingVideo, setIsDraggingVideo] = useState(false);
   const [isDraggingDokumen, setIsDraggingDokumen] = useState(false);
+  // Phase 26: jumlahPemain is typed as text and parsed on submit (backend: integer >= 1).
+  const [jumlahPemainInput, setJumlahPemainInput] = useState<string>(
+    initialData?.jumlahPemain != null ? String(initialData.jumlahPemain) : '',
+  );
+  const [jumlahPemainError, setJumlahPemainError] = useState<string | null>(null);
 
   // State for daerah - store ID for UI, kode for backend
   const [provinsiId, setProvinsiId] = useState<string>('');
@@ -46,7 +54,8 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
   useEffect(() => {
     if (initialData) {
-      setFormData((prev) => ({ ...prev, ...initialData }));
+      setFormData((prev) => ({ ...prev, ...initialData, deskripsi: initialData.deskripsi ?? '' }));
+      setJumlahPemainInput(initialData.jumlahPemain != null ? String(initialData.jumlahPemain) : '');
       if (initialData.peralatan) {
         setPeralatan(initialData.peralatan);
       }
@@ -296,8 +305,16 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const jumlah = parseJumlahPemain(jumlahPemainInput);
+    if (!jumlah.ok) {
+      setJumlahPemainError(jumlah.error);
+      document.getElementById('prot-jumlah-pemain')?.focus();
+      return;
+    }
+    setJumlahPemainError(null);
     const dataToSubmit = {
       ...formData,
+      jumlahPemain: jumlah.value,
       fotoFiles,
       videoFiles,
       dokumenFiles,
@@ -339,6 +356,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
           <div>
             <label className={labelCls}>
               Nama PROT <span className="text-red-500">*</span>
+              <JelajahBadge />
             </label>
             <input
               type="text"
@@ -388,6 +406,34 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
               </select>
             </div>
           </div>
+
+          {/* Jumlah Pemain (Phase 26) */}
+          <div>
+            <label htmlFor="prot-jumlah-pemain" className={labelCls}>Jumlah Pemain</label>
+            <input
+              id="prot-jumlah-pemain"
+              type="number"
+              name="jumlahPemain"
+              inputMode="numeric"
+              min={1}
+              step={1}
+              value={jumlahPemainInput}
+              onChange={(e) => {
+                setJumlahPemainInput(e.target.value);
+                if (jumlahPemainError) setJumlahPemainError(null);
+              }}
+              aria-invalid={jumlahPemainError ? true : undefined}
+              aria-describedby={jumlahPemainError ? 'prot-jumlah-pemain-error prot-jumlah-pemain-help' : 'prot-jumlah-pemain-help'}
+              className={`${inputCls} sm:max-w-[12rem]`}
+              placeholder="Contoh: 4"
+            />
+            {jumlahPemainError && (
+              <p id="prot-jumlah-pemain-error" role="alert" className="mt-1.5 text-xs font-medium text-red-600">
+                {jumlahPemainError}
+              </p>
+            )}
+            <FieldHelp id="prot-jumlah-pemain-help">{FIELD_HELP.jumlahPemain}</FieldHelp>
+          </div>
         </div>
       </div>
 
@@ -401,6 +447,10 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
           </p>
         </div>
         <div className={cardCls}>
+          <p className="text-xs text-warm-label -mb-2">
+            Provinsi dan kabupaten/kota
+            <JelajahBadge />
+          </p>
           <DaerahSelector
             provinceValue={provinsiId}
             kabupatenKotaValue={kabkotaId}
@@ -435,6 +485,26 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
           </p>
         </div>
         <div className="md:col-span-8 bg-warm-card p-8 rounded-xl shadow-sm space-y-8">
+          {/* Deskripsi singkat (Phase 26) */}
+          <div>
+            <label htmlFor="prot-deskripsi" className={labelCls}>
+              Deskripsi Singkat
+              <JelajahBadge />
+            </label>
+            <textarea
+              id="prot-deskripsi"
+              name="deskripsi"
+              rows={3}
+              value={formData.deskripsi || ''}
+              onChange={handleChange}
+              aria-describedby="prot-deskripsi-help prot-deskripsi-count"
+              className={`${inputCls} resize-y`}
+              placeholder="Contoh: Permainan lari beregu di lapangan terbuka untuk 6 sampai 10 anak..."
+            />
+            <DeskripsiCounter id="prot-deskripsi-count" text={formData.deskripsi} />
+            <FieldHelp id="prot-deskripsi-help">{FIELD_HELP.deskripsi}</FieldHelp>
+          </div>
+
           {/* Sejarah / Asal Usul */}
           <div>
             <label className={labelCls}>Sejarah / Asal Usul</label>
@@ -450,7 +520,10 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
           {/* Cara Bermain */}
           <div>
-            <label className={labelCls}>Cara Bermain</label>
+            <label className={labelCls}>
+              Cara Bermain
+              <JelajahBadge />
+            </label>
             <textarea
               name="caraBermain"
               rows={5}
@@ -463,7 +536,10 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
           {/* Nilai Moral */}
           <div>
-            <label className={labelCls}>Nilai Moral &amp; Karakter</label>
+            <label className={labelCls}>
+              Nilai Moral &amp; Karakter
+              <JelajahBadge />
+            </label>
             <textarea
               name="nilaiMoral"
               rows={3}
@@ -666,7 +742,10 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
           {/* Foto Kegiatan */}
           <div className="space-y-4">
-            <label className={labelCls}>Foto Kegiatan</label>
+            <label className={labelCls}>
+              Foto Kegiatan
+              <JelajahBadge />
+            </label>
             <div
               onDrop={handleFotoDrop}
               onDragOver={handleDragOver}

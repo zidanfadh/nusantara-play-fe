@@ -37,6 +37,8 @@ export interface PROTEntity {
   kecamatanKode?: string;
   desaKode?: string;
   alamatLengkap?: string;
+  /** Short summary; shown in the Jelajah stand panel and on /prot/[id] (Phase 26 form field). */
+  deskripsi?: string | null;
   caraBermain?: string;
   nilaiMoral?: string;
   targetUsia: TargetUsia;
@@ -44,6 +46,8 @@ export interface PROTEntity {
   fotoKegiatan?: string[];
   videoKegiatan?: string[];
   dokumenKurikulum?: string[];
+  /** Integer >= 1 (backend `@IsInt @Min(1)`), null when not filled in (Phase 26 form field). */
+  jumlahPemain?: number | null;
   created_by?: string;
   verified_by?: string;
   published_by?: string;
@@ -56,6 +60,8 @@ export interface PROTEntity {
   // Optional relations for UI display
   provinsiName?: string;
   kabkotaName?: string;
+  kecamatanName?: string;
+  desaName?: string;
 }
 
 export interface VerifikasiEntity {

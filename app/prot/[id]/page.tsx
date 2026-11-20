@@ -307,6 +307,13 @@ export default function ProtDetailPage() {
                   <p className="font-medium text-foreground">{(item.targetUsia || '').replace(/_/g, ' ')}</p>
                 </div>
 
+                {item.jumlahPemain != null && (
+                  <div>
+                    <label className="text-sm text-muted-foreground block mb-1">Jumlah Pemain</label>
+                    <p className="font-medium text-foreground" data-prot-jumlah-pemain>{item.jumlahPemain} orang</p>
+                  </div>
+                )}
+
                 <div>
                   <label className="text-sm text-muted-foreground block mb-1">Status Asal Usul</label>
                   <p className="font-medium text-foreground">{item.statusAsalUsul || '-'}</p>
@@ -346,6 +353,14 @@ export default function ProtDetailPage() {
 
           {/* Right Column - Details */}
           <div className="lg:col-span-2 space-y-6">
+
+            {/* Deskripsi singkat (Phase 26: form field; also shown in the Jelajah stand panel) */}
+            {item.deskripsi && item.deskripsi.trim() !== '' && (
+              <div className="bg-background border border-border rounded-lg shadow-sm p-6" data-prot-deskripsi>
+                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Ringkasan</h3>
+                <p className="text-foreground whitespace-pre-line">{item.deskripsi}</p>
+              </div>
+            )}
 
             {/* Cara Bermain */}
             <div className="bg-background border border-border rounded-lg shadow-sm p-6">
