@@ -5,6 +5,7 @@ import { useEffect, useId, useRef } from 'react';
 import { ArrowRight, X } from 'lucide-react';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import type { SceneProt } from '@/lib/jelajah/engine/scene-prot';
+import { placeToasts } from '@/lib/jelajah/toast-clearance';
 
 export type PanelContent = { kind: 'prot'; prot: SceneProt } | { kind: 'board'; prots: SceneProt[] };
 
@@ -32,6 +33,19 @@ export function StandPanel({ content, onClose, onSelectProt }: StandPanelProps) 
     closeRef.current?.focus();
   }, [content]);
 
+  // Phase 23 (Phase 22 observation): a reward toast is often shown in the same tap that opens the panel, i.e.
+  // before the panel exists. Re-measure the overlays once the panel is in the page and again after the next
+  // frame (layout, fonts), so a toast already on screen moves below the panel's header (title + close).
+  useEffect(() => {
+    placeToasts();
+    const raf = requestAnimationFrame(() => placeToasts());
+    return () => {
+      cancelAnimationFrame(raf);
+      // Closing: the toasts may move back up (the header is gone after this render).
+      requestAnimationFrame(() => placeToasts());
+    };
+  }, [content]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // A modal dialog above the panel (Paspor, Misi) handles its own Esc.
@@ -51,7 +65,8 @@ export function StandPanel({ content, onClose, onSelectProt }: StandPanelProps) 
       aria-labelledby={titleId}
       className="absolute inset-x-0 bottom-0 z-30 flex max-h-[72%] flex-col overflow-hidden rounded-t-2xl border border-border bg-card text-card-foreground shadow-2xl md:inset-x-auto md:bottom-3 md:right-3 md:top-3 md:max-h-none md:w-[24rem] md:rounded-2xl"
     >
-      <div className="flex items-start gap-3 border-b border-border px-4 py-3">
+      {/* The whole header (title and close) is kept clear of toasts (Phase 23; Phase 13 only marked the close button). */}
+      <div className="flex items-start gap-3 border-b border-border px-4 py-3" data-toast-avoid data-testid="stand-panel-header">
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             {content.kind === 'prot' ? 'Stand PROT' : 'Papan PROT lainnya'}
@@ -65,7 +80,6 @@ export function StandPanel({ content, onClose, onSelectProt }: StandPanelProps) 
           type="button"
           onClick={onClose}
           aria-label="Tutup"
-          data-toast-avoid
           className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <X className="h-5 w-5" aria-hidden />
