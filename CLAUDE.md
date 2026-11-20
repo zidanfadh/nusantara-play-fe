@@ -759,6 +759,38 @@ preselects): **Bambu** (tall bamboo stilts: keep the swaying body balanced, a ba
 - **Fonts**: Plus Jakarta Sans (body, `font-sans`) and Geist Mono (`font-mono`) are really displayed since Phase 14
   (`@theme inline` in `app/globals.css`); before, every page used the system font stack.
 
+## Hidden media and documents (Phase 25)
+
+Privacy hotfix. Published PROT media cannot be removed through the UI and the backend fix is not deployed yet, so the
+frontend hides problem files itself. **Display filter only**: hidden files stay in the public S3 bucket and in the API
+response until an admin removes them (shared "Pending deployment" item 12).
+
+- **One helper, `lib/prot/hidden-media.ts`**: `HIDDEN_MEDIA` (exact URLs, compared without query string or fragment,
+  host case-insensitive; each with a reason that contains no personal data and points to the phase report) and
+  `HIDDEN_FIELDS` (a whole field of one record, optionally of one equipment item, e.g. every purchase link of
+  SEPANGKAL's "Biji Pinang"). `visibleMedia(urls, ctx)` drops hidden URLs, non-strings and empty strings;
+  `publicProtMedia(prot, { showDocuments })` filters every field of a record; `firstVisiblePhoto(prot)` for cards.
+- **Every renderer goes through it**: `/prot/[id]` (gallery, videos, equipment photos and purchase links, documents),
+  `ProtCard` (`/prot`), the landing page's featured cards, `lib/jelajah/data.ts` (`firstPhoto()` skips hidden URLs and
+  `shapeProvinceSummaries()` uses `visibleMedia`: hub card, bumper strip) and `lib/jelajah/engine/scene-prot.ts` (stand
+  panel, 2d cards); the bumper's `pickProtPhotos()` filters again, and `ProtPhoto` renders nothing for a hidden URL (last
+  guard). Hidden items disappear silently (the existing "no photo" placeholder shows when nothing is left). The concept
+  film shows names only; there are no Open Graph images of PROT. The edit form (`ProtForm`, owner/admin, DRAFT/REVISI)
+  still shows every file, so it can be removed there.
+- **Documents (`dokumenKurikulum`) are off on public pages** unless the build-time flag
+  `NEXT_PUBLIC_SHOW_PROT_DOCUMENTS=true` (`.env.example`; read as the literal `process.env.…` so Next inlines it).
+  `canSeeProtDocuments(role)`: reviewer roles (`kurator_daerah`, `pakar`, `admin_kpoti`, the existing role check) still
+  see the non-hidden documents on `/prot/[id]`, because the review page links there.
+- **Add an entry**: copy the exact URL from `GET /api/prot/<id>`, add `{ url, reason }` (reason = record, field and TYPE
+  of problem, never the data itself) with a comment naming the report, run `pnpm test` (`tests/prot/hidden-media.test.tsx`
+  also checks that reasons hold no long numbers or `@`), merge; Vercel publishes it. Remove an entry once the backend
+  removal is done, or (children's faces) once the curator confirms consent.
+- **Entries (Phase 25)**: 13 URLs + 1 field rule: the SEPANGKAL PDF (names and national ID numbers), its trophy photo and
+  cake link (Phase 24), and from the Phase 25 audit of all 5 published records: SEPANGKAL's two activity photos and two
+  "Lapangan" photos (unrelated; children's faces), one activity photo each of Egrang Batok (2), Egrang Bambu (1) and
+  Gasing (1) with recognisable children's faces (consent unknown), and the test record's two photos (a residential house).
+- Tests: `tests/prot/hidden-media.test.tsx` (the helper once, then each renderer).
+
 ## Env Vars
 
 See `.env.example` (copy to `.env.local`). `.env*` files are git-ignored except `.env.example`.
@@ -768,6 +800,7 @@ NEXT_PUBLIC_BACKEND_API_URL    # Backend base URL incl. /api. Required in develo
 BACKEND_ORIGIN                 # Optional, build time. Origin behind the /backend-api rewrite (default https://api.nusantaralegacy.org); https only (http for localhost), no path, no trailing slash.
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SHOW_PROT_DOCUMENTS # Optional, build time (Phase 25). "true" shows PROT documents on public pages; default off.
 ```
 
 ## Current direction
@@ -904,6 +937,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
      sound on the Phase 21 engine; records nothing (item 11). Jawa Tengah and Sulawesi Selatan now have an egrang practice
      track instead of the "Game segera hadir" sign (it opens the game with their variant and leads back to the village);
      the intro bumper shows one button per game. Details in the frontend CLAUDE.md "Egrang (Phase 23)".
+   - Privacy hotfix (Phase 25, urgent): published media cannot be removed in the UI, so the frontend hides problem files
+     with ONE denylist, `nusantara-play-fe/lib/prot/hidden-media.ts`, applied by every renderer of PROT media (`/prot`,
+     `/prot/[id]`, landing cards, Jelajah hub card, stand panels, 2d cards, bumper strip); PROT documents are not shown on
+     public pages unless `NEXT_PUBLIC_SHOW_PROT_DOCUMENTS=true` (reviewer roles still see them). 13 files are hidden
+     (personal data, children's faces without known consent, unrelated photos). Display filter only: the files stay in
+     S3 and in the API until an admin removes them with the Phase 25 backend routes (Pending deployment item 12). Pavilion
+     labels "Main Egrang Bambu" / "Main Egrang Batok"; every bumper scene uses the dense short-screen layout. Staff guide:
+     `nusantara-play-be/docs/panduan-input-prot.md`. Details in the frontend CLAUDE.md "Hidden media and documents
+     (Phase 25)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -1237,6 +1279,8 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 22: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend after Phase 23: unchanged, 44 errors, 80 warnings (all 49 new and touched source files are clean).
 - Backend after Phase 23: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 25: unchanged, 44 errors, 80 warnings (all 21 new and touched source files are clean).
+- Backend after Phase 25: unchanged, 220 errors, 29 warnings (every new and touched file is clean).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1590,6 +1634,15 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   games instead of "Masuk sebagai Tamu"; the landing page's featured PROT are requested with `status=ARSIP_NASIONAL` and
   filtered again.
 - 2026-11-17: Local daerah seed reuses `src/database/migrations/002_replace_daerah_data.sql` (34 provinsi + 514 kab/kota, Kemendagri codes) and the `up()` of `src/migrations/1740500100000-SeedKecamatanKelurahanDesa.ts`; `1738826000000-SeedDaerahBPS.ts` is not used (12 provinces only, codes that do not match the kecamatan CSV) (Phase 05).
+- 2026-11-20: Hidden PROT media (Phase 25): until published media can be removed on the backend, the frontend hides
+  files with one denylist (`lib/prot/hidden-media.ts`, exact URLs + per-record field rules) applied by every renderer;
+  PROT documents are hidden on public pages by default (`NEXT_PUBLIC_SHOW_PROT_DOCUMENTS`), reviewer roles still see
+  them. Recognisable children's faces without known consent count as personal data and are hidden too, even when the
+  photo matches the game (reversible per entry once the curator confirms consent).
+- 2026-11-20: Admin corrections of PROT in any status (Phase 25, pending deploy): `POST /api/admin/prot/:id/media/remove`
+  (by exact URL; row lock, save and an `audit_logs` row in one transaction, then the S3 delete; idempotent) and
+  `POST /api/admin/prot/:id/revisi` (ARSIP_NASIONAL / DIVERIFIKASI → REVISI, audited). The contributor rule (owner or
+  admin, DRAFT / REVISI only) is unchanged. These write their own audit row instead of using `AuditInterceptor`.
 
 ## Phase workflow
 
