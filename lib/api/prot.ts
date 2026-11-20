@@ -146,8 +146,12 @@ export const protApi = {
   submitKurasi: (id: string, catatan: string) =>
     apiClient.post(`${BASE_URL}/${id}/submit-kurasi`, { catatan }),
 
-  resubmit: (id: string) =>
-    apiClient.post(`${BASE_URL}/${id}/resubmit`),
+  // Phase 26: the note is sent only when given (and only with NEXT_PUBLIC_PROT_RESUBMIT_NOTE, see
+  // lib/prot/submission.ts); the backend in production has no body on this route.
+  resubmit: (id: string, catatan?: string) =>
+    catatan === undefined
+      ? apiClient.post(`${BASE_URL}/${id}/resubmit`)
+      : apiClient.post(`${BASE_URL}/${id}/resubmit`, { catatan }),
 
   // Verification Queue (Pakar/Admin)
   getQueue: (page = 1, limit = 20, provinsi?: string) => {
@@ -172,14 +176,18 @@ export const protApi = {
   releaseQueue: (queueId: string) =>
     apiClient.post<VerifikasiQueue>(`${VERIFIKASI_URL}/queue/${queueId}/release`),
 
-  review: (protId: string, data: { status: string; catatan?: string; saran_perbaikan?: string; dokumen_pendukung?: string[] }) =>
+  // selfReviewOverrideReason: Phase 26 backend only (send it only with NEXT_PUBLIC_PROT_SELF_REVIEW_RULE).
+  review: (protId: string, data: { status: string; catatan?: string; saran_perbaikan?: string; dokumen_pendukung?: string[]; selfReviewOverrideReason?: string }) =>
     apiClient.post<VerifikasiEntity>(`${VERIFIKASI_URL}/${protId}/review`, data),
 
   getHistory: (protId: string) =>
     apiClient.get<VerifikasiEntity[]>(`${VERIFIKASI_URL}/${protId}/history`),
 
-  publish: (protId: string, catatan: string) =>
-    apiClient.post(`${VERIFIKASI_URL}/prot/${protId}/publish`, { catatan }),
+  publish: (protId: string, catatan: string, selfReviewOverrideReason?: string) =>
+    apiClient.post(
+      `${VERIFIKASI_URL}/prot/${protId}/publish`,
+      selfReviewOverrideReason === undefined ? { catatan } : { catatan, selfReviewOverrideReason },
+    ),
 
   getStats: () =>
     apiClient.get(`${VERIFIKASI_URL}/stats`),

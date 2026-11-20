@@ -10,6 +10,11 @@ import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { PROTEntity, PROTStatus, PROTJenis, type Peralatan } from '@/types/prot';
 import { canSeeProtDocuments, firstVisiblePhoto, publicProtMedia } from '@/lib/prot/hidden-media';
+import { canSubmitProt as canSubmit, submissionRoute } from '@/lib/prot/submission';
+import { SubmitDialog } from '@/components/prot/SubmitDialog';
+import { RevisionNoticeLoader } from '@/components/prot/RevisionNotice';
+import { PROT_SELF_REVIEW_RULE } from '@/lib/prot/backend-features';
+import { isOwnRecord, validateOverrideReason } from '@/lib/prot/review-media';
 
 export default function ProtDetailPage() {
   const { id } = useParams();
@@ -20,6 +25,7 @@ export default function ProtDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [submitOpen, setSubmitOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -46,30 +52,37 @@ export default function ProtDetailPage() {
     }
   };
 
-  const handleSubmitVerification = async () => {
-    if (!item) return;
-    if (!confirm('Apakah Anda yakin ingin mengajukan data ini untuk verifikasi? Data tidak dapat diubah selama proses verifikasi.')) return;
-
-    setSubmitting(true);
-    try {
-      await protApi.submitKurasi(item.id, 'Diajukan oleh pengguna');
-      alert('Berhasil diajukan untuk verifikasi.');
-      loadData(item.id); // Reload to update status
-    } catch (err) {
-      console.error(err);
-      alert('Gagal mengajukan verifikasi. Silakan coba lagi.');
-    } finally {
-      setSubmitting(false);
-    }
+  // Phase 26: the dialog (components/prot/SubmitDialog.tsx) picks submit-kurasi (DRAFT) or resubmit (REVISI) and
+  // carries the contributor's own note.
+  const handleSubmitted = (message: string) => {
+    setSubmitOpen(false);
+    alert(message);
+    if (item) loadData(item.id); // Reload to update status
   };
 
   const handlePublish = async () => {
     if (!item) return;
-    if (!confirm('Publish PROT ini ke Arsip Nasional? Data akan dapat diakses publik.')) return;
+    // Phase 26: publishing a record you created. Production backend: a warning only; with the rule deployed
+    // (NEXT_PUBLIC_PROT_SELF_REVIEW_RULE) an admin must give a reason, which the server audits.
+    const own = isOwnRecord(user, item);
+    let overrideReason: string | undefined;
+    if (own && PROT_SELF_REVIEW_RULE) {
+      const reason = prompt('Anda adalah pembuat PROT ini. Tulis alasan menerbitkannya sendiri (dicatat di log audit):') ?? '';
+      const reasonError = validateOverrideReason(reason);
+      if (reasonError) {
+        alert(reasonError);
+        return;
+      }
+      overrideReason = reason.trim();
+    }
+    const question = own
+      ? 'Anda adalah pembuat PROT ini. Sebaiknya admin lain yang menerbitkan. Tetap publish ke Arsip Nasional? Data akan dapat diakses publik.'
+      : 'Publish PROT ini ke Arsip Nasional? Data akan dapat diakses publik.';
+    if (!confirm(question)) return;
 
     setSubmitting(true);
     try {
-      await protApi.publish(item.id, 'Dipublikasikan ke arsip nasional');
+      await protApi.publish(item.id, 'Dipublikasikan ke arsip nasional', overrideReason);
       alert('Berhasil dipublikasikan ke Arsip Nasional.');
       loadData(item.id);
     } catch (err) {
@@ -126,7 +139,6 @@ export default function ProtDetailPage() {
   }
 
   const isEditable = item.status === PROTStatus.DRAFT || item.status === PROTStatus.REVISI;
-  const isSubmittable = item.status === PROTStatus.DRAFT || item.status === PROTStatus.REVISI;
   const canManageProt =
     user && ['kurator_daerah', 'admin_kpoti'].includes(user.role);
   const ownsProt = user && item.created_by === user.id;
@@ -135,11 +147,11 @@ export default function ProtDetailPage() {
       isEditable &&
       (user?.role === 'admin_kpoti' || ownsProt)
   );
-  const canSubmitProt = Boolean(
-    canManageProt &&
-      isSubmittable &&
-      (user?.role === 'admin_kpoti' || ownsProt)
-  );
+  // Phase 26: only the creator may submit (server rule, also for admins), DRAFT or REVISI.
+  const canSubmitProt = canSubmit(user, item);
+  const isResubmit = submissionRoute(item.status) === 'resubmit';
+  const showRevisionNotice =
+    item.status === PROTStatus.REVISI && Boolean(user && ['kurator_daerah', 'pakar', 'admin_kpoti'].includes(user.role));
   const isPublishable = item.status === PROTStatus.DIVERIFIKASI && user?.role === 'admin_kpoti';
   const isDeletable = user?.role === 'admin_kpoti';
   // Phase 25: every media field goes through the hidden-media denylist; documents only with the build flag or for a
@@ -217,11 +229,12 @@ export default function ProtDetailPage() {
               {/* Submit for Verification */}
               {canSubmitProt && (
                 <button
-                  onClick={handleSubmitVerification}
+                  onClick={() => setSubmitOpen(true)}
                   disabled={submitting}
+                  data-submit-open
                   className="px-3 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-70"
                 >
-                  {submitting ? 'Memproses...' : 'Ajukan Verifikasi'}
+                  {submitting ? 'Memproses...' : isResubmit ? 'Ajukan Ulang' : 'Ajukan Verifikasi'}
                   {!submitting && (
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -263,6 +276,11 @@ export default function ProtDetailPage() {
       </div>
 
       <main className="container mx-auto px-4 py-8">
+        {showRevisionNotice && (
+          <div className="mb-6">
+            <RevisionNoticeLoader protId={item.id} />
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* Left Column - Media & Info */}
@@ -307,6 +325,13 @@ export default function ProtDetailPage() {
                   <p className="font-medium text-foreground">{(item.targetUsia || '').replace(/_/g, ' ')}</p>
                 </div>
 
+                {item.jumlahPemain != null && (
+                  <div>
+                    <label className="text-sm text-muted-foreground block mb-1">Jumlah Pemain</label>
+                    <p className="font-medium text-foreground" data-prot-jumlah-pemain>{item.jumlahPemain} orang</p>
+                  </div>
+                )}
+
                 <div>
                   <label className="text-sm text-muted-foreground block mb-1">Status Asal Usul</label>
                   <p className="font-medium text-foreground">{item.statusAsalUsul || '-'}</p>
@@ -346,6 +371,14 @@ export default function ProtDetailPage() {
 
           {/* Right Column - Details */}
           <div className="lg:col-span-2 space-y-6">
+
+            {/* Deskripsi singkat (Phase 26: form field; also shown in the Jelajah stand panel) */}
+            {item.deskripsi && item.deskripsi.trim() !== '' && (
+              <div className="bg-background border border-border rounded-lg shadow-sm p-6" data-prot-deskripsi>
+                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Ringkasan</h3>
+                <p className="text-foreground whitespace-pre-line">{item.deskripsi}</p>
+              </div>
+            )}
 
             {/* Cara Bermain */}
             <div className="bg-background border border-border rounded-lg shadow-sm p-6">
@@ -472,6 +505,10 @@ export default function ProtDetailPage() {
           </div>
         </div>
       </main>
+
+      {canSubmitProt && (
+        <SubmitDialog open={submitOpen} onClose={() => setSubmitOpen(false)} prot={item} onSubmitted={handleSubmitted} />
+      )}
     </>
   );
 }

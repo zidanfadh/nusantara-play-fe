@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ProtForm } from '@/components/prot/ProtForm';
 import { protApi } from '@/lib/api/prot';
+import { toProtWritePayload } from '@/lib/prot/form-fields';
+import { RevisionNoticeLoader } from '@/components/prot/RevisionNotice';
 import { PROTEntity, PROTStatus } from '@/types/prot';
 
 export default function EditProtPage() {
@@ -54,21 +56,12 @@ export default function EditProtPage() {
     let dataUpdated = false;
 
     try {
-      // Extract files and existing media from data
-      // Strip read-only fields so they are not sent to the backend (backend forbids them)
+      // Extract files and existing media from data. Phase 26: the body of the PATCH is built by the whitelist in
+      // lib/prot/form-fields.ts (read-only API fields such as id, status, kecamatanName, desaName never reach the
+      // backend, whose ValidationPipe forbids unknown keys).
       const {
         fotoFiles, videoFiles, dokumenFiles, peralatanFotoFiles,
         existingFotos, existingVideos, existingDokumen,
-        id: _id,
-        status: _status,
-        created_by: _created_by,
-        verified_by: _verified_by,
-        published_by: _published_by,
-        submitted_at: _submitted_at,
-        verified_at: _verified_at,
-        published_at: _published_at,
-        created_at: _created_at,
-        updated_at: _updated_at,
         ...protData
       } = data;
 
@@ -109,19 +102,9 @@ export default function EditProtPage() {
         }
       }
 
-      // Strip media fields that are managed exclusively via upload/delete endpoints.
-      // If these are sent in PATCH they would overwrite any deletions already made above.
-      const {
-        fotoKegiatan: _fotoKegiatan,
-        videoKegiatan: _videoKegiatan,
-        dokumenKurikulum: _dokumenKurikulum,
-        provinsiName: _provinsiName,
-        kabkotaName: _kabkotaName,
-        ...cleanProtData
-      } = protData;
-
-      // Update PROT data
-      await protApi.update(id, cleanProtData);
+      // Media arrays are managed by the upload/delete routes and are not part of the payload (sending them would
+      // overwrite the deletions made above).
+      await protApi.update(id, toProtWritePayload(protData, 'update'));
       dataUpdated = true;
 
       // Upload new photos if any (batch upload)
@@ -261,6 +244,12 @@ export default function EditProtPage() {
             <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm">
                 {error}
             </div>
+        )}
+        {/* Phase 26: what the reviewer asked to fix, above the form. */}
+        {initialData.status === PROTStatus.REVISI && (
+          <div className="mb-8">
+            <RevisionNoticeLoader protId={initialData.id} />
+          </div>
         )}
         <ProtForm
             title="Edit Data PROT"

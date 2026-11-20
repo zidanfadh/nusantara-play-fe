@@ -8,6 +8,7 @@ import { protApi } from '@/lib/api/prot';
 import { PROTEntity } from '@/types/prot';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { getDaerahAncestors } from '@/lib/api/daerah';
+import { toProtWritePayload } from '@/lib/prot/form-fields';
 
 export default function CreateProtPage() {
   const router = useRouter();
@@ -53,7 +54,8 @@ export default function CreateProtPage() {
     try {
       const { fotoFiles, videoFiles, dokumenFiles, peralatanFotoFiles, existingFotos, existingVideos, existingDokumen, ...protData } = data;
 
-      const response = await protApi.create(protData);
+      // Phase 26: only the DTO's keys are sent (lib/prot/form-fields.ts).
+      const response = await protApi.create(toProtWritePayload(protData, 'create'));
 
       if (response && response.id) {
         createdProtId = response.id;
