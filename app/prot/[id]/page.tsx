@@ -13,6 +13,8 @@ import { canSeeProtDocuments, firstVisiblePhoto, publicProtMedia } from '@/lib/p
 import { canSubmitProt as canSubmit, submissionRoute } from '@/lib/prot/submission';
 import { SubmitDialog } from '@/components/prot/SubmitDialog';
 import { RevisionNoticeLoader } from '@/components/prot/RevisionNotice';
+import { PROT_SELF_REVIEW_RULE } from '@/lib/prot/backend-features';
+import { isOwnRecord, validateOverrideReason } from '@/lib/prot/review-media';
 
 export default function ProtDetailPage() {
   const { id } = useParams();
@@ -60,11 +62,27 @@ export default function ProtDetailPage() {
 
   const handlePublish = async () => {
     if (!item) return;
-    if (!confirm('Publish PROT ini ke Arsip Nasional? Data akan dapat diakses publik.')) return;
+    // Phase 26: publishing a record you created. Production backend: a warning only; with the rule deployed
+    // (NEXT_PUBLIC_PROT_SELF_REVIEW_RULE) an admin must give a reason, which the server audits.
+    const own = isOwnRecord(user, item);
+    let overrideReason: string | undefined;
+    if (own && PROT_SELF_REVIEW_RULE) {
+      const reason = prompt('Anda adalah pembuat PROT ini. Tulis alasan menerbitkannya sendiri (dicatat di log audit):') ?? '';
+      const reasonError = validateOverrideReason(reason);
+      if (reasonError) {
+        alert(reasonError);
+        return;
+      }
+      overrideReason = reason.trim();
+    }
+    const question = own
+      ? 'Anda adalah pembuat PROT ini. Sebaiknya admin lain yang menerbitkan. Tetap publish ke Arsip Nasional? Data akan dapat diakses publik.'
+      : 'Publish PROT ini ke Arsip Nasional? Data akan dapat diakses publik.';
+    if (!confirm(question)) return;
 
     setSubmitting(true);
     try {
-      await protApi.publish(item.id, 'Dipublikasikan ke arsip nasional');
+      await protApi.publish(item.id, 'Dipublikasikan ke arsip nasional', overrideReason);
       alert('Berhasil dipublikasikan ke Arsip Nasional.');
       loadData(item.id);
     } catch (err) {
