@@ -67,6 +67,10 @@ export function pavilionCollider(c: PavilionDef): BoxCollider {
       rotation: c.rotation,
     };
   }
+  if (c.style === 'egrang') {
+    // Phase 23: the practice track (`size` long along local x) with its rails.
+    return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.3, halfD: EGRANG_TRACK_HALF_WIDTH + 0.15, rotation: c.rotation };
+  }
   if (c.style === 'joglo') {
     // Phase 22: the wide stepped plinth (JOGLO_PLINTH beyond the platform on every side).
     const half = c.size / 2 + JOGLO_PLINTH;
@@ -86,6 +90,9 @@ export function pavilionCollider(c: PavilionDef): BoxCollider {
   }
   return { kind: 'box', x: c.x, z: c.z, halfW: c.size / 2 + 0.2, halfD: c.size / 2 + 0.2, rotation: c.rotation };
 }
+
+/** Phase 23 (egrang practice track): half the width between the rails, metres. */
+export const EGRANG_TRACK_HALF_WIDTH = 0.85;
 
 /** Phase 22 (Jawa Tengah pendopo): how far the plinth reaches beyond the platform, metres. */
 export const JOGLO_PLINTH = 0.6;
@@ -205,6 +212,8 @@ export function sceneColliders(scene: SceneDefinition, includeDetail = true): Co
   // Phase 22 (appended after the Phase 11 colliders, so existing scenes keep the same list).
   if (scene.gameSoon) out.push(gameSoonCollider(scene.gameSoon));
   for (const s of scene.structures ?? []) out.push(...structureColliders(s));
+  // Phase 23 (appended last, so scenes without it keep the same list).
+  if (scene.gamePavilion) out.push(pavilionCollider(scene.gamePavilion));
   return out;
 }
 

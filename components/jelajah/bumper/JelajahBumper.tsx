@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { apiClient } from '@/lib/api/client';
-import { congklakHref } from '@/lib/games/congklak/from-link';
+import { gameHref } from '@/lib/games/links';
 import {
   BUMPER_DURATIONS,
   BUMPER_SCENES,
@@ -153,12 +153,13 @@ export function JelajahBumper({ data, status, shapes, onClose, onLeave }: Jelaja
       break;
     case 'game':
       // Phase 17: "Main Congklak" ends the bumper and opens the game (its back link leads to the map).
+      // Phase 23: one button per hosted game, same exit (onLeave, skip with its sound fade, then the game).
       content = (
         <GameScene
-          onPlay={() => {
+          onPlay={(game) => {
             onLeave?.();
             skip();
-            router.push(congklakHref('jelajah'));
+            router.push(gameHref(game, 'jelajah'));
           }}
         />
       );

@@ -15,14 +15,15 @@ export interface NearTarget {
 
 export const NO_TARGET: NearTarget = { stand: null, pavilion: false };
 
-/** The scene's game pavilion (the centrepiece with a `game`), or null. */
-export function gamePavilion(scene: Pick<SceneDefinition, 'centrepiece'>) {
+/** The scene's game pavilion: the separate game pavilion (Phase 23) or the centrepiece with a `game`, or null. */
+export function gamePavilion(scene: Pick<SceneDefinition, 'centrepiece' | 'gamePavilion'>) {
+  if (scene.gamePavilion?.game) return scene.gamePavilion;
   return scene.centrepiece?.game ? scene.centrepiece : null;
 }
 
 export function nearestTarget(
   point: Vec2,
-  scene: Pick<SceneDefinition, 'stands' | 'centrepiece'>,
+  scene: Pick<SceneDefinition, 'stands' | 'centrepiece' | 'gamePavilion'>,
   maxDistance = INTERACT_DISTANCE,
 ): NearTarget {
   let stand: number | null = null;

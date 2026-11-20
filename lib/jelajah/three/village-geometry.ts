@@ -5,8 +5,8 @@
  *
  * Only imported by components/jelajah/three/* (three.js isolation, see tests/jelajah/three-isolation.test.ts).
  */
-import { BufferGeometry, CircleGeometry, Color, Matrix4 } from 'three';
-import { HOUSE_STAIRS_DEPTH, JOGLO_PLINTH, OPEN_HALL_FLOOR, OPEN_HALL_STEPS, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
+import { BufferGeometry, CircleGeometry, Color, Matrix4, SphereGeometry } from 'three';
+import { EGRANG_TRACK_HALF_WIDTH, HOUSE_STAIRS_DEPTH, JOGLO_PLINTH, OPEN_HALL_FLOOR, OPEN_HALL_STEPS, STAND_ROOF_TOP, STAND_SIZE } from '@/lib/jelajah/engine/collision';
 import type { GameSoonDef, HouseDef, PavilionDef, SceneDefinition, StandDef } from '@/lib/jelajah/scenes/types';
 import { GAME_SOON_BOARD } from '@/lib/jelajah/engine/game-soon';
 import { Builder, flat, placement, v } from './mesh-builder';
@@ -218,6 +218,62 @@ function addPavilion(b: Builder, p: PavilionDef, scene: SceneDefinition) {
     case 'joglo':
       addPendopo(b, p, scene);
       break;
+    case 'egrang':
+      addEgrangTrack(b, p, scene);
+      break;
+  }
+}
+
+/**
+ * Phase 23, the egrang pavilion: a short packed-earth practice track (`size` long along local x) between low rails,
+ * a white start line at the west end, a red-and-white finish banner on two poles at the east end, and the stilts of
+ * the variant waiting at the start: two pairs of tall bamboo poles with foot rests leaning by the rail (bambu, rails
+ * of bamboo), or two pairs of coconut-shell halves with their strings (batok, rope rails on wooden stakes).
+ */
+function addEgrangTrack(b: Builder, p: PavilionDef, scene: SceneDefinition) {
+  const c = scene.colors;
+  const m = placement(p.x, p.z, p.rotation);
+  const L = p.size;
+  const hw = EGRANG_TRACK_HALF_WIDTH;
+  const batok = p.variant === 'batok';
+  const bamboo = new Color('#BFC765');
+  const bambooDark = new Color('#97A04A');
+  const post = new Color(c.housePost);
+  const at = (x: number, y: number, z: number) => m.clone().multiply(new Matrix4().makeTranslation(x, y, z));
+  // Track surface and a slightly darker border.
+  b.box(m, L + 0.5, 0.05, hw * 2 + 0.5, 0, 0.025, 0, new Color(c.path).multiplyScalar(0.82));
+  b.box(m, L, 0.06, hw * 2 - 0.1, 0, 0.03, 0, new Color(c.path).multiplyScalar(batok ? 1.04 : 0.92));
+  // Start line (west) and the chequered finish line with its banner (east).
+  b.box(m, 0.14, 0.012, hw * 2 - 0.1, -L / 2 + 0.45, 0.066, 0, new Color('#F4F1E6'));
+  const cell = (hw * 2 - 0.1) / 6;
+  for (let i = 0; i < 6; i += 1) {
+    b.box(m, 0.14, 0.012, cell, L / 2 - 0.45, 0.066, -hw + 0.05 + cell * (i + 0.5), i % 2 ? new Color('#2A2A2A') : new Color('#F4F1E6'));
+  }
+  for (const z of [-hw, hw]) b.box(m, 0.1, 2.0, 0.1, L / 2 - 0.45, 1.0, z, batok ? post : bamboo);
+  b.box(m, 0.06, 0.2, hw * 2, L / 2 - 0.45, 1.86, 0, new Color('#D4302A'));
+  b.box(m, 0.06, 0.2, hw * 2, L / 2 - 0.45, 1.66, 0, new Color('#F4F1E6'));
+  // Rails: bamboo on posts (bambu) or rope on stakes (batok).
+  const posts = Math.max(3, Math.round(L / 1.5));
+  for (const z of [-hw, hw]) {
+    for (let i = 0; i <= posts; i += 1) b.box(m, 0.08, 0.5, 0.08, -L / 2 + (L * i) / posts, 0.25, z, batok ? post : bambooDark);
+    b.box(m, L, batok ? 0.03 : 0.07, batok ? 0.03 : 0.07, 0, 0.44, z, batok ? new Color('#D8C49A') : bamboo);
+  }
+  if (!batok) {
+    // Two pairs of stilts leaning against the north rail at the start, foot rests facing the track.
+    for (let k = 0; k < 4; k += 1) {
+      const pole = at(-L / 2 + 0.35 + k * 0.32, 1.12, -hw - 0.3).multiply(new Matrix4().makeRotationX(0.3));
+      b.box(pole, 0.07, 2.4, 0.07, 0, 0, 0, k % 2 ? bamboo : bambooDark);
+      b.box(pole, 0.08, 0.05, 0.22, 0, -0.55, 0.12, new Color('#7A5A2A'));
+    }
+  } else {
+    // Two pairs of coconut-shell halves (dome up) by the start line, with their strings standing up.
+    const shell = new Color('#6A4424');
+    for (let k = 0; k < 4; k += 1) {
+      const x = -L / 2 + 0.35 + (k % 2) * 0.42;
+      const z = (k < 2 ? -1 : 1) * (hw - 0.35);
+      b.addGeometry(new SphereGeometry(0.16, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2), at(x, 0.06, z), shell);
+      b.box(m, 0.015, 0.55, 0.015, x, 0.5, z, new Color('#E9DDBE'));
+    }
   }
 }
 
@@ -268,6 +324,8 @@ export function buildVillageGeometry(scene: SceneDefinition): BufferGeometry {
   if (scene.centrepiece) addPavilion(b, scene.centrepiece, scene);
   if (scene.gameSoon) addGameSoonPost(b, scene.gameSoon, scene);
   addStructures(b, scene);
+  // Phase 23 (appended last, so scenes without it keep the same mesh).
+  if (scene.gamePavilion) addPavilion(b, scene.gamePavilion, scene);
   return b.build();
 }
 

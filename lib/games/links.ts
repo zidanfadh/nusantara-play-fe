@@ -11,6 +11,9 @@
 
 export type JelajahGame = 'congklak' | 'gasing' | 'egrang';
 
+/** Phase 23: egrang has two variants; a pavilion names its variant and the link preselects it (`?varian=`). */
+export type GameVariant = 'bambu' | 'batok';
+
 export const JELAJAH_GAMES: readonly JelajahGame[] = ['congklak', 'gasing', 'egrang'];
 
 export const GAME_PATHS: Readonly<Record<JelajahGame, string>> = {
@@ -43,7 +46,7 @@ export const GAME_SOON_DESCRIPTION = 'Permainan untuk desa ini sedang disiapkan.
 export const GAME_LINK_PROVINCES: Readonly<Record<JelajahGame, readonly string[]>> = {
   congklak: ['sumatera-selatan'],
   gasing: ['kepulauan-riau'],
-  egrang: [],
+  egrang: ['jawa-tengah', 'sulawesi-selatan'],
 };
 
 export interface BackLink {
@@ -51,9 +54,11 @@ export interface BackLink {
   label: string;
 }
 
-export function gameHref(game: JelajahGame, from?: string): string {
-  const path = GAME_PATHS[game];
-  return from ? `${path}?from=${encodeURIComponent(from)}` : path;
+export function gameHref(game: JelajahGame, from?: string, variant?: GameVariant): string {
+  const params: string[] = [];
+  if (variant && game === 'egrang') params.push(`varian=${variant}`);
+  if (from) params.push(`from=${encodeURIComponent(from)}`);
+  return params.length ? `${GAME_PATHS[game]}?${params.join('&')}` : GAME_PATHS[game];
 }
 
 /** The "back" link of a game page from its `from` query parameter (allowlisted, see above). */

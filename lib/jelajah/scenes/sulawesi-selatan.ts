@@ -3,7 +3,9 @@
  * sand (pinisi-like, a loose low-poly hint); raised houses on tall stilts with a steep gable facing the front,
  * stacked tiers on the gable and long crossed timbers at the ridge (hints of "timpa laja"); coconut palms, canoes.
  *
- * Sulawesi Selatan has a published PROT but no playable game yet: a "Game segera hadir" sign stands next to stand 1.
+ * Phase 23: beside stand 1 an egrang practice track on the sand (rope rails on stakes, a start line, a finish banner,
+ * coconut-shell stilts at the start) opens Egrang with the Batok variant (/main/egrang?varian=batok). It replaces the
+ * Phase 22 "Game segera hadir" sign.
  *
  * Only `import type` here (see types.ts). No cultural facts: visible text comes from PROT data or neutral UI text.
  */
@@ -53,6 +55,9 @@ function raisedHouse(x: number, z: number, width = 5.2, depth = 6.6): HouseDef {
 
 // Order = assignment order of the PROT (sorted by name): SE (nearest to the spawn), SW, NE.
 const stands: StandDef[] = [145, 215, 50].map(ringStand);
+
+/** Phase 23: the egrang practice track, east of the entrance path, between stand 1 and the spawn point. */
+const EGRANG_TRACK = { x: 6.2, z: 13.6, size: 6 } as const;
 
 const houses: HouseDef[] = [raisedHouse(-15.4, 10.2), raisedHouse(15.6, 9.8, 5, 6.2), raisedHouse(16, -1.4)];
 
@@ -107,6 +112,7 @@ for (let tries = 0; placed < 50 && tries < 600; tries += 1) {
   if (Math.hypot(x - PLAZA.x, z - PLAZA.z) < STAND_RING + 2.2) continue;
   if (Math.abs(x) < 2 && z > 7) continue;
   if (houses.some((h) => Math.hypot(x - h.x, z - h.z) < 5.5)) continue;
+  if (Math.abs(x - EGRANG_TRACK.x) < 4.2 && Math.abs(z - EGRANG_TRACK.z) < 1.8) continue;
   decor.push({
     model: DETAILS[placed % DETAILS.length],
     x: round(x),
@@ -117,8 +123,6 @@ for (let tries = 0; placed < 50 && tries < 600; tries += 1) {
   });
   placed += 1;
 }
-
-const PROT_STAND = stands[0];
 
 export const SULAWESI_SELATAN_SCENE: SceneDefinition = {
   slug: 'sulawesi-selatan',
@@ -139,8 +143,8 @@ export const SULAWESI_SELATAN_SCENE: SceneDefinition = {
     { from: [-PLAZA.radius + 1.5, PLAZA.z + 2.5], to: [-12.4, 8], width: 1.8 },
     { from: [PLAZA.x + PLAZA.radius - 0.5, PLAZA.z + 2], to: [12.6, 7.8], width: 1.8 },
   ],
-  // Beside stand 1, on the side of the entrance path.
-  gameSoon: { x: round(PROT_STAND.x - 3.2), z: round(PROT_STAND.z + 1.8), rotation: 0 },
+  // Phase 23: the egrang practice track beside stand 1 (replaces the Phase 22 "Game segera hadir" sign).
+  gamePavilion: { x: EGRANG_TRACK.x, z: EGRANG_TRACK.z, rotation: 0, size: EGRANG_TRACK.size, postHeight: 2, roofHeight: 0, style: 'egrang', game: 'egrang', variant: 'batok' },
   structures: [
     { kind: 'boat', x: -11.6, z: -6, rotation: 0.12, length: 13, hull: '#5E3B23', sail: '#F1E6CF' },
     // A headland in the haze.

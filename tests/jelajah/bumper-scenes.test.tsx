@@ -28,13 +28,15 @@ describe('bumper scenes (Phase 16)', () => {
     expect(html).not.toContain('Contoh foto PROT');
   });
 
-  it('game scene: a short line and the Main Congklak button (Phase 17)', () => {
-    // Phase 17: no longer "Segera hadir"; a short line and the "Main Congklak" button.
-    expect(GAME_SCENE_TEXT).toBe('Main congklak langsung di sini, tanpa masuk akun.');
+  it('game scene: a short line and one button per hosted game (Phase 17; Phase 23 all games)', () => {
+    // Phase 17: no longer "Segera hadir"; Phase 23: Main Congklak, Main Gasing and Main Egrang side by side.
+    expect(GAME_SCENE_TEXT).toBe('Main congklak, gasing, dan egrang langsung di sini, tanpa masuk akun.');
     const html = renderToStaticMarkup(<GameScene onPlay={() => {}} />);
     expect(html).toContain(GAME_SCENE_TEXT);
-    expect(html).toContain('Main Congklak');
-    expect(html).toContain('data-bumper-action');
+    for (const label of ['Main Congklak', 'Main Gasing', 'Main Egrang']) expect(html).toContain(label);
+    for (const g of ['congklak', 'gasing', 'egrang']) expect(html).toContain(`data-testid="bumper-play-${g}"`);
+    expect(html.match(/data-bumper-action/g)).toHaveLength(3);
+    expect(html).toContain('sm:flex-row');
     expect(html).not.toContain('Segera hadir');
   });
 

@@ -12,7 +12,7 @@
  * Phase 22: every field added for more provinces is OPTIONAL and its default is the Phase 11 to 17 behaviour,
  * so the Sumatera Selatan data and its 3D output stay exactly the same (tests/jelajah/sumatera-selatan-identity.test.ts).
  */
-import type { JelajahGame } from '@/lib/games/links';
+import type { GameVariant, JelajahGame } from '@/lib/games/links';
 
 /** Nature Kit model names available in the scene assets (see scripts/optimize-jelajah-assets.mjs). */
 export type NatureModel =
@@ -88,7 +88,7 @@ export interface StandDef {
 }
 
 /** Look of the centrepiece (Phase 22). `pavilion` = the Phase 12 open pavilion (default). */
-export type PavilionStyle = 'pavilion' | 'arena' | 'meunasah' | 'joglo';
+export type PavilionStyle = 'pavilion' | 'arena' | 'meunasah' | 'joglo' | 'egrang';
 
 /**
  * Neutral centrepiece of the plaza (Phase 12): a small open pavilion (a roof on four posts on a low
@@ -110,6 +110,12 @@ export interface PavilionDef {
   game?: JelajahGame;
   /** Phase 22: look of the centrepiece (default `pavilion`). */
   style?: PavilionStyle;
+  /**
+   * Phase 23: the game's variant (egrang `bambu` | `batok`), passed to the game page as `?varian=`. Style
+   * `egrang` = a short practice track (`size` long, along local x) with a start line, a finish banner and the
+   * stilts of that variant at the start.
+   */
+  variant?: GameVariant;
 }
 
 /**
@@ -225,6 +231,11 @@ export interface SceneDefinition {
   plaza: { x: number; z: number; radius: number };
   /** Optional centrepiece in the plaza (blocks the player). */
   centrepiece?: PavilionDef;
+  /**
+   * Phase 23: a game pavilion outside the plaza (the egrang practice track beside stand 1). When set it is the
+   * scene's game target instead of the centrepiece; its collider and mesh are appended after everything else.
+   */
+  gamePavilion?: PavilionDef;
   paths: readonly PathDef[];
   spawn: { x: number; z: number; rotation: number };
   /** The player stays inside this rectangle. */

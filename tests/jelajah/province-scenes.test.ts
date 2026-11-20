@@ -203,7 +203,9 @@ describe('Jawa Tengah', () => {
     const volcano = (scene.structures ?? []).find((s) => s.kind === 'mountain' && s.crater);
     expect(volcano).toBeDefined();
     expect(scene.decor.filter((d) => d.model === 'crops_bambooStageA' && d.collide).length).toBeGreaterThanOrEqual(6);
-    expect(scene.gameSoon).toBeDefined();
+    // Phase 23: the egrang practice track (Bambu) replaced the "Game segera hadir" sign.
+    expect(scene.gameSoon).toBeUndefined();
+    expect(scene.gamePavilion).toMatchObject({ style: 'egrang', game: 'egrang', variant: 'bambu' });
   });
 
   it('the terraces and the volcano stay north of the walkable area', () => {
@@ -234,7 +236,9 @@ describe('Sulawesi Selatan', () => {
       expect(boat.z).toBeLessThan(scene.river.south + scene.river.bank);
     }
     expect(scene.decor.filter((d) => d.model.startsWith('tree_palm') && d.collide).length).toBeGreaterThanOrEqual(6);
-    expect(scene.gameSoon).toBeDefined();
+    // Phase 23: the egrang practice track (Batok) replaced the "Game segera hadir" sign.
+    expect(scene.gameSoon).toBeUndefined();
+    expect(scene.gamePavilion).toMatchObject({ style: 'egrang', game: 'egrang', variant: 'batok' });
     expect(scene.centrepiece).toBeUndefined();
   });
 

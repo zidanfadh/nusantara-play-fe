@@ -1,4 +1,4 @@
-/** Games hosted on the site (Phase 17; gasing since Phase 20). The /main page lists them in this order. */
+/** Games hosted on the site (Phase 17; gasing since Phase 20; egrang since Phase 23). The /main page lists them in this order. */
 
 export interface GameEntry {
   slug: string;
@@ -19,5 +19,11 @@ export const GAMES: readonly GameEntry[] = [
     title: 'Gasing',
     description: 'Lempar gasing dan adu putaran terlama (Uri) atau hantam gasing lawan (Pangkah). Lawan komputer.',
     href: '/main/gasing',
+  },
+  {
+    slug: 'egrang',
+    title: 'Egrang',
+    description: 'Balap di atas egrang melawan komputer: egrang bambu yang tinggi atau egrang batok mengikuti irama.',
+    href: '/main/egrang',
   },
 ];
