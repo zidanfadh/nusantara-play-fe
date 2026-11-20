@@ -791,6 +791,35 @@ response until an admin removes them (shared "Pending deployment" item 12).
   Gasing (1) with recognisable children's faces (consent unknown), and the test record's two photos (a residential house).
 - Tests: `tests/prot/hidden-media.test.tsx` (the helper once, then each renderer).
 
+## PROT form and review (Phase 26)
+
+Fixes from the Phase 25 findings. Every change works against the backend deployed today (evidence: Phase 26 report,
+step 0); what needs the new backend is behind a flag.
+
+- **Pure helpers in `lib/prot/`** (unit-tested in `tests/prot/`): `form-fields.ts` (`deskripsi` counter against the
+  280-character stand panel, `parseJumlahPemain`, the Jelajah-recommended fields, help texts, and
+  `toProtWritePayload(data, 'create' | 'update')`, THE request body of `POST /prot` and `PATCH /prot/:id`: only
+  `CreatePROTDto` / `PeralatanDto` keys, empty purchase links dropped, `jumlahPemain` null clears it on update),
+  `upload-rules.ts` (per field: photos JPG/PNG/WEBP 10 MB, videos MP4/MOV 50 MB, documents PDF 20 MB, 10 files per save;
+  `checkFiles` with Indonesian errors), `submission.ts` (DRAFT → `submit-kurasi`, REVISI → `resubmit`; only the creator
+  with role kurator_daerah/admin_kpoti may submit; note = own text or "Diajukan oleh pengguna"; `latestRevisionNote`),
+  `submit-checklist.ts` (five points from the guide, not stored), `review-media.ts` (every media item for the review page,
+  denylisted files kept as "hidden" entries, link domains; `selfReviewState`), `backend-features.ts` (the two flags).
+- **Components**: `ProtForm` (new fields, `JelajahBadge`, `UploadErrors`, accept lists and limits from `UPLOAD_RULES`),
+  `FormHints.tsx`, `SubmitDialog.tsx` (on `DemoDialog`: checklist + `SubmissionNoteField`; the button stays off until
+  all points are ticked), `RevisionNotice.tsx` (the newest REVISION_NEEDED entry of `GET /verifikasi/:id/history`, on
+  `/prot/[id]` and the edit page of REVISI records), `ReviewMediaPanel.tsx` (+ `SelfReviewWarning`).
+- **Pages**: `/prot/[id]` shows "Ringkasan" (`deskripsi`) and "Jumlah Pemain", opens the dialog ("Ajukan Ulang" for
+  REVISI) and warns an admin publishing their own record; `/prot/verifikasi/[id]/review` shows every text in full and
+  every media item, and the self-review warning.
+- **Flags** (off by default; turn on only after Pending deployment item 13): `NEXT_PUBLIC_PROT_RESUBMIT_NOTE` (the
+  resubmit sends `{ catatan }`; without it the note field is disabled for REVISI with an explanation, and `resubmit` posts
+  no body) and `NEXT_PUBLIC_PROT_SELF_REVIEW_RULE` (review: non-admin creators blocked, admins send
+  `selfReviewOverrideReason`; publish: admins are asked for the reason). Without it the frontend never sends that field.
+- **Browser check** (Phase 26): local production build + the Phase 19 fake Supabase session carrying a real LOCAL backend
+  access token (the local backend authenticates it), backend on the local dev DB; scripts in `D:/dev-cache/tmp/phase-26/pw/`
+  (scratch, not in the repo); screenshots `D:/dev-cache/screens/phase-26/`.
+
 ## Env Vars
 
 See `.env.example` (copy to `.env.local`). `.env*` files are git-ignored except `.env.example`.
@@ -801,6 +830,8 @@ BACKEND_ORIGIN                 # Optional, build time. Origin behind the /backen
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 NEXT_PUBLIC_SHOW_PROT_DOCUMENTS # Optional, build time (Phase 25). "true" shows PROT documents on public pages; default off.
+NEXT_PUBLIC_PROT_RESUBMIT_NOTE  # Optional, build time (Phase 26). "true" only after the backend deploy (Pending deployment item 13): the resubmit sends the note.
+NEXT_PUBLIC_PROT_SELF_REVIEW_RULE # Optional, build time (Phase 26). "true" only after the same deploy: self-review blocked / admin override reason sent.
 ```
 
 ## Current direction
@@ -946,6 +977,15 @@ NEXT_PUBLIC_SHOW_PROT_DOCUMENTS # Optional, build time (Phase 25). "true" shows 
      labels "Main Egrang Bambu" / "Main Egrang Batok"; every bumper scene uses the dense short-screen layout. Staff guide:
      `nusantara-play-be/docs/panduan-input-prot.md`. Details in the frontend CLAUDE.md "Hidden media and documents
      (Phase 25)".
+   - PROT form and review (Phase 26, from the Phase 25 findings): the form has "Deskripsi Singkat" (shown in the Jelajah
+     stand panel, about 280 characters, and on `/prot/[id]`) and "Jumlah Pemain" (integer >= 1), marks the fields
+     recommended for Jelajah, offers only the upload types and sizes the server accepts (no DOC/DOCX) with Indonesian
+     errors, and sends only the DTO's keys. "Ajukan Verifikasi" / "Ajukan Ulang" opens a dialog with a five-point
+     checklist (not stored) and the contributor's own note; REVISI records use the resubmit route and show the reviewer's
+     notes. The review page shows every text and media item and warns a reviewer who created the record. Works with the
+     deployed backend; the backend half (no self-review, resubmit note) is Pending deployment item 13, and the frontend
+     flags `NEXT_PUBLIC_PROT_RESUBMIT_NOTE` / `NEXT_PUBLIC_PROT_SELF_REVIEW_RULE` stay off until then. Details in the
+     frontend CLAUDE.md "PROT form and review (Phase 26)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -1102,6 +1142,21 @@ column, so running the migration first is safe for the old code too.
      5. If the curator must rework the record: `POST .../752aeea4-.../revisi` `{"reason":"..."}`.
      6. `GET /api/prot/752aeea4-a9c4-455b-a216-71f508bcfe3c` shows `dokumenKurikulum: []`. The frontend denylist entries
         may stay (harmless) or be removed in a later phase.
+13. Phase 26 PROT review rules (no migration, no env; the old frontend keeps working):
+   - No self-review (`src/modules/prot/self-review.ts`): the creator of a PROT cannot claim it from the queue
+     (`POST /api/verifikasi/queue/:id/pick`), decide on it (`POST /api/verifikasi/:protId/review`) or publish it
+     (`POST /api/verifikasi/prot/:protId/publish`): 403, any role. An `admin_kpoti` creator may claim it, but the decision
+     and the publish need `selfReviewOverrideReason` (10 to 500 characters; new optional field of `VerifikasiReviewDto`
+     and `PublishProtDto`); one `audit_logs` row `PROT_SELF_REVIEW_OVERRIDE` (who, step, decision, reason, status
+     before) is written BEFORE the decision.
+   - `POST /api/prot/:id/resubmit` accepts the optional body `{ catatan }` (max 500) and stores it as
+     `verifikasi_queue.catatan_kurator` (needs the item 1 migration, like submit-kurasi); an empty body still works.
+   - **After deployment**, set in Vercel (Production) and redeploy the frontend: `NEXT_PUBLIC_PROT_RESUBMIT_NOTE=true`
+     (the resubmit dialog sends the note) and `NEXT_PUBLIC_PROT_SELF_REVIEW_RULE=true` (the review page blocks
+     non-admin self-review and asks admins for the reason; publish asks for it too). Never turn them on before the
+     backend deploy: the old DTO rejects `selfReviewOverrideReason` and the whole request fails.
+   - Check: a pakar who created a DIKURASI record gets 403 on pick; `audit_logs` gets a `PROT_SELF_REVIEW_OVERRIDE` row
+     when an admin decides on or publishes their own record with a reason.
 
 ## Local development
 
@@ -1192,6 +1247,11 @@ Small known problems that a later phase should fix. Do not fix them in passing.
   (`nusantara-play-fe/tests/games/gasing-integration.test.tsx`) once hit Vitest's default 5 s test timeout while the
   machine was under load (a production build and headless Chrome running at the same time); it passes when run alone.
   Give its slow cases an explicit timeout or make the simulated match shorter.
+- (Phase 26) Under load (the backend unit suite or a build running at the same time) more frontend tests hit the 5 s
+  timeout: `tests/jelajah/concept-scenes.test.tsx`, `tests/jelajah/three-isolation.test.ts`,
+  `tests/config/fonts.test.ts`, `tests/games/congklak-engine.test.ts`, and `tests/games/gasing-match-ai.test.ts` failed a
+  timing assertion (10.3 ms against 7.5 ms). All pass when the suite runs alone. Raise the timeout of the slow
+  source-scanning tests (or `testTimeout` in `vitest.config.ts`) and make the timing test relative.
 
 ## Engineering rules
 
@@ -1281,6 +1341,10 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Backend after Phase 23: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend after Phase 25: unchanged, 44 errors, 80 warnings (all 21 new and touched source files are clean).
 - Backend after Phase 25: unchanged, 220 errors, 29 warnings (every new and touched file is clean).
+- Frontend after Phase 26: 43 errors, 64 warnings (the review page lost its `no-explicit-any` error and a warning, the
+  edit page 15 unused-variable warnings; every new file is clean; `ProtForm.tsx` and the create page keep their old
+  problems).
+- Backend after Phase 26: 219 errors, 29 warnings (every new file is clean; touched files unchanged or better).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1643,6 +1707,18 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   (by exact URL; row lock, save and an `audit_logs` row in one transaction, then the S3 delete; idempotent) and
   `POST /api/admin/prot/:id/revisi` (ARSIP_NASIONAL / DIVERIFIKASI → REVISI, audited). The contributor rule (owner or
   admin, DRAFT / REVISI only) is unchanged. These write their own audit row instead of using `AuditInterceptor`.
+- 2026-11-20: Frontend changes that need an undeployed backend feature sit behind a build-time flag that is off by
+  default (`lib/prot/backend-features.ts`), because the production DTOs reject unknown keys (Phase 26). Production
+  evidence comes from read-only GETs and git history only.
+- 2026-11-20: The PROT create and edit pages build their request body from a whitelist of the DTO keys
+  (`toProtWritePayload`), not by removing known read-only keys (Phase 26): the edit page sent `kecamatanName` /
+  `desaName` from the API, which the DTO rejects.
+- 2026-11-20: No self-review (Phase 26, pending deploy): the creator cannot claim, decide on or publish a PROT; an admin
+  creator may claim, and decides or publishes only with `selfReviewOverrideReason`, audited before the decision. No
+  minimum review time (not requested). Personal-data scanning of uploads is NOT implemented; options and trade-offs are
+  in the Phase 26 report.
+- 2026-11-20: The PROT form's upload limits are lower than the server's 100 MB (photos 10 MB, videos 50 MB, PDF 20 MB),
+  because large uploads through the Vercel rewrite and the production nginx are unverified (Phase 26).
 
 ## Phase workflow
 
