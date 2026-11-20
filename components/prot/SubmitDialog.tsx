@@ -17,7 +17,42 @@ import {
   submitProt,
   validateSubmissionNote,
 } from '@/lib/prot/submission';
+import { checklistComplete, SUBMIT_CHECKLIST, toggleChecklist } from '@/lib/prot/submit-checklist';
 import type { PROTEntity } from '@/types/prot';
+
+/**
+ * Phase 26: the checklist ticked before submitting (lib/prot/submit-checklist.ts). Not stored: the backend has no
+ * field for it.
+ */
+export function SubmitChecklist({ checked, onToggle }: { checked: ReadonlySet<string>; onToggle: (id: string) => void }) {
+  return (
+    <fieldset data-submit-checklist>
+      <legend className="text-sm font-semibold">Sebelum mengajukan, pastikan:</legend>
+      <ul className="mt-2 space-y-2">
+        {SUBMIT_CHECKLIST.map((item) => {
+          const id = `prot-check-${item.id}`;
+          return (
+            <li key={item.id} className="flex items-start gap-2">
+              <input
+                id={id}
+                type="checkbox"
+                checked={checked.has(item.id)}
+                onChange={() => onToggle(item.id)}
+                className="mt-0.5 h-5 w-5 shrink-0 accent-green-600"
+              />
+              <label htmlFor={id} className="text-sm leading-snug">
+                {item.label}
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Daftar ini hanya pengingat dan tidak disimpan. Panduan lengkap: bagian 7 &quot;Daftar periksa kontributor&quot;.
+      </p>
+    </fieldset>
+  );
+}
 
 /** The note field and its hints, without state (rendered by the dialog, tested on its own). */
 export function SubmissionNoteField({
@@ -75,21 +110,17 @@ export function SubmitDialog({
   onClose,
   prot,
   onSubmitted,
-  children,
-  canConfirm = true,
 }: {
   open: boolean;
   onClose: () => void;
   prot: Pick<PROTEntity, 'id' | 'status' | 'nama'>;
   onSubmitted: (message: string) => void;
-  /** Extra content above the note (the Step 3 checklist). */
-  children?: React.ReactNode;
-  /** False while the checklist is incomplete. */
-  canConfirm?: boolean;
 }) {
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [checked, setChecked] = useState<Set<string>>(() => new Set());
+  const canConfirm = checklistComplete(checked);
   const isResubmit = submissionRoute(prot.status) === 'resubmit';
 
   const confirm = async () => {
@@ -103,6 +134,7 @@ export function SubmitDialog({
     try {
       const result = await submitProt(protApi, prot, note, { resubmitNote: PROT_RESUBMIT_NOTE });
       setNote('');
+      setChecked(new Set());
       onSubmitted(submissionSuccessMessage(result));
     } catch (err) {
       const message = err instanceof Error && err.message ? err.message : '';
@@ -136,7 +168,7 @@ export function SubmitDialog({
       }
     >
       <div className="space-y-5">
-        {children}
+        <SubmitChecklist checked={checked} onToggle={(id) => setChecked((prev) => toggleChecklist(prev, id))} />
         <SubmissionNoteField
           value={note}
           onChange={(v) => {
@@ -147,6 +179,11 @@ export function SubmitDialog({
           resubmitNoteEnabled={PROT_RESUBMIT_NOTE}
           error={error}
         />
+        {!canConfirm && (
+          <p className="text-xs text-muted-foreground" data-checklist-hint>
+            Centang semua poin di atas untuk mengaktifkan tombol.
+          </p>
+        )}
       </div>
     </DemoDialog>
   );

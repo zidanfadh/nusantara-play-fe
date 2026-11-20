@@ -36,3 +36,15 @@ export function DeskripsiCounter({ id, text }: { id: string; text: string | null
     </p>
   );
 }
+
+/** Phase 26: files that were not added (wrong type, too large, too many), one line each. */
+export function UploadErrors({ errors }: { errors?: readonly string[] }) {
+  if (!errors || errors.length === 0) return null;
+  return (
+    <ul role="alert" data-upload-errors className="space-y-1 text-xs font-medium text-red-600">
+      {errors.map((error, i) => (
+        <li key={i}>{error}</li>
+      ))}
+    </ul>
+  );
+}

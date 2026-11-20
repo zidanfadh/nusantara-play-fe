@@ -5,7 +5,8 @@ import { PROTEntity, PROTJenis, TargetUsia, Peralatan } from '@/types/prot';
 import type { Daerah } from '@/types/daerah';
 import { getAllProvinces, getChildrenDaerah } from '@/lib/api/daerah';
 import { FIELD_HELP, parseJumlahPemain } from '@/lib/prot/form-fields';
-import { DeskripsiCounter, FieldHelp, JelajahBadge } from '@/components/prot/FormHints';
+import { DeskripsiCounter, FieldHelp, JelajahBadge, UploadErrors } from '@/components/prot/FormHints';
+import { checkFiles, UPLOAD_RULES, type UploadKind } from '@/lib/prot/upload-rules';
 interface ProtFormProps {
   initialData?: Partial<PROTEntity>;
   onSubmit: (data: Partial<PROTEntity>) => Promise<void>;
@@ -47,6 +48,13 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
     initialData?.jumlahPemain != null ? String(initialData.jumlahPemain) : '',
   );
   const [jumlahPemainError, setJumlahPemainError] = useState<string | null>(null);
+  // Phase 26: client-side checks of picked files (lib/prot/upload-rules.ts), errors per upload area.
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string[]>>({});
+  const acceptFiles = (kind: UploadKind, errorKey: string, picked: File[], queued: number): File[] => {
+    const { accepted, errors } = checkFiles(kind, picked, queued);
+    setUploadErrors((prev) => ({ ...prev, [errorKey]: errors }));
+    return accepted;
+  };
 
   // State for daerah - store ID for UI, kode for backend
   const [provinsiId, setProvinsiId] = useState<string>('');
@@ -157,8 +165,9 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
   const handleDokumenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
+      const files = acceptFiles('dokumenKurikulum', 'dokumenKurikulum', Array.from(e.target.files), dokumenFiles.length);
       setDokumenFiles((prev) => [...prev, ...files]);
+      e.target.value = '';
     }
   };
 
@@ -166,9 +175,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingDokumen(false);
-    const files = Array.from(e.dataTransfer.files).filter(file =>
-      ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)
-    );
+    const files = acceptFiles('dokumenKurikulum', 'dokumenKurikulum', Array.from(e.dataTransfer.files), dokumenFiles.length);
     if (files.length > 0) {
       setDokumenFiles((prev) => [...prev, ...files]);
     }
@@ -196,15 +203,17 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
   const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
+      const files = acceptFiles('fotoKegiatan', 'fotoKegiatan', Array.from(e.target.files), fotoFiles.length);
       setFotoFiles((prev) => [...prev, ...files]);
+      e.target.value = '';
     }
   };
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
+      const files = acceptFiles('videoKegiatan', 'videoKegiatan', Array.from(e.target.files), videoFiles.length);
       setVideoFiles((prev) => [...prev, ...files]);
+      e.target.value = '';
     }
   };
 
@@ -212,9 +221,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingFoto(false);
-    const files = Array.from(e.dataTransfer.files).filter(file =>
-      file.type.startsWith('image/')
-    );
+    const files = acceptFiles('fotoKegiatan', 'fotoKegiatan', Array.from(e.dataTransfer.files), fotoFiles.length);
     if (files.length > 0) {
       setFotoFiles((prev) => [...prev, ...files]);
     }
@@ -224,9 +231,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
     e.preventDefault();
     e.stopPropagation();
     setIsDraggingVideo(false);
-    const files = Array.from(e.dataTransfer.files).filter(file =>
-      file.type.startsWith('video/')
-    );
+    const files = acceptFiles('videoKegiatan', 'videoKegiatan', Array.from(e.dataTransfer.files), videoFiles.length);
     if (files.length > 0) {
       setVideoFiles((prev) => [...prev, ...files]);
     }
@@ -263,7 +268,13 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
   const handlePeralatanFotoChange = (peralatanIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
+      const files = acceptFiles(
+        'fotoAlat',
+        `fotoAlat-${peralatanIndex}`,
+        Array.from(e.target.files),
+        (peralatanFotoFiles[peralatanIndex] || []).length,
+      );
+      e.target.value = '';
       setPeralatanFotoFiles(prev => ({
         ...prev,
         [peralatanIndex]: [...(prev[peralatanIndex] || []), ...files],
@@ -665,13 +676,16 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                       </svg>
                       <input
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept={UPLOAD_RULES.fotoAlat.accept}
+                        aria-label={`Tambah foto alat ${index + 1}`}
                         multiple
                         className="hidden"
                         onChange={(e) => handlePeralatanFotoChange(index, e)}
                       />
                     </label>
                   </div>
+                  <FieldHelp id={`prot-foto-alat-${index}-help`}>{UPLOAD_RULES.fotoAlat.hint}</FieldHelp>
+                  <UploadErrors errors={uploadErrors[`fotoAlat-${index}`]} />
                 </div>
 
                 {/* URL Pembelian */}
@@ -755,7 +769,8 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
             >
               <input
                 type="file"
-                accept="image/*"
+                accept={UPLOAD_RULES.fotoKegiatan.accept}
+                aria-label="Unggah foto kegiatan"
                 multiple
                 onChange={handleFotoChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
@@ -766,8 +781,10 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                 </svg>
               </div>
               <p className="font-bold text-on-surface text-sm mb-1">Unggah Foto</p>
-              <p className="text-[10px] text-warm-label max-w-xs mx-auto">Mendukung format JPG, PNG (Maks. 10MB/file)</p>
+              <p className="text-[10px] text-warm-label max-w-xs mx-auto" data-upload-hint="fotoKegiatan">{UPLOAD_RULES.fotoKegiatan.hint}</p>
             </div>
+            <p className="text-xs text-warm-label">Foto pertama dipakai di kartu, peta dan desa Jelajah: pilih foto terbaik, mendatar dan terang.</p>
+            <UploadErrors errors={uploadErrors.fotoKegiatan} />
 
             {(existingFotos.length > 0 || fotoFiles.length > 0) && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
@@ -811,7 +828,8 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
             >
               <input
                 type="file"
-                accept="video/*"
+                accept={UPLOAD_RULES.videoKegiatan.accept}
+                aria-label="Unggah video kegiatan"
                 multiple
                 onChange={handleVideoChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
@@ -822,8 +840,9 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                 </svg>
               </div>
               <p className="font-bold text-on-surface text-sm mb-1">Unggah Video</p>
-              <p className="text-[10px] text-warm-label max-w-xs mx-auto">Mendukung format MP4, MOV (Maks. 50MB)</p>
+              <p className="text-[10px] text-warm-label max-w-xs mx-auto" data-upload-hint="videoKegiatan">{UPLOAD_RULES.videoKegiatan.hint}</p>
             </div>
+            <UploadErrors errors={uploadErrors.videoKegiatan} />
 
             {(existingVideos.length > 0 || videoFiles.length > 0) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -871,7 +890,8 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
             >
               <input
                 type="file"
-                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept={UPLOAD_RULES.dokumenKurikulum.accept}
+                aria-label="Unggah dokumen PDF"
                 multiple
                 onChange={handleDokumenChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
@@ -882,8 +902,10 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                 </svg>
               </div>
               <p className="font-bold text-on-surface text-sm mb-1">Unggah Dokumen</p>
-              <p className="text-[10px] text-warm-label max-w-xs mx-auto">Mendukung format PDF, DOC (Maks. 20MB)</p>
+              <p className="text-[10px] text-warm-label max-w-xs mx-auto" data-upload-hint="dokumenKurikulum">{UPLOAD_RULES.dokumenKurikulum.hint}</p>
             </div>
+            <p className="text-xs text-warm-label">Dokumen tidak ditampilkan ke publik, tetapi file langsung tersimpan di penyimpanan publik begitu diunggah. Jangan unggah dokumen berisi data pribadi.</p>
+            <UploadErrors errors={uploadErrors.dokumenKurikulum} />
 
             {(existingDokumen.length > 0 || dokumenFiles.length > 0) && (
               <div className="space-y-2">
