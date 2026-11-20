@@ -12,6 +12,7 @@ export function CommunityScene({ stats }: { stats: CommunityStats | null }) {
   const tiles = communityTiles(stats);
   return (
     <SceneLayout
+      dense
       kicker="Event dan komunitas"
       title="Bertemu sesama pelestari"
       text="Ikuti event permainan tradisional dan bergabung bersama komunitas."

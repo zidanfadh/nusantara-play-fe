@@ -12,6 +12,7 @@ import { SceneLayout } from './SceneLayout';
 export function StartScene({ onStart, startRef }: { onStart: () => void; startRef?: RefObject<HTMLButtonElement | null> }) {
   return (
     <SceneLayout
+      dense
       kicker="XP dan Paspor"
       title="Kumpulkan XP dan stempel Paspor"
       text="Masuk ke provinsi dan buka stan PROT untuk mengumpulkan XP dan stempel Paspor."

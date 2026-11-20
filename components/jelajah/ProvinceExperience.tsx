@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, Hand, Map as MapIcon, RefreshCw, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { GAME_SOON_TITLE, GAME_TEXTS, gameHref as linkToGame } from '@/lib/games/links';
+import { GAME_SOON_TITLE, gameHref as linkToGame, gamePlayLabel } from '@/lib/games/links';
 import { markBumperSeen } from '@/lib/jelajah/bumper/session';
 import { gamePavilion } from '@/lib/jelajah/engine/pavilion';
 import { enterProvince, openProt } from '@/lib/jelajah/demo-rewards';
@@ -121,6 +121,9 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
   const pavilionDef = gamePavilion(scene);
   const game = pavilionDef?.game ?? null;
   const gameHref = game ? linkToGame(game, `jelajah-${scene.slug}`, pavilionDef?.variant) : null;
+  // Phase 25: the egrang pavilions name their variant ("Main Egrang Bambu" / "Main Egrang Batok").
+  const gameVariant = pavilionDef?.variant;
+  const gameLabel = game ? gamePlayLabel(game, gameVariant) : '';
   const [panel, setPanel] = useState<PanelContent | null>(null);
   const [ready, setReady] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -281,7 +284,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
           stands={stands}
           onOpen={(i, el) => openStand(i, el)}
           scene={scene}
-          extra={game && gameHref ? <GameCard game={game} href={gameHref} /> : scene.gameSoon ? <GameSoonCard /> : undefined}
+          extra={game && gameHref ? <GameCard game={game} href={gameHref} variant={gameVariant} /> : scene.gameSoon ? <GameSoonCard /> : undefined}
         />
         {panel && <div className="fixed inset-0 z-30 md:pointer-events-none [&>aside]:pointer-events-auto">{panelView}</div>}
       </div>
@@ -362,7 +365,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
 
       {ready && nearPavilion && game && gameHref && !panel && (
         <div className={`absolute z-20 ${touch ? 'bottom-8 left-[10.5rem] right-3' : 'bottom-6 left-1/2 w-[min(92%,22rem)] -translate-x-1/2'}`}>
-          <GamePrompt game={game} href={gameHref} compact={touch} />
+          <GamePrompt game={game} href={gameHref} compact={touch} variant={gameVariant} />
         </div>
       )}
 
@@ -385,7 +388,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
           {game && gameHref && (
             <li>
               <Link href={gameHref}>
-                {PAVILION_TITLE}: {GAME_TEXTS[game].play}
+                {PAVILION_TITLE}: {gameLabel}
               </Link>
             </li>
           )}

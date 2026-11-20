@@ -14,6 +14,7 @@ export function ProtScene({ scene }: { scene: ProtSceneData }) {
   const { pop } = useSceneVariants();
   return (
     <SceneLayout
+      dense
       kicker="Arsip PROT"
       title={scene.headline}
       text={scene.text}
