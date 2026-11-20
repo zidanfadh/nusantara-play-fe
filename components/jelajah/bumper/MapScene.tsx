@@ -26,6 +26,7 @@ export function MapScene({ scene, shapes }: { scene: MapSceneData; shapes: reado
 
   return (
     <SceneLayout
+      dense
       kicker="Jelajah Nusantara"
       title={scene.headline}
       text={scene.text}

@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { forwardRef } from 'react';
 import { Disc3, Footprints, Gamepad2, Hourglass, type LucideIcon } from 'lucide-react';
-import { GAME_SOON_DESCRIPTION, GAME_SOON_TITLE, GAME_TEXTS, type JelajahGame } from '@/lib/games/links';
+import {
+  GAME_SOON_DESCRIPTION,
+  GAME_SOON_TITLE,
+  GAME_TEXTS,
+  gamePlayLabel,
+  type GameVariant,
+  type JelajahGame,
+} from '@/lib/games/links';
 
 /** Neutral texts of the game pavilion (Phase 17): no claim about where the game comes from. */
 export const PAVILION_TITLE = 'Paviliun permainan';
@@ -21,12 +28,15 @@ export const GAME_ICONS: Readonly<Record<JelajahGame, LucideIcon>> = {
  * Prompt near the game pavilion in a province scene (Phase 17), styled like the stand prompt: a title and
  * the game's "Main …" link (same tab; the game page links back with "Kembali ke desa"). Phase 22: any game.
  */
-export const GamePrompt = forwardRef<HTMLAnchorElement, { game: JelajahGame; href: string; compact: boolean }>(function GamePrompt(
-  { game, href, compact },
+export const GamePrompt = forwardRef<
+  HTMLAnchorElement,
+  { game: JelajahGame; href: string; compact: boolean; variant?: GameVariant }
+>(function GamePrompt(
+  { game, href, compact, variant },
   ref,
 ) {
   const Icon = GAME_ICONS[game];
-  const play = GAME_TEXTS[game].play;
+  const play = gamePlayLabel(game, variant);
   if (compact) {
     // Phones (about 180 px next to the joystick): one full-width button; the title is read by screen readers.
     return (
@@ -63,9 +73,10 @@ export const GamePrompt = forwardRef<HTMLAnchorElement, { game: JelajahGame; hre
 });
 
 /** The same entry on the 2d tier: a card above the stand grid. */
-export function GameCard({ game, href }: { game: JelajahGame; href: string }) {
+export function GameCard({ game, href, variant }: { game: JelajahGame; href: string; variant?: GameVariant }) {
   const Icon = GAME_ICONS[game];
-  const { play, description } = GAME_TEXTS[game];
+  const { description } = GAME_TEXTS[game];
+  const play = gamePlayLabel(game, variant);
   return (
     <div
       className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center"

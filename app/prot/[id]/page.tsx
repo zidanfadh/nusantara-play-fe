@@ -8,7 +8,8 @@ import { BlockchainBadge } from '@/components/prot/BlockchainBadge';
 import { BlockchainProofCard } from '@/components/prot/BlockchainProofCard';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { PROTEntity, PROTStatus, PROTJenis } from '@/types/prot';
+import { PROTEntity, PROTStatus, PROTJenis, type Peralatan } from '@/types/prot';
+import { canSeeProtDocuments, firstVisiblePhoto, publicProtMedia } from '@/lib/prot/hidden-media';
 
 export default function ProtDetailPage() {
   const { id } = useParams();
@@ -36,9 +37,7 @@ export default function ProtDetailPage() {
       // Based on lib/api/prot.ts, getById returns Promise<PROTEntity>
       const data = await protApi.getById(protId);
       setItem(data);
-      if (data.fotoKegiatan && data.fotoKegiatan.length > 0) {
-        setActiveImage(data.fotoKegiatan[0]);
-      }
+      setActiveImage(firstVisiblePhoto(data));
     } catch (err) {
       console.error('Error fetching details:', err);
       setError('Gagal memuat detail data. Data mungkin tidak ditemukan atau terjadi kesalahan server.');
@@ -143,6 +142,9 @@ export default function ProtDetailPage() {
   );
   const isPublishable = item.status === PROTStatus.DIVERIFIKASI && user?.role === 'admin_kpoti';
   const isDeletable = user?.role === 'admin_kpoti';
+  // Phase 25: every media field goes through the hidden-media denylist; documents only with the build flag or for a
+  // reviewer role (lib/prot/hidden-media.ts).
+  const media = publicProtMedia<Peralatan>(item, { showDocuments: canSeeProtDocuments(user?.role) });
 
   return (
     <>
@@ -280,9 +282,9 @@ export default function ProtDetailPage() {
                 )}
               </div>
 
-              {item.fotoKegiatan && item.fotoKegiatan.length > 0 && (
+              {media.fotoKegiatan.length > 0 && (
                 <div className="p-2 flex gap-2 overflow-x-auto">
-                  {item.fotoKegiatan.map((foto, idx) => (
+                  {media.fotoKegiatan.map((foto, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveImage(foto)}
@@ -328,11 +330,11 @@ export default function ProtDetailPage() {
             </div>
 
             {/* Video Section if exists */}
-            {item.videoKegiatan && item.videoKegiatan.length > 0 && (
+            {media.videoKegiatan.length > 0 && (
               <div className="bg-background border border-border rounded-lg shadow-sm p-6">
                 <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border">Video Kegiatan</h3>
                 <div className="space-y-4">
-                  {item.videoKegiatan.map((video, idx) => (
+                  {media.videoKegiatan.map((video, idx) => (
                     <div key={idx} className="aspect-video bg-black rounded overflow-hidden">
                        <video src={video} controls className="w-full h-full" />
                     </div>
@@ -365,14 +367,14 @@ export default function ProtDetailPage() {
             <div className="bg-background border border-border rounded-lg shadow-sm p-6">
               <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Peralatan yang Dibutuhkan</h3>
 
-              {Array.isArray(item.peralatan) && item.peralatan.length > 0 ? (
+              {media.peralatan.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {item.peralatan.map((alat, idx) => (
+                  {media.peralatan.map(({ item: alat, fotoAlat, urlPembelian }, idx) => (
                     <div key={idx} className="border border-border rounded-md p-4 bg-muted/20">
                       <div className="flex gap-4">
-                        {alat.fotoAlat && alat.fotoAlat.length > 0 ? (
+                        {fotoAlat.length > 0 ? (
                           <div className="w-20 h-20 bg-muted rounded shrink-0 overflow-hidden">
-                            <ProtPhoto src={alat.fotoAlat[0]} alt={alat.nama} size="thumb" />
+                            <ProtPhoto src={fotoAlat[0]} alt={alat.nama} size="thumb" />
                           </div>
                         ) : (
                           <div className="w-20 h-20 bg-muted rounded shrink-0 flex items-center justify-center text-muted-foreground">
@@ -390,10 +392,10 @@ export default function ProtDetailPage() {
                               Rp {alat.kisaranHarga}
                             </div>
                           )}
-                          {alat.urlPembelian && alat.urlPembelian.length > 0 && (
+                          {urlPembelian.length > 0 && (
                             <div className="mt-2 space-y-1">
                               <p className="text-xs text-muted-foreground font-medium">Beli di:</p>
-                              {alat.urlPembelian.map((url, urlIdx) => (
+                              {urlPembelian.map((url, urlIdx) => (
                                 <a
                                   key={urlIdx}
                                   href={url}
@@ -409,9 +411,9 @@ export default function ProtDetailPage() {
                         </div>
                       </div>
                       {/* All fotoAlat */}
-                      {alat.fotoAlat && alat.fotoAlat.length > 1 && (
+                      {fotoAlat.length > 1 && (
                         <div className="mt-3 flex gap-2 overflow-x-auto">
-                          {alat.fotoAlat.slice(1).map((foto, fotoIdx) => (
+                          {fotoAlat.slice(1).map((foto, fotoIdx) => (
                             <div key={fotoIdx} className="w-16 h-16 shrink-0 rounded overflow-hidden border border-border">
                               <ProtPhoto src={foto} alt={`${alat.nama} foto ${fotoIdx + 2}`} size="thumb" />
                             </div>
@@ -427,11 +429,11 @@ export default function ProtDetailPage() {
             </div>
 
             {/* Dokumen Kurikulum */}
-            {item.dokumenKurikulum && item.dokumenKurikulum.length > 0 && (
+            {media.dokumenKurikulum.length > 0 && (
               <div className="bg-background border border-border rounded-lg shadow-sm p-6">
                 <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Dokumen Kurikulum / Panduan</h3>
                 <div className="space-y-2">
-                  {item.dokumenKurikulum.map((url, idx) => {
+                  {media.dokumenKurikulum.map((url, idx) => {
                     const filename = url.split('/').pop() || `Dokumen ${idx + 1}`;
                     return (
                       <a

@@ -50,7 +50,8 @@ interface SceneLayoutProps {
   children?: ReactNode;
   /**
    * Phase 23: on short screens (landscape phones, at most 500 px high) hide the visual and tighten the type, so a
-   * scene with several buttons (the game scene) fits without scrolling. Other scenes are unchanged.
+   * scene with several buttons (the game scene) fits without scrolling. Phase 25: every scene uses it (each was
+   * taller than the screen at 844x390 and 740x360); taller screens are unchanged.
    */
   dense?: boolean;
 }

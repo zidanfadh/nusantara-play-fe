@@ -8,6 +8,7 @@ import { SceneLayout } from './SceneLayout';
 export function BrandScene() {
   return (
     <SceneLayout
+      dense
       kicker="Selamat datang di"
       title={SITE_NAME}
       text={SITE_TAGLINE}

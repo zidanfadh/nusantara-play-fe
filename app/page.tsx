@@ -11,6 +11,7 @@ import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
 import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
 import { getPublishedCounts, landingStatTiles } from '@/components/landing/published-stats';
 import { featuredProtQuery, onlyPublishedProt } from '@/components/landing/featured-prot';
+import { firstVisiblePhoto } from '@/lib/prot/hidden-media';
 import { DesktopOnlyImage } from '@/components/landing/DesktopOnlyImage';
 import { LANDING_IMAGE_SIZES } from '@/components/landing/image-sizes';
 import tourPreviewImage from '@/public/images/landing/nusantara-legacy.webp';
@@ -559,7 +560,9 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredGames.length > 0 ? (
-                featuredGames.map((game) => (
+                featuredGames.map((game) => {
+                  const photo = firstVisiblePhoto(game);
+                  return (
                   <Link
                     key={game.id}
                     href={`/prot/${game.id}`}
@@ -569,10 +572,10 @@ export default async function Home() {
                     }}
                   >
                     <div className="aspect-square rounded-2xl overflow-hidden mb-6 bg-muted">
-                      {game.fotoKegiatan && game.fotoKegiatan.length > 0 ? (
+                      {photo ? (
                         // Same `cover` variants as /prot (no extra transformations); far below the fold, so lazy.
                         <ProtPhoto
-                          src={game.fotoKegiatan[0]}
+                          src={photo}
                           alt={game.nama}
                           size="cover"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -598,7 +601,8 @@ export default async function Home() {
                       {getGameSummary(game)}
                     </p>
                   </Link>
-                ))
+                  );
+                })
               ) : (
                 <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-muted-foreground">
                   Data permainan belum tersedia untuk ditampilkan.

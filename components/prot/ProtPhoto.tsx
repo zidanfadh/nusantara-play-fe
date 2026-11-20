@@ -15,6 +15,7 @@
  */
 import Image from 'next/image';
 import { useState } from 'react';
+import { isHiddenMediaUrl } from '@/lib/prot/hidden-media';
 
 export const PROT_PHOTO_HOST = 'nusantara-play-storage.s3.ap-southeast-2.amazonaws.com';
 export const PROT_PHOTO_PATH_PREFIX = '/prot/';
@@ -52,6 +53,8 @@ interface ProtPhotoProps {
 
 export function ProtPhoto({ src, alt, size, className = 'h-full w-full object-cover', priority = false }: ProtPhotoProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  // Phase 25: last line of defence; callers filter with lib/prot/hidden-media.ts so no empty frame is left.
+  if (isHiddenMediaUrl(src)) return null;
   const optimize = isOptimizableProtPhoto(src) && failedSrc !== src;
   const { width, height } = PROT_PHOTO_SIZES[size];
   return (

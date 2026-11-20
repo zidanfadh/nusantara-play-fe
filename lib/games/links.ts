@@ -38,6 +38,20 @@ export const GAME_TEXTS: Readonly<Record<JelajahGame, { play: string; descriptio
   },
 };
 
+/**
+ * Phase 25 (Phase 23 review): a pavilion that opens one variant names it, so the button says which race it starts.
+ * The intro bumper keeps the plain game label (`GAME_TEXTS[game].play`, "Main Egrang").
+ */
+export const VARIANT_PLAY_LABELS: Readonly<Record<GameVariant, string>> = {
+  bambu: 'Main Egrang Bambu',
+  batok: 'Main Egrang Batok',
+};
+
+/** The "Main …" label of a pavilion: the variant's label for egrang with a variant, otherwise the game's. */
+export function gamePlayLabel(game: JelajahGame, variant?: GameVariant): string {
+  return game === 'egrang' && variant ? VARIANT_PLAY_LABELS[variant] : GAME_TEXTS[game].play;
+}
+
 /** Shown in provinces that have PROT but no playable game yet (a sign in the scene, a card on the 2d tier). */
 export const GAME_SOON_TITLE = 'Game segera hadir';
 export const GAME_SOON_DESCRIPTION = 'Permainan untuk desa ini sedang disiapkan.';

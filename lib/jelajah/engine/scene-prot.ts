@@ -5,6 +5,7 @@
  */
 import { apiClient } from '@/lib/api/client';
 import { fetchPublicProt, firstPhoto, PUBLIC_PROT_STATUS, type GetJson, type RawProt } from '@/lib/jelajah/data';
+import { visibleMedia } from '@/lib/prot/hidden-media';
 
 export interface SceneProt {
   id: string;
@@ -47,7 +48,7 @@ export function shapeSceneProt(rows: readonly RawProt[], provinsiKode: string): 
     out.push({
       id,
       nama: clean(row.nama) || 'Tanpa nama',
-      foto: firstPhoto(row.fotoKegiatan),
+      foto: firstPhoto(visibleMedia(row.fotoKegiatan, { protId: id, field: 'fotoKegiatan' })),
       deskripsi: shortText(clean(row.deskripsi), DESCRIPTION_LIMIT),
       caraBermain: shortText(clean(row.caraBermain), CARA_BERMAIN_LIMIT),
     });
