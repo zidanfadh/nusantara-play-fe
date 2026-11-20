@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ProtForm } from '@/components/prot/ProtForm';
 import { protApi } from '@/lib/api/prot';
 import { toProtWritePayload } from '@/lib/prot/form-fields';
+import { RevisionNoticeLoader } from '@/components/prot/RevisionNotice';
 import { PROTEntity, PROTStatus } from '@/types/prot';
 
 export default function EditProtPage() {
@@ -243,6 +244,12 @@ export default function EditProtPage() {
             <div className="mb-8 p-4 bg-red-50 text-red-600 rounded-xl border border-red-200 text-sm">
                 {error}
             </div>
+        )}
+        {/* Phase 26: what the reviewer asked to fix, above the form. */}
+        {initialData.status === PROTStatus.REVISI && (
+          <div className="mb-8">
+            <RevisionNoticeLoader protId={initialData.id} />
+          </div>
         )}
         <ProtForm
             title="Edit Data PROT"

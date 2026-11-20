@@ -146,8 +146,12 @@ export const protApi = {
   submitKurasi: (id: string, catatan: string) =>
     apiClient.post(`${BASE_URL}/${id}/submit-kurasi`, { catatan }),
 
-  resubmit: (id: string) =>
-    apiClient.post(`${BASE_URL}/${id}/resubmit`),
+  // Phase 26: the note is sent only when given (and only with NEXT_PUBLIC_PROT_RESUBMIT_NOTE, see
+  // lib/prot/submission.ts); the backend in production has no body on this route.
+  resubmit: (id: string, catatan?: string) =>
+    catatan === undefined
+      ? apiClient.post(`${BASE_URL}/${id}/resubmit`)
+      : apiClient.post(`${BASE_URL}/${id}/resubmit`, { catatan }),
 
   // Verification Queue (Pakar/Admin)
   getQueue: (page = 1, limit = 20, provinsi?: string) => {
