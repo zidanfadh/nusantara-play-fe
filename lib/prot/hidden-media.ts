@@ -56,6 +56,58 @@ export const HIDDEN_MEDIA: readonly HiddenMediaEntry[] = [
     url: 'https://www.lazada.co.id/products/kue-biji-ketapang-kelapa-parut-asli-renyah-gurih-kemasan-toples-300gr-i5195340660-s9759820242.html',
     reason: 'Unrelated purchase link: a cake product, not the equipment.',
   },
+
+  // --- Phase 25 audit of every published record (phase-25.md section 8). ---
+  {
+    // SEPANGKAL, fotoKegiatan[0].
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/345613bf-79e4-4f84-aa7e-7960db6edd31.png',
+    reason: "Children's faces clearly recognisable (consent unknown); shows a seated game, not sepangkal.",
+  },
+  {
+    // SEPANGKAL, fotoKegiatan[1].
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/dbe63d34-a593-41eb-9a08-0c911b203097.png',
+    reason: "Children's faces partly recognisable (consent unknown); shows a stone-picking game, not sepangkal.",
+  },
+  {
+    // SEPANGKAL, equipment "Lapangan", fotoAlat[0].
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/peralatan/f1348db6-8000-4317-b611-c7d0b092e1b7.png',
+    reason: 'Unrelated: a scanned book photo of a coconut-shell game (source and rights unknown), not a field for sepangkal.',
+  },
+  {
+    // SEPANGKAL, equipment "Lapangan", fotoAlat[1].
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/peralatan/0e17ccd6-590a-46e5-8800-fc355d21b9cc.png',
+    reason: 'Unrelated: a scanned book photo of a coconut-shell game (source and rights unknown), not a field for sepangkal.',
+  },
+  {
+    // Egrang Batok, fotoKegiatan[0]. The photo matches the game; hidden only for the faces.
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/5b992115-d0a5-4584-9456-4747951fd14a.webp',
+    reason: "Children's faces clearly recognisable (consent unknown). Remove this entry once the curator confirms consent.",
+  },
+  {
+    // Egrang Batok, fotoKegiatan[2]. The photo matches the game; hidden only for the faces.
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/d9465a44-2a76-4ffe-aac4-74ca7b4fd429.jpeg',
+    reason: "Children's faces clearly recognisable (consent unknown). Remove this entry once the curator confirms consent.",
+  },
+  {
+    // Egrang Bambu, fotoKegiatan[0]. The photo matches the game; hidden only for the faces.
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/25cc34fc-7a61-4b20-bb93-e2f2931ead27.jpg',
+    reason: "Children's faces clearly recognisable (consent unknown). Remove this entry once the curator confirms consent.",
+  },
+  {
+    // Gasing, fotoKegiatan[2]. The photo matches the game; hidden only for the faces in the crowd.
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/5cdba1ab-d130-4ddd-998b-21e16911bdbf.png',
+    reason: "Children's faces recognisable among the spectators (consent unknown). Remove once the curator confirms consent.",
+  },
+  {
+    // Test Permainan Jawa Barat, fotoKegiatan[0] (same image as its fotoAlat[0]).
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/foto-kegiatan/15305a30-3c38-4a8f-a735-87a52e09f1c5.png',
+    reason: 'Unrelated and possibly a private home: the front of a residential house; a test record.',
+  },
+  {
+    // Test Permainan Jawa Barat, equipment "Gasing", fotoAlat[0] (same image as its fotoKegiatan[0]).
+    url: 'https://nusantara-play-storage.s3.ap-southeast-2.amazonaws.com/prot/peralatan/ad41478e-8221-4bc7-818a-7e4894811b8e.png',
+    reason: 'Unrelated and possibly a private home: the front of a residential house, not a spinning top; a test record.',
+  },
 ];
 
 /** Whole fields of one record (optionally one equipment item) that must never be displayed. */

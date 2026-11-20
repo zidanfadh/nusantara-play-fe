@@ -48,6 +48,14 @@ describe('hidden-media helper (Phase 25)', () => {
     for (const r of HIDDEN_FIELDS) expect(r.reason.length).toBeGreaterThan(10);
   });
 
+  it('every entry is a unique, valid https URL; reasons hold no digits, emails or quotes of personal data', () => {
+    const keys = HIDDEN_MEDIA.map((e) => mediaKey(e.url));
+    expect(keys.every((k) => k?.startsWith('https://'))).toBe(true);
+    expect(new Set(keys).size).toBe(HIDDEN_MEDIA.length);
+    expect(HIDDEN_MEDIA.length).toBe(13); // 3 (Step 1) + 10 (Phase 25 audit)
+    for (const e of [...HIDDEN_MEDIA, ...HIDDEN_FIELDS]) expect(e.reason).not.toMatch(/\d{4,}|@/);
+  });
+
   it('matches without query string or fragment and with any host case; other URLs stay visible', () => {
     expect(isHiddenMediaUrl(`${PDF}?download=1#page=2`)).toBe(true);
     expect(isHiddenMediaUrl(PDF.replace('nusantara-play-storage', 'NUSANTARA-PLAY-STORAGE'))).toBe(true);
