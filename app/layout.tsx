@@ -5,14 +5,28 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "sonner";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/brand";
 
-// Self-hosted (app/fonts/, OFL): the build never downloads from Google Fonts. Same CSS variables, latin
-// subset, font-display swap and preload as the former next/font/google setup.
-const jakartaSans = localFont({
-  src: "./fonts/PlusJakartaSans-latin.woff2",
-  variable: "--font-jakarta-sans",
-  weight: "300 800",
+// Self-hosted (app/fonts/, OFL, sources in app/fonts/README.md): the build never downloads from Google Fonts.
+// Phase 27 visual identity: Poppins for body and UI (400, 500, 600, 700, latin subset), Cinzel Decorative only for the
+// logotype and a few large display headings (`font-display`), Geist Mono where mono is used. font-display swap.
+const poppins = localFont({
+  src: [
+    { path: "./fonts/Poppins-Regular-latin.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/Poppins-Medium-latin.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/Poppins-SemiBold-latin.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/Poppins-Bold-latin.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-poppins",
+  display: "swap",
+  fallback: ["Arial", "Helvetica", "sans-serif"],
+});
+
+const cinzelDecorative = localFont({
+  src: "./fonts/CinzelDecorative-Bold.woff2",
+  variable: "--font-cinzel-decorative",
+  weight: "700",
   style: "normal",
   display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
 const geistMono = localFont({
@@ -62,7 +76,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${jakartaSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} ${cinzelDecorative.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
           {children}

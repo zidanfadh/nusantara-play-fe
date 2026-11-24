@@ -1,104 +1,264 @@
 @import "tailwindcss";
 
+/*
+ * Visual identity (Phase 27, design team's "Konsep Visual" in docs/design/). THE place for colours and fonts.
+ * Values: --nl-* on :root (light) and :root.dark (dark, the class the theme toggle sets on <html>). Tailwind sees them
+ * through @theme inline (bg-background, text-text-muted, bg-primary, ring-focus-ring, ...). lib/theme/tokens.ts mirrors
+ * the values for the contrast test (tests/theme/tokens.test.ts keeps both equal). Contrast table: Phase 27 report.
+ * Brand colours are exact and meant for fills, large text and decoration; small text uses the derived shades.
+ */
+:root {
+  --nl-brand-cream: #FEF3E2;
+  --nl-brand-amber: #F4AE52;
+  --nl-brand-terracotta: #D4621A;
+  --nl-brand-brown: #2A1A0E;
+  --nl-muted-hover: #EED6B2;
+  --nl-background: #FEF3E2;
+  --nl-surface: #FFFAF2;
+  --nl-surface-raised: #FFFFFF;
+  --nl-muted: #F6E4C6;
+  --nl-text: #2A1A0E;
+  --nl-text-muted: #6B4E36;
+  --nl-primary: #B4500F;
+  --nl-primary-foreground: #FEF3E2;
+  --nl-primary-hover: #9A4310;
+  --nl-primary-text: #9A4310;
+  --nl-primary-soft: #FBE0CC;
+  --nl-primary-soft-foreground: #7A3410;
+  --nl-secondary: #2A1A0E;
+  --nl-secondary-foreground: #FEF3E2;
+  --nl-accent: #F4AE52;
+  --nl-accent-foreground: #2A1A0E;
+  --nl-border: #E8CFAB;
+  --nl-input: #8F6B4C;
+  --nl-focus-ring: #A3600C;
+  --nl-ornament: #D4621A;
+  --nl-success: #2F6B2F;
+  --nl-success-soft: #E3F0D8;
+  --nl-success-soft-foreground: #2F6B2F;
+  --nl-warning: #8A5A00;
+  --nl-warning-soft: #FCEBC4;
+  --nl-warning-soft-foreground: #8A5A00;
+  --nl-danger: #B42318;
+  --nl-danger-soft: #FBE3DA;
+  --nl-danger-soft-foreground: #B42318;
+  color-scheme: light;
+}
+
+:root.dark {
+  --nl-muted-hover: #574030;
+  --nl-background: #2A1A0E;
+  --nl-surface: #36241A;
+  --nl-surface-raised: #42301F;
+  --nl-muted: #4A3524;
+  --nl-text: #FEF3E2;
+  --nl-text-muted: #D9C3A5;
+  --nl-primary: #F4AE52;
+  --nl-primary-foreground: #2A1A0E;
+  --nl-primary-hover: #F7C27A;
+  --nl-primary-text: #F4AE52;
+  --nl-primary-soft: #5A2E12;
+  --nl-primary-soft-foreground: #FBD9B8;
+  --nl-secondary: #FEF3E2;
+  --nl-secondary-foreground: #2A1A0E;
+  --nl-accent: #F4AE52;
+  --nl-accent-foreground: #2A1A0E;
+  --nl-border: #5A4430;
+  --nl-input: #A08060;
+  --nl-focus-ring: #F4AE52;
+  --nl-ornament: #F4AE52;
+  --nl-success: #9CD49C;
+  --nl-success-soft: #22351C;
+  --nl-success-soft-foreground: #B4E0B0;
+  --nl-warning: #F6C873;
+  --nl-warning-soft: #3F2E10;
+  --nl-warning-soft-foreground: #F6C873;
+  --nl-danger: #FF9C7A;
+  --nl-danger-soft: #4A2218;
+  --nl-danger-soft-foreground: #FFB4A0;
+  color-scheme: dark;
+}
+
+/*
+ * Fonts (Phase 27): Poppins for body and UI, Cinzel Decorative (font-display) only for the logotype and a few large
+ * display headings, Geist Mono for mono. `inline` because next/font defines its variables on <body> (app/layout.tsx);
+ * a plain @theme block would resolve them on :root, where they do not exist (Phase 14 finding).
+ */
+@theme inline {
+  --font-sans: var(--font-poppins);
+  --font-display: var(--font-cinzel-decorative);
+  --font-mono: var(--font-geist-mono);
+}
+
+@theme inline {
+  --color-brand-cream: var(--nl-brand-cream);
+  --color-brand-amber: var(--nl-brand-amber);
+  --color-brand-terracotta: var(--nl-brand-terracotta);
+  --color-brand-brown: var(--nl-brand-brown);
+  --color-brand-terracotta-600: #B4500F;
+  --color-brand-terracotta-700: #9A4310;
+  --color-brand-amber-700: #A3600C;
+  --color-brand-amber-300: #F7C27A;
+  --color-background: var(--nl-background);
+  --color-surface: var(--nl-surface);
+  --color-surface-raised: var(--nl-surface-raised);
+  --color-muted: var(--nl-muted);
+  --color-text: var(--nl-text);
+  --color-text-muted: var(--nl-text-muted);
+  --color-primary: var(--nl-primary);
+  --color-primary-foreground: var(--nl-primary-foreground);
+  --color-primary-hover: var(--nl-primary-hover);
+  --color-primary-text: var(--nl-primary-text);
+  --color-primary-soft: var(--nl-primary-soft);
+  --color-primary-soft-foreground: var(--nl-primary-soft-foreground);
+  --color-secondary: var(--nl-secondary);
+  --color-secondary-foreground: var(--nl-secondary-foreground);
+  --color-accent: var(--nl-accent);
+  --color-accent-foreground: var(--nl-accent-foreground);
+  --color-border: var(--nl-border);
+  --color-input: var(--nl-input);
+  --color-focus-ring: var(--nl-focus-ring);
+  --color-ornament: var(--nl-ornament);
+  --color-success: var(--nl-success);
+  --color-success-soft: var(--nl-success-soft);
+  --color-success-soft-foreground: var(--nl-success-soft-foreground);
+  --color-warning: var(--nl-warning);
+  --color-warning-soft: var(--nl-warning-soft);
+  --color-warning-soft-foreground: var(--nl-warning-soft-foreground);
+  --color-danger: var(--nl-danger);
+  --color-danger-soft: var(--nl-danger-soft);
+  --color-danger-soft-foreground: var(--nl-danger-soft-foreground);
+  --color-muted-hover: var(--nl-muted-hover);
+
+  /* Older names (Phase 14 and before), kept so every existing class follows the new palette. */
+  --color-foreground: var(--nl-text);
+  --color-card: var(--nl-surface);
+  --color-card-foreground: var(--nl-text);
+  --color-muted-foreground: var(--nl-text-muted);
+  --color-ring: var(--nl-focus-ring);
+  --color-surface-container-low: var(--nl-surface);
+  --color-surface-container-highest: var(--nl-muted);
+  --color-surface-container-lowest: var(--nl-surface-raised);
+  --color-primary-fixed: var(--nl-primary-soft);
+  --color-on-primary-fixed: var(--nl-primary-soft-foreground);
+  --color-on-surface: var(--nl-text);
+  --color-outline-variant: var(--nl-border);
+  --color-warm-card: var(--nl-surface);
+  --color-warm-field: var(--nl-muted);
+  --color-warm-btn: var(--nl-muted);
+  --color-warm-btn-hover: var(--nl-muted-hover);
+  --color-warm-label: var(--nl-text-muted);
+  --color-warm-neutral: var(--nl-text-muted);
+}
+
+/*
+ * Tailwind's neutral ramps become a warm brown ramp and blue / indigo (the "primary" of older pages) a terracotta ramp.
+ * Each step keeps Tailwind's own OKLCH lightness, so contrast stays where it was. red, green, yellow, amber, emerald,
+ * purple stay Tailwind's: they carry meaning (errors, success, statuses).
+ */
 @theme {
-  --color-background: #FDF9F3;
-  --color-foreground: #1C1C18;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #1C1C18;
-  --color-primary: #9E3C24;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #1A5F7A;
-  --color-secondary-foreground: #FFFFFF;
-  --color-accent: #D4A017;
-  --color-accent-foreground: #1C1C18;
-  --color-muted: #E6E2DC;
-  --color-muted-foreground: #6B6B6B;
-  --color-border: #D6CDB8;
-  --color-input: #D6CDB8;
-  --color-ring: #9E3C24;
   --radius: 0.5rem;
   --radius-sm: calc(0.5rem - 2px);
   --radius-md: 0.75rem;
   --radius-lg: calc(0.5rem + 2px);
-
-  /* Design System — "The Modern Wayfarer" tokens */
-  --color-surface-container-low: #F7F3ED;
-  --color-surface-container-highest: #E6E2DC;
-  --color-surface-container-lowest: #FFFFFF;
-  --color-primary-fixed: #FFDAD2;
-  --color-on-primary-fixed: #3B0A00;
-  --color-on-surface: #1C1C18;
-  --color-outline-variant: #C8C4BE;
-
-  /* Warm design-system tokens */
-  --color-warm-card: #F1EDE7;
-  --color-warm-field: #E6E2DC;
-  --color-warm-btn: #E2DFDE;
-  --color-warm-btn-hover: #D5D2D1;
-  --color-warm-label: #8A726C;
-  --color-warm-neutral: #636262;
-}
-
-/*
- * Fonts (Phase 14): `inline`, because next/font defines --font-jakarta-sans / --font-geist-mono only on <body>
- * (app/layout.tsx). In a plain @theme block --font-sans was resolved on :root, where those variables do not
- * exist, so every page fell back to the system font. Inline, the font-sans / font-mono utilities use the
- * next/font variables directly (Tailwind v4's recommended setup for next/font).
- */
-@theme inline {
-  --font-sans: var(--font-jakarta-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-gray-50: oklch(98.5% 0.008 60);
+  --color-gray-100: oklch(96.7% 0.012 60);
+  --color-gray-200: oklch(92.8% 0.02 60);
+  --color-gray-300: oklch(87.2% 0.028 60);
+  --color-gray-400: oklch(70.7% 0.035 60);
+  --color-gray-500: oklch(55.1% 0.036 60);
+  --color-gray-600: oklch(44.6% 0.036 60);
+  --color-gray-700: oklch(37.3% 0.035 60);
+  --color-gray-800: oklch(27.8% 0.033 60);
+  --color-gray-900: oklch(21% 0.03 60);
+  --color-gray-950: oklch(13% 0.025 60);
+  --color-stone-50: oklch(98.5% 0.008 60);
+  --color-stone-100: oklch(97% 0.012 60);
+  --color-stone-200: oklch(92.3% 0.02 60);
+  --color-stone-300: oklch(86.9% 0.028 60);
+  --color-stone-400: oklch(70.9% 0.035 60);
+  --color-stone-500: oklch(55.3% 0.036 60);
+  --color-stone-600: oklch(44.4% 0.036 60);
+  --color-stone-700: oklch(37.4% 0.035 60);
+  --color-stone-800: oklch(26.8% 0.033 60);
+  --color-stone-900: oklch(21.6% 0.03 60);
+  --color-stone-950: oklch(14.7% 0.025 60);
+  --color-slate-50: oklch(98.4% 0.008 60);
+  --color-slate-100: oklch(96.8% 0.012 60);
+  --color-slate-200: oklch(92.9% 0.02 60);
+  --color-slate-300: oklch(86.9% 0.028 60);
+  --color-slate-400: oklch(70.4% 0.035 60);
+  --color-slate-500: oklch(55.4% 0.036 60);
+  --color-slate-600: oklch(44.6% 0.036 60);
+  --color-slate-700: oklch(37.2% 0.035 60);
+  --color-slate-800: oklch(27.9% 0.033 60);
+  --color-slate-900: oklch(20.8% 0.03 60);
+  --color-slate-950: oklch(12.9% 0.025 60);
+  --color-zinc-50: oklch(98.5% 0.008 60);
+  --color-zinc-100: oklch(96.7% 0.012 60);
+  --color-zinc-200: oklch(92% 0.02 60);
+  --color-zinc-300: oklch(87.1% 0.028 60);
+  --color-zinc-400: oklch(70.5% 0.035 60);
+  --color-zinc-500: oklch(55.2% 0.036 60);
+  --color-zinc-600: oklch(44.2% 0.036 60);
+  --color-zinc-700: oklch(37% 0.035 60);
+  --color-zinc-800: oklch(27.4% 0.033 60);
+  --color-zinc-900: oklch(21% 0.03 60);
+  --color-zinc-950: oklch(14.1% 0.025 60);
+  --color-neutral-50: oklch(98.5% 0.008 60);
+  --color-neutral-100: oklch(97% 0.012 60);
+  --color-neutral-200: oklch(92.2% 0.02 60);
+  --color-neutral-300: oklch(87% 0.028 60);
+  --color-neutral-400: oklch(70.8% 0.035 60);
+  --color-neutral-500: oklch(55.6% 0.036 60);
+  --color-neutral-600: oklch(43.9% 0.036 60);
+  --color-neutral-700: oklch(37.1% 0.035 60);
+  --color-neutral-800: oklch(26.9% 0.033 60);
+  --color-neutral-900: oklch(20.5% 0.03 60);
+  --color-neutral-950: oklch(14.5% 0.025 60);
+  --color-blue-50: oklch(97% 0.02 45);
+  --color-blue-100: oklch(93.2% 0.04 45);
+  --color-blue-200: oklch(88.2% 0.07 45);
+  --color-blue-300: oklch(80.9% 0.11 45);
+  --color-blue-400: oklch(70.7% 0.15 45);
+  --color-blue-500: oklch(62.3% 0.17 45);
+  --color-blue-600: oklch(54.6% 0.165 45);
+  --color-blue-700: oklch(48.8% 0.15 45);
+  --color-blue-800: oklch(42.4% 0.125 45);
+  --color-blue-900: oklch(37.9% 0.1 45);
+  --color-blue-950: oklch(28.2% 0.07 45);
+  --color-indigo-50: oklch(96.2% 0.02 45);
+  --color-indigo-100: oklch(93% 0.04 45);
+  --color-indigo-200: oklch(87% 0.07 45);
+  --color-indigo-300: oklch(78.5% 0.11 45);
+  --color-indigo-400: oklch(67.3% 0.15 45);
+  --color-indigo-500: oklch(58.5% 0.17 45);
+  --color-indigo-600: oklch(51.1% 0.165 45);
+  --color-indigo-700: oklch(45.7% 0.15 45);
+  --color-indigo-800: oklch(39.8% 0.125 45);
+  --color-indigo-900: oklch(35.9% 0.1 45);
+  --color-indigo-950: oklch(25.7% 0.07 45);
 }
 
 @custom-variant dark (&:is(.dark *));
-
-@layer theme {
-  :root.dark {
-    --color-background: #121212;
-    --color-foreground: #F7F3E8;
-    --color-card: #1E1E1E;
-    --color-card-foreground: #F7F3E8;
-    --color-primary: #D65C2E;
-    --color-primary-foreground: #FFFFFF;
-    --color-secondary: #2C7A9A;
-    --color-secondary-foreground: #FFFFFF;
-    --color-accent: #E5B028;
-    --color-accent-foreground: #121212;
-    --color-muted: #2A2A2A;
-    --color-muted-foreground: #A1A1A1;
-    --color-border: #404040;
-    --color-input: #404040;
-    --color-ring: #D65C2E;
-  }
-}
-
-/* Warm token dark overrides — unlayered so they beat @theme's unlayered :root */
-:root.dark {
-  --color-warm-card: #211F1C;
-  --color-warm-field: #2C2A26;
-  --color-warm-btn: #363330;
-  --color-warm-btn-hover: #403D3A;
-  --color-warm-label: #9A8880;
-  --color-warm-neutral: #B0ADAD;
-
-  /* Design system surface tokens — dark overrides */
-  --color-surface-container-lowest: #1A1816;
-  --color-surface-container-low: #1E1C18;
-  --color-surface-container-highest: #2C2A26;
-  --color-primary-fixed: #3C1000;
-  --color-on-primary-fixed: #FFDAD2;
-  --color-on-surface: #EBE7E0;
-  --color-outline-variant: #3A3530;
-}
 
 @layer base {
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground;
     /* The next/font variable itself: var(--font-sans) would be the value resolved on :root (see above). */
-    font-family: var(--font-jakarta-sans), Arial, Helvetica, sans-serif;
+    font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+  }
+
+  :focus-visible {
+    outline-color: var(--nl-focus-ring);
+  }
+
+  ::selection {
+    background: var(--nl-brand-amber);
+    color: var(--nl-brand-brown);
   }
 }
