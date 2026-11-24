@@ -236,7 +236,7 @@ export function JelajahHub() {
         ref={mapRef}
         aria-label="Peta Jelajah Nusantara"
         className="relative h-[calc(100dvh-4rem)] min-h-[440px] w-full overflow-hidden"
-        style={{ background: palette.seaDeep }}
+        style={{ background: palette.paperEdge }}
       >
         {map}
 

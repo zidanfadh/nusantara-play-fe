@@ -153,7 +153,7 @@ export default function Map2D({
   };
 
   return (
-    <div className="absolute inset-0" style={{ background: palette.seaDeep }}>
+    <div className="absolute inset-0" style={{ background: palette.paperEdge }}>
       <svg
         ref={svgRef}
         viewBox={`${v.x} ${v.y} ${v.w} ${v.h}`}
@@ -168,7 +168,7 @@ export default function Map2D({
           if (e.target === svgRef.current && isTap()) onSelect(null);
         }}
       >
-        <rect x={full.x - 50} y={full.y - 50} width={full.w + 100} height={full.h + 100} fill={palette.sea} />
+        <rect x={full.x - 50} y={full.y - 50} width={full.w + 100} height={full.h + 100} fill={palette.paper} />
         {shapes.map((shape, i) => {
           const clickable = isClickable(shape.kode, summaryByKode);
           const summary = shape.kode ? summaryByKode.get(shape.kode) : undefined;
