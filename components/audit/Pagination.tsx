@@ -52,29 +52,29 @@ export function Pagination({ pagination, onPageChange }: PaginationProps) {
   const endItem = Math.min(page * limit, total);
 
   return (
-    <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-[#E5E0D4] sm:px-6 rounded-b-lg shadow-sm">
+    <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-border sm:px-6 rounded-b-lg shadow-sm">
       <div className="flex-1 flex justify-between sm:hidden">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={!hasPrev}
-          className="relative inline-flex items-center px-4 py-2 border border-[#E5E0D4] text-xs font-medium rounded-lg text-[#6B6B6B] bg-white hover:bg-[#F7F3E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="relative inline-flex items-center px-4 py-2 border border-border text-xs font-medium rounded-lg text-muted-foreground bg-white hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Previous
         </button>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={!hasNext}
-          className="ml-3 relative inline-flex items-center px-4 py-2 border border-[#E5E0D4] text-xs font-medium rounded-lg text-[#6B6B6B] bg-white hover:bg-[#F7F3E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="ml-3 relative inline-flex items-center px-4 py-2 border border-border text-xs font-medium rounded-lg text-muted-foreground bg-white hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Next
         </button>
       </div>
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs text-[#6B6B6B]">
-            Menampilkan <span className="font-medium text-[#2D2D2D]">{startItem}</span> sampai{' '}
-            <span className="font-medium text-[#2D2D2D]">{endItem}</span> dari{' '}
-            <span className="font-medium text-[#2D2D2D]">{total}</span> hasil
+          <p className="text-xs text-muted-foreground">
+            Menampilkan <span className="font-medium text-foreground">{startItem}</span> sampai{' '}
+            <span className="font-medium text-foreground">{endItem}</span> dari{' '}
+            <span className="font-medium text-foreground">{total}</span> hasil
           </p>
         </div>
         <div>
@@ -82,7 +82,7 @@ export function Pagination({ pagination, onPageChange }: PaginationProps) {
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={!hasPrev}
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-[#E5E0D4] bg-white text-xs font-medium text-[#6B6B6B] hover:bg-[#F7F3E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <span className="sr-only">Previous</span>
               <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -109,8 +109,8 @@ export function Pagination({ pagination, onPageChange }: PaginationProps) {
                   onClick={() => onPageChange(pageNum as number)}
                   className={`relative inline-flex items-center px-4 py-2 border text-xs font-medium transition-colors ${
                     isCurrentPage
-                      ? 'z-10 bg-[#1A5F7A] border-[#1A5F7A] text-white'
-                      : 'bg-white border-[#E5E0D4] text-[#6B6B6B] hover:bg-[#F7F3E8]'
+                      ? 'z-10 bg-secondary border-secondary text-secondary-foreground'
+                      : 'bg-white border-border text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   {pageNum}
@@ -121,7 +121,7 @@ export function Pagination({ pagination, onPageChange }: PaginationProps) {
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={!hasNext}
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-[#E5E0D4] bg-white text-xs font-medium text-[#6B6B6B] hover:bg-[#F7F3E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-border bg-white text-xs font-medium text-muted-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <span className="sr-only">Next</span>
               <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

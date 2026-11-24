@@ -173,7 +173,7 @@ export default function CreateNftPage() {
                   onChange={handleCoverChange}
                   className="w-full text-sm"
                 />
-                {coverFile && <p className="text-xs text-primary font-medium mt-2">Terpilih: {coverFile.name}</p>}
+                {coverFile && <p className="text-xs text-primary-text font-medium mt-2">Terpilih: {coverFile.name}</p>}
               </div>
 
               <div className="space-y-2 border p-4 rounded-lg bg-muted/10">
@@ -187,7 +187,7 @@ export default function CreateNftPage() {
                   onChange={handleGalleryChange}
                   className="w-full text-sm"
                 />
-                {galleryFiles.length > 0 && <p className="text-xs text-primary font-medium mt-2">{galleryFiles.length} file terpilih.</p>}
+                {galleryFiles.length > 0 && <p className="text-xs text-primary-text font-medium mt-2">{galleryFiles.length} file terpilih.</p>}
               </div>
             </div>
           </section>

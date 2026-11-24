@@ -87,7 +87,7 @@ export default function AdminImportantDatesPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded">
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 text-danger rounded">
           Error: {error.message}
         </div>
       </div>

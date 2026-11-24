@@ -13,7 +13,7 @@ export default function NftDetailPage({ params }: { params: Promise<{ slug: stri
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+        <Loader2 className="w-12 h-12 animate-spin text-primary-text mb-4" />
         <p className="text-muted-foreground font-medium animate-pulse">Memuat detail NFT...</p>
       </div>
     );
@@ -43,7 +43,7 @@ export default function NftDetailPage({ params }: { params: Promise<{ slug: stri
     <div className="w-full max-w-6xl mx-auto py-4 lg:py-8">
       <Link 
         href="/nfts"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-semibold mb-8 group"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary-text transition-colors font-semibold mb-8 group"
       >
         <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
         Kembali ke Katalog NFT
@@ -158,7 +158,7 @@ export default function NftDetailPage({ params }: { params: Promise<{ slug: stri
                   <span className="text-muted-foreground flex items-center gap-2 text-sm font-medium">
                     <Hash className="w-4 h-4" /> Token ID
                   </span>
-                  <span className="font-mono font-bold text-sm bg-primary/10 text-primary px-2 py-0.5 rounded">
+                  <span className="font-mono font-bold text-sm bg-primary/10 text-primary-text px-2 py-0.5 rounded">
                     {nft.token_id.length > 10 ? `${nft.token_id.slice(0, 10)}...` : nft.token_id}
                   </span>
                 </li>
@@ -175,7 +175,7 @@ export default function NftDetailPage({ params }: { params: Promise<{ slug: stri
                     <span className="text-muted-foreground flex items-center gap-2 font-medium">
                       <FileJson className="w-4 h-4" /> Metadata
                     </span>
-                    <a href={nft.metadata_uri} target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold inline-flex items-center gap-1">
+                    <a href={nft.metadata_uri} target="_blank" rel="noreferrer" className="text-primary-text hover:underline font-bold inline-flex items-center gap-1">
                       JSON <ExternalLink className="w-3 h-3" />
                     </a>
                   </li>
@@ -190,10 +190,10 @@ export default function NftDetailPage({ params }: { params: Promise<{ slug: stri
               <Link href={`/prot/${nft.prot_id}`} className="block group">
                 <div className="bg-muted/50 border hover:border-primary/50 transition-colors rounded-xl p-5 flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-primary mb-1 uppercase tracking-wider">Terkait PROT</h4>
+                    <h4 className="font-bold text-sm text-primary-text mb-1 uppercase tracking-wider">Terkait PROT</h4>
                     <p className="font-medium">Lihat detail Permainan Rakyat & Olahraga Tradisional terkait</p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-primary transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-5 h-5 text-primary-text transition-transform group-hover:translate-x-1" />
                 </div>
               </Link>
             </div>

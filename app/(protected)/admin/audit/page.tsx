@@ -26,7 +26,7 @@ export default function AuditPage() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-primary">
         <h1 className="text-xl font-bold text-foreground">Audit Logs</h1>
         <p className="mt-1 text-muted-foreground text-xs">
           Riwayat semua aktivitas yang terjadi di sistem

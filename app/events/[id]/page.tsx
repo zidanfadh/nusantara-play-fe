@@ -144,27 +144,27 @@ export default function EventDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background dark:bg-[#121212] pb-24 md:pb-0 font-sans">
+    <main className="min-h-screen bg-background pb-24 md:pb-0 font-sans">
       <div className="max-w-7xl mx-auto">
         {/* Back Button & Breadcrumb */}
         <div className="px-6 py-6 flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="group flex items-center justify-center w-10 h-10 rounded-full bg-[#f7f3ed] dark:bg-[#1e1e1e] hover:bg-[#ffdad2] dark:hover:bg-[#D65C2E]/20 transition-colors duration-300"
+            className="group flex items-center justify-center w-10 h-10 rounded-full bg-card hover:bg-primary-soft dark:hover:bg-primary/20 transition-colors duration-300"
           >
-            <ArrowLeftIcon className="h-5 w-5 text-[#1c1c18] dark:text-[#f7f3e8] group-hover:text-[#3c0700] dark:group-hover:text-white" />
+            <ArrowLeftIcon className="h-5 w-5 text-foreground group-hover:text-primary-soft-foreground dark:group-hover:text-white" />
           </button>
-          <div className="flex items-center text-sm font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880]">
-            <Link href="/events" className="hover:text-[#9e3c24] dark:hover:text-[#D65C2E] transition-colors">Events</Link>
+          <div className="flex items-center text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            <Link href="/events" className="hover:text-primary-text transition-colors">Events</Link>
             <span className="mx-2 text-xs">&gt;</span>
-            <span className="text-[#1c1c18] dark:text-[#f7f3e8] font-semibold">{event.nama}</span>
+            <span className="text-foreground font-semibold">{event.nama}</span>
           </div>
         </div>
 
         {/* Action Error */}
         {actionError && (
-          <div className="mx-6 mb-6 bg-[#ffdad6] dark:bg-red-900/30 border-l-4 border-[#93000a] dark:border-red-500 rounded-md p-4 shadow-sm">
-            <p className="text-[#93000a] dark:text-red-200">{actionError}</p>
+          <div className="mx-6 mb-6 bg-danger-soft dark:bg-red-900/30 border-l-4 border-danger dark:border-red-500 rounded-md p-4 shadow-sm">
+            <p className="text-danger dark:text-red-200">{actionError}</p>
           </div>
         )}
 
@@ -179,7 +179,7 @@ export default function EventDetailPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#9e3c24] to-[#3c0700] dark:from-[#D65C2E] dark:to-[#121212] flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-primary to-primary-soft-foreground dark:to-background flex items-center justify-center">
                 <span className="text-white text-8xl font-bold">
                   {event.nama.charAt(0).toUpperCase()}
                 </span>
@@ -188,7 +188,7 @@ export default function EventDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
             <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end">
               <div className="flex flex-wrap gap-3">
-                <span className="px-4 py-2 bg-[#ffdad2] dark:bg-[#D65C2E]/80 text-[#3c0700] dark:text-white rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
+                <span className="px-4 py-2 bg-primary-soft text-primary-soft-foreground rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
                   {EVENT_JENIS_LABELS[event.jenis]}
                 </span>
                 <span className="px-4 py-2 bg-green-100 dark:bg-green-900/80 text-green-800 dark:text-green-100 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
@@ -205,26 +205,26 @@ export default function EventDetailPage() {
           <div className="lg:w-2/3 space-y-12">
             {/* Title & Description */}
             <section className="space-y-6">
-              <h1 className="text-5xl font-extrabold tracking-tight text-[#1c1c18] dark:text-[#f7f3e8] leading-tight">
+              <h1 className="text-5xl font-extrabold tracking-tight text-foreground leading-tight">
                 {event.nama}
               </h1>
-              <div className="prose prose-stone dark:prose-invert max-w-none text-[#747474] dark:text-[#9A8880] leading-relaxed text-lg">
+              <div className="prose prose-stone dark:prose-invert max-w-none text-muted-foreground leading-relaxed text-lg">
                 <p className="whitespace-pre-wrap">{event.deskripsi}</p>
               </div>
             </section>
 
             {/* Requirements */}
             {event.persyaratan && (
-              <section className="p-10 rounded-3xl bg-[#f7f3ed] dark:bg-[#1e1e1e] shadow-sm">
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-[#1c1c18] dark:text-[#f7f3e8]">
-                  <ClipboardDocumentListIcon className="h-8 w-8 text-[#9e3c24] dark:text-[#D65C2E]" />
+              <section className="p-10 rounded-3xl bg-card shadow-sm">
+                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-foreground">
+                  <ClipboardDocumentListIcon className="h-8 w-8 text-primary-text" />
                   Persyaratan Peserta
                 </h3>
                 <ul className="space-y-4">
                   {event.persyaratan.split('\n').filter((req: string) => req.trim() !== '').map((req: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-3">
-                      <CheckCircleIcon className="h-6 w-6 text-[#be5439] dark:text-[#D65C2E] shrink-0 mt-0.5" />
-                      <span className="text-[#57423d] dark:text-[#e6e2dc] font-medium leading-relaxed">{req}</span>
+                      <CheckCircleIcon className="h-6 w-6 text-primary-text shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground font-medium leading-relaxed">{req}</span>
                     </li>
                   ))}
                 </ul>
@@ -233,11 +233,11 @@ export default function EventDetailPage() {
 
             {/* Admin Panel (Manage Event) */}
             {isOwner && (
-              <section className="p-10 rounded-3xl bg-[#e6e2dc] dark:bg-[#2A2A2A] shadow-sm">
+              <section className="p-10 rounded-3xl bg-muted shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
-                    <h3 className="text-xl font-bold text-[#1c1c18] dark:text-[#f7f3e8] mb-1">Kelola Event</h3>
-                    <p className="text-sm text-[#747474] dark:text-[#9A8880]">Hanya terlihat oleh pemilik atau pengelola event.</p>
+                    <h3 className="text-xl font-bold text-foreground mb-1">Kelola Event</h3>
+                    <p className="text-sm text-muted-foreground">Hanya terlihat oleh pemilik atau pengelola event.</p>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {event.status === EventStatus.DRAFT && (
@@ -253,7 +253,7 @@ export default function EventDetailPage() {
                     {event.status === EventStatus.DRAFT && (
                       <Link
                         href={`/events/${eventId}/edit`}
-                        className="px-6 py-3 bg-[#ffffff] dark:bg-[#1e1e1e] text-[#1c1c18] dark:text-[#f7f3e8] rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 shadow-sm"
+                        className="px-6 py-3 bg-surface-raised dark:bg-card text-foreground rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 shadow-sm"
                       >
                         <PencilIcon className="h-5 w-5" />
                         Edit Event
@@ -261,7 +261,7 @@ export default function EventDetailPage() {
                     )}
                     <Link
                       href={`/events/${eventId}/registrations`}
-                      className="px-6 py-3 bg-[#ffffff] dark:bg-[#1e1e1e] text-[#1c1c18] dark:text-[#f7f3e8] rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 shadow-sm"
+                      className="px-6 py-3 bg-surface-raised dark:bg-card text-foreground rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 shadow-sm"
                     >
                       <UsersIcon className="h-5 w-5" />
                       Kelola Peserta
@@ -279,7 +279,7 @@ export default function EventDetailPage() {
                     <button
                       onClick={handleDelete}
                       disabled={actionLoading}
-                      className="px-6 py-3 bg-[#ffdad6] dark:bg-red-900/40 text-[#93000a] dark:text-red-200 rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm"
+                      className="px-6 py-3 bg-danger-soft dark:bg-red-900/40 text-danger dark:text-red-200 rounded-xl font-bold text-sm hover:opacity-80 transition-all flex items-center gap-2 disabled:opacity-50 shadow-sm"
                     >
                       <TrashIcon className="h-5 w-5" />
                       Hapus Event
@@ -293,35 +293,35 @@ export default function EventDetailPage() {
           {/* Sidebar (1/3) */}
           <div className="lg:w-1/3 space-y-8">
             {/* Main CTA & Info Card */}
-            <div className="bg-[#ffffff] dark:bg-[#1e1e1e] rounded-3xl p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.06)] border border-[#ddc0b9]/10 lg:sticky lg:top-28">
+            <div className="bg-surface-raised dark:bg-card rounded-3xl p-8 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.06)] border border-border/10 lg:sticky lg:top-28">
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#ffdad2] dark:bg-[#D65C2E]/20 flex items-center justify-center shrink-0">
-                      <CalendarIcon className="h-6 w-6 text-[#9e3c24] dark:text-[#D65C2E]" />
+                    <div className="w-12 h-12 rounded-2xl bg-primary-soft dark:bg-primary/20 flex items-center justify-center shrink-0">
+                      <CalendarIcon className="h-6 w-6 text-primary-text" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880]">Tanggal</p>
-                      <p className="font-bold text-[#1c1c18] dark:text-[#f7f3e8]">{formatDate(event.tanggal_mulai)}</p>
+                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Tanggal</p>
+                      <p className="font-bold text-foreground">{formatDate(event.tanggal_mulai)}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#ffdad2] dark:bg-[#D65C2E]/20 flex items-center justify-center shrink-0">
-                      <MapPinIcon className="h-6 w-6 text-[#9e3c24] dark:text-[#D65C2E]" />
+                    <div className="w-12 h-12 rounded-2xl bg-primary-soft dark:bg-primary/20 flex items-center justify-center shrink-0">
+                      <MapPinIcon className="h-6 w-6 text-primary-text" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880]">Lokasi</p>
-                      <p className="font-bold text-[#1c1c18] dark:text-[#f7f3e8] leading-tight">{event.lokasi}</p>
-                      {event.daerah && <p className="text-sm text-[#747474] dark:text-[#9A8880] mt-0.5">{event.daerah.nama}</p>}
+                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Lokasi</p>
+                      <p className="font-bold text-foreground leading-tight">{event.lokasi}</p>
+                      {event.daerah && <p className="text-sm text-muted-foreground mt-0.5">{event.daerah.nama}</p>}
                     </div>
                   </div>
 
                   {event.kuota_peserta && (
-                    <div className="pt-4 border-t border-[#f1ede7] dark:border-[#404040]">
+                    <div className="pt-4 border-t border-border">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-[#747474] dark:text-[#9A8880]">Kapasitas Peserta</span>
-                        <span className="text-sm font-bold text-[#1c1c18] dark:text-[#f7f3e8]">
+                        <span className="text-sm text-muted-foreground">Kapasitas Peserta</span>
+                        <span className="text-sm font-bold text-foreground">
                           {event.jumlah_peserta}/{event.kuota_peserta} Terisi
                         </span>
                       </div>
@@ -339,7 +339,7 @@ export default function EventDetailPage() {
                   !user ? (
                     <Link
                       href={`/login?redirectTo=/events/${eventId}`}
-                      className="block w-full py-4 bg-[#9e3c24] dark:bg-[#D65C2E] text-white rounded-xl font-black text-lg text-center shadow-lg shadow-[#9e3c24]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      className="block w-full py-4 bg-primary text-primary-foreground rounded-xl font-black text-lg text-center shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                       MASUK UNTUK DAFTAR
                     </Link>
@@ -356,7 +356,7 @@ export default function EventDetailPage() {
                       <button
                         onClick={handleRegister}
                         disabled={actionLoading}
-                        className="w-full py-4 bg-[#9e3c24] dark:bg-[#D65C2E] text-white rounded-xl font-black text-lg shadow-lg shadow-[#9e3c24]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                        className="w-full py-4 bg-primary text-primary-foreground rounded-xl font-black text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                       >
                         {actionLoading ? 'MENDAFTAR...' : 'DAFTAR SEKARANG'}
                       </button>
@@ -368,30 +368,30 @@ export default function EventDetailPage() {
 
             {/* Contact Card */}
             {(event.contact_person || event.contact_phone || event.contact_email) && (
-              <div className="bg-[#f7f3ed] dark:bg-[#1e1e1e] rounded-3xl p-8 space-y-4 shadow-sm border border-[#ddc0b9]/10">
-                <h4 className="text-sm font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880] border-b border-[#ddc0b9]/20 pb-2">
+              <div className="bg-card rounded-3xl p-8 space-y-4 shadow-sm border border-border/10">
+                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/20 pb-2">
                   Kontak Panitia
                 </h4>
                 <div className="space-y-4 pt-2">
                   {event.contact_person && (
                     <div className="flex items-center gap-4">
-                      <UsersIcon className="text-[#9e3c24] dark:text-[#D65C2E] h-5 w-5 shrink-0" />
+                      <UsersIcon className="text-primary-text h-5 w-5 shrink-0" />
                       <div>
-                        <p className="text-sm font-bold text-[#1c1c18] dark:text-[#f7f3e8]">{event.contact_person}</p>
-                        <p className="text-xs text-[#747474] dark:text-[#9A8880]">PIC Event</p>
+                        <p className="text-sm font-bold text-foreground">{event.contact_person}</p>
+                        <p className="text-xs text-muted-foreground">PIC Event</p>
                       </div>
                     </div>
                   )}
                   {event.contact_phone && (
                     <div className="flex items-center gap-4">
-                      <PhoneIcon className="text-[#9e3c24] dark:text-[#D65C2E] h-5 w-5 shrink-0" />
-                      <p className="text-sm font-medium text-[#1c1c18] dark:text-[#f7f3e8]">{event.contact_phone}</p>
+                      <PhoneIcon className="text-primary-text h-5 w-5 shrink-0" />
+                      <p className="text-sm font-medium text-foreground">{event.contact_phone}</p>
                     </div>
                   )}
                   {event.contact_email && (
                     <div className="flex items-center gap-4">
-                      <EnvelopeIcon className="text-[#9e3c24] dark:text-[#D65C2E] h-5 w-5 shrink-0" />
-                      <p className="text-sm font-medium text-[#1c1c18] dark:text-[#f7f3e8] break-all">{event.contact_email}</p>
+                      <EnvelopeIcon className="text-primary-text h-5 w-5 shrink-0" />
+                      <p className="text-sm font-medium text-foreground break-all">{event.contact_email}</p>
                     </div>
                   )}
                 </div>
@@ -400,19 +400,19 @@ export default function EventDetailPage() {
 
             {/* Organizer Card */}
             {event.organizer && (
-              <div className="bg-[#f7f3ed] dark:bg-[#1e1e1e] rounded-3xl p-8 space-y-4 shadow-sm border border-[#ddc0b9]/10">
-                <h4 className="text-sm font-bold uppercase tracking-widest text-[#747474] dark:text-[#9A8880] border-b border-[#ddc0b9]/20 pb-2">
+              <div className="bg-card rounded-3xl p-8 space-y-4 shadow-sm border border-border/10">
+                <h4 className="text-sm font-bold uppercase tracking-widest text-muted-foreground border-b border-border/20 pb-2">
                   Penyelenggara
                 </h4>
                 <div className="flex items-center gap-4 pt-2">
-                  <div className="w-14 h-14 rounded-full bg-[#e6e2dc] dark:bg-[#2A2A2A] flex items-center justify-center overflow-hidden shrink-0">
-                    <span className="text-2xl font-bold text-[#747474] dark:text-[#9A8880]">
+                  <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                    <span className="text-2xl font-bold text-muted-foreground">
                       {event.organizer.full_name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <p className="font-bold text-[#1c1c18] dark:text-[#f7f3e8] leading-tight">{event.organizer.full_name}</p>
-                    <p className="text-xs text-[#9e3c24] dark:text-[#D65C2E] font-semibold mt-1">Verified Organizer</p>
+                    <p className="font-bold text-foreground leading-tight">{event.organizer.full_name}</p>
+                    <p className="text-xs text-primary-text font-semibold mt-1">Verified Organizer</p>
                   </div>
                 </div>
               </div>

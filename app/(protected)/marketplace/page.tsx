@@ -16,7 +16,7 @@ export default function MarketplacePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 pt-12 pb-24">
-      <Link href="/menu" className="inline-flex items-center text-sm text-stone-500 hover:text-[#9e3c24] mb-8 font-medium transition-colors">
+      <Link href="/menu" className="inline-flex items-center text-sm text-stone-500 hover:text-primary-text mb-8 font-medium transition-colors">
         <ArrowLeftIcon className="h-4 w-4 mr-2" />
         Kembali ke Menu
       </Link>
@@ -35,7 +35,7 @@ export default function MarketplacePage() {
           {user && (
             <Link
               href="/marketplace/orders"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#f7f3ed] text-stone-700 font-medium hover:bg-[#ebe8e2] transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-card text-stone-700 font-medium hover:bg-muted-hover transition-all active:scale-95"
             >
               <ShoppingBagIcon className="w-5 h-5" />
               Pesanan Saya
@@ -44,7 +44,7 @@ export default function MarketplacePage() {
           {user && (
             <Link
               href="/marketplace/toko-saya"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#9e3c24] text-white font-medium hover:opacity-90 shadow-lg shadow-[#9e3c24]/10 transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 shadow-lg shadow-primary/10 transition-all active:scale-95"
             >
               <BuildingStorefrontIcon className="w-5 h-5" />
               Toko Saya
@@ -57,7 +57,7 @@ export default function MarketplacePage() {
 
       {loading && (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#9e3c24]" />
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           <p className="mt-2 text-muted-foreground">Memuat produk...</p>
         </div>
       )}
@@ -70,7 +70,7 @@ export default function MarketplacePage() {
 
       {!loading && !error && (
         produkList.length === 0 ? (
-          <div className="text-center py-12 bg-[#f7f3ed] rounded-2xl shadow-sm">
+          <div className="text-center py-12 bg-card rounded-2xl shadow-sm">
             <p className="text-stone-500 font-medium">Tidak ada produk yang ditemukan</p>
           </div>
         ) : (

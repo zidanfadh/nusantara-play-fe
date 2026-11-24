@@ -7,7 +7,7 @@ export function JelajahBadge() {
   return (
     <span
       data-jelajah-badge
-      className="ml-2 inline-block align-middle rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider normal-case"
+      className="ml-2 inline-block align-middle rounded-full bg-primary/10 text-primary-text px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider normal-case"
       title="Isian ini dipakai untuk tampilan di peta dan desa Jelajah"
     >
       {JELAJAH_BADGE_LABEL}

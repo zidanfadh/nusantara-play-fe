@@ -375,14 +375,14 @@ export default function ProtDetailPage() {
             {/* Deskripsi singkat (Phase 26: form field; also shown in the Jelajah stand panel) */}
             {item.deskripsi && item.deskripsi.trim() !== '' && (
               <div className="bg-background border border-border rounded-lg shadow-sm p-6" data-prot-deskripsi>
-                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Ringkasan</h3>
+                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary-text">Ringkasan</h3>
                 <p className="text-foreground whitespace-pre-line">{item.deskripsi}</p>
               </div>
             )}
 
             {/* Cara Bermain */}
             <div className="bg-background border border-border rounded-lg shadow-sm p-6">
-              <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Cara Bermain</h3>
+              <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary-text">Cara Bermain</h3>
               <div className="prose max-w-none text-foreground whitespace-pre-line">
                 {item.caraBermain || <span className="text-muted-foreground italic">Belum ada deskripsi cara bermain.</span>}
               </div>
@@ -390,7 +390,7 @@ export default function ProtDetailPage() {
 
             {/* Nilai Moral */}
             <div className="bg-background border border-border rounded-lg shadow-sm p-6">
-              <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Nilai Moral / Budaya</h3>
+              <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary-text">Nilai Moral / Budaya</h3>
               <div className="prose max-w-none text-foreground whitespace-pre-line">
                 {item.nilaiMoral || <span className="text-muted-foreground italic">Belum ada deskripsi nilai moral.</span>}
               </div>
@@ -398,7 +398,7 @@ export default function ProtDetailPage() {
 
             {/* Peralatan */}
             <div className="bg-background border border-border rounded-lg shadow-sm p-6">
-              <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Peralatan yang Dibutuhkan</h3>
+              <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary-text">Peralatan yang Dibutuhkan</h3>
 
               {media.peralatan.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -464,7 +464,7 @@ export default function ProtDetailPage() {
             {/* Dokumen Kurikulum */}
             {media.dokumenKurikulum.length > 0 && (
               <div className="bg-background border border-border rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary">Dokumen Kurikulum / Panduan</h3>
+                <h3 className="font-semibold text-lg mb-4 pb-2 border-b border-border text-primary-text">Dokumen Kurikulum / Panduan</h3>
                 <div className="space-y-2">
                   {media.dokumenKurikulum.map((url, idx) => {
                     const filename = url.split('/').pop() || `Dokumen ${idx + 1}`;

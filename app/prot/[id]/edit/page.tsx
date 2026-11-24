@@ -191,7 +191,7 @@ export default function EditProtPage() {
       return (
         <div className="pt-20 text-center">
             <h2 className="text-xl font-semibold text-gray-900">Data tidak ditemukan</h2>
-            <Link href="/prot" className="text-primary hover:underline mt-4 inline-block">Kembali ke Daftar</Link>
+            <Link href="/prot" className="text-primary-text hover:underline mt-4 inline-block">Kembali ke Daftar</Link>
         </div>
       );
   }
@@ -210,7 +210,7 @@ export default function EditProtPage() {
                     <p className="text-gray-600 mb-6">
                         Data dengan status <span className="font-semibold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{initialData.status}</span> tidak dapat disunting. Hanya data dengan status Draft atau Revisi yang dapat diubah.
                     </p>
-                    <Link href={`/prot/${id}`} className="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 transition-colors">
+                    <Link href={`/prot/${id}`} className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors">
                         <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
@@ -227,11 +227,11 @@ export default function EditProtPage() {
       <div className="bg-background border-b shadow-sm">
          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center gap-2 text-sm  mb-2">
-               <Link href="/" className="hover:text-primary">Beranda</Link>
+               <Link href="/" className="hover:text-primary-text">Beranda</Link>
                <span>/</span>
-               <Link href="/prot" className="hover:text-primary">Daftar PROT</Link>
+               <Link href="/prot" className="hover:text-primary-text">Daftar PROT</Link>
                <span>/</span>
-               <Link href={`/prot/${id}`} className="hover:text-primary truncate max-w-[150px]">{initialData.nama}</Link>
+               <Link href={`/prot/${id}`} className="hover:text-primary-text truncate max-w-[150px]">{initialData.nama}</Link>
                <span>/</span>
                <span className="font-medium ">Edit</span>
             </div>

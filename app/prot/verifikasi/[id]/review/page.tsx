@@ -186,7 +186,7 @@ export default function ReviewPage() {
              </div>
 
              <div className="mt-4 text-right">
-                <Link href={`/prot/${protData.id}`} target="_blank" className="text-primary hover:underline text-sm">
+                <Link href={`/prot/${protData.id}`} target="_blank" className="text-primary-text hover:underline text-sm">
                   Lihat Detail Lengkap di Tab Baru ↗
                 </Link>
              </div>

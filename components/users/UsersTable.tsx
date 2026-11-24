@@ -94,8 +94,8 @@ export function UsersTable({
     if (isLoading) {
         return (
             <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A5F7A] mx-auto"></div>
-                <p className="mt-3 text-[#6B6B6B] text-sm">Memuat data user...</p>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-secondary mx-auto"></div>
+                <p className="mt-3 text-muted-foreground text-sm">Memuat data user...</p>
             </div>
         );
     }
@@ -103,7 +103,7 @@ export function UsersTable({
     if (users.length === 0) {
         return (
             <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-                <p className="text-[#6B6B6B] text-sm">Tidak ada user ditemukan.</p>
+                <p className="text-muted-foreground text-sm">Tidak ada user ditemukan.</p>
             </div>
         );
     }
@@ -190,7 +190,7 @@ export function UsersTable({
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <button
                                             onClick={() => toggleRow(user.id)}
-                                            className="text-[#1A5F7A] hover:text-[#237A9A] mr-3 text-xs font-semibold"
+                                            className="text-primary-text hover:text-primary-text mr-3 text-xs font-semibold"
                                         >
                                             {expandedRows.has(user.id) ? 'Tutup' : 'Detail'}
                                         </button>
@@ -300,7 +300,7 @@ export function UsersTable({
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => handleSaveKuratorRole(user.id)}
-                                                                            className="bg-[#1A5F7A] text-white px-4 py-2 rounded-md text-xs font-semibold hover:bg-[#237A9A] transition-colors"
+                                                                            className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md text-xs font-semibold hover:bg-secondary transition-colors"
                                                                         >
                                                                             Simpan Role Kurator
                                                                         </button>
