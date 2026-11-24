@@ -864,7 +864,7 @@ Legacy.png`; `Referensi Peta Indonesia.png`, the 3D low-poly map for the NEXT ph
   mask band between two lines), `BatikMotif` (one framed flower; `fill` covers its positioned parent). Background
   texture: class `.nl-batik-texture` (mask at 6 % light / 7 % dark; tested so text, text-muted and primary-text stay
   AA on the darkest blend). All `aria-hidden`, `currentColor` / `--nl-ornament` (terracotta on cream, amber on brown);
-  the CSS tile equals `batikTileDataUri()` (tested); ornament assets ≤ 15 KB gzip (tested, ~4 KB).
+  the CSS tile equals `batikTileDataUri()` (tested); ornament assets ≤ 15 KB gzip (tested; 3.1 KB).
   **Rules**: with restraint: hero corners, section dividers, footer, empty states, loading screens, Paspor / stamp
   frames. Corners stay in the corners, sized so they never sit behind text (check 360, 390, 844x390, 1440). Nothing
   but the tested texture goes behind body text.
