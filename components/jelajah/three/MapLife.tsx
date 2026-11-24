@@ -87,13 +87,13 @@ export function Ships({ palette, moving }: { palette: MapPalette; moving: boolea
 
 export function Smoke({
   vents,
-  lifts,
+  liftsRef,
   palette,
   moving,
 }: {
   vents: MapGeometry['vents'];
   /** Current lift of each shape (hover / selected), so the smoke rises from the lifted crater. */
-  lifts: { current: ReadonlyMap<number, number> };
+  liftsRef: { current: ReadonlyMap<number, number> };
   palette: MapPalette;
   moving: boolean;
 }) {
@@ -109,7 +109,7 @@ export function Smoke({
     const m = mesh.current;
     if (!m) return;
     vents.forEach((vent, v) => {
-      const lift = lifts.current.get(vent.shape) ?? 0;
+      const lift = liftsRef.current.get(vent.shape) ?? 0;
       for (let k = 0; k < PUFFS_PER_VENT; k += 1) {
         const puff = smokePuff(k, PUFFS_PER_VENT, seconds + v * 1.9, still);
         const index = v * PUFFS_PER_VENT + k;

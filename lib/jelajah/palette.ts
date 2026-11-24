@@ -120,7 +120,7 @@ export type ProvinceVisualState = 'idle' | 'hover' | 'selected';
 
 /** How strongly the hover / selected tint covers the base colour (the lift and the rim carry the state too). */
 export const HOVER_TINT = 0.4;
-export const SELECTED_TINT = 0.55;
+export const SELECTED_TINT = 0.68;
 
 /**
  * Fill colour of a province. More PROT → deeper green (square-root scale, so one PROT is already clearly coloured).
@@ -151,7 +151,11 @@ export function provinceFill(
 /** Weight of the facet greens in a top facet (the rest is the province's state colour). */
 export const FACET_MIX = 0.42;
 
-/** The top-facet colours of a province: its fill mixed with each facet green (muted provinces vary less). */
-export function facetColours(palette: MapPalette, fill: string, muted: boolean): string[] {
-  return palette.facets.map((f) => mixHex(fill, f, muted ? FACET_MIX * 0.85 : FACET_MIX));
+/**
+ * The top-facet colours of a province: its fill mixed with each facet green (muted provinces vary a little less; a
+ * selected province barely, so its terracotta tint stays clear).
+ */
+export function facetColours(palette: MapPalette, fill: string, muted: boolean, selected = false): string[] {
+  const mix = selected ? FACET_MIX * 0.3 : muted ? FACET_MIX * 0.85 : FACET_MIX;
+  return palette.facets.map((f) => mixHex(fill, f, mix));
 }

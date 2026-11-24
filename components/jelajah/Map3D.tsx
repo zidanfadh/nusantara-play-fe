@@ -4,37 +4,46 @@
  * 3D hub map (tiers full and lite). Loaded ONLY through next/dynamic with ssr: false from
  * JelajahHub, so three.js never lands in other routes or in the 2d tier.
  *
- * Phase 28: the low-poly "paper" map. Islands = one merged slab mesh with baked lighting (MeshBasicMaterial);
- * the paper = one plane with a canvas texture; borders = one LineSegments. Full tier: one real shadow map,
- * re-rendered only when the islands change. Lite tier: the shadow is painted into the paper texture.
- * Fixed camera angle; drag/pinch to pan and wheel/pinch to zoom within limits; no rotation.
+ * Phase 28: the low-poly "paper" map (design reference: Konsep Visual page 4). Draw calls: paper 1, islands 1 (one
+ * merged mesh with mountains, volcanoes, rivers and lakes, lighting baked into the vertex colours), seams 1, rim 0–2
+ * (hovered / selected), smoke 1, ships 1 (full tier), plus the shadow pass on the full tier (rendered only when the
+ * islands change). Lite: the shadow is painted into the paper, no ships, no rivers, fewer mountains.
+ * States without relying on colour: hover = the province lifts + amber rim; selected = higher lift + rim +
+ * terracotta tint; provinces with PROT stand taller than the others; enterable provinces carry a flag pin.
+ * Fixed tilted camera framing the whole archipelago; drag/pinch to pan, wheel/pinch to zoom within limits.
  */
-import { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentRef, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { MapControls } from '@react-three/drei';
-import { PCFShadowMap, Plane, Raycaster, Vector2, Vector3, type DirectionalLight, type PerspectiveCamera } from 'three';
+import { DoubleSide, PCFShadowMap, Plane, Raycaster, Vector2, Vector3, type DirectionalLight, type PerspectiveCamera } from 'three';
 import { canvasSettings } from '@/lib/jelajah/device-tier';
-import { hitTest, initialFrame, shapesBounds, type Bounds, type ProvinceShape } from '@/lib/jelajah/geo';
-import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
-import { facetColours, type MapPalette } from '@/lib/jelajah/palette';
+import { hitTest, shapesBounds, type Bounds, type ProvinceShape } from '@/lib/jelajah/geo';
+import { isClickable, maxProtCount, provinceCues, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
 import { ambientMode, NATURE_FULL, NATURE_LITE, placeNature } from '@/lib/jelajah/map-nature';
+import { facetColours, type MapPalette } from '@/lib/jelajah/palette';
+import { cameraPosition, frameMap, MAP_FOV, zoomLimits } from '@/lib/jelajah/paper-camera';
 import { lowPolyShapes } from '@/lib/jelajah/paper-map';
 import { ENTERABLE_PROVINCES, markerLabel, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
-import { buildMapGeometry, LIGHT_DIR, paintShape, PAPER_SLAB, type MapGeometry } from '@/lib/jelajah/three/map-geometry';
+import {
+  buildMapGeometry,
+  buildRim,
+  liftShape,
+  LIGHT_DIR,
+  paintShape,
+  PAPER_SLAB,
+  type MapGeometry,
+} from '@/lib/jelajah/three/map-geometry';
 import { drawPaper, PAPER, paperArea, paperTexture, shadowMode } from '@/lib/jelajah/three/paper';
 import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
 import { AmbientTicker, Ships, Smoke } from './three/MapLife';
 import { StatsOverlay, StatsProbe, type DebugStats } from './three/StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
-const FOV = 35;
-/** Camera tilt from straight down (fixed). */
-const TILT = (32 * Math.PI) / 180;
-/** Slab heights: provinces that open a card stand taller than the muted ones. */
-const HEIGHT_MUTED = 0.26;
-const HEIGHT_ACTIVE = 0.42;
-const PICK_Y = 0.36;
-const MIN_DISTANCE = 7;
+/** Slab heights: provinces that open a card (PROT or enterable) stand taller than the muted ones. */
+export const HEIGHT_MUTED = 0.26;
+export const HEIGHT_ACTIVE = 0.42;
+const RIM_WIDTH = 0.09;
+const PICK_Y = 0.38;
 
 type Tier = 'full' | 'lite';
 
@@ -42,18 +51,6 @@ export interface Map3DProps extends MapViewProps {
   tier: Tier;
   /** ?debug=1: stats overlay and continuous rendering (Phase 13). */
   debug: boolean;
-}
-
-/** Camera distance that fits the whole map into the viewport at the fixed tilt. */
-function fitDistance(bounds: Bounds, aspect: number): number {
-  const halfV = Math.tan(((FOV / 2) * Math.PI) / 180);
-  const width = bounds.maxX - bounds.minX;
-  const depth = (bounds.maxY - bounds.minY) * Math.cos(TILT);
-  return Math.max(width / 2 / (halfV * aspect), depth / 2 / halfV) * 1.08;
-}
-
-function cameraOffset(distance: number): Vector3 {
-  return new Vector3(0, Math.cos(TILT) * distance, Math.sin(TILT) * distance);
 }
 
 /** Colours of one province for its current state. */
@@ -66,7 +63,7 @@ function shapePaint(
   const fill = shapeFill(shape, props.summaryByKode, maxCount, palette, props.hoveredKode, props.selectedKode);
   const muted = !isClickable(shape.kode, props.summaryByKode);
   return {
-    tops: facetColours(palette, fill, muted),
+    tops: facetColours(palette, fill, muted, shape.kode !== null && shape.kode === props.selectedKode),
     wallTop: palette.earthTop,
     wallBottom: palette.earthBottom,
     water: palette.water,
@@ -76,27 +73,74 @@ function shapePaint(
   };
 }
 
+/** The lift of every shape in a state (only clickable provinces have one). */
+function stateLifts(
+  shapes: readonly ProvinceShape[],
+  summaryByKode: MapViewProps['summaryByKode'],
+  hoveredKode: string | null,
+  selectedKode: string | null,
+): Map<number, number> {
+  const lifts = new Map<number, number>();
+  shapes.forEach((s, i) => {
+    const { lift } = provinceCues(s.kode, summaryByKode, hoveredKode, selectedKode);
+    if (lift > 0) lifts.set(i, lift);
+  });
+  return lifts;
+}
+
 function Islands({
   geometry,
   shapes,
+  heights,
   summaryByKode,
   hoveredKode,
   selectedKode,
   palette,
   tier,
+  liftsRef,
 }: Pick<MapViewProps, 'summaryByKode' | 'hoveredKode' | 'selectedKode' | 'palette'> & {
   geometry: MapGeometry;
   shapes: readonly ProvinceShape[];
+  heights: readonly number[];
   tier: Tier;
+  liftsRef: RefObject<Map<number, number>>;
 }) {
-  const invalidate = useThree((s) => s.invalidate);
+  const get = useThree((s) => s.get);
   const maxCount = maxProtCount(summaryByKode);
   useEffect(() => {
     shapes.forEach((shape, i) =>
       paintShape(geometry, i, shapePaint(shape, { summaryByKode, hoveredKode, selectedKode, palette }, maxCount)),
     );
-    invalidate();
-  }, [geometry, shapes, summaryByKode, maxCount, palette, hoveredKode, selectedKode, invalidate]);
+    get().invalidate();
+  }, [geometry, shapes, summaryByKode, maxCount, palette, hoveredKode, selectedKode, get]);
+
+  // Lift the hovered / selected province (only the changed ranges are touched and uploaded).
+  const target = useMemo(
+    () => stateLifts(shapes, summaryByKode, hoveredKode, selectedKode),
+    [shapes, summaryByKode, hoveredKode, selectedKode],
+  );
+  useEffect(() => {
+    const previous = liftsRef.current;
+    for (const i of previous.keys()) if (!target.has(i)) liftShape(geometry, i, 0);
+    for (const [i, dy] of target) if (previous.get(i) !== dy) liftShape(geometry, i, dy);
+    liftsRef.current = new Map(target);
+    const state = get();
+    if (shadowMode(tier) === 'map') state.gl.shadowMap.needsUpdate = true;
+    state.invalidate();
+  }, [geometry, target, tier, liftsRef, get]);
+  // A new geometry starts flat: forget the lifts of the old one.
+  useEffect(() => () => liftsRef.current.clear(), [geometry, liftsRef]);
+
+  // Rims of the hovered and the selected province, above their highest facet.
+  const rims = useMemo(
+    () =>
+      [...target].map(([i, lift]) => ({
+        key: `${i}-${lift}`,
+        geometry: buildRim(shapes[i], heights[i] + PAPER_SLAB.noise + lift + 0.014, RIM_WIDTH),
+      })),
+    [target, shapes, heights],
+  );
+  useEffect(() => () => rims.forEach((r) => r.geometry.dispose()), [rims]);
 
   return (
     <>
@@ -106,6 +150,11 @@ function Islands({
       <lineSegments geometry={geometry.outline}>
         <lineBasicMaterial color={palette.outline} transparent opacity={0.55} />
       </lineSegments>
+      {rims.map((r) => (
+        <mesh key={r.key} geometry={r.geometry} renderOrder={2}>
+          <meshBasicMaterial color={palette.rim} side={DoubleSide} polygonOffset polygonOffsetFactor={-2} />
+        </mesh>
+      ))}
     </>
   );
 }
@@ -144,9 +193,10 @@ function Paper({
 }
 
 /**
- * Full tier: the key light with ONE shadow map over the archipelago. The shadow map is rendered only when the
- * islands change (`autoUpdate` off), so a still map costs only the paper's shadow lookups.
- * Paper brightness: ambient + key · n·L = π (three's Lambert divides by π), so lit paper shows its texture colour.
+ * Warm key light + soft ambient. Full tier: ONE shadow map over the archipelago, rendered only when the islands change
+ * (`autoUpdate` off), so a still map costs only the paper's shadow lookups. The islands' lighting is baked; only the
+ * paper (full), ships and smoke are lit. Paper brightness: ambient + key · n·L = π (three's Lambert divides by π), so
+ * lit paper shows its texture colour.
  */
 function KeyLight({ bounds, tier, version }: { bounds: Bounds; tier: Tier; version: unknown }) {
   const get = useThree((s) => s.get);
@@ -159,12 +209,9 @@ function KeyLight({ bounds, tier, version }: { bounds: Bounds; tier: Tier; versi
     if (!l) return;
     l.target.position.set(cx, 0, cz);
     l.target.updateMatrixWorld();
-    if (shadowMode(tier) === 'map') {
-      // `autoUpdate` is off (Canvas `shadows` prop): render the shadow map once for this state of the islands.
-      const state = get();
-      state.gl.shadowMap.needsUpdate = true;
-      state.invalidate();
-    }
+    const state = get();
+    if (shadowMode(tier) === 'map') state.gl.shadowMap.needsUpdate = true;
+    state.invalidate();
   }, [get, cx, cz, tier, version]);
   const ambient = Math.PI * 0.64;
   const key = (Math.PI * 0.36) / LIGHT_DIR[1];
@@ -277,26 +324,27 @@ function Picker({
   return null;
 }
 
-/** Fixed-angle pan/zoom with the target clamped to the map bounds. */
+/**
+ * Fixed-angle pan/zoom. The first view frames the whole archipelago (lib/jelajah/paper-camera.ts, tested for portrait
+ * phones, landscape phones and desktop); zoom out stops a little beyond that, zoom in at MIN_DISTANCE; the target stays
+ * over the map.
+ */
 function Controls({ bounds }: { bounds: Bounds }) {
   const camera = useThree((s) => s.camera) as PerspectiveCamera;
   const size = useThree((s) => s.size);
   const controls = useRef<ComponentRef<typeof MapControls>>(null);
   const aspect = size.width / Math.max(1, size.height);
-  const maxDistance = fitDistance(bounds, aspect) * 1.15;
-
   // Initial framing (and again when the viewport shape changes a lot, e.g. phone rotation).
-  const aspectBucket = Math.round(aspect * 4);
+  const aspectBucket = Math.round(aspect * 8);
+  const limits = useMemo(() => zoomLimits(bounds, aspect), [bounds, aspectBucket]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const c = controls.current;
-    const frame = initialFrame(bounds, aspect);
-    const cx = (frame.minX + frame.maxX) / 2;
-    const cz = -(frame.minY + frame.maxY) / 2;
-    const target = new Vector3(cx, 0, cz);
-    camera.position.copy(target).add(cameraOffset(fitDistance(frame, aspect)));
-    camera.lookAt(target);
+    const pose = frameMap(bounds, aspect);
+    camera.position.set(...cameraPosition(pose));
+    camera.lookAt(...pose.target);
     if (c) {
-      c.target.copy(target);
+      c.target.set(...pose.target);
       c.update();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -325,8 +373,8 @@ function Controls({ bounds }: { bounds: Bounds }) {
       enableDamping
       dampingFactor={0.12}
       screenSpacePanning={false}
-      minDistance={MIN_DISTANCE}
-      maxDistance={maxDistance}
+      minDistance={limits.min}
+      maxDistance={limits.max}
       zoomToCursor
       onChange={clamp}
     />
@@ -334,7 +382,7 @@ function Controls({ bounds }: { bounds: Bounds }) {
 }
 
 /**
- * Reports the screen position of a 3D point on every rendered frame (so it follows pan and zoom).
+ * Reports the screen position of a 3D point on every rendered frame (so it follows pan, zoom and the lift).
  * Used to keep the marker buttons of the enterable provinces (Phase 22; before: the pilot), plain DOM elements,
  * over their provinces.
  */
@@ -342,17 +390,39 @@ function TrackScreenPoint({
   position,
   onMove,
 }: {
-  position: [number, number, number];
+  position: () => [number, number, number];
   onMove: (x: number, y: number, visible: boolean) => void;
 }) {
   const camera = useThree((s) => s.camera);
   const size = useThree((s) => s.size);
   const point = useMemo(() => new Vector3(), []);
   useFrame(() => {
-    point.set(...position).project(camera);
+    point.set(...position()).project(camera);
     const visible = point.z < 1 && Math.abs(point.x) <= 1.05 && Math.abs(point.y) <= 1.05;
     onMove(((point.x + 1) / 2) * size.width, ((1 - point.y) / 2) * size.height, visible);
   });
+  return null;
+}
+
+/** ?debug=1 only: `window.__nlMap.point(kode)` = the province anchor in client pixels (screenshots, recordings). */
+function DebugHook({ shapes, heights }: { shapes: readonly ProvinceShape[]; heights: readonly number[] }) {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    const w = window as unknown as { __nlMap?: unknown };
+    w.__nlMap = {
+      point: (kode: string) => {
+        const i = shapes.findIndex((s) => s.kode === kode);
+        if (i < 0) return null;
+        const v = new Vector3(shapes[i].anchor[0], heights[i], -shapes[i].anchor[1]).project(camera);
+        const rect = gl.domElement.getBoundingClientRect();
+        return [rect.left + ((v.x + 1) / 2) * rect.width, rect.top + ((1 - v.y) / 2) * rect.height];
+      },
+    };
+    return () => {
+      delete w.__nlMap;
+    };
+  }, [shapes, heights, camera, gl]);
   return null;
 }
 
@@ -364,23 +434,10 @@ export default function Map3D(props: Map3DProps) {
   const shapes = useMemo(() => lowPolyShapes(sourceShapes), [sourceShapes]);
   const bounds = useMemo(() => shapesBounds(shapes), [shapes]);
   const heightsKey = shapes.map((s) => (isClickable(s.kode, props.summaryByKode) ? '1' : '0')).join('');
+  const heights = useMemo(() => heightsKey.split('').map((c) => (c === '1' ? HEIGHT_ACTIVE : HEIGHT_MUTED)), [heightsKey]);
   // Phase 28 nature: lite has fewer mountains and no rivers or lakes.
   const nature = useMemo(() => placeNature(shapes, tier === 'full' ? NATURE_FULL : NATURE_LITE), [shapes, tier]);
-  const geometry = useMemo(
-    () =>
-      buildMapGeometry(
-        shapes,
-        heightsKey.split('').map((c) => (c === '1' ? HEIGHT_ACTIVE : HEIGHT_MUTED)),
-        PAPER_SLAB,
-        nature,
-      ),
-    [shapes, heightsKey, nature],
-  );
-  // Ships and moving smoke only on the full tier and never with reduced motion (Phase 28).
-  const ambient = ambientMode(tier, useReducedMotion());
-  const moving = ambient.animate;
-  /** Current lift per shape index (hover / selected), read by the smoke every frame. */
-  const lifts = useRef(new Map<number, number>());
+  const geometry = useMemo(() => buildMapGeometry(shapes, heights, PAPER_SLAB, nature), [shapes, heights, nature]);
   useEffect(
     () => () => {
       geometry.surface.dispose();
@@ -388,14 +445,18 @@ export default function Map3D(props: Map3DProps) {
     },
     [geometry],
   );
+  // Ships and moving smoke only on the full tier and never with reduced motion (Phase 28).
+  const ambient = ambientMode(tier, useReducedMotion());
+  /** Current lift per shape index (hover / selected), read by the smoke and the markers every frame. */
+  const liftsRef = useRef(new Map<number, number>());
   const [stats, setStats] = useState<DebugStats | null>(null);
   const showStats = IS_DEV || props.debug;
   // Phase 22: a marker for every enterable province ("★ Pilot" for the pilot, "★ Desa" for the others).
   const markers = useMemo(
     () =>
       ENTERABLE_PROVINCES.flatMap((p) => {
-        const shape = shapes.find((s) => s.kode === p.kode);
-        return shape ? [{ province: p, shape }] : [];
+        const index = shapes.findIndex((s) => s.kode === p.kode);
+        return index >= 0 ? [{ province: p, shape: shapes[index], index }] : [];
       }),
     [shapes],
   );
@@ -403,7 +464,7 @@ export default function Map3D(props: Map3DProps) {
   const moveMarker = (kode: string) => (x: number, y: number, visible: boolean) => {
     const el = markerRefs.current.get(kode);
     if (!el) return;
-    el.style.transform = `translate(-50%, -100%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+    el.style.transform = `translate(-1px, -100%) translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
     el.style.visibility = visible ? 'visible' : 'hidden';
   };
 
@@ -416,9 +477,9 @@ export default function Map3D(props: Map3DProps) {
         flat
         shadows={shadowMode(tier) === 'map' ? { type: PCFShadowMap, autoUpdate: false } : false}
         // Production renders on demand (battery); development and ?debug=1 render continuously so the fps
-        // overlay measures real frame cost.
+        // overlay measures real frame cost. Ships and smoke ask for ~30 frames per second (AmbientTicker).
         frameloop={showStats ? 'always' : 'demand'}
-        camera={{ fov: FOV, near: 1, far: 400, position: [0, 60, 40] }}
+        camera={{ fov: MAP_FOV, near: 1, far: 500, position: [0, 60, 40] }}
         aria-label="Peta 3D provinsi Indonesia"
         role="img"
       >
@@ -428,19 +489,25 @@ export default function Map3D(props: Map3DProps) {
         <Islands
           geometry={geometry}
           shapes={shapes}
+          heights={heights}
           summaryByKode={props.summaryByKode}
           hoveredKode={props.hoveredKode}
           selectedKode={props.selectedKode}
           palette={palette}
           tier={tier}
+          liftsRef={liftsRef}
         />
         {ambient.ships !== 'none' && <Ships palette={palette} moving={ambient.ships === 'sailing'} />}
-        <Smoke vents={geometry.vents} lifts={lifts} palette={palette} moving={ambient.smoke === 'rising'} />
-        <AmbientTicker active={moving && !showStats} />
-        {markers.map(({ province, shape }) => (
+        <Smoke vents={geometry.vents} liftsRef={liftsRef} palette={palette} moving={ambient.smoke === 'rising'} />
+        <AmbientTicker active={ambient.animate && !showStats} />
+        {markers.map(({ province, shape, index }) => (
           <TrackScreenPoint
             key={province.kode}
-            position={[shape.anchor[0], HEIGHT_ACTIVE, -shape.anchor[1]]}
+            position={() => [
+              shape.anchor[0],
+              heights[index] + PAPER_SLAB.noise + (liftsRef.current.get(index) ?? 0),
+              -shape.anchor[1],
+            ]}
             onMove={moveMarker(province.kode)}
           />
         ))}
@@ -451,6 +518,7 @@ export default function Map3D(props: Map3DProps) {
           onSelect={props.onSelect}
         />
         <Controls bounds={bounds} />
+        {props.debug && <DebugHook shapes={shapes} heights={heights} />}
         {showStats && <StatsProbe onStats={setStats} />}
       </Canvas>
       {markers.map(({ province }) => (
@@ -463,14 +531,17 @@ export default function Map3D(props: Map3DProps) {
           type="button"
           onClick={() => props.onSelect(province.kode)}
           style={{ visibility: 'hidden' }}
-          className="absolute left-0 top-0 z-10 flex flex-col items-center focus:outline-none [&:focus-visible>span]:ring-accent"
+          className="group absolute left-0 top-0 z-10 flex flex-col items-start focus:outline-none"
           aria-label={`${province.nama}, ${province.kode === PILOT_PROVINCE.kode ? 'provinsi pilot' : 'desa virtual'}`}
+          aria-pressed={props.selectedKode === province.kode}
           data-marker={province.slug}
         >
-          <span className="whitespace-nowrap rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-md ring-2 ring-background">
+          {/* A terracotta flag on a pole (Phase 28): #B4500F with cream text (4.67:1), cream border on both papers. */}
+          <span className="whitespace-nowrap rounded-md rounded-bl-none border-[1.5px] border-brand-cream bg-brand-terracotta-600 px-1.5 py-px text-[10px] font-bold leading-[14px] text-brand-cream sm:px-2 sm:py-0.5 sm:text-xs sm:leading-4 shadow-md transition-transform group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-focus-ring group-focus-visible:ring-offset-1 group-aria-pressed:-translate-y-0.5">
             {markerLabel(province.kode)}
           </span>
-          <span className="h-2.5 w-0.5 bg-primary" aria-hidden />
+          <span className="h-3.5 w-[2px]" style={{ background: palette.earthTop }} aria-hidden />
+          <span className="-ml-[2px] h-1.5 w-1.5 rounded-full" style={{ background: palette.earthTop }} aria-hidden />
         </button>
       ))}
       {props.debug && stats && <StatsOverlay stats={stats} tier={tier} className="right-3 top-1/2 -translate-y-1/2" />}

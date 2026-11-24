@@ -376,3 +376,46 @@ export function liftShape(geometry: MapGeometry, index: number, dy: number) {
   attr.addUpdateRange(range.start * 3, range.count * 3);
   attr.needsUpdate = true;
 }
+
+/**
+ * The rim of one province (Phase 28 hover / selected outline): a flat ribbon `width` wide just inside every ring of
+ * the province, at height `y` (above its highest facet). Built only for the one or two provinces in that state.
+ */
+export function buildRim(shape: ProvinceShape, y: number, width: number, edge = PAPER_SLAB.edge): BufferGeometry {
+  const positions: number[] = [];
+  for (const polygon of shape.polygons) {
+    polygon.forEach((source, r) => {
+      // Outer ring CCW (inside on the left), holes CW (the province is on their left as well).
+      const ring = densifyRing(oriented(source, r === 0), edge);
+      const n = ring.length;
+      if (n < 3) return;
+      // Left normal of every edge, then a capped miter per vertex.
+      const normals = ring.map((p, k) => {
+        const q = ring[(k + 1) % n];
+        const len = Math.hypot(q[0] - p[0], q[1] - p[1]) || 1;
+        return [-(q[1] - p[1]) / len, (q[0] - p[0]) / len];
+      });
+      const inner = ring.map((p, k) => {
+        const a = normals[(k - 1 + n) % n];
+        const b = normals[k];
+        let mx = a[0] + b[0];
+        let my = a[1] + b[1];
+        const ml = Math.hypot(mx, my) || 1;
+        mx /= ml;
+        my /= ml;
+        const scale = Math.min(2, 1 / Math.max(0.3, mx * b[0] + my * b[1]));
+        return [p[0] + mx * width * scale, p[1] + my * width * scale];
+      });
+      for (let k = 0; k < n; k += 1) {
+        const k2 = (k + 1) % n;
+        const p1 = [ring[k][0], y, -ring[k][1]], p2 = [ring[k2][0], y, -ring[k2][1]];
+        const i1 = [inner[k][0], y, -inner[k][1]], i2 = [inner[k2][0], y, -inner[k2][1]];
+        // Wound counter-clockwise seen from above (normal up).
+        positions.push(...p1, ...i2, ...p2, ...p1, ...i1, ...i2);
+      }
+    });
+  }
+  const g = new BufferGeometry();
+  g.setAttribute('position', new BufferAttribute(new Float32Array(positions), 3));
+  return g;
+}
