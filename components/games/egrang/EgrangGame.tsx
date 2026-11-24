@@ -112,7 +112,7 @@ export function EgrangGame() {
             <ArrowLeft className="h-4 w-4" aria-hidden /> {back.label}
           </Link>
         ) : (
-          <h1 className="truncate px-1 text-lg font-extrabold text-primary">
+          <h1 className="truncate px-1 text-lg font-extrabold text-primary-text">
             {GAME_TITLE} <span className="text-sm font-semibold text-muted-foreground">· {VARIANT_TEXTS[running.variant].label}</span>
           </h1>
         )}

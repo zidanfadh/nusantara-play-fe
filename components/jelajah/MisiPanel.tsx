@@ -42,7 +42,7 @@ export function MisiPanel({
             <li key={q.provinsiKode} className="rounded-xl border border-border px-3 py-3">
               <div className="flex items-start gap-2">
                 {progress.done ? (
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" aria-hidden />
                 ) : (
                   <Circle className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
                 )}

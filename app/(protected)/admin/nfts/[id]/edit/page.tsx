@@ -96,7 +96,7 @@ export default function EditNftPage({ params }: { params: Promise<{ id: string }
   };
 
   if (isLoadingNft) {
-    return <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /><p className="mt-2 text-sm text-muted-foreground">Memuat data...</p></div>;
+    return <div className="p-8 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary-text" /><p className="mt-2 text-sm text-muted-foreground">Memuat data...</p></div>;
   }
 
   if (fetchError || !nft) {

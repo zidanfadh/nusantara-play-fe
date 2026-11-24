@@ -160,7 +160,7 @@ export function SubmitDialog({
             onClick={confirm}
             disabled={submitting || !canConfirm}
             data-submit-confirm
-            className="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md bg-green-700 px-4 py-2 text-sm font-semibold text-white hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? 'Memproses…' : isResubmit ? 'Ajukan Ulang' : 'Ajukan Verifikasi'}
           </button>

@@ -83,7 +83,7 @@ export function CalendarAgenda({
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded">
+      <div className="p-4 bg-red-50 dark:bg-red-900/20 text-danger rounded">
         Error: {error.message}
       </div>
     );
@@ -173,7 +173,7 @@ export function CalendarAgenda({
                         >
                           {entry.visibility}
                         </span>
-                        <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary">
+                        <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary-text">
                           {getTypeLabel(entry.type)}
                         </span>
                       </div>

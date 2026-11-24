@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
+import { BatikBand } from '@/components/brand/Batik';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -25,18 +26,19 @@ export default async function MenuPage() {
     <>
       {/* Welcome Section */}
       <section className="mb-16 pt-4">
-        <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest rounded mb-4">
+        <div className="inline-block px-3 py-1 bg-primary-soft text-primary-soft-foreground text-xs font-bold uppercase tracking-widest rounded mb-4">
           Menu Utama
         </div>
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground mb-4">
+        <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-4">
           Selamat Datang,{' '}
-          <span className="text-primary">{firstName}</span>!
+          <span className="text-primary-text">{firstName}</span>!
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
           Jelajahi kekayaan permainan dan olahraga tradisional Indonesia.
           Mulai perjalananmu dalam melestarikan warisan budaya nusantara
           bersama komunitas kami.
         </p>
+        <BatikBand className="mt-8 max-w-xs" />
       </section>
 
       {/* Bento Grid */}
@@ -49,7 +51,7 @@ export default async function MenuPage() {
           <div className="flex flex-col md:flex-row h-full min-h-[380px]">
             <div className="md:w-1/2 p-10 flex flex-col justify-between">
               <div>
-                <Dumbbell className="w-12 h-12 text-primary mb-4" />
+                <Dumbbell className="w-12 h-12 text-primary-text mb-4" />
                 <h2 className="text-3xl font-bold tracking-tight text-foreground mb-3">
                   Permainan &amp; Olahraga Tradisional
                 </h2>
@@ -58,7 +60,7 @@ export default async function MenuPage() {
                   seluruh pelosok Nusantara, dari Pencak Silat hingga Engklek.
                 </p>
               </div>
-              <div className="flex items-center gap-2 text-primary font-bold">
+              <div className="flex items-center gap-2 text-primary-text font-bold">
                 <span>Buka</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
@@ -81,8 +83,8 @@ export default async function MenuPage() {
         >
           <div>
             <div className="flex justify-between items-start mb-6">
-              <Landmark className="w-10 h-10 text-primary" />
-              <div className="bg-primary/10 px-3 py-1 rounded-full text-[0.65rem] font-bold text-primary uppercase tracking-tighter">
+              <Landmark className="w-10 h-10 text-primary-text" />
+              <div className="bg-primary/10 px-3 py-1 rounded-full text-[0.65rem] font-bold text-primary-text uppercase tracking-tighter">
                 Live Now
               </div>
             </div>
@@ -106,7 +108,7 @@ export default async function MenuPage() {
                 +12k
               </div>
             </div>
-            <div className="flex items-center gap-2 text-primary font-bold text-sm">
+            <div className="flex items-center gap-2 text-primary-text font-bold text-sm">
               <span>Buka</span>
               <ArrowRight className="w-4 h-4" />
             </div>
@@ -125,7 +127,7 @@ export default async function MenuPage() {
             src="/images/landing/menu-marketplace.webp"
           />
           <div className="relative z-10">
-            <ShoppingBag className="w-6 h-6 text-primary mb-2" />
+            <ShoppingBag className="w-6 h-6 text-primary-text mb-2" />
             <h3 className="text-2xl font-bold text-foreground mb-2">
               Marketplace
             </h3>
@@ -133,7 +135,7 @@ export default async function MenuPage() {
               Temukan produk kriya fisik dan aset digital dari para pengrajin
               dan komunitas budaya lokal nusantara.
             </p>
-            <div className="flex items-center gap-2 text-primary font-bold text-sm">
+            <div className="flex items-center gap-2 text-primary-text font-bold text-sm">
               <span>Buka</span>
               <ArrowUpRight className="w-4 h-4" />
             </div>
@@ -146,7 +148,7 @@ export default async function MenuPage() {
           className="md:col-span-4 group bg-muted/50 border-b-4 border-primary rounded-xl p-8 flex flex-col justify-between hover:bg-muted transition-all duration-300"
         >
           <div>
-            <BadgeCheck className="w-10 h-10 text-primary mb-4" />
+            <BadgeCheck className="w-10 h-10 text-primary-text mb-4" />
             <h3 className="text-2xl font-bold tracking-tight text-foreground mb-3">
               Sertifikat Prestasi
             </h3>
@@ -157,16 +159,16 @@ export default async function MenuPage() {
           </div>
           <div className="mt-6 p-4 bg-background/50 rounded-lg flex items-center gap-4">
             <div className="w-12 h-12 flex-shrink-0 bg-primary/10 rounded flex items-center justify-center">
-              <Award className="w-6 h-6 text-primary" />
+              <Award className="w-6 h-6 text-primary-text" />
             </div>
             <div>
-              <div className="text-[0.65rem] font-bold text-primary uppercase tracking-wider">
+              <div className="text-[0.65rem] font-bold text-primary-text uppercase tracking-wider">
                 Badge Terbaru
               </div>
               <div className="text-sm font-bold">Gasing Master 2024</div>
             </div>
           </div>
-          <div className="mt-6 flex items-center gap-2 text-primary font-bold text-sm">
+          <div className="mt-6 flex items-center gap-2 text-primary-text font-bold text-sm">
             <span>Buka</span>
             <ArrowRight className="w-4 h-4" />
           </div>
@@ -178,16 +180,16 @@ export default async function MenuPage() {
           className="md:col-span-4 group bg-muted/50 rounded-xl p-8 flex flex-col justify-between hover:bg-primary transition-all duration-300"
         >
           <div>
-            <Calendar className="w-10 h-10 text-primary group-hover:text-primary-foreground mb-4 transition-colors" />
+            <Calendar className="w-10 h-10 text-primary-text group-hover:text-primary-foreground mb-4 transition-colors" />
             <h3 className="text-2xl font-bold tracking-tight text-foreground group-hover:text-primary-foreground mb-3 transition-colors">
               Kalender
             </h3>
-            <p className="text-muted-foreground group-hover:text-primary-foreground/70 text-sm leading-relaxed transition-colors">
+            <p className="text-muted-foreground group-hover:text-primary-foreground text-sm leading-relaxed transition-colors">
               Atur jadwal kegiatan, sesi latihan, dan pantau hari besar budaya
               nusantara dalam satu kalender terpadu.
             </p>
           </div>
-          <div className="mt-8 flex items-center gap-2 text-primary group-hover:text-primary-foreground font-bold text-sm transition-colors">
+          <div className="mt-8 flex items-center gap-2 text-primary-text group-hover:text-primary-foreground font-bold text-sm transition-colors">
             <span>Buka</span>
             <ArrowRight className="w-4 h-4" />
           </div>
@@ -199,7 +201,7 @@ export default async function MenuPage() {
           className="md:col-span-4 group bg-muted/50 rounded-xl p-8 flex flex-col justify-between hover:bg-muted transition-all duration-300"
         >
           <div>
-            <Gem className="w-10 h-10 text-primary mb-4" />
+            <Gem className="w-10 h-10 text-primary-text mb-4" />
             <h3 className="text-2xl font-bold tracking-tight text-foreground mb-3">
               Katalog NFT
             </h3>
@@ -207,7 +209,7 @@ export default async function MenuPage() {
               Jelajahi dan temukan representasi digital arsip budaya Nusantara di blockchain. Bukan fungsi jual-beli, melainkan dokumentasi.
             </p>
           </div>
-          <div className="mt-8 flex items-center gap-2 text-primary font-bold text-sm">
+          <div className="mt-8 flex items-center gap-2 text-primary-text font-bold text-sm">
             <span>Buka</span>
             <ArrowRight className="w-4 h-4" />
           </div>

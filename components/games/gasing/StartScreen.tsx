@@ -26,7 +26,7 @@ export function StartScreen({ settings, onSettings, onStart, onRules, onAbout, b
     <div className="mx-auto w-full max-w-lg px-4 py-3 sm:py-8" data-testid="gasing-start">
       {backLink}
       <div className="rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">{GAME_TITLE}</h1>
+        <h1 className="font-display text-2xl font-bold text-primary-text sm:text-3xl">{GAME_TITLE}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{GAME_TAGLINE}</p>
 
         <fieldset className="mt-3">
@@ -43,7 +43,7 @@ export function StartScreen({ settings, onSettings, onStart, onRules, onAbout, b
                   className="sr-only"
                 />
                 <span className="text-sm font-bold">{m.label}</span>
-                <span className={`text-xs leading-snug ${settings.mode === m.value ? 'text-primary-foreground/85' : 'text-muted-foreground'}`}>{m.explain}</span>
+                <span className={`text-xs leading-snug ${settings.mode === m.value ? 'text-primary-foreground' : 'text-muted-foreground'}`}>{m.explain}</span>
               </label>
             ))}
           </div>

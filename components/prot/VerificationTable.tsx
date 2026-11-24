@@ -49,7 +49,7 @@ export function VerificationTable({ items, type, onPick, onRelease, loading }: V
           {items.map((item) => (
             <tr key={item.id} className="bg-background border-b border-border hover:bg-muted/20">
               <td className="px-6 py-4 font-medium text-foreground">
-                <Link href={`/prot/${item.prot_id}`} className="hover:underline hover:text-primary">
+                <Link href={`/prot/${item.prot_id}`} className="hover:underline hover:text-primary-text">
                   {item.prot?.nama || 'Tanpa Nama'}
                 </Link>
                 <div className="text-xs text-muted-foreground mt-1">ID: {item.prot_id.substring(0, 8)}...</div>
@@ -73,7 +73,7 @@ export function VerificationTable({ items, type, onPick, onRelease, loading }: V
                 {type === 'available' && onPick && (
                   <button
                     onClick={() => onPick(item.id)}
-                    className="font-medium text-primary hover:text-primary/80"
+                    className="font-medium text-primary-text hover:text-primary-text/80"
                   >
                     Ambil Tugas
                   </button>

@@ -39,7 +39,7 @@ function PhotoGrid({ files, label }: { files: ReviewFile[]; label: string }) {
               <div className="relative aspect-square bg-muted">
                 <ProtPhoto src={file.url} alt={`${label} ${i + 1}`} size="cover" />
               </div>
-              <span className="block px-2 py-1 text-[11px] text-primary">
+              <span className="block px-2 py-1 text-[11px] text-primary-text">
                 {i === 0 && label === 'Foto kegiatan' ? 'Foto pertama · ' : ''}Buka ukuran penuh ↗
               </span>
             </a>
@@ -81,7 +81,7 @@ export function ReviewMediaPanel({ media }: { media: ReviewMedia }) {
                 ) : (
                   <>
                     <video src={file.url} controls preload="metadata" className="w-full max-h-72 rounded bg-black" />
-                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-text hover:underline">
                       Buka video di tab baru ↗
                     </a>
                   </>
@@ -104,7 +104,7 @@ export function ReviewMediaPanel({ media }: { media: ReviewMedia }) {
                 {file.hidden ? (
                   <span data-review-hidden className="text-xs text-muted-foreground">Disembunyikan (daftar sembunyi)</span>
                 ) : (
-                  <a href={file.url} target="_blank" rel="noopener noreferrer" download className="shrink-0 text-primary hover:underline">
+                  <a href={file.url} target="_blank" rel="noopener noreferrer" download className="shrink-0 text-primary-text hover:underline">
                     Buka / unduh ↗
                   </a>
                 )}
@@ -148,13 +148,13 @@ export function ReviewMediaPanel({ media }: { media: ReviewMedia }) {
                         {link.hidden ? (
                           <span data-review-hidden className="text-xs text-muted-foreground">Disembunyikan (daftar sembunyi)</span>
                         ) : link.domain ? (
-                          <a href={link.url} target="_blank" rel="noopener noreferrer nofollow" className="min-w-0 break-all text-xs text-primary hover:underline">
+                          <a href={link.url} target="_blank" rel="noopener noreferrer nofollow" className="min-w-0 break-all text-xs text-primary-text hover:underline">
                             {link.url}
                           </a>
                         ) : (
                           <span className="min-w-0 break-all text-xs text-muted-foreground">{link.url}</span>
                         )}
-                        {link.domain && !link.https && <span className="text-xs text-amber-700">tanpa https</span>}
+                        {link.domain && !link.https && <span className="text-xs text-warning">tanpa https</span>}
                       </li>
                     ))}
                   </ul>

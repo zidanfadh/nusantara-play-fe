@@ -243,7 +243,7 @@ export function ProvinceScene2D({ nama, stands, onOpen, scene, extra }: Province
                   <span className="block break-words font-semibold text-foreground">
                     {content.kind === 'prot' ? content.prot.nama : `${content.prots.length} PROT lainnya`}
                   </span>
-                  <span className="text-sm text-primary">Lihat</span>
+                  <span className="text-sm text-primary-text">Lihat</span>
                 </span>
               </button>
             )}

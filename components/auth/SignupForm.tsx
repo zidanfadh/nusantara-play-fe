@@ -60,7 +60,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
         <p className="text-sm text-muted-foreground">
           Kami telah mengirimkan tautan konfirmasi ke {email}
         </p>
-        <Link href={loginHref} className="text-secondary hover:underline text-sm font-medium">
+        <Link href={loginHref} className="text-primary-text hover:underline text-sm font-medium">
           Kembali ke halaman masuk
         </Link>
       </div>
@@ -136,7 +136,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
         </div>
 
         {error && (
-          <div className="text-red-600 dark:text-red-400 text-sm">{error}</div>
+          <div className="text-danger text-sm">{error}</div>
         )}
 
         <button
@@ -149,7 +149,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
 
         <p className="text-center text-sm text-muted-foreground">
           Sudah punya akun?{' '}
-          <Link href={loginHref} className="text-secondary font-medium hover:underline">
+          <Link href={loginHref} className="text-primary-text font-medium hover:underline">
             Masuk sekarang
           </Link>
         </p>

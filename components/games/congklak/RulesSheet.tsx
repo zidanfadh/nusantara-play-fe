@@ -45,7 +45,7 @@ export function RulesSheet({ open, onClose }: { open: boolean; onClose: () => vo
       <ol className="mt-4 space-y-3 text-sm leading-relaxed">
         {rulesSections(DEFAULT_RULES).map((s, i) => (
           <li key={s.title} className="flex gap-3">
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary-text">
               {i + 1}
             </span>
             <p>

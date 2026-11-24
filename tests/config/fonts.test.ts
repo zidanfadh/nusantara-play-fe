@@ -22,26 +22,56 @@ describe('self-hosted fonts (no build-time download from Google Fonts)', () => {
     expect(offenders).toEqual([]);
   });
 
-  it('the layout loads the committed woff2 files with the same CSS variables', () => {
+  it('the layout loads the committed woff2 files (Phase 27: Poppins, Cinzel Decorative, Geist Mono)', () => {
     const layout = readFileSync(join(root, 'app/layout.tsx'), 'utf8');
     expect(layout).toMatch(/from "next\/font\/local"/);
-    expect(layout).toContain('--font-jakarta-sans');
+    expect(layout).toContain('--font-poppins');
+    expect(layout).toContain('--font-cinzel-decorative');
     expect(layout).toContain('--font-geist-mono');
-    for (const file of ['PlusJakartaSans-latin.woff2', 'GeistMono-latin.woff2', 'OFL-PlusJakartaSans.txt', 'OFL-GeistMono.txt']) {
+    expect(layout).not.toMatch(/jakarta/i);
+    const files = [
+      'Poppins-Regular-latin.woff2',
+      'Poppins-Medium-latin.woff2',
+      'Poppins-SemiBold-latin.woff2',
+      'Poppins-Bold-latin.woff2',
+      'CinzelDecorative-Bold.woff2',
+      'GeistMono-latin.woff2',
+    ];
+    for (const file of [...files, 'OFL-Poppins.txt', 'OFL-CinzelDecorative.txt', 'OFL-GeistMono.txt']) {
       expect(existsSync(join(root, 'app/fonts', file)), file).toBe(true);
     }
-    // woff2 signature
-    expect(readFileSync(join(root, 'app/fonts/PlusJakartaSans-latin.woff2')).subarray(0, 4).toString()).toBe('wOF2');
-    expect(readFileSync(join(root, 'app/fonts/GeistMono-latin.woff2')).subarray(0, 4).toString()).toBe('wOF2');
+    for (const file of files) {
+      expect(readFileSync(join(root, 'app/fonts', file)).subarray(0, 4).toString(), file).toBe('wOF2');
+      expect(layout, file).toContain(file);
+    }
+    // Poppins in the four UI weights only.
+    for (const w of ['400', '500', '600', '700']) expect(layout).toContain(`weight: "${w}"`);
+    expect(existsSync(join(root, 'app/fonts/PlusJakartaSans-latin.woff2'))).toBe(false);
   });
 
-  it('the fonts are actually used (Phase 14): font theme lines inline, body on the next/font variable', () => {
+  it('the fonts are actually used (Phase 14 / 27): font theme lines inline, body on the next/font variable', () => {
     const css = readFileSync(join(root, 'app/globals.css'), 'utf8');
     const inline = css.match(/@theme inline\s*\{([^}]*)\}/)?.[1] ?? '';
-    expect(inline).toContain('--font-sans: var(--font-jakarta-sans);');
+    expect(inline).toContain('--font-sans: var(--font-poppins);');
+    expect(inline).toContain('--font-display: var(--font-cinzel-decorative);');
     expect(inline).toContain('--font-mono: var(--font-geist-mono);');
     // No font line left in a plain @theme block (it would be resolved on :root, where next/font sets nothing).
-    for (const block of css.matchAll(/@theme\s*\{([^}]*)\}/g)) expect(block[1]).not.toMatch(/--font-(sans|mono)\s*:/);
-    expect(css).toMatch(/body\s*\{[^}]*font-family:\s*var\(--font-jakarta-sans\)/);
+    for (const block of css.matchAll(/@theme\s*\{([^}]*)\}/g)) expect(block[1]).not.toMatch(/--font-(sans|mono|display)\s*:/);
+    expect(css).toMatch(/body\s*\{[^}]*font-family:\s*var\(--font-poppins\)/);
+  });
+
+  it('Cinzel Decorative (font-display) is never the body, button or form font', () => {
+    const offenders = ['app', 'components']
+      .flatMap((d) => sourceFiles(join(root, d)))
+      .filter((f) => f.endsWith('.tsx'))
+      .filter((f) => {
+        const src = readFileSync(f, 'utf8');
+        // Controls never; a paragraph only as a large display figure (text-3xl or larger).
+        if (/<(?:button|input|textarea|select|label)(?=[\s>])[^>]*className="[^"]*(?<![\w-])font-display(?![\w-])/.test(src)) return true;
+        return [...src.matchAll(/<p(?=[\s>])[^>]*className="([^"]*)"/g)].some(
+          ([, cls]) => /(?<![\w-])font-display(?![\w-])/.test(cls) && !/(?<![\w-])text-([3-9]xl)(?![\w-])/.test(cls),
+        );
+      });
+    expect(offenders).toEqual([]);
   });
 });

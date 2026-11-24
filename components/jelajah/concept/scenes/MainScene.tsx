@@ -50,7 +50,7 @@ function XpChip({ lt, at, i, still }: { lt: MotionValue<number>; at: number; i: 
   return (
     <span
       ref={ref}
-      className="pointer-events-none absolute -top-3 inline-flex items-center gap-1 rounded-full bg-[#F7C95C] px-3 py-1 text-base font-extrabold text-[#3B1E0E] shadow-lg"
+      className="pointer-events-none absolute -top-3 inline-flex items-center gap-1 rounded-full bg-[#F4AE52] px-3 py-1 text-base font-extrabold text-[#2A1A0E] shadow-lg"
       style={{ left: `${30 + i * 20}%`, ...LIVE }}
     >
       <Sparkles className="h-4 w-4" aria-hidden /> {CONCEPT_TEXT.xpChip}
@@ -79,7 +79,7 @@ function Passport({ lt, still, layout }: { lt: MotionValue<number>; still: boole
     <div
       ref={shake}
       style={LIVE}
-      className={`relative mx-auto flex shrink-0 flex-col rounded-2xl border-2 border-[#C9A876] bg-[#FBF3E4] shadow-[0_18px_40px_-16px_rgba(0,0,0,0.8)] ${
+      className={`relative mx-auto flex shrink-0 flex-col rounded-2xl border-2 border-[#C9A876] bg-[#FEF3E2] shadow-[0_18px_40px_-16px_rgba(0,0,0,0.8)] ${
         layout === 'portrait' ? 'w-[min(78%,300px)] p-3' : compact ? 'w-[34%] p-3' : 'w-[30%] p-6'
       }`}
     >
@@ -95,7 +95,7 @@ function Passport({ lt, still, layout }: { lt: MotionValue<number>; still: boole
             {i === 0 && (
               <span
                 ref={stamp}
-                className={`absolute -inset-1 flex items-center justify-center rounded-full border-[3px] border-double border-[#9E3C24] bg-[#FBF3E4] text-center font-extrabold uppercase leading-[1.05] text-[#9E3C24] ${
+                className={`absolute -inset-1 flex items-center justify-center rounded-full border-[3px] border-double border-[#B4500F] bg-[#FEF3E2] text-center font-extrabold uppercase leading-[1.05] text-[#B4500F] ${
                   compact ? 'text-[8px]' : 'text-[11px]'
                 }`}
               >

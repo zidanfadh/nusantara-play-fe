@@ -51,8 +51,8 @@ export function JelajahScene({ lt, layout, still }: SceneProps) {
             <ProvincePaths fill="#F3E3C3" stroke="#B9AE9C" strokeWidth={1.2} />
             {PILOT && (
               <>
-                <path d={PILOT.d} fill="#9E3C24" stroke="#FFF6E0" strokeWidth={1.5} />
-                <circle cx={PILOT.cx} cy={PILOT.cy} r="5" fill="#FFF6E0" stroke="#9E3C24" strokeWidth="2.5" />
+                <path d={PILOT.d} fill="#D4621A" stroke="#FEF3E2" strokeWidth={1.5} />
+                <circle cx={PILOT.cx} cy={PILOT.cy} r="5" fill="#FEF3E2" stroke="#B4500F" strokeWidth="2.5" />
               </>
             )}
           </g>
@@ -62,7 +62,7 @@ export function JelajahScene({ lt, layout, still }: SceneProps) {
           <Stage layout={layout} live>
             <g transform={mapTransformAttr(layout)}>
               <g transform={`translate(${PILOT.cx} ${PILOT.cy})`}>
-                <circle ref={pulse} r="14" fill="none" stroke="#9E3C24" strokeWidth="3" />
+                <circle ref={pulse} r="14" fill="none" stroke="#B4500F" strokeWidth="3" />
               </g>
             </g>
           </Stage>

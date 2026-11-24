@@ -345,7 +345,7 @@ export function CongklakGame() {
             <ArrowLeft className="h-4 w-4" aria-hidden /> {back.label}
           </Link>
         ) : (
-          <h1 className="px-1 text-lg font-extrabold text-primary">Congklak</h1>
+          <h1 className="px-1 text-lg font-extrabold text-primary-text">Congklak</h1>
         )}
         <div className="ml-auto flex items-center gap-1">
           <button type="button" onClick={() => setRulesOpen(true)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Cara bermain" title="Cara bermain">
@@ -378,7 +378,7 @@ export function CongklakGame() {
         {scoreChip(0, s0)}
       </div>
       <p className="mt-1.5 text-center text-sm font-bold" data-testid="congklak-status">
-        <span className={!game.over && !animating && toMove === 1 ? 'text-secondary' : 'text-primary'}>{status}</span>
+        <span className={!game.over && !animating && toMove === 1 ? 'text-foreground' : 'text-primary-text'}>{status}</span>
       </p>
 
       <div className="relative mt-1 min-h-0 flex-1">
@@ -401,7 +401,7 @@ export function CongklakGame() {
         {phase === 'end' && game.winner !== null && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm" data-testid="congklak-end">
             <section className="w-full max-w-sm rounded-2xl border border-border bg-card p-5 text-center text-card-foreground shadow-xl" aria-labelledby="congklak-result">
-              <h2 id="congklak-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary outline-none">
+              <h2 id="congklak-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary-text outline-none">
                 {resultHeading(game.winner, names, running.mode)}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">

@@ -44,26 +44,26 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
                 />
               ) : (
                 <div className="w-full h-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-3xl font-black text-primary">{initials}</span>
+                  <span className="text-3xl font-black text-primary-text">{initials}</span>
                 </div>
               )}
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-primary text-white px-2.5 py-0.5 rounded-md text-[9px] font-black tracking-widest uppercase">
+            <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground px-2.5 py-0.5 rounded-md text-[9px] font-black tracking-widest uppercase">
               {roleShortLabel[user.role] ?? 'ANGGOTA'}
             </div>
           </div>
 
           {/* Name + role */}
           <h2 className="text-2xl font-bold text-foreground mb-1">{user.full_name}</h2>
-          <p className="text-primary font-semibold text-sm mb-4">{formatUserRole(user.role)}</p>
+          <p className="text-primary-text font-semibold text-sm mb-4">{formatUserRole(user.role)}</p>
 
           {/* Tags */}
           <div className="flex flex-wrap justify-center gap-2 mb-8">
-            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">
+            <span className="bg-primary/10 text-primary-text px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">
               {formatUserStatus(user.status)}
             </span>
             {user.institution && (
-              <span className="bg-warm-field text-foreground/60 px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase max-w-[140px] truncate">
+              <span className="bg-warm-field text-muted-foreground px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase max-w-[140px] truncate">
                 {user.institution}
               </span>
             )}
@@ -75,7 +75,7 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
               {onEdit && (
                 <button
                   onClick={onEdit}
-                  className="w-full py-3.5 bg-primary text-white rounded-md font-bold text-sm tracking-wide shadow-lg shadow-primary/20 hover:scale-[0.98] active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-primary text-primary-foreground rounded-md font-bold text-sm tracking-wide shadow-lg shadow-primary/20 hover:scale-[0.98] active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <Edit2 className="w-4 h-4" />
                   Update Profil
@@ -96,14 +96,14 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
       {/* Expertise card */}
       {user.expertise && user.expertise.length > 0 && (
         <div className="bg-warm-card rounded-xl p-6">
-          <h3 className="text-[10px] font-black tracking-widest uppercase text-foreground/50 mb-4">
+          <h3 className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-4">
             Keahlian
           </h3>
           <div className="flex flex-wrap gap-2">
             {user.expertise.map((exp, i) => (
               <span
                 key={i}
-                className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-lg"
+                className="px-3 py-1.5 bg-primary/10 text-primary-text text-xs font-semibold rounded-lg"
               >
                 {exp}
               </span>

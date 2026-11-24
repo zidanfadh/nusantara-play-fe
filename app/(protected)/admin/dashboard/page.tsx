@@ -46,14 +46,14 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A5F7A]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-secondary"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-primary">
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
         <p className="text-muted-foreground mt-1 text-xs">Ringkasan sistem {SITE_NAME}</p>
       </div>
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
       {/* User Statistics */}
       <div>
         <h2 className="text-base font-bold text-foreground mb-3 flex items-center">
-          <span className="h-5 w-1 bg-[#C04A21] rounded-full mr-2"></span>
+          <span className="h-5 w-1 bg-primary-hover rounded-full mr-2"></span>
           Statistik Pengguna
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
       {/* Daerah Statistics */}
       <div>
         <h2 className="text-base font-bold text-foreground mb-3 flex items-center">
-          <span className="h-5 w-1 bg-[#1A5F7A] rounded-full mr-2"></span>
+          <span className="h-5 w-1 bg-secondary rounded-full mr-2"></span>
           Statistik Daerah
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-base font-bold text-foreground mb-3 flex items-center">
-          <span className="h-5 w-1 bg-[#D4A017] rounded-full mr-2"></span>
+          <span className="h-5 w-1 bg-accent rounded-full mr-2"></span>
           Aksi Cepat
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -181,10 +181,10 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon, color }: StatCardProps) {
   const colorClasses = {
-    blue: 'bg-gradient-to-br from-blue-50 to-blue-100 text-[#1A5F7A]',
+    blue: 'bg-gradient-to-br from-blue-50 to-blue-100 text-primary-text',
     green: 'bg-gradient-to-br from-green-50 to-green-100 text-green-600',
     purple: 'bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600',
-    yellow: 'bg-gradient-to-br from-yellow-50 to-yellow-100 text-[#D4A017]',
+    yellow: 'bg-gradient-to-br from-yellow-50 to-yellow-100 text-primary-text',
     indigo: 'bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600',
     teal: 'bg-gradient-to-br from-teal-50 to-teal-100 text-teal-600',
   };
@@ -215,18 +215,18 @@ function QuickActionCard({ title, description, href, icon }: QuickActionCardProp
   return (
     <a
       href={href}
-      className="bg-card rounded-lg shadow-sm hover:shadow-lg border-2 border-border hover:border-[#C04A21] p-4 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 group"
+      className="bg-card rounded-lg shadow-sm hover:shadow-lg border-2 border-border hover:border-primary p-4 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 group"
     >
       <div className="flex items-start space-x-3">
-        <div className="p-2 bg-gradient-to-br from-[#D4A017] to-[#E5B028] text-white rounded-lg group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
+        <div className="p-2 bg-gradient-to-br from-accent to-accent text-white rounded-lg group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
           {icon}
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-foreground group-hover:text-[#C04A21] transition-colors">
+          <h3 className="text-sm font-bold text-foreground group-hover:text-primary-text transition-colors">
             {title}
           </h3>
           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
-          <div className="mt-2 flex items-center text-[#1A5F7A] font-medium text-xs group-hover:text-[#C04A21] transition-colors">
+          <div className="mt-2 flex items-center text-primary-text font-medium text-xs group-hover:text-primary-text transition-colors">
             <span>Lihat selengkapnya</span>
             <svg className="h-3 w-3 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

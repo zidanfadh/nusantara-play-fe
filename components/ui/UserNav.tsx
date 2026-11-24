@@ -102,7 +102,7 @@ export function UserNav() {
             <p className="text-sm font-medium text-foreground truncate">{user?.full_name || 'User'}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             {user?.role && (
-              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary uppercase tracking-wide">
+              <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary-text uppercase tracking-wide">
                 {user.role === 'admin_kpoti' ? 'Admin' : user.role === 'pakar' ? 'Pakar' : 'Pengguna'}
               </span>
             )}

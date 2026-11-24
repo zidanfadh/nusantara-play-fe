@@ -63,14 +63,14 @@ export function BersamaScene({ lt, layout, still }: SceneProps) {
   // dots and arcs have their own layer, so the province paths are never repainted per frame.
   const camera = useStyle(lt, (t) => cameraCss(layout, center, center, lerp(1.18, 1, easeInOutCubic(seg(time(t), -500, 2600)))));
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(90% 70% at 50% 40%, #2B2350 0%, #120F2A 75%)' }}>
+    <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(90% 70% at 50% 40%, #4A3524 0%, #2A1A0E 75%)' }}>
       <Stage layout={layout}>
         <rect {...BLEED} fill="url(#cv-kawung-gold)" opacity="0.07" />
       </Stage>
       <div ref={camera} className="absolute inset-0" style={LIVE}>
         <Stage layout={layout}>
           <g transform={mapTransformAttr(layout)}>
-            <ProvincePaths fill="#2F2960" stroke="#5A5294" strokeWidth={1.2} />
+            <ProvincePaths fill="#4A3524" stroke="#8A6A4A" strokeWidth={1.2} />
           </g>
         </Stage>
         <Stage layout={layout} live>
@@ -119,7 +119,7 @@ function Arc({ arc, i, lt, still }: { arc: { a: [number, number]; b: [number, nu
       <motion.path
         d={`M${arc.a[0]} ${arc.a[1]} Q${arc.c[0].toFixed(1)} ${arc.c[1].toFixed(1)} ${arc.b[0]} ${arc.b[1]}`}
         fill="none"
-        stroke="#F7C95C"
+        stroke="#F4AE52"
         strokeWidth={2.4}
         strokeLinecap="round"
         style={{ opacity }}
@@ -173,7 +173,7 @@ function Pill({
       <span
         ref={ref}
         style={LIVE}
-        className="inline-flex items-center gap-2 rounded-full border border-[#F7C95C]/60 bg-[#1E1840]/85 px-4 py-2 text-base font-bold text-[#FFE6A8] shadow-lg md:text-lg"
+        className="inline-flex items-center gap-2 rounded-full border border-[#F4AE52]/60 bg-[#2A1A0E]/85 px-4 py-2 text-base font-bold text-[#FFE6A8] shadow-lg md:text-lg"
       >
         <Icon className="h-5 w-5" aria-hidden /> {label}
       </span>

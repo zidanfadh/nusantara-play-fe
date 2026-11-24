@@ -8,6 +8,7 @@
  * Phase 12: the SIMULATED reward HUD (entering +25 XP, opening a PROT panel +10 XP, Paspor stamp) and a
  * one-time banner when the province has no public PROT yet. Rewards never reach the backend.
  */
+import { BatikMotif } from '@/components/brand/Batik';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -47,7 +48,8 @@ type DataState = { status: 'loading' } | { status: 'error' } | { status: 'ready'
 
 function SceneMessage({ text }: { text: string }) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-muted/40">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-muted/40">
+      <BatikMotif className="h-10 w-10 motion-safe:animate-pulse" />
       <p className="animate-pulse text-sm text-muted-foreground">{text}</p>
     </div>
   );
@@ -249,7 +251,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
         >
           <ArrowLeft className="h-4 w-4" aria-hidden /> <span className="hidden sm:inline">Peta</span><span className="sr-only sm:hidden">Kembali ke peta</span>
         </Link>
-        <h1 className="whitespace-nowrap text-sm font-bold leading-tight text-primary sm:text-base md:text-lg">{scene.nama}</h1>
+        <h1 className="whitespace-nowrap text-sm font-bold leading-tight text-primary-text sm:text-base md:text-lg">{scene.nama}</h1>
         <DemoBadge />
       </div>
       <div className="pointer-events-auto">
@@ -330,7 +332,7 @@ export function ProvinceExperience({ scene }: { scene: SceneDefinition }) {
         {ready && showHelp && (
           <div className="pointer-events-auto w-full max-w-[24rem] rounded-xl border border-border bg-card/95 px-4 py-3 text-sm text-card-foreground shadow-lg">
             <p className="flex items-start gap-2">
-              <Hand className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+              <Hand className="mt-0.5 h-4 w-4 shrink-0 text-primary-text" aria-hidden />
               {touch
                 ? 'Geser joystick di kiri bawah untuk berjalan. Dekati stand, lalu ketuk Lihat.'
                 : 'Berjalan dengan W A S D atau tombol panah. Dekati stand, lalu tekan E atau klik Lihat.'}

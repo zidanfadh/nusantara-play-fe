@@ -52,13 +52,13 @@ export default function ProfilePage() {
     <div>
       {/* Page Header */}
       <div className="mb-12">
-        <span className="text-xs font-bold uppercase tracking-widest text-primary block mb-2">
+        <span className="text-xs font-bold uppercase tracking-widest text-primary-text block mb-2">
           Identitas Anggota
         </span>
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-4">
           Profil Saya
         </h1>
-        <p className="text-foreground/60 max-w-2xl text-lg leading-relaxed">
+        <p className="text-muted-foreground max-w-2xl text-lg leading-relaxed">
           Kelola informasi digital Anda sebagai bagian dari komunitas warisan budaya Indonesia.
         </p>
         <div className="w-full h-px bg-border/20 mt-8" />
@@ -81,7 +81,7 @@ export default function ProfilePage() {
             <div className="bg-warm-card p-8 md:p-12 rounded-xl border-b-2 border-primary/10">
               <div className="mb-10">
                 <h3 className="text-2xl font-bold tracking-tight mb-2">Update Profil</h3>
-                <p className="text-foreground/60">Perbarui informasi identitas digital Anda di komunitas Nusantara.</p>
+                <p className="text-muted-foreground">Perbarui informasi identitas digital Anda di komunitas Nusantara.</p>
               </div>
               <EditProfileForm
                 currentUser={user}
@@ -97,7 +97,7 @@ export default function ProfilePage() {
                   {/* Bio — spans full width */}
                   {user.bio && (
                     <div className="md:col-span-2">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-primary block mb-3">
+                      <label className="text-[10px] font-bold tracking-widest uppercase text-primary-text block mb-3">
                         Narasi Bio
                       </label>
                       <p className="text-lg font-medium leading-relaxed text-foreground/70">
@@ -108,16 +108,16 @@ export default function ProfilePage() {
 
                   {/* Email */}
                   <div>
-                    <label className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 block mb-2">
+                    <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground block mb-2">
                       Komunikasi
                     </label>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-warm-field flex items-center justify-center flex-shrink-0">
-                        <Mail className="w-5 h-5 text-primary" />
+                        <Mail className="w-5 h-5 text-primary-text" />
                       </div>
                       <div>
                         <p className="text-sm font-bold text-foreground">{user.email}</p>
-                        <p className="text-xs text-foreground/50">Email Utama</p>
+                        <p className="text-xs text-muted-foreground">Email Utama</p>
                       </div>
                     </div>
                   </div>
@@ -125,16 +125,16 @@ export default function ProfilePage() {
                   {/* Phone */}
                   {user.phone && (
                     <div>
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 block mb-2">
+                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground block mb-2">
                         Telepon
                       </label>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-warm-field flex items-center justify-center flex-shrink-0">
-                          <Phone className="w-5 h-5 text-primary" />
+                          <Phone className="w-5 h-5 text-primary-text" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-foreground">{user.phone}</p>
-                          <p className="text-xs text-foreground/50">Kontak Ponsel</p>
+                          <p className="text-xs text-muted-foreground">Kontak Ponsel</p>
                         </div>
                       </div>
                     </div>
@@ -143,16 +143,16 @@ export default function ProfilePage() {
                   {/* Institution */}
                   {user.institution && (
                     <div>
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 block mb-2">
+                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground block mb-2">
                         Afiliasi
                       </label>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-warm-field flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-5 h-5 text-primary" />
+                          <Building2 className="w-5 h-5 text-primary-text" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-foreground">{user.institution}</p>
-                          <p className="text-xs text-foreground/50">Institusi Utama</p>
+                          <p className="text-xs text-muted-foreground">Institusi Utama</p>
                         </div>
                       </div>
                     </div>
@@ -163,18 +163,18 @@ export default function ProfilePage() {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-warm-field/50 p-6 rounded-xl text-center">
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 mb-2">
+                  <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-2">
                     Terakhir Login
                   </p>
-                  <p className="text-base font-black text-primary leading-snug">
+                  <p className="text-base font-black text-primary-text leading-snug">
                     {formatDate(user.last_login_at)}
                   </p>
                 </div>
                 <div className="bg-warm-field/50 p-6 rounded-xl text-center">
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 mb-2">
+                  <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-2">
                     Bergabung Sejak
                   </p>
-                  <p className="text-base font-black text-primary leading-snug">
+                  <p className="text-base font-black text-primary-text leading-snug">
                     {formatDate(user.created_at)}
                   </p>
                 </div>

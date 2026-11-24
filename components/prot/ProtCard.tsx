@@ -12,7 +12,7 @@ interface ProtCardProps {
 export function ProtCard({ item, priority = false }: ProtCardProps) {
   const photo = firstVisiblePhoto(item);
   return (
-    <div className="bg-background dark:bg-background border border-border rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
+    <div className="bg-background border border-border rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
       {/* Image Placeholder */}
       <div className="relative h-48 bg-muted shrink-0">
         {photo ? (
@@ -29,8 +29,8 @@ export function ProtCard({ item, priority = false }: ProtCardProps) {
         {/* Badge */}
         <div className="absolute top-3 left-3">
           <span
-            className={`px-3 py-1 rounded text-xs font-semibold text-white ${
-              item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'bg-primary' : 'bg-secondary'
+            className={`px-3 py-1 rounded text-xs font-semibold ${
+              item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
             }`}
           >
             {item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'PERMAINAN RAKYAT' : 'OLAHRAGA TRADISIONAL'}
@@ -73,7 +73,7 @@ export function ProtCard({ item, priority = false }: ProtCardProps) {
         {/* Button */}
         <Link
           href={`/prot/${item.id}`}
-          className="w-full inline-block text-center px-4 py-2 bg-background dark:bg-background border border-border rounded-md text-sm font-medium hover:bg-muted transition-colors"
+          className="w-full inline-block text-center px-4 py-2 bg-background border border-border rounded-md text-sm font-medium hover:bg-muted transition-colors"
         >
           Lihat Detail
         </Link>

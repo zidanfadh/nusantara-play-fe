@@ -98,7 +98,7 @@ export function TierMenu({ choice, autoTier, onChoose, onReplayIntro }: TierMenu
               }}
               className="mt-1 flex w-full items-center gap-2 rounded-md border-t border-border px-2 pb-1.5 pt-2.5 text-left font-medium hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <PlayCircle className="h-4 w-4 text-primary" aria-hidden />
+              <PlayCircle className="h-4 w-4 text-primary-text" aria-hidden />
               Putar intro
             </button>
           )}

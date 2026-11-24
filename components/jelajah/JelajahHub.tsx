@@ -1,5 +1,6 @@
 'use client';
 
+import { BatikMotif } from '@/components/brand/Batik';
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -50,7 +51,8 @@ const ConceptVideo = dynamic(() => import('./concept/ConceptVideo'), {
 
 function MapSkeleton({ label }: { label: string }) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-muted/40">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-muted/40">
+      <BatikMotif className="h-10 w-10 motion-safe:animate-pulse" />
       <p className="animate-pulse text-sm text-muted-foreground">{label}</p>
     </div>
   );
@@ -241,7 +243,7 @@ export function JelajahHub() {
         <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-2">
           <div className="pointer-events-auto rounded-xl border border-border bg-card/90 px-3 py-2 shadow-sm backdrop-blur" data-toast-avoid>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-bold leading-tight text-primary md:text-lg">Jelajah Nusantara</h1>
+              <h1 className="text-base font-bold leading-tight text-primary-text md:text-lg">Jelajah Nusantara</h1>
               <span
                 className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-foreground"
                 title="Pratinjau: belum ada hadiah atau pemain lain yang tersimpan"
@@ -299,7 +301,7 @@ export function JelajahHub() {
           data-concept-replay
           className={`absolute bottom-3 left-3 z-10 inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-border bg-card/90 px-3 text-sm font-medium text-card-foreground shadow-sm backdrop-blur transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring md:min-h-0 md:py-2 ${selected ? 'hidden md:inline-flex' : ''}`}
         >
-          <Clapperboard className="h-4 w-4 text-primary" aria-hidden />
+          <Clapperboard className="h-4 w-4 text-primary-text" aria-hidden />
           <span className="hidden md:inline">{CONCEPT_REPLAY_LABEL}</span>
         </button>
 
@@ -344,10 +346,10 @@ export function JelajahHub() {
                 className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span className="flex items-center gap-2 font-medium">
-                  <MapPin className="h-4 w-4 text-primary" aria-hidden />
+                  <MapPin className="h-4 w-4 text-primary-text" aria-hidden />
                   {p.nama}
                   {enterableByKode(p.kode) && (
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary-text">
                       {p.kode === PILOT_PROVINCE.kode ? 'Pilot' : 'Desa'}
                     </span>
                   )}

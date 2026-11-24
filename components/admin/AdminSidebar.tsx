@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { SITE_NAME } from '@/lib/brand';
+import { Logotype } from '@/components/brand/Logotype';
 
 interface MenuItem {
   title: string;
@@ -111,7 +111,9 @@ export function AdminSidebar() {
     <div className="bg-card border-r border-border text-foreground w-64 flex-shrink-0 flex flex-col">
       {/* Logo */}
       <div className="flex items-center justify-center h-16 border-b border-border">
-        <h1 className="text-xl font-bold text-primary tracking-wide">{SITE_NAME}</h1>
+        <p className="text-lg">
+          <Logotype />
+        </p>
       </div>
 
       {/* Back to Dashboard Button */}
@@ -148,7 +150,7 @@ export function AdminSidebar() {
                   >
                     <div className="flex items-center">
                       <span className={`mr-3 ${
-                        isActive ? 'text-primary-foreground' : 'text-primary'
+                        isActive ? 'text-primary-foreground' : 'text-primary-text'
                       }`}>{item.icon}</span>
                       <span className="tracking-wide">{item.title}</span>
                     </div>
@@ -171,7 +173,7 @@ export function AdminSidebar() {
                             href={submenu.href}
                             className={`flex items-center px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                               isSubmenuActive
-                                ? 'bg-primary/10 text-primary'
+                                ? 'bg-primary/10 text-primary-text'
                                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                             }`}
                           >
@@ -192,7 +194,7 @@ export function AdminSidebar() {
                   }`}
                 >
                   <span className={`mr-3 ${
-                    isActive ? 'text-primary-foreground' : 'text-primary'
+                    isActive ? 'text-primary-foreground' : 'text-primary-text'
                   }`}>{item.icon}</span>
                   <span className="tracking-wide">{item.title}</span>
                 </Link>

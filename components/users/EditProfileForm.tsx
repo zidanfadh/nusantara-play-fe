@@ -93,7 +93,7 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
     }
   };
 
-  const labelClass = 'block text-[10px] font-bold uppercase tracking-[0.15em] text-primary mb-2';
+  const labelClass = 'block text-[10px] font-bold uppercase tracking-[0.15em] text-primary-text mb-2';
   const inputClass = (field?: string) =>
     `w-full bg-warm-field border-0 border-b-2 ${
       field && errors[field] ? 'border-red-500' : 'border-transparent focus:border-primary'
@@ -144,10 +144,10 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
 
       {/* Email — locked */}
       <div className="relative opacity-60">
-        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40 mb-2">
+        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-2">
           Email (Terkunci)
         </label>
-        <div className="w-full bg-warm-field/60 border-b border-border/20 px-4 py-3 text-base font-medium text-foreground/50 rounded-t cursor-not-allowed">
+        <div className="w-full bg-warm-field/60 border-b border-border/20 px-4 py-3 text-base font-medium text-muted-foreground rounded-t cursor-not-allowed">
           {currentUser.email}
         </div>
       </div>
@@ -206,7 +206,7 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
             type="button"
             onClick={handleAddExpertise}
             disabled={isLoading}
-            className="bg-primary text-white px-6 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="bg-primary text-primary-foreground px-6 rounded-lg font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             Tambah
           </button>
@@ -216,13 +216,13 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
             {formData.expertise.map((exp, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-semibold"
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary-text rounded-full text-sm font-semibold"
               >
                 {exp}
                 <button
                   type="button"
                   onClick={() => handleRemoveExpertise(i)}
-                  className="hover:text-primary/60 transition-colors leading-none"
+                  className="hover:text-primary-text/60 transition-colors leading-none"
                   disabled={isLoading}
                 >
                   ×
@@ -238,7 +238,7 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 bg-primary text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="flex-1 bg-primary text-primary-foreground font-bold py-4 px-8 rounded-lg shadow-lg hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
@@ -248,7 +248,7 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="flex-1 bg-warm-btn text-[#636262] font-bold py-4 px-8 rounded-lg hover:bg-warm-btn-hover transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 bg-warm-btn text-muted-foreground font-bold py-4 px-8 rounded-lg hover:bg-warm-btn-hover transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Batal
           </button>

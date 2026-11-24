@@ -692,7 +692,8 @@ preselects): **Bambu** (tall bamboo stilts: keep the swaying body balanced, a ba
   `SITE_NAME_WORDS` (the landing hero's two lines). Navbars, footer, landing page, auth layout and forms, admin
   header and sidebar, calendar, the old `/landing-page/1` and `/2`, metadata (title, description, Open Graph) and
   the bumper all read it. `<html lang="id">`. `tests/config/brand.test.ts` fails if "Nusantara Virtual" appears in
-  `app/`, `components/`, `lib/` or `public/`. "Tur Virtual" is a feature name, not the brand. The logo is unchanged.
+  `app/`, `components/`, `lib/` or `public/`. "Tur Virtual" is a feature name, not the brand. Since Phase 27 the name is
+  shown as the logotype (see "Visual identity (Phase 27)").
 - **Navbar links** (`components/ui/nav-links.ts`, one list for every menu): app navbar Menu, Kalender, Jelajah, Game
   (desktop from `md`; below `md` a menu button next to the theme toggle opens the same links, closes on a link, Esc
   or an outside click); landing navbar "Tur Virtual" and "Game" from `md` (section anchors from `xl`) and in a
@@ -756,8 +757,9 @@ preselects): **Bambu** (tall bamboo stilts: keep the swaying body balanced, a ba
   `/` phone 1597 → 666 KB cold (893 KB after scrolling to the bottom), desktop 1594 → 754 KB; `/prot` 616 KB;
   `/events` 334 KB, event detail 348 KB, `/nfts` 334 KB, NFT detail 370 KB (unchanged, no images);
   `/jelajah` 669 to 694 KB, `/jelajah/sumatera-selatan` 729 to 761 KB; three.js only on the two /jelajah routes.
-- **Fonts**: Plus Jakarta Sans (body, `font-sans`) and Geist Mono (`font-mono`) are really displayed since Phase 14
-  (`@theme inline` in `app/globals.css`); before, every page used the system font stack.
+- **Fonts**: Plus Jakarta Sans (body, `font-sans`) and Geist Mono (`font-mono`) were really displayed since Phase 14
+  (`@theme inline` in `app/globals.css`); before, every page used the system font stack. Phase 27 replaced Plus Jakarta
+  Sans with Poppins and added Cinzel Decorative (see "Visual identity (Phase 27)").
 
 ## Hidden media and documents (Phase 25)
 
@@ -819,6 +821,65 @@ step 0); what needs the new backend is behind a flag.
 - **Browser check** (Phase 26): local production build + the Phase 19 fake Supabase session carrying a real LOCAL backend
   access token (the local backend authenticates it), backend on the local dev DB; scripts in `D:/dev-cache/tmp/phase-26/pw/`
   (scratch, not in the repo); screenshots `D:/dev-cache/screens/phase-26/`.
+
+## Visual identity (Phase 27)
+
+Source of truth: the design team's "Konsep Visual" in `docs/design/` (`Konsep Visual.pdf`, 4 pages; `Palet Warna Nusantara
+Legacy.png`; `Referensi Peta Indonesia.png`, the 3D low-poly map for the NEXT phase). The boss wants "Indonesia banget".
+
+- **Tokens, one place**: `app/globals.css`. Values are `--nl-*` variables on `:root` (light) and `:root.dark` (dark; the
+  theme toggle's `dark` class on `<html>`), exposed to Tailwind with `@theme inline` (`bg-background`, `bg-surface`,
+  `bg-surface-raised`, `bg-muted`, `text-foreground` / `text-text`, `text-muted-foreground` / `text-text-muted`,
+  `bg-primary` + `text-primary-foreground`, `hover:bg-primary-hover`, `text-primary-text`, `bg-primary-soft` +
+  `text-primary-soft-foreground`, `bg-secondary`, `bg-accent`, `border-border`, `border-input`, `ring-focus-ring`,
+  `text-ornament`, `text-success|warning|danger`, `bg-*-soft`). `lib/theme/tokens.ts` mirrors the values and lists
+  every text/background pair; `tests/theme/tokens.test.ts` fails when CSS and TS differ or a pair misses WCAG AA.
+  Change a colour in BOTH places. Older names (`card`, `muted-foreground`, `ring`, `warm-*`, `surface-container-*`,
+  `primary-fixed`, `on-surface`, `outline-variant`) point at the new tokens.
+- **Brand colours** (exact, `bg-brand-cream|amber|terracotta|brown`): #FEF3E2, #F4AE52, #D4621A, #2A1A0E. For fills,
+  large text and decoration only. **Never** #D4621A or #F4AE52 as small text on cream (3.44 / 1.74:1), never white or
+  cream body text on #D4621A (3.78 / 3.44:1), never an amber focus ring on cream. Derived shades: `brand-terracotta-600`
+  #B4500F (light `primary`, button fills, cream text 4.67:1), `brand-terracotta-700` #9A4310 (light `primary-text`,
+  links and small terracotta text, hover), `brand-amber-700` #A3600C (light `focus-ring`), `brand-amber-300` #F7C27A
+  (dark hover). Light theme = cream background, brown text, terracotta primary, amber accents; dark = brown background
+  (#2A1A0E, surfaces #36241A / #42301F / #4A3524), cream text, amber primary. Contrast table: Phase 27 report 8.4.
+- **Tailwind ramps**: `gray`, `stone`, `slate`, `zinc`, `neutral` are a warm brown ramp and `blue` / `indigo` a terracotta
+  ramp (each step keeps Tailwind's OKLCH lightness). `red`, `green`, `yellow`, `amber`, `emerald`, `purple` are
+  Tailwind's (they carry meaning). New code uses the semantic tokens, not raw ramps or hex.
+- **Fonts** (`app/layout.tsx`, `next/font/local`, files + OFL + sources in `app/fonts/README.md`): Poppins 400/500/600/700
+  (`font-sans`, body and UI), Cinzel Decorative Bold (`font-display`, the logotype and a few large display headings:
+  hero, section and page titles, large stat figures; never body text, buttons, labels or forms;
+  `tests/config/fonts.test.ts`), Geist Mono (`font-mono`). Cinzel Decorative is shipped unsubsetted (its OFL has a
+  Reserved Font Name). No `next/font/google`.
+- **Logotype**: `components/brand/Logotype.tsx`, `<Logotype variant="gradient|dark|light|auto" as=... />`, `SITE_NAME`
+  as live text in Cinzel Decorative. `gradient` = vertical #D4621A (top) → #F4AE52 (bottom), per line
+  (`box-decoration-break: clone`), dark backgrounds only, solid amber without `background-clip: text`; `dark` =
+  #2A1A0E on light; `light` = white on black; `auto` (default) = dark in the light theme, gradient in the dark theme.
+  Used by both navbars, the landing hero, `AppFooter`, the auth pages, the admin sidebar, the bumper brand scene and
+  the concept film (scene 8; scene 3 animates the letters in the same font and gradient). Styles `.nl-logotype*` in
+  `globals.css`. Links around it carry `aria-label={SITE_NAME}`.
+- **Batik ornaments** (ORIGINAL drawing in the spirit of the cover, not traced): geometry in `lib/brand/batik.ts` (one
+  48-unit tile: scalloped quatrefoil frame, lens-petal flower, small flowers where four frames meet, dots), components
+  in `components/brand/Batik.tsx`: `BatikCorner` (whole motifs cut along 45°, `corner` mirrors it), `BatikBand` (CSS
+  mask band between two lines), `BatikMotif` (one framed flower; `fill` covers its positioned parent). Background
+  texture: class `.nl-batik-texture` (mask at 6 % light / 7 % dark; tested so text, text-muted and primary-text stay
+  AA on the darkest blend). All `aria-hidden`, `currentColor` / `--nl-ornament` (terracotta on cream, amber on brown);
+  the CSS tile equals `batikTileDataUri()` (tested); ornament assets ≤ 15 KB gzip (tested; 3.1 KB).
+  **Rules**: with restraint: hero corners, section dividers, footer, empty states, loading screens, Paspor / stamp
+  frames. Corners stay in the corners, sized so they never sit behind text (check 360, 390, 844x390, 1440). Nothing
+  but the tested texture goes behind body text.
+- **Icons and Open Graph** (`pnpm brand:assets`, `scripts/build-brand-assets.mjs` with the sharp that Next depends on;
+  glyph outlines in `scripts/brand/outlines.json`): `app/icon.png` (48), `app/apple-icon.png` (180), `public/favicon.ico`
+  (16 + 32), `app/opengraph-image.png` (1200x630, cover-like) + `.alt.txt`; `metadataBase` https://nusantaralegacy.org.
+  The "NL" monogram is **PROVISIONAL** until the design team delivers an icon. When `SITE_NAME` or `SITE_TAGLINE`
+  changes, regenerate the outlines (fontTools + uharfbuzz on D:, Phase 27 report) and run `pnpm brand:assets`
+  (it refuses stale outlines).
+- **Landing**: the hero is the cover in both themes (brand brown, amber corners, gradient logotype, italic tracked
+  eyebrow, amber and outline buttons); the blockchain band is brand brown; the landing uses the shared `AppFooter`.
+- **Intros**: the bumper uses tokens; the concept film keeps its own fixed colours, now on the palette (night = brand
+  brown, golds = #F4AE52, terracotta = #D4621A / #B4500F; river and sea art keep their blues). Timings and sound unchanged.
+- **Not in Phase 27**: `Map3D`, `Map2D`, `components/jelajah/three/*`, `lib/jelajah/palette.ts` (map colours) and the
+  film's map art: the 3D low-poly map is the next phase. The 3D villages and game canvases keep their own art colours.
 
 ## Env Vars
 
@@ -986,6 +1047,17 @@ NEXT_PUBLIC_PROT_SELF_REVIEW_RULE # Optional, build time (Phase 26). "true" only
      deployed backend; the backend half (no self-review, resubmit note) is Pending deployment item 13, and the frontend
      flags `NEXT_PUBLIC_PROT_RESUBMIT_NOTE` / `NEXT_PUBLIC_PROT_SELF_REVIEW_RULE` stay off until then. Details in the
      frontend CLAUDE.md "PROT form and review (Phase 26)".
+   - Visual identity (Phase 27, from the design team's "Konsep Visual" in `nusantara-play-fe/docs/design/`; the boss
+     wants the site to feel "Indonesia banget"): the warm palette #FEF3E2 cream, #F4AE52 amber, #D4621A terracotta,
+     #2A1A0E dark brown ("kayu dan cokelat seperti rumah adat"), with darker derived shades wherever the brand colours
+     fail WCAG AA for small text (every pair tested); light theme = cream / brown / terracotta, dark theme = brown /
+     cream / amber. Poppins for body and UI, Cinzel Decorative for the logotype "Nusantara Legacy" (live text, a
+     vertical terracotta-to-amber gradient on dark, solid dark brown on light) and a few large headings; both
+     self-hosted. Original batik ornaments (a ceplok / kawung-like amber lattice) on the hero corners, dividers,
+     footer, empty states, loading screens and the Paspor. Landing hero, navbars, footer, auth, app pages, game and
+     Jelajah chrome, the intro bumper and the concept film follow it; the icons and the Open Graph image use a
+     PROVISIONAL "NL" monogram until the design team delivers an icon. The 3D low-poly map (PDF page 4) is the next
+     phase; the maps were not touched. Details in the frontend CLAUDE.md "Visual identity (Phase 27)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -1252,6 +1324,13 @@ Small known problems that a later phase should fix. Do not fix them in passing.
   `tests/config/fonts.test.ts`, `tests/games/congklak-engine.test.ts`, and `tests/games/gasing-match-ai.test.ts` failed a
   timing assertion (10.3 ms against 7.5 ms). All pass when the suite runs alone. Raise the timeout of the slow
   source-scanning tests (or `testTimeout` in `vitest.config.ts`) and make the timing test relative.
+- (Phase 27) On `/prot/create` and the edit page the "Provinsi dan kabupaten/kota" hint line (with its Jelajah badge)
+  overlaps the "PROVINSI" label (already so in the Phase 26 screenshots).
+- (Phase 27, axe-core) Controls without an accessible name: the account button of the app navbar on phones
+  (`button-name`), three unlabeled buttons on the landing page at 1440 px (carousel), and `<select>` elements
+  without a label on `/prot`, `/events`, `/calendar` and the PROT form (`select-name`).
+- (Phase 27) `app/landing-page/1` and `/2` (old drafts, removal waits for the cleanup phase) were only run through the
+  colour codemods, not redesigned.
 
 ## Engineering rules
 
@@ -1345,6 +1424,9 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   edit page 15 unused-variable warnings; every new file is clean; `ProtForm.tsx` and the create page keep their old
   problems).
 - Backend after Phase 26: 219 errors, 29 warnings (every new file is clean; touched files unchanged or better).
+- Frontend after Phase 27: unchanged, 43 errors, 64 warnings (106 touched source files; every new file is clean; the
+  problems left in touched files are the ones they had before).
+- Backend after Phase 27: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1719,6 +1801,19 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   in the Phase 26 report.
 - 2026-11-20: The PROT form's upload limits are lower than the server's 100 MB (photos 10 MB, videos 50 MB, PDF 20 MB),
   because large uploads through the Vercel rewrite and the production nginx are unverified (Phase 26).
+- 2026-11-24: Owner decisions for Phase 27 (visual identity from the design team's "Konsep Visual"): Poppins (400, 500,
+  600, 700) for body and UI replaces Plus Jakarta Sans; Cinzel Decorative only for the logotype and a few large display
+  headings; Geist Mono stays; fonts self-hosted with next/font/local from the google/fonts repository; every
+  text/background pair meets WCAG AA, so accessible shades are derived from the palette and every token is documented
+  with its contrast; light = cream / brown text / terracotta primary / amber accents, dark = brown / cream text / amber
+  primary, same theme toggle; batik ornaments are ORIGINAL SVG in the spirit of the PDF, decorative, currentColor,
+  ≤ 15 KB gzip, never behind body text at a hurtful contrast; the 3D map is a separate next phase.
+- 2026-11-24: Visual identity details (Phase 27): the logotype gradient is used only on dark backgrounds (the PDF also
+  shows it on cream, where its amber end has 1.74:1); light `primary` is #B4500F, not #D4621A, because #D4621A carries
+  neither white (3.78:1) nor cream (3.44:1) nor brown (4.44:1) button text at AA; Tailwind's neutral and blue / indigo
+  ramps were remapped at the same OKLCH lightness instead of editing ~870 classes by hand, the semantic colours red /
+  green / yellow / amber / purple stay; the landing hero is dark brown in both themes (the cover); Cinzel Decorative is
+  shipped as a plain woff2 conversion, not a subset, because of its Reserved Font Name; the "NL" icon is provisional.
 
 ## Phase workflow
 

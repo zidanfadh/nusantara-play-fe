@@ -12,7 +12,7 @@ export default async function LandingPageV1() {
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-primary">
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-primary-text">
             <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
             {SITE_NAME}
           </Link>
@@ -75,7 +75,7 @@ export default async function LandingPageV1() {
                 Platform Pelestarian Budaya Digital Indonesia
               </div>
               <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground">
-                Arsip Digital <span className="text-primary">Permainan Rakyat</span> Nusantara
+                Arsip Digital <span className="text-primary-text">Permainan Rakyat</span> Nusantara
               </h1>
               <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
                 Melestarikan budaya bermain, memverifikasi sejarah, dan membangun komunitas untuk masa depan identitas bangsa.
@@ -110,7 +110,7 @@ export default async function LandingPageV1() {
               ].map((stat) => (
                 <div key={stat.label}>
                   <div className="text-3xl md:text-4xl font-extrabold text-accent">{stat.value}</div>
-                  <div className="mt-1 text-sm text-primary-foreground/80">{stat.label}</div>
+                  <div className="mt-1 text-sm text-primary-foreground">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -132,7 +132,7 @@ export default async function LandingPageV1() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex flex-col space-y-4 p-6 bg-background rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -140,7 +140,7 @@ export default async function LandingPageV1() {
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Setiap permainan dikurasi oleh komunitas lokal dan ahli budaya. Data asal daerah, aturan main, hingga sejarahnya tercatat dengan ketat dan transparan.
                 </p>
-                <span className="text-xs font-medium text-secondary">Dikurasi komunitas</span>
+                <span className="text-xs font-medium text-primary-text">Dikurasi komunitas</span>
               </div>
 
               <div className="flex flex-col space-y-4 p-6 bg-background rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
@@ -158,7 +158,7 @@ export default async function LandingPageV1() {
 
               <div className="flex flex-col space-y-4 p-6 bg-background rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                   </svg>
                 </div>
@@ -166,7 +166,7 @@ export default async function LandingPageV1() {
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Kontribusimu dalam mendokumentasikan permainan rakyat mendapat apresiasi digital resmi. Bangun portofolio budayamu dan akui keahlianmu.
                 </p>
-                <span className="text-xs font-medium text-primary">Apresiasi nyata</span>
+                <span className="text-xs font-medium text-primary-text">Apresiasi nyata</span>
               </div>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default async function LandingPageV1() {
             <div className="flex flex-col md:flex-row gap-12 items-center">
               {/* Text Content */}
               <div className="md:w-1/3 space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary-text">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
@@ -211,7 +211,7 @@ export default async function LandingPageV1() {
                     title: "Jaminan Keaslian Data",
                     desc: "Sistem otomatis mencocokkan data di website dengan sidik jari digital di blockchain. Menjamin informasi (aturan main, nilai moral, asal usul) selalu sama persis.",
                     icon: (
-                      <svg className="w-5 h-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-5 h-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
                     ),
@@ -220,7 +220,7 @@ export default async function LandingPageV1() {
                     title: "Transparansi Maksimal",
                     desc: "Arsip permainan akan mendapat Badge Verifikasi Hijau. Publik dapat memverifikasi mandiri bukti transaksi dan nomor blok di jaringan publik Polygon.",
                     icon: (
-                      <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-5 h-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
@@ -268,7 +268,7 @@ export default async function LandingPageV1() {
                   step: "01",
                   title: "Daftar Akun",
                   desc: "Buat akun gratis dengan email. Tidak perlu kartu kredit, tidak ada biaya tersembunyi.",
-                  color: "bg-primary/10 text-primary",
+                  color: "bg-primary/10 text-primary-text",
                 },
                 {
                   step: "02",
@@ -280,7 +280,7 @@ export default async function LandingPageV1() {
                   step: "03",
                   title: "Berkontribusi",
                   desc: "Dokumentasikan permainan dari daerahmu, ikuti event komunitas, dan bangun warisan budaya bersama.",
-                  color: "bg-secondary/10 text-secondary",
+                  color: "bg-secondary/10 text-primary-text",
                 },
               ].map((item) => (
                 <div key={item.step} className="flex flex-col items-center text-center space-y-4 px-2 md:px-6">
@@ -314,14 +314,14 @@ export default async function LandingPageV1() {
                   origin: "Jawa & Sumatera",
                   desc: "Permainan strategi menggunakan papan berlubang dan biji-bijian yang mengajarkan perhitungan dan kesabaran.",
                   tag: "Strategi",
-                  tagColor: "bg-secondary/10 text-secondary",
+                  tagColor: "bg-secondary/10 text-primary-text",
                 },
                 {
                   name: "Egrang",
                   origin: "Seluruh Nusantara",
                   desc: "Permainan keseimbangan menggunakan galah bambu yang melatih koordinasi tubuh dan keberanian.",
                   tag: "Fisik",
-                  tagColor: "bg-primary/10 text-primary",
+                  tagColor: "bg-primary/10 text-primary-text",
                 },
                 {
                   name: "Gobak Sodor",
@@ -335,7 +335,7 @@ export default async function LandingPageV1() {
                   origin: "Seluruh Nusantara",
                   desc: "Permainan klasik yang mengasah kepekaan, kesabaran, dan kemampuan berpikir taktis anak-anak.",
                   tag: "Klasik",
-                  tagColor: "bg-secondary/10 text-secondary",
+                  tagColor: "bg-secondary/10 text-primary-text",
                 },
               ].map((game) => (
                 <div
@@ -375,7 +375,7 @@ export default async function LandingPageV1() {
               <h2 className="text-3xl md:text-4xl font-extrabold text-primary-foreground tracking-tight">
                 Mulai Lestarikan Budaya Bermain Hari Ini
               </h2>
-              <p className="text-primary-foreground/80 text-lg">
+              <p className="text-primary-foreground text-lg">
                 Bergabunglah dengan ribuan penggiat budaya yang telah mendokumentasikan permainan rakyat Nusantara. Gratis, terbuka, dan dibangun bersama komunitas.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
@@ -405,7 +405,7 @@ export default async function LandingPageV1() {
             <div className="space-y-3 md:col-span-2">
               <Link href="/" className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-accent rounded-sm rotate-45" />
-                <span className="text-lg font-bold text-primary">{SITE_NAME}</span>
+                <span className="text-lg font-bold text-primary-text">{SITE_NAME}</span>
               </Link>
               <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
                 Platform digital untuk mendokumentasikan, memverifikasi, dan melestarikan permainan rakyat Nusantara bagi generasi mendatang.

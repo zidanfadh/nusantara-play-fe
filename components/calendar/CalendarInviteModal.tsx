@@ -151,7 +151,7 @@ export function CalendarInviteModal({
         <div className="flex-1 overflow-y-auto p-6">
           {/* Error */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-danger rounded">
               {error}
             </div>
           )}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { BatikMotif } from '@/components/brand/Batik';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { protApi } from '@/lib/api/prot';
 import { ProtCard } from '@/components/prot/ProtCard';
@@ -86,7 +87,7 @@ export default function ProtModulePage() {
 
         {/* Page Title and Add Button */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="font-display text-3xl font-bold text-foreground">
             Daftar Permainan Rakyat & Olahraga Tradisional
           </h1>
           <div className="flex items-center gap-2">
@@ -186,9 +187,7 @@ export default function ProtModulePage() {
           )
         ) : items.length === 0 ? (
           <div className="text-center py-12 bg-muted/30 rounded-lg border border-dashed border-border">
-            <svg className="w-12 h-12 text-muted-foreground mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <BatikMotif className="mx-auto mb-4 h-12 w-12" />
             <h3 className="text-lg font-medium text-foreground">Tidak ada data ditemukan</h3>
             <p className="text-muted-foreground">Coba sesuaikan filter pencarian Anda.</p>
           </div>
@@ -210,8 +209,8 @@ export default function ProtModulePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-foreground truncate">{item.nama}</h3>
-                    <span className={`px-2 py-0.5 rounded text-xs font-semibold text-white shrink-0 ${
-                      item.jenis === 'PERMAINAN_RAKYAT' ? 'bg-primary' : 'bg-secondary'
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold shrink-0 ${
+                      item.jenis === 'PERMAINAN_RAKYAT' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                     }`}>
                       {item.jenis === 'PERMAINAN_RAKYAT' ? 'Permainan Rakyat' : 'Olahraga Tradisional'}
                     </span>

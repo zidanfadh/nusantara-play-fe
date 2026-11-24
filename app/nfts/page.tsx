@@ -74,7 +74,7 @@ export default function NftsPage() {
 
       {loading && !nfts.length ? (
         <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+          <Loader2 className="w-10 h-10 animate-spin text-primary-text mb-4" />
           <p className="text-muted-foreground animate-pulse">Memuat koleksi NFT...</p>
         </div>
       ) : (
@@ -111,13 +111,13 @@ export default function NftsPage() {
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col">
-                    <h2 className="text-2xl font-bold tracking-tight mb-2 line-clamp-1 group-hover:text-primary transition-colors">
+                    <h2 className="text-2xl font-bold tracking-tight mb-2 line-clamp-1 group-hover:text-primary-text transition-colors">
                       {nft.nama}
                     </h2>
                     <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-1">
                       {nft.deskripsi || 'Tidak ada deskripsi singkat.'}
                     </p>
-                    <div className="pt-4 border-t border-muted-foreground/10 flex justify-between items-center text-sm font-semibold text-primary">
+                    <div className="pt-4 border-t border-muted-foreground/10 flex justify-between items-center text-sm font-semibold text-primary-text">
                       <span>Lihat Detail</span>
                       <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </div>

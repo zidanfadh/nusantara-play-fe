@@ -184,7 +184,7 @@ export default function UsersManagementPage() {
 
     return (
         <div className="space-y-5">
-            <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+            <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-primary">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <h1 className="text-xl font-bold text-foreground">Manajemen User</h1>
@@ -195,7 +195,7 @@ export default function UsersManagementPage() {
                     <button
                         type="button"
                         onClick={() => setShowCreateForm((prev) => !prev)}
-                        className="bg-[#1A5F7A] text-white py-2 px-4 rounded-lg text-sm hover:bg-[#237A9A] transition-colors"
+                        className="bg-secondary text-secondary-foreground py-2 px-4 rounded-lg text-sm hover:bg-secondary transition-colors"
                     >
                         {showCreateForm ? 'Tutup Form' : 'Tambah User'}
                     </button>
@@ -222,7 +222,7 @@ export default function UsersManagementPage() {
                                 required
                                 value={createForm.full_name}
                                 onChange={(e) => handleCreateFieldChange('full_name', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -235,7 +235,7 @@ export default function UsersManagementPage() {
                                 required
                                 value={createForm.email}
                                 onChange={(e) => handleCreateFieldChange('email', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -249,7 +249,7 @@ export default function UsersManagementPage() {
                                 minLength={8}
                                 value={createForm.password}
                                 onChange={(e) => handleCreateFieldChange('password', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -260,7 +260,7 @@ export default function UsersManagementPage() {
                             <select
                                 value={createForm.role}
                                 onChange={(e) => handleCreateRoleChange(e.target.value as UserRole)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             >
                                 <option value="publik">Publik</option>
                                 <option value="pakar">Pakar</option>
@@ -276,7 +276,7 @@ export default function UsersManagementPage() {
                             <select
                                 value={createForm.status}
                                 onChange={(e) => handleCreateFieldChange('status', e.target.value as UserStatus)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             >
                                 <option value="active">Aktif</option>
                                 <option value="inactive">Tidak Aktif</option>
@@ -292,7 +292,7 @@ export default function UsersManagementPage() {
                                 type="tel"
                                 value={createForm.phone}
                                 onChange={(e) => handleCreateFieldChange('phone', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -304,7 +304,7 @@ export default function UsersManagementPage() {
                                 type="text"
                                 value={createForm.institution}
                                 onChange={(e) => handleCreateFieldChange('institution', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
                     </div>
@@ -348,7 +348,7 @@ export default function UsersManagementPage() {
                         <button
                             type="submit"
                             disabled={isCreating}
-                            className="bg-[#1A5F7A] text-white py-2 px-4 rounded-lg text-sm hover:bg-[#237A9A] disabled:opacity-50 transition-colors"
+                            className="bg-secondary text-secondary-foreground py-2 px-4 rounded-lg text-sm hover:bg-secondary disabled:opacity-50 transition-colors"
                         >
                             {isCreating ? 'Membuat...' : 'Buat User'}
                         </button>
@@ -360,7 +360,7 @@ export default function UsersManagementPage() {
             {stats && (
                 <div className="bg-card rounded-lg shadow-sm p-4">
                     <p className="text-[10px] text-muted-foreground mb-1 uppercase font-semibold tracking-wide">Total User</p>
-                    <p className="text-2xl font-bold text-[#1A5F7A]">{stats.total}</p>
+                    <p className="text-2xl font-bold text-primary-text">{stats.total}</p>
                 </div>
             )}
 
@@ -376,7 +376,7 @@ export default function UsersManagementPage() {
                             id="role"
                             value={selectedRole}
                             onChange={(e) => setSelectedRole(e.target.value as UserRole | '')}
-                            className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                            className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                         >
                             <option value="">Semua Role</option>
                             <option value="publik">Publik</option>
@@ -394,7 +394,7 @@ export default function UsersManagementPage() {
                             id="status"
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value as UserStatus | '')}
-                            className="w-full px-3 text-foreground/80 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+                            className="w-full px-3 text-foreground/80 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
                         >
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>
@@ -406,7 +406,7 @@ export default function UsersManagementPage() {
                     <div className="flex items-end gap-2">
                         <button
                             onClick={handleFilterChange}
-                            className="flex-1 bg-[#1A5F7A] text-white py-2 px-4 rounded-lg text-sm hover:bg-[#237A9A] focus:outline-none focus:ring-2 focus:ring-[#1A5F7A] transition-colors"
+                            className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-lg text-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-focus-ring transition-colors"
                         >
                             Terapkan Filter
                         </button>

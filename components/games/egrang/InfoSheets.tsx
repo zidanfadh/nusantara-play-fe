@@ -37,7 +37,7 @@ export function RulesSheet({ open, onClose, variant }: { open: boolean; onClose:
       <ol className="mt-4 space-y-3 text-sm leading-relaxed" data-testid="egrang-rules">
         {rulesSections(DEFAULT_RULES, variant).map((s, i) => (
           <li key={s.title} className="flex gap-3">
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{i + 1}</span>
+            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary-text">{i + 1}</span>
             <p>
               <span className="font-semibold">{s.title}.</span> {s.text}
             </p>
@@ -68,7 +68,7 @@ export function AboutSheet({ open, onClose, variant }: { open: boolean; onClose:
       </div>
       <p className="mt-4 rounded-xl bg-muted px-3 py-2 text-xs leading-relaxed text-muted-foreground">
         {aboutCredit(variant)}{' '}
-        <Link href={record.href} prefetch={false} className="font-semibold text-primary underline-offset-2 hover:underline" data-testid="egrang-about-link">
+        <Link href={record.href} prefetch={false} className="font-semibold text-primary-text underline-offset-2 hover:underline" data-testid="egrang-about-link">
           {ABOUT_LINK}
         </Link>
       </p>

@@ -28,7 +28,7 @@ export default async function LandingPageV2() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link
             href="/"
-            className="text-2xl font-bold tracking-tighter text-primary"
+            className="text-2xl font-bold tracking-tighter text-primary-text"
           >
             {SITE_NAME}
           </Link>
@@ -44,7 +44,7 @@ export default async function LandingPageV2() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-foreground/70 font-medium hover:text-primary transition-colors"
+                className="text-foreground/70 font-medium hover:text-primary-text transition-colors"
               >
                 {link.label}
               </a>
@@ -91,7 +91,7 @@ export default async function LandingPageV2() {
               </div>
               <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-foreground mb-8 leading-[0.9]">
                 Nusantara <br />
-                <span className="text-primary">Play</span>
+                <span className="text-primary-text">Play</span>
               </h1>
               <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
                 Menjaga Warisan, Memainkan Masa Depan. Platform berbasis
@@ -145,7 +145,7 @@ export default async function LandingPageV2() {
           {/* Background Decorative Element */}
           <div className="absolute top-0 right-0 -z-10 w-1/2 h-full opacity-5 pointer-events-none">
             <svg
-              className="w-full h-full text-primary fill-current"
+              className="w-full h-full text-primary-text fill-current"
               viewBox="0 0 100 100"
             >
               <path
@@ -187,7 +187,7 @@ export default async function LandingPageV2() {
                   key={stat.label}
                   className={`text-center ${i > 0 ? 'md:border-l border-border/20' : ''}`}
                 >
-                  <p className="text-4xl font-extrabold text-primary mb-1">
+                  <p className="text-4xl font-extrabold text-primary-text mb-1">
                     {stat.value}
                   </p>
                   <p className="text-sm font-bold text-muted-foreground tracking-wider uppercase">
@@ -251,7 +251,7 @@ export default async function LandingPageV2() {
         </section>
 
         {/* Blockchain Section */}
-        <section id="blockchain" className="py-24 md:py-32 bg-[#1C1C18] text-[#FDF9F3]">
+        <section id="blockchain" className="py-24 md:py-32 bg-secondary text-primary-foreground">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
               <div>
@@ -264,10 +264,10 @@ export default async function LandingPageV2() {
 
                 <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-8 leading-tight">
                   Keamanan Warisan di Atas{' '}
-                  <span className="text-[#ffdad2]">Blockchain</span>
+                  <span className="text-primary-soft">Blockchain</span>
                 </h2>
 
-                <p className="text-xl text-[#FDF9F3]/70 mb-12 leading-relaxed">
+                <p className="text-xl text-primary-foreground mb-12 leading-relaxed">
                   Kami menggunakan teknologi Polygon untuk memastikan setiap data
                   kebudayaan bersifat kekal, transparan, dan tidak dapat
                   dimanipulasi oleh siapapun.
@@ -276,33 +276,33 @@ export default async function LandingPageV2() {
                 <div className="grid grid-cols-2 gap-6">
                   {[
                     {
-                      icon: <LockKeyhole className="w-8 h-8 text-primary" />,
+                      icon: <LockKeyhole className="w-8 h-8 text-primary-text" />,
                       title: 'Immutability',
                       desc: 'Data yang telah tercatat tidak akan pernah bisa dihapus atau diubah.',
                     },
                     {
-                      icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+                      icon: <ShieldCheck className="w-8 h-8 text-primary-text" />,
                       title: 'Keaslian Data',
                       desc: 'Setiap entry divalidasi oleh ahli sejarah dan budayawan ternama.',
                     },
                     {
-                      icon: <Eye className="w-8 h-8 text-primary" />,
+                      icon: <Eye className="w-8 h-8 text-primary-text" />,
                       title: 'Transparansi',
                       desc: 'Publik dapat melacak asal usul setiap permainan secara terbuka.',
                     },
                     {
-                      icon: <Archive className="w-8 h-8 text-primary" />,
+                      icon: <Archive className="w-8 h-8 text-primary-text" />,
                       title: 'Warisan Masa Depan',
                       desc: 'Arsip digital yang akan tetap relevan hingga ratusan tahun ke depan.',
                     },
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="p-6 bg-[#262621] rounded-2xl border border-white/5"
+                      className="p-6 bg-card rounded-2xl border border-white/5"
                     >
                       <div className="mb-4">{item.icon}</div>
                       <h4 className="font-bold text-lg mb-2">{item.title}</h4>
-                      <p className="text-sm text-[#FDF9F3]/50">{item.desc}</p>
+                      <p className="text-sm text-primary-foreground">{item.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -350,7 +350,7 @@ export default async function LandingPageV2() {
                   step: '01',
                   title: 'Daftar Akun',
                   desc: 'Buat akun gratis dengan email. Tidak perlu kartu kredit, tidak ada biaya tersembunyi.',
-                  color: 'bg-primary/10 text-primary',
+                  color: 'bg-primary/10 text-primary-text',
                 },
                 {
                   step: '02',
@@ -362,7 +362,7 @@ export default async function LandingPageV2() {
                   step: '03',
                   title: 'Berkontribusi',
                   desc: 'Dokumentasikan permainan dari daerahmu, ikuti event komunitas, dan bangun warisan budaya bersama.',
-                  color: 'bg-secondary/10 text-secondary',
+                  color: 'bg-secondary/10 text-primary-text',
                 },
               ].map((item) => (
                 <div key={item.step} className="relative group flex flex-col items-center text-center">
@@ -397,7 +397,7 @@ export default async function LandingPageV2() {
               </div>
               <Link
                 href="/prot"
-                className="flex items-center space-x-2 text-primary font-bold group/link shrink-0"
+                className="flex items-center space-x-2 text-primary-text font-bold group/link shrink-0"
               >
                 <span>Lihat Semua Koleksi</span>
                 <ArrowRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1" />
@@ -452,7 +452,7 @@ export default async function LandingPageV2() {
                   </div>
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="text-xl font-bold">{game.name}</h4>
-                    <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase rounded-full">
+                    <span className="px-3 py-1 bg-primary/10 text-primary-text text-[10px] font-bold tracking-widest uppercase rounded-full">
                       {game.origin}
                     </span>
                   </div>
@@ -503,7 +503,7 @@ export default async function LandingPageV2() {
               <h2 className="text-4xl md:text-6xl font-extrabold text-primary-foreground mb-8 max-w-3xl relative z-10 leading-tight">
                 Siap Menjadi Bagian dari Penjaga Warisan Bangsa?
               </h2>
-              <p className="text-xl text-primary-foreground/70 mb-12 max-w-2xl relative z-10 leading-relaxed">
+              <p className="text-xl text-primary-foreground mb-12 max-w-2xl relative z-10 leading-relaxed">
                 Daftar sekarang dan mulailah perjalananmu melintasi waktu
                 melalui ribuan permainan tradisional Indonesia yang menanti
                 untuk ditemukan kembali.
@@ -511,7 +511,7 @@ export default async function LandingPageV2() {
               <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                 <Link
                   href={user ? '/menu' : '/signup'}
-                  className="px-12 py-5 bg-primary-foreground text-primary rounded-xl font-bold text-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                  className="px-12 py-5 bg-primary-foreground text-primary-text rounded-xl font-bold text-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
                 >
                   Daftar Gratis
                 </Link>
@@ -533,19 +533,19 @@ export default async function LandingPageV2() {
           <div className="md:col-span-1">
             <Link
               href="/"
-              className="text-xl font-bold text-primary mb-4 block"
+              className="text-xl font-bold text-primary-text mb-4 block"
             >
               {SITE_NAME}
             </Link>
-            <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
+            <p className="text-muted-foreground mb-8 leading-relaxed text-sm">
               Platform digital terdesentralisasi pertama yang fokus pada
               pelestarian warisan permainan tradisional Indonesia.
             </p>
             <div className="flex space-x-4">
-              <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
+              <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-primary-text hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
                 <Globe className="w-5 h-5" />
               </span>
-              <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
+              <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-primary-text hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
                 <Share2 className="w-5 h-5" />
               </span>
             </div>
@@ -563,7 +563,7 @@ export default async function LandingPageV2() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-foreground/60 hover:text-primary transition-all hover:translate-x-1 inline-block text-sm"
+                    className="text-muted-foreground hover:text-primary-text transition-all hover:translate-x-1 inline-block text-sm"
                   >
                     {link.label}
                   </Link>
@@ -584,7 +584,7 @@ export default async function LandingPageV2() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-foreground/60 hover:text-primary transition-all hover:translate-x-1 inline-block text-sm"
+                    className="text-muted-foreground hover:text-primary-text transition-all hover:translate-x-1 inline-block text-sm"
                   >
                     {link.label}
                   </Link>
@@ -595,7 +595,7 @@ export default async function LandingPageV2() {
 
           <div>
             <h5 className="font-bold mb-6 text-foreground">Newsletter</h5>
-            <p className="text-sm text-foreground/60 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Dapatkan update mingguan tentang warisan budaya terbaru.
             </p>
             <div className="flex">
@@ -612,7 +612,7 @@ export default async function LandingPageV2() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
-          <p className="text-foreground/60 text-sm">
+          <p className="text-muted-foreground text-sm">
             &copy; {new Date().getFullYear()} {SITE_NAME}. Menjaga Warisan,
             Memainkan Masa Depan.
           </p>

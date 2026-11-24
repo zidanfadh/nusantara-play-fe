@@ -341,7 +341,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
   const inputCls = 'w-full bg-surface-container-highest dark:bg-warm-field border-0 border-b-2 border-outline-variant/50 dark:border-white/10 focus:border-primary focus:outline-none px-4 py-3 rounded-t-lg transition-all placeholder:text-warm-label/50 dark:text-foreground';
   const labelCls = 'text-[10px] font-bold uppercase tracking-widest text-warm-label block mb-2';
   const cardCls = 'md:col-span-8 bg-warm-card p-8 rounded-xl shadow-sm space-y-6';
-  const sectionLabelCls = 'text-[10px] font-bold uppercase tracking-[0.2em] text-primary block mb-2';
+  const sectionLabelCls = 'text-[10px] font-bold uppercase tracking-[0.2em] text-primary-text block mb-2';
   const headingCls = 'text-xl font-bold text-on-surface dark:text-foreground tracking-tight';
   const uploadZoneCls = (isDragging: boolean) =>
     `relative border-2 border-dashed p-10 rounded-2xl text-center transition-colors ${
@@ -695,7 +695,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                     <button
                       type="button"
                       onClick={() => addUrlPembelian(index)}
-                      className="text-[10px] font-bold uppercase tracking-widest text-primary hover:text-primary/70 transition-colors"
+                      className="text-[10px] font-bold uppercase tracking-widest text-primary-text hover:text-primary-text/70 transition-colors"
                     >
                       + Tambah URL
                     </button>
@@ -733,7 +733,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
           <button
             type="button"
             onClick={addPeralatan}
-            className="w-full py-4 rounded-xl border-2 border-dashed border-outline-variant/40 text-warm-label hover:text-primary hover:border-primary/40 hover:bg-primary-fixed/20 transition-all flex items-center justify-center gap-2 group"
+            className="w-full py-4 rounded-xl border-2 border-dashed border-outline-variant/40 text-warm-label hover:text-primary-text hover:border-primary/40 hover:bg-primary-fixed/20 transition-all flex items-center justify-center gap-2 group"
           >
             <svg className="w-4 h-4 group-hover:rotate-90 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -775,7 +775,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                 onChange={handleFotoChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary-text rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -834,7 +834,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                 onChange={handleVideoChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary-text rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
@@ -896,7 +896,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                 onChange={handleDokumenChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
-              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+              <div className="w-14 h-14 bg-primary-fixed dark:bg-primary/20 text-primary-text rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -915,11 +915,11 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                     <div key={`ed-${idx}`} className="flex items-center justify-between p-3 bg-warm-card rounded-lg border border-outline-variant/30 dark:border-white/10">
                       <div className="flex items-center gap-3 overflow-hidden">
                         <div className="w-8 h-8 bg-primary-fixed dark:bg-primary/20 rounded-lg flex items-center justify-center shrink-0">
-                          <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 text-primary-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                         </div>
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary-text hover:underline truncate">
                           {filename}
                         </a>
                       </div>
@@ -939,7 +939,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
                   <div key={`nd-${idx}`} className="flex items-center justify-between p-3 bg-warm-card rounded-lg border border-outline-variant/30 dark:border-white/10">
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className="w-8 h-8 bg-primary-fixed dark:bg-primary/20 rounded-lg flex items-center justify-center shrink-0">
-                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-primary-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
@@ -974,7 +974,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full sm:w-auto px-12 py-4 bg-primary text-white font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-12 py-4 bg-primary text-primary-foreground font-bold rounded-lg shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
         >
           {isLoading && (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -111,13 +111,13 @@ export function RewardHud({
       </div>
       <div className="mt-1.5 flex gap-1.5">
         <button type="button" className={button} onClick={() => show('paspor')} aria-haspopup="dialog">
-          <Stamp className="h-3.5 w-3.5 text-primary" aria-hidden /> Paspor
+          <Stamp className="h-3.5 w-3.5 text-primary-text" aria-hidden /> Paspor
           <span className="font-normal tabular-nums text-muted-foreground">
             {state.stamps.length}/{KNOWN_PROVINCES.length}
           </span>
         </button>
         <button type="button" className={button} onClick={() => show('misi')} aria-haspopup="dialog">
-          <ListChecks className="h-3.5 w-3.5 text-primary" aria-hidden /> Misi
+          <ListChecks className="h-3.5 w-3.5 text-primary-text" aria-hidden /> Misi
         </button>
       </div>
       <PasporModal open={overlay === 'paspor'} onClose={close} stamps={state.stamps} onReset={() => demoRewardsStore.reset()} />

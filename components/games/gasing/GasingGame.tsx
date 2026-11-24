@@ -101,7 +101,7 @@ export function GasingGame() {
             <ArrowLeft className="h-4 w-4" aria-hidden /> {back.label}
           </Link>
         ) : (
-          <h1 className="px-1 text-lg font-extrabold text-primary">{GAME_TITLE}</h1>
+          <h1 className="px-1 text-lg font-extrabold text-primary-text">{GAME_TITLE}</h1>
         )}
         <div className="ml-auto flex items-center gap-0.5">
           <button type="button" onClick={() => setRulesOpen(true)} className={iconButton} aria-label={UI.rules} title={UI.rules}>

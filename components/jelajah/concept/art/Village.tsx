@@ -27,12 +27,12 @@ const C = {
   floor: '#734A2E',
   roof: '#7E4330',
   trim: '#C99A2E',
-  standRoof: '#B4553A',
+  standRoof: '#D4621A',
   counter: '#D2AC78',
   leaf: '#6F9A4B',
   leafDark: '#587E3C',
   trunk: '#8A5A3B',
-  glow: '#F7C95C',
+  glow: '#F4AE52',
 };
 
 const dark = (c: string, k: number) => mixHex(c, '#000000', k);

@@ -16,7 +16,7 @@ export function ProtTabBar() {
   const tabClass = (href: string) =>
     `flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
       isActive(href)
-        ? 'border-primary text-primary'
+        ? 'border-primary text-primary-text'
         : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
     }`;
 

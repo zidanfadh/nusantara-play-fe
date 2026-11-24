@@ -142,7 +142,7 @@ export function CalendarItemDetail({
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-card border border-border rounded-xl shadow-xl max-w-2xl w-full mx-4 p-6">
-          <div className="text-red-600 dark:text-red-400">
+          <div className="text-danger">
             Error: {error.message}
           </div>
           <button
@@ -182,7 +182,7 @@ export function CalendarItemDetail({
                   className="w-4 h-4 rounded"
                   style={{ backgroundColor: item.color || '#3B82F6' }}
                 />
-                <span className="text-xs px-2 py-1 rounded-md bg-primary/10 text-primary font-medium">
+                <span className="text-xs px-2 py-1 rounded-md bg-primary/10 text-primary-text font-medium">
                   {getTypeLabel(item.type)}
                 </span>
                 <span className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground">
@@ -309,7 +309,7 @@ export function CalendarItemDetail({
                   setInviteError(null);
                   setInviteSuccess(null);
                 }}
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-primary-text hover:underline"
               >
                 {showInviteForm ? 'Sembunyikan' : 'Tampilkan'}
               </button>
@@ -355,7 +355,7 @@ export function CalendarItemDetail({
                 )}
 
                 {inviteError && (
-                  <p className="text-sm text-red-600 dark:text-red-400">{inviteError}</p>
+                  <p className="text-sm text-danger">{inviteError}</p>
                 )}
                 {inviteSuccess && (
                   <p className="text-sm text-green-600 dark:text-green-400">{inviteSuccess}</p>

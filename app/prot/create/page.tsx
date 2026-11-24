@@ -129,11 +129,11 @@ export default function CreateProtPage() {
       <div className="bg-background">
          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center gap-2 text-sm mb-2">
-               <Link href="/" className="hover:text-primary">Beranda</Link>
+               <Link href="/" className="hover:text-primary-text">Beranda</Link>
                <span>/</span>
-               <Link href="/prot" className="hover:text-primary">Daftar PROT</Link>
+               <Link href="/prot" className="hover:text-primary-text">Daftar PROT</Link>
                <span>/</span>
-               <span className="font-medium text-gray-900">Tambah Baru</span>
+               <span className="font-medium text-foreground">Tambah Baru</span>
             </div>
             <h1 className="text-2xl font-bold">Tambah Permainan & Olahraga Tradisional</h1>
          </div>
@@ -160,7 +160,7 @@ export default function CreateProtPage() {
             <p className="text-yellow-700 mb-6 max-w-md mx-auto">
               Anda belum memiliki data daerah. Sebagai Pakar, Anda harus memperbarui profil dengan memilih daerah tempat Anda bertugas terlebih dahulu sebelum menambahkan PROT.
             </p>
-            <Link href="/profile" className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">
+            <Link href="/profile" className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
               Perbarui Profil
             </Link>
           </div>

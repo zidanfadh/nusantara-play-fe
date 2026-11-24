@@ -13,7 +13,7 @@ export default function CalendarPage() {
   return (
     <>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-1">Kalender {SITE_NAME}</h1>
+        <h1 className="font-display text-3xl font-bold mb-1">Kalender {SITE_NAME}</h1>
         <p className="text-muted-foreground">
           Lihat tanggal penting, jadwal, dan event budaya Indonesia
         </p>

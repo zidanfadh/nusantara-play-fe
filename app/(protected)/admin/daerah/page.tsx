@@ -60,7 +60,7 @@ export default function DaerahPage() {
 
   return (
     <div className="space-y-5">
-      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-[#C04A21]">
+      <div className="bg-card rounded-xl shadow-sm p-5 border-l-4 border-primary">
         <h1 className="text-xl font-bold text-foreground">Data Daerah</h1>
         <p className="mt-1 text-muted-foreground text-xs">
           Daftar wilayah/geografis di Indonesia (provinsi, kabupaten, kota)
@@ -72,7 +72,7 @@ export default function DaerahPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-card rounded-lg shadow-sm p-4">
             <p className="text-[10px] text-muted-foreground mb-1 uppercase font-semibold tracking-wide">Total Daerah</p>
-            <p className="text-2xl font-bold text-[#1A5F7A]">{stats.total}</p>
+            <p className="text-2xl font-bold text-primary-text">{stats.total}</p>
           </div>
           <div className="bg-card rounded-lg shadow-sm p-4">
             <p className="text-[10px] text-muted-foreground mb-1 uppercase font-semibold tracking-wide">Provinsi</p>
@@ -101,7 +101,7 @@ export default function DaerahPage() {
               id="level"
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value as DaerahLevel | '')}
-              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               <option value="">Semua Level</option>
               <option value="provinsi">Provinsi</option>
@@ -120,14 +120,14 @@ export default function DaerahPage() {
               value={selectedProvince}
               onChange={(e) => setSelectedProvince(e.target.value)}
               placeholder="Nama provinsi"
-              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-[#1A5F7A]"
+              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
           </div>
 
           <div className="flex items-end gap-2">
             <button
               onClick={handleFilterChange}
-              className="flex-1 bg-[#1A5F7A] text-white py-2 px-4 rounded-lg text-sm hover:bg-[#237A9A] focus:outline-none focus:ring-2 focus:ring-[#1A5F7A] transition-colors"
+              className="flex-1 bg-secondary text-secondary-foreground py-2 px-4 rounded-lg text-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-focus-ring transition-colors"
             >
               Terapkan Filter
             </button>
@@ -152,7 +152,7 @@ export default function DaerahPage() {
       {/* Table */}
       {isLoading ? (
         <div className="bg-card rounded-lg shadow-sm p-6 text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1A5F7A] mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-secondary mx-auto"></div>
           <p className="mt-3 text-muted-foreground text-sm">Memuat data daerah...</p>
         </div>
       ) : data?.data.length === 0 ? (

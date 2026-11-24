@@ -186,7 +186,7 @@ export default function ReviewPage() {
              </div>
 
              <div className="mt-4 text-right">
-                <Link href={`/prot/${protData.id}`} target="_blank" className="text-primary hover:underline text-sm">
+                <Link href={`/prot/${protData.id}`} target="_blank" className="text-primary-text hover:underline text-sm">
                   Lihat Detail Lengkap di Tab Baru ↗
                 </Link>
              </div>
@@ -217,7 +217,7 @@ export default function ReviewPage() {
                       onChange={() => setReviewStatus('APPROVED')}
                       className="text-green-600"
                     />
-                    <span className="font-medium text-green-700">Setujui (Approve)</span>
+                    <span className="font-medium text-success">Setujui (Approve)</span>
                   </label>
 
                   <label className="flex items-center gap-2 p-3 border rounded-md cursor-pointer hover:bg-muted/50">
@@ -229,7 +229,7 @@ export default function ReviewPage() {
                       onChange={() => setReviewStatus('REVISION_NEEDED')}
                       className="text-yellow-600"
                     />
-                    <span className="font-medium text-yellow-700">Perlu Revisi</span>
+                    <span className="font-medium text-warning">Perlu Revisi</span>
                   </label>
 
                   <label className="flex items-center gap-2 p-3 border rounded-md cursor-pointer hover:bg-muted/50">
@@ -241,7 +241,7 @@ export default function ReviewPage() {
                       onChange={() => setReviewStatus('REJECTED')}
                       className="text-red-600"
                     />
-                    <span className="font-medium text-red-700">Tolak (Reject)</span>
+                    <span className="font-medium text-danger">Tolak (Reject)</span>
                   </label>
                 </div>
               </div>
@@ -260,7 +260,7 @@ export default function ReviewPage() {
 
               {reviewStatus === 'REVISION_NEEDED' && (
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-yellow-700">
+                  <label className="block text-sm font-medium mb-1 text-warning">
                     Saran Perbaikan (Wajib)
                   </label>
                   <textarea
@@ -275,7 +275,7 @@ export default function ReviewPage() {
 
               {selfReview === 'override-required' && (
                 <div>
-                  <label htmlFor="self-review-reason" className="block text-sm font-medium mb-1 text-red-700">
+                  <label htmlFor="self-review-reason" className="block text-sm font-medium mb-1 text-danger">
                     Alasan memeriksa PROT buatan sendiri (wajib, dicatat di log audit)
                   </label>
                   <textarea
@@ -293,8 +293,8 @@ export default function ReviewPage() {
                 type="submit"
                 disabled={submitting || selfReview === 'blocked'}
                 className={`w-full py-2.5 rounded-md font-medium text-white transition-colors
-                  ${reviewStatus === 'APPROVED' ? 'bg-green-600 hover:bg-green-700' :
-                    reviewStatus === 'REVISION_NEEDED' ? 'bg-yellow-600 hover:bg-yellow-700' :
+                  ${reviewStatus === 'APPROVED' ? 'bg-green-700 hover:bg-green-800' :
+                    reviewStatus === 'REVISION_NEEDED' ? 'bg-amber-700 hover:bg-amber-800' :
                     'bg-red-600 hover:bg-red-700'}
                   disabled:opacity-70 disabled:cursor-not-allowed
                 `}
