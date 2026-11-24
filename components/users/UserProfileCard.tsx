@@ -96,7 +96,7 @@ export function UserProfileCard({ user, onEdit, isCurrentUser = false }: UserPro
       {/* Expertise card */}
       {user.expertise && user.expertise.length > 0 && (
         <div className="bg-warm-card rounded-xl p-6">
-          <h3 className="text-[10px] font-black tracking-widest uppercase text-foreground/50 mb-4">
+          <h3 className="text-[10px] font-black tracking-widest uppercase text-muted-foreground mb-4">
             Keahlian
           </h3>
           <div className="flex flex-wrap gap-2">

@@ -209,8 +209,8 @@ export default function ProtModulePage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="font-semibold text-foreground truncate">{item.nama}</h3>
-                    <span className={`px-2 py-0.5 rounded text-xs font-semibold text-white shrink-0 ${
-                      item.jenis === 'PERMAINAN_RAKYAT' ? 'bg-primary' : 'bg-secondary'
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold shrink-0 ${
+                      item.jenis === 'PERMAINAN_RAKYAT' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                     }`}>
                       {item.jenis === 'PERMAINAN_RAKYAT' ? 'Permainan Rakyat' : 'Olahraga Tradisional'}
                     </span>

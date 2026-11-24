@@ -43,7 +43,7 @@ export function StartScreen({ settings, onSettings, onStart, onRules, onAbout, b
                   className="sr-only"
                 />
                 <span className="text-sm font-bold">{m.label}</span>
-                <span className={`text-xs leading-snug ${settings.mode === m.value ? 'text-primary-foreground/85' : 'text-muted-foreground'}`}>{m.explain}</span>
+                <span className={`text-xs leading-snug ${settings.mode === m.value ? 'text-primary-foreground' : 'text-muted-foreground'}`}>{m.explain}</span>
               </label>
             ))}
           </div>

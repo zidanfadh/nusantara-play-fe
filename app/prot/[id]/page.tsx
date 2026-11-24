@@ -175,8 +175,8 @@ export default function ProtDetailPage() {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{item.nama}</h1>
               <div className="flex flex-wrap items-center gap-3">
-                <span className={`px-2.5 py-0.5 rounded text-sm font-semibold text-white ${
-                  item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'bg-primary' : 'bg-secondary'
+                <span className={`px-2.5 py-0.5 rounded text-sm font-semibold ${
+                  item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
                 }`}>
                   {item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'PERMAINAN RAKYAT' : 'OLAHRAGA TRADISIONAL'}
                 </span>
@@ -232,7 +232,7 @@ export default function ProtDetailPage() {
                   onClick={() => setSubmitOpen(true)}
                   disabled={submitting}
                   data-submit-open
-                  className="px-3 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-70"
+                  className="px-3 py-2 bg-green-700 text-white rounded-md text-sm font-medium hover:bg-green-800 transition-colors flex items-center gap-2 disabled:opacity-70"
                 >
                   {submitting ? 'Memproses...' : isResubmit ? 'Ajukan Ulang' : 'Ajukan Verifikasi'}
                   {!submitting && (

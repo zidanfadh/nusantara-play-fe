@@ -29,8 +29,8 @@ export function ProtCard({ item, priority = false }: ProtCardProps) {
         {/* Badge */}
         <div className="absolute top-3 left-3">
           <span
-            className={`px-3 py-1 rounded text-xs font-semibold text-white ${
-              item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'bg-primary' : 'bg-secondary'
+            className={`px-3 py-1 rounded text-xs font-semibold ${
+              item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
             }`}
           >
             {item.jenis === PROTJenis.PERMAINAN_RAKYAT ? 'PERMAINAN RAKYAT' : 'OLAHRAGA TRADISIONAL'}

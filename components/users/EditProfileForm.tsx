@@ -144,10 +144,10 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
 
       {/* Email — locked */}
       <div className="relative opacity-60">
-        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-foreground/40 mb-2">
+        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-2">
           Email (Terkunci)
         </label>
-        <div className="w-full bg-warm-field/60 border-b border-border/20 px-4 py-3 text-base font-medium text-foreground/50 rounded-t cursor-not-allowed">
+        <div className="w-full bg-warm-field/60 border-b border-border/20 px-4 py-3 text-base font-medium text-muted-foreground rounded-t cursor-not-allowed">
           {currentUser.email}
         </div>
       </div>

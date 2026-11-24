@@ -40,7 +40,7 @@ export function StartScreen({ settings, onSettings, onStart, onRules, onAbout, b
                   <input type="radio" name="egrang-variant" value={v} checked={on} onChange={() => onSettings({ ...settings, variant: v })} className="sr-only" />
                   <span className="text-sm font-bold">{t.label}</span>
                   <span className={`text-[11px] font-semibold uppercase tracking-wide ${on ? 'text-primary-foreground' : 'text-muted-foreground'}`}>{t.origin}</span>
-                  <span className={`mt-0.5 text-xs leading-snug ${on ? 'text-primary-foreground/85' : 'text-muted-foreground'}`}>{t.explain}</span>
+                  <span className={`mt-0.5 text-xs leading-snug ${on ? 'text-primary-foreground' : 'text-muted-foreground'}`}>{t.explain}</span>
                 </label>
               );
             })}

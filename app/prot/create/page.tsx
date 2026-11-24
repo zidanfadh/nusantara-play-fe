@@ -133,7 +133,7 @@ export default function CreateProtPage() {
                <span>/</span>
                <Link href="/prot" className="hover:text-primary-text">Daftar PROT</Link>
                <span>/</span>
-               <span className="font-medium text-gray-900">Tambah Baru</span>
+               <span className="font-medium text-foreground">Tambah Baru</span>
             </div>
             <h1 className="text-2xl font-bold">Tambah Permainan & Olahraga Tradisional</h1>
          </div>

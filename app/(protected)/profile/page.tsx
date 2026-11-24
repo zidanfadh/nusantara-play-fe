@@ -108,7 +108,7 @@ export default function ProfilePage() {
 
                   {/* Email */}
                   <div>
-                    <label className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 block mb-2">
+                    <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground block mb-2">
                       Komunikasi
                     </label>
                     <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-foreground">{user.email}</p>
-                        <p className="text-xs text-foreground/50">Email Utama</p>
+                        <p className="text-xs text-muted-foreground">Email Utama</p>
                       </div>
                     </div>
                   </div>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
                   {/* Phone */}
                   {user.phone && (
                     <div>
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 block mb-2">
+                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground block mb-2">
                         Telepon
                       </label>
                       <div className="flex items-center gap-3">
@@ -134,7 +134,7 @@ export default function ProfilePage() {
                         </div>
                         <div>
                           <p className="text-sm font-bold text-foreground">{user.phone}</p>
-                          <p className="text-xs text-foreground/50">Kontak Ponsel</p>
+                          <p className="text-xs text-muted-foreground">Kontak Ponsel</p>
                         </div>
                       </div>
                     </div>
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                   {/* Institution */}
                   {user.institution && (
                     <div>
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 block mb-2">
+                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground block mb-2">
                         Afiliasi
                       </label>
                       <div className="flex items-center gap-3">
@@ -152,7 +152,7 @@ export default function ProfilePage() {
                         </div>
                         <div>
                           <p className="text-sm font-bold text-foreground">{user.institution}</p>
-                          <p className="text-xs text-foreground/50">Institusi Utama</p>
+                          <p className="text-xs text-muted-foreground">Institusi Utama</p>
                         </div>
                       </div>
                     </div>
@@ -163,7 +163,7 @@ export default function ProfilePage() {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-warm-field/50 p-6 rounded-xl text-center">
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 mb-2">
+                  <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-2">
                     Terakhir Login
                   </p>
                   <p className="text-base font-black text-primary-text leading-snug">
@@ -171,7 +171,7 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <div className="bg-warm-field/50 p-6 rounded-xl text-center">
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-foreground/40 mb-2">
+                  <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-2">
                     Bergabung Sejak
                   </p>
                   <p className="text-base font-black text-primary-text leading-snug">

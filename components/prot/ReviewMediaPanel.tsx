@@ -154,7 +154,7 @@ export function ReviewMediaPanel({ media }: { media: ReviewMedia }) {
                         ) : (
                           <span className="min-w-0 break-all text-xs text-muted-foreground">{link.url}</span>
                         )}
-                        {link.domain && !link.https && <span className="text-xs text-amber-700">tanpa https</span>}
+                        {link.domain && !link.https && <span className="text-xs text-warning">tanpa https</span>}
                       </li>
                     ))}
                   </ul>
