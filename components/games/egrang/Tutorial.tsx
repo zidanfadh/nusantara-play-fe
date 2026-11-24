@@ -53,11 +53,11 @@ export function Tutorial({ variant, onClose }: { variant: Variant; onClose: () =
           </button>
         </div>
         <div className="mt-2 flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary-text">
             <Icon className="h-6 w-6" aria-hidden />
           </span>
           <div>
-            <h2 id="egrang-tutorial-title" className="text-lg font-extrabold text-primary">
+            <h2 id="egrang-tutorial-title" className="text-lg font-extrabold text-primary-text">
               {i + 1}. {step.title}
             </h2>
             <p className="mt-0.5 text-sm leading-relaxed">{step.text}</p>

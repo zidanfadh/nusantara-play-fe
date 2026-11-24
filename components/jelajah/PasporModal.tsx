@@ -1,5 +1,6 @@
 'use client';
 
+import { BatikBand } from '@/components/brand/Batik';
 import { Stamp } from 'lucide-react';
 import { KNOWN_PROVINCES } from '@/lib/jelajah/provinces';
 import { stampDesign } from '@/lib/jelajah/stamps';
@@ -49,6 +50,7 @@ export function PasporModal({
         </div>
       }
     >
+      <BatikBand className="mb-3" />
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label="Provinsi di Paspor">
         {ordered.map((p) => {
           const done = stamped.has(p.kode);

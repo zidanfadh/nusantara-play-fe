@@ -73,7 +73,7 @@ export function StartScreen({ settings, starter, onSettings, onStarter, onStart,
     <div className="mx-auto w-full max-w-lg px-4 py-3 sm:py-8" data-testid="congklak-start">
       {backLink}
       <div className="rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm sm:p-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">Congklak</h1>
+        <h1 className="font-display text-2xl font-bold text-primary-text sm:text-3xl">Congklak</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Kumpulkan biji sebanyak mungkin di lumbungmu.
         </p>

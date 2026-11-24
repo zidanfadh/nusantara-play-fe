@@ -636,7 +636,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
               onAnimationComplete={() => window.setTimeout(() => setFlash((f) => (f?.key === flash.key ? null : f)), 900)}
               data-testid="gasing-flash"
             >
-              <span className="rounded-full bg-[#ffd24a] px-4 py-1.5 text-base font-extrabold text-[#4a2c12] shadow-lg">{flash.text}</span>
+              <span className="rounded-full bg-brand-amber px-4 py-1.5 text-base font-extrabold text-brand-brown shadow-lg">{flash.text}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -648,7 +648,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         {overlay === 'round' && result && ui && (
           <div className={`absolute inset-0 flex items-center justify-center overflow-y-auto bg-background/25 ${compact ? 'p-1' : 'p-4'}`} data-testid="gasing-round-result">
             <section className={`w-full rounded-2xl border border-border bg-card text-center text-card-foreground shadow-xl ${compact ? 'max-w-md p-3' : 'max-w-sm p-5'}`} aria-labelledby="gasing-round-title">
-              <h2 id="gasing-round-title" className="text-xl font-extrabold text-primary">
+              <h2 id="gasing-round-title" className="text-xl font-extrabold text-primary-text">
                 {roundHeading(result.winner)}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">{roundResultText(ui.round, result.winner, result.reason, result.times)}</p>
@@ -678,7 +678,7 @@ export function GasingArena({ settings, seed, reducedMotion, debug, dialogOpen, 
         {overlay === 'end' && ui && ui.winner !== null && (
           <div className={`absolute inset-0 flex items-center justify-center overflow-y-auto bg-background/40 ${compact ? 'p-1' : 'p-4'}`} data-testid="gasing-end">
             <section className={`w-full rounded-2xl border border-border bg-card text-center text-card-foreground shadow-xl ${compact ? 'max-w-md p-3' : 'max-w-sm p-5'}`} aria-labelledby="gasing-result">
-              <h2 id="gasing-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary outline-none">
+              <h2 id="gasing-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary-text outline-none">
                 {matchHeading(ui.winner)}
               </h2>
               <p className="mt-1 text-sm font-semibold">{matchSummary(ui.wins)}</p>

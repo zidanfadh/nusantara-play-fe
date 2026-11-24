@@ -59,7 +59,7 @@ export const GamePrompt = forwardRef<
       data-testid="game-prompt"
       data-game={game}
     >
-      <Icon className="h-4 w-4 shrink-0 text-primary" aria-hidden />
+      <Icon className="h-4 w-4 shrink-0 text-primary-text" aria-hidden />
       <p className="min-w-0 flex-1 text-sm font-semibold leading-snug">{PAVILION_TITLE}</p>
       <Link
         ref={ref}
@@ -84,7 +84,7 @@ export function GameCard({ game, href, variant }: { game: JelajahGame; href: str
       data-game={game}
     >
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10" aria-hidden>
-        <Icon className="h-6 w-6 text-primary" />
+        <Icon className="h-6 w-6 text-primary-text" />
       </span>
       <div className="min-w-0 flex-1">
         <h3 className="font-bold text-foreground">{PAVILION_TITLE}</h3>

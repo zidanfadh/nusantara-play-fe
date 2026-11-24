@@ -52,7 +52,7 @@ export function ProvinceCard({ summary, status, onClose }: ProvinceCardProps) {
       <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-border bg-card px-4 pb-3 pt-4">
         <div>
           {enterable && (
-            <span className="mb-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+            <span className="mb-1 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary-text">
               {isPilot ? 'Provinsi pilot' : 'Desa virtual'}
             </span>
           )}

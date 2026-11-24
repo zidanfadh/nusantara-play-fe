@@ -644,7 +644,7 @@ export function EgrangRace({ settings, seed, reducedMotion, debug, dialogOpen, b
               onAnimationComplete={() => window.setTimeout(() => setFlash((f) => (f?.key === flash.key ? null : f)), 650)}
               data-testid="egrang-flash"
             >
-              <span className={`rounded-full px-4 py-1.5 text-base font-extrabold shadow-lg ${flash.tone === 'good' ? 'bg-[#ffd24a] text-[#4a2c12]' : 'bg-[#e0412f] text-white'}`}>{flash.text}</span>
+              <span className={`rounded-full px-4 py-1.5 text-base font-extrabold shadow-lg ${flash.tone === 'good' ? 'bg-brand-amber text-brand-brown' : 'bg-[#B42318] text-white'}`}>{flash.text}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -660,7 +660,7 @@ export function EgrangRace({ settings, seed, reducedMotion, debug, dialogOpen, b
         {overlay === 'end' && result && (
           <div className="absolute inset-0 flex items-center justify-center overflow-y-auto bg-background/40 p-2 sm:p-4" data-testid="egrang-end">
             <section className="w-full max-w-sm rounded-2xl border border-border bg-card p-4 text-center text-card-foreground shadow-xl sm:p-5" aria-labelledby="egrang-result">
-              <h2 id="egrang-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary outline-none">
+              <h2 id="egrang-result" ref={endHeadingRef} tabIndex={-1} className="text-2xl font-extrabold text-primary-text outline-none">
                 {raceHeading(result.winner)}
               </h2>
               <p className="mt-1 text-sm font-semibold tabular-nums">{raceSummary(result, worldRef.current?.track.length ?? 0)}</p>
