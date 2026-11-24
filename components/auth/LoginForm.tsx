@@ -75,7 +75,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
       <LoginNotice reason={reason} />
 
       {callbackError && (
-        <div role="alert" className="text-red-600 dark:text-red-400 text-sm">
+        <div role="alert" className="text-danger text-sm">
           Masuk dengan Google gagal. Silakan coba lagi.
         </div>
       )}
@@ -123,7 +123,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
         </div>
 
         {error && (
-          <div className="text-red-600 dark:text-red-400 text-sm">{error}</div>
+          <div className="text-danger text-sm">{error}</div>
         )}
 
         <button
@@ -136,7 +136,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
 
         <p className="text-center text-sm text-muted-foreground">
           Belum punya akun?{' '}
-          <Link href={`/signup${authQuery(redirectTo, reason)}`} className="text-secondary font-medium hover:underline">
+          <Link href={`/signup${authQuery(redirectTo, reason)}`} className="text-primary-text font-medium hover:underline">
             Daftar sekarang
           </Link>
         </p>
@@ -155,7 +155,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
         // Phase 19: the map needs an account, so no guest entry here; the games stay open without one.
         <p data-login-guest-note className="text-center text-sm text-muted-foreground">
           {JELAJAH_GUEST_NOTE.before}
-          <Link href={JELAJAH_GUEST_NOTE.href} className="font-medium text-secondary hover:underline">
+          <Link href={JELAJAH_GUEST_NOTE.href} className="font-medium text-primary-text hover:underline">
             {JELAJAH_GUEST_NOTE.link}
           </Link>
           {JELAJAH_GUEST_NOTE.after}

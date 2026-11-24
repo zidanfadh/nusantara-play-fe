@@ -272,7 +272,10 @@
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 0.01em;
-  display: inline-block;
+  /* inline + clone: every wrapped line gets the whole gradient (PDF: top terracotta, bottom amber per line). */
+  display: inline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .nl-logotype-dark { color: var(--nl-brand-brown); }
 .nl-logotype-light { color: #FFFFFF; }

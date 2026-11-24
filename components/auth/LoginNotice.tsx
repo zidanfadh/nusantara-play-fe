@@ -10,7 +10,7 @@ export function LoginNotice({ reason }: { reason: LoginReason | null }) {
       data-login-notice="jelajah"
       className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm font-medium text-foreground"
     >
-      <MapPinned aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+      <MapPinned aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" />
       <p>{JELAJAH_LOGIN_NOTICE}</p>
     </div>
   );

@@ -7,12 +7,13 @@ import { Menu as MenuIcon, X } from 'lucide-react';
 import { UserNav } from '@/components/ui/UserNav';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { SITE_NAME } from '@/lib/brand';
+import { Logotype } from '@/components/brand/Logotype';
 import { APP_NAV_LINKS, isActiveLink } from '@/components/ui/nav-links';
 
 const DESKTOP_LINK =
-  'text-foreground/80 hover:text-foreground transition-colors aria-[current=page]:text-primary aria-[current=page]:font-semibold';
+  'text-foreground/80 hover:text-foreground transition-colors aria-[current=page]:text-primary-text aria-[current=page]:font-semibold';
 const PHONE_LINK =
-  'block px-4 py-2.5 text-sm text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-colors aria-[current=page]:text-primary aria-[current=page]:font-semibold';
+  'block px-4 py-2.5 text-sm text-foreground/80 hover:text-foreground hover:bg-muted transition-colors aria-[current=page]:text-primary-text aria-[current=page]:font-semibold';
 
 /**
  * Phones (below md): the page links live behind a small menu button next to the theme toggle, so the bar
@@ -83,10 +84,10 @@ export function AppNavbar() {
           <Link
             href="/menu"
             prefetch={false}
-            className="flex items-center gap-2 text-lg sm:text-xl font-bold tracking-tight text-primary whitespace-nowrap"
+            aria-label={SITE_NAME}
+            className="text-base sm:text-xl whitespace-nowrap"
           >
-            <div className="w-6 h-6 shrink-0 bg-accent rounded-sm rotate-45" />
-            {SITE_NAME}
+            <Logotype />
           </Link>
           <nav aria-label="Navigasi utama" className="hidden md:flex gap-6 text-sm font-medium">
             {APP_NAV_LINKS.map((link) => (

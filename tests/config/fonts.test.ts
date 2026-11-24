@@ -64,7 +64,14 @@ describe('self-hosted fonts (no build-time download from Google Fonts)', () => {
     const offenders = ['app', 'components']
       .flatMap((d) => sourceFiles(join(root, d)))
       .filter((f) => f.endsWith('.tsx'))
-      .filter((f) => /<(?:button|input|textarea|select|label|p)(?=[\s>])[^>]*className="[^"]*(?<![\w-])font-display(?![\w-])/.test(readFileSync(f, 'utf8')));
+      .filter((f) => {
+        const src = readFileSync(f, 'utf8');
+        // Controls never; a paragraph only as a large display figure (text-3xl or larger).
+        if (/<(?:button|input|textarea|select|label)(?=[\s>])[^>]*className="[^"]*(?<![\w-])font-display(?![\w-])/.test(src)) return true;
+        return [...src.matchAll(/<p(?=[\s>])[^>]*className="([^"]*)"/g)].some(
+          ([, cls]) => /(?<![\w-])font-display(?![\w-])/.test(cls) && !/(?<![\w-])text-([3-9]xl)(?![\w-])/.test(cls),
+        );
+      });
     expect(offenders).toEqual([]);
   });
 });

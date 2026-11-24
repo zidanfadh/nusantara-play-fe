@@ -2,12 +2,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
+import { AppFooter } from '@/components/ui/AppFooter';
 import { HeroCarousel } from '@/components/ui/HeroCarousel';
 import { ProtPhoto } from '@/components/prot/ProtPhoto';
 import { getBackendApiUrl } from '@/lib/api/base-url';
 import type { PaginatedResponse, PROTEntity } from '@/types/prot';
 import { getLandingStats } from '@/lib/api/stats';
-import { SITE_NAME, SITE_NAME_WORDS, SITE_TAGLINE } from '@/lib/brand';
+import { SITE_NAME, SITE_TAGLINE } from '@/lib/brand';
+import { Logotype } from '@/components/brand/Logotype';
+import { BatikBand, BatikCorner, BatikMotif } from '@/components/brand/Batik';
 import { LANDING_PAGE_LINKS } from '@/components/ui/nav-links';
 import { getPublishedCounts, landingStatTiles } from '@/components/landing/published-stats';
 import { featuredProtQuery, onlyPublishedProt } from '@/components/landing/featured-prot';
@@ -29,9 +32,6 @@ import {
   Eye,
   Archive,
   ArrowRight,
-  Globe,
-  Share2,
-  Send,
 } from 'lucide-react';
 
 async function getFeaturedGames(accessToken?: string): Promise<PROTEntity[]> {
@@ -104,11 +104,8 @@ export default async function Home() {
       {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border/20 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-2xl font-bold tracking-tighter text-primary"
-          >
-            {SITE_NAME}
+          <Link href="/" className="shrink-0 text-[0.95rem] sm:text-xl md:text-2xl" aria-label={SITE_NAME}>
+            <Logotype />
           </Link>
 
           {/* Section anchors from xl; the page links (Tur Virtual, Game) from md. Phones: the row below. */}
@@ -123,7 +120,7 @@ export default async function Home() {
               <a
                 key={link.label}
                 href={link.href}
-                className="hidden xl:inline text-foreground/70 font-medium hover:text-primary transition-colors"
+                className="hidden xl:inline text-foreground/70 font-medium hover:text-primary-text transition-colors"
               >
                 {link.label}
               </a>
@@ -133,7 +130,7 @@ export default async function Home() {
                 key={link.href}
                 href={link.href}
                 prefetch={link.prefetch ? undefined : false}
-                className="text-foreground font-semibold hover:text-primary transition-colors whitespace-nowrap"
+                className="text-foreground font-semibold hover:text-primary-text transition-colors whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -146,7 +143,7 @@ export default async function Home() {
               <Link
                 href="/menu"
                 prefetch={false}
-                className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all"
+                className="px-4 sm:px-6 py-2.5 whitespace-nowrap bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-all"
               >
                 Main Menu
               </Link>
@@ -176,7 +173,7 @@ export default async function Home() {
                 key={link.href}
                 href={link.href}
                 prefetch={link.prefetch ? undefined : false}
-                className="font-semibold text-foreground/80 hover:text-primary transition-colors"
+                className="font-semibold text-foreground/80 hover:text-primary-text transition-colors"
               >
                 {link.label}
               </Link>
@@ -186,35 +183,45 @@ export default async function Home() {
       </nav>
 
       <main className="pt-[7.5rem] md:pt-20">
-        {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden px-6">
-          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 z-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-medium text-foreground mb-6">
-                <span className="h-2 w-2 rounded-full bg-accent" />
+        {/* Hero (Phase 27): the design team's cover in both themes. Dark brown, amber batik corners, the gradient
+            logotype; the corners stay in the corners, never behind the text (small on phones). */}
+        <section
+          data-landing-hero=""
+          className="relative min-h-[90vh] flex items-center overflow-hidden px-6 py-24 lg:py-28 bg-brand-brown text-brand-cream"
+        >
+          <BatikCorner
+            corner="top-left"
+            className="absolute left-0 top-0 w-24 sm:w-36 lg:w-44 xl:w-52 text-brand-amber!"
+          />
+          <BatikCorner
+            corner="bottom-right"
+            className="absolute right-0 bottom-0 w-24 sm:w-36 lg:w-44 xl:w-52 text-brand-amber!"
+          />
+          <div className="relative max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 z-10 text-center lg:text-left">
+              <p className="mb-5 text-sm sm:text-base font-normal italic uppercase tracking-[0.3em] text-brand-cream">
                 Platform Pelestarian Budaya Digital Indonesia
-              </div>
-              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-foreground mb-8 leading-[0.9]">
-                {SITE_NAME_WORDS[0]} <br />
-                <span className="text-primary">{SITE_NAME_WORDS.slice(1).join(' ')}</span>
+              </p>
+              <h1 className="mb-8 text-[2.6rem] leading-[1.1] sm:text-6xl xl:text-7xl">
+                <Logotype variant="gradient" />
               </h1>
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-xl mb-12 leading-relaxed">
+              <p className="text-lg md:text-2xl text-brand-cream/90 max-w-xl mx-auto lg:mx-0 mb-12 leading-relaxed">
                 {SITE_TAGLINE} Platform budaya digital
                 untuk mendokumentasikan, memverifikasi, dan menghidupkan kembali
                 permainan tradisional Indonesia bersama komunitas.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   href={user ? '/menu' : '/login'}
                   prefetch={false}
-                  className="px-8 py-4 bg-primary text-primary-foreground rounded-xl font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center"
+                  className="px-8 py-4 bg-brand-amber text-brand-brown rounded-xl font-bold text-lg hover:bg-brand-amber-300 hover:-translate-y-1 transition-all duration-300 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-amber"
                 >
                   Mulai Sekarang
                 </Link>
                 <Link
                   href="/menu"
                   prefetch={false}
-                  className="px-8 py-4 bg-muted text-foreground rounded-xl font-bold text-lg hover:bg-muted/70 transition-all duration-300 text-center"
+                  className="px-8 py-4 border-2 border-brand-cream/50 text-brand-cream rounded-xl font-bold text-lg hover:bg-brand-cream/10 transition-all duration-300 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-amber"
                 >
                   Jelajahi Menu
                 </Link>
@@ -223,67 +230,40 @@ export default async function Home() {
 
             <div className="lg:col-span-5 relative hidden lg:block">
               <div
-                className="aspect-square rounded-[3rem] bg-muted overflow-hidden rotate-3 scale-105"
+                className="aspect-square rounded-[3rem] bg-brand-cream/10 overflow-hidden rotate-3 scale-105 ring-1 ring-brand-amber/40"
                 style={{
-                  boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.05)',
+                  boxShadow: '0 24px 40px -10px rgba(0, 0, 0, 0.4)',
                 }}
               >
                 <HeroCarousel />
               </div>
               <div
-                className="absolute -bottom-8 -left-8 p-6 bg-card rounded-2xl max-w-[240px] border border-border/20 -rotate-3"
+                className="absolute -bottom-8 -left-8 p-6 bg-brand-cream text-brand-brown rounded-2xl max-w-[240px] border border-brand-amber/60 -rotate-3"
                 style={{
-                  boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.05)',
+                  boxShadow: '0 24px 40px -10px rgba(0, 0, 0, 0.4)',
                 }}
               >
-                <p className="text-sm font-medium text-muted-foreground italic leading-relaxed">
+                <p className="text-sm font-medium italic leading-relaxed">
                   &ldquo;Budaya adalah identitas. {SITE_NAME} membawa
                   identitas tersebut ke era digital.&rdquo;
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Background Decorative Element */}
-          <div className="absolute top-0 right-0 -z-10 w-1/2 h-full opacity-5 pointer-events-none">
-            <svg
-              className="w-full h-full text-primary fill-current"
-              viewBox="0 0 100 100"
-            >
-              <path
-                d="M0 0 L100 0 L100 100 L0 100 Z"
-                fill="url(#pattern-v2)"
-              />
-              <defs>
-                <pattern
-                  id="pattern-v2"
-                  x="0"
-                  y="0"
-                  width="10"
-                  height="10"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path
-                    d="M 10 0 L 0 0 0 10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                  />
-                </pattern>
-              </defs>
-            </svg>
-          </div>
         </section>
+        <div className="bg-brand-brown pb-3" aria-hidden="true">
+          <BatikBand className="text-brand-amber!" />
+        </div>
 
         {/* Tur Virtual banner (Jelajah Nusantara) */}
         <section className="py-12 lg:py-12 px-6 pt-0 lg:pt-0">
           <div className="max-w-7xl mx-auto">
             <div className="relative overflow-hidden rounded-[3rem] bg-muted/80 flex flex-col lg:flex-row items-center border border-border/10 shadow-[0_24px_40px_-10px_rgba(0,0,0,0.05)] pt-0">
               <div className="w-full lg:w-1/2 p-10 md:p-16 lg:p-20 z-10">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary font-bold text-xs tracking-widest uppercase mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-primary-soft text-primary-soft-foreground font-bold text-xs tracking-widest uppercase mb-6">
                   Baru: Pengalaman Imersif
                 </span>
-                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tighter text-foreground mb-6 leading-tight">
+                <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
                   Tur Virtual <br className="hidden md:block" /> Jelajah Nusantara
                 </h2>
                 <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-md">
@@ -337,7 +317,7 @@ export default async function Home() {
                   key={stat.label}
                   className={`text-center ${i > 0 ? 'md:border-l border-border/20' : ''}`}
                 >
-                  <p className="text-4xl font-extrabold text-primary mb-1">
+                  <p className="font-display text-4xl font-bold text-primary-text mb-1">
                     {stat.value}
                   </p>
                   <p className="text-sm font-bold text-muted-foreground tracking-wider uppercase">
@@ -354,10 +334,10 @@ export default async function Home() {
         <section id="tentang" className="py-24 md:py-32 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="mb-20">
-              <h2 className="text-4xl font-extrabold tracking-tight mb-4">
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
                 Membangun Ekosistem Budaya
               </h2>
-              <div className="h-1 w-24 bg-primary" />
+              <BatikBand className="w-40" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -403,23 +383,23 @@ export default async function Home() {
         </section>
 
         {/* Blockchain Section */}
-        <section id="blockchain" className="py-24 md:py-32 bg-[#1C1C18] text-[#FDF9F3]">
+        <section id="blockchain" className="py-24 md:py-32 bg-brand-brown dark:bg-surface text-brand-cream">
           <div className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
               <div>
-                <div className="inline-flex items-center space-x-3 mb-8 px-4 py-2 bg-primary/20 rounded-full border border-primary/30">
-                  <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <div className="inline-flex items-center space-x-3 mb-8 px-4 py-2 bg-brand-amber/15 rounded-full border border-brand-amber/40">
+                  <span className="w-2 h-2 rounded-full bg-brand-amber animate-pulse" />
                   <span className="text-sm font-bold tracking-widest uppercase">
                     Powered by Polygon
                   </span>
                 </div>
 
-                <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-8 leading-tight">
+                <h2 className="font-display text-3xl md:text-5xl font-bold mb-8 leading-tight">
                   Keamanan Warisan di Atas{' '}
-                  <span className="text-[#ffdad2]">Blockchain</span>
+                  <span className="text-brand-amber">Blockchain</span>
                 </h2>
 
-                <p className="text-xl text-[#FDF9F3]/70 mb-12 leading-relaxed">
+                <p className="text-xl text-brand-cream/90 mb-12 leading-relaxed">
                   Kami memanfaatkan teknologi Polygon untuk membantu menjaga
                   integritas arsip budaya agar lebih transparan, mudah
                   diverifikasi, dan lebih tahan terhadap perubahan yang tidak
@@ -429,42 +409,42 @@ export default async function Home() {
                 <div className="grid grid-cols-2 gap-6">
                   {[
                     {
-                      icon: <LockKeyhole className="w-8 h-8 text-primary" />,
+                      icon: <LockKeyhole className="w-8 h-8 text-brand-amber" />,
                       title: 'Immutability',
                       desc: 'Data yang telah tercatat tidak akan pernah bisa dihapus atau diubah.',
                     },
                     {
-                      icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+                      icon: <ShieldCheck className="w-8 h-8 text-brand-amber" />,
                       title: 'Keaslian Data',
                       desc: 'Setiap entry divalidasi oleh ahli sejarah dan budayawan ternama.',
                     },
                     {
-                      icon: <Eye className="w-8 h-8 text-primary" />,
+                      icon: <Eye className="w-8 h-8 text-brand-amber" />,
                       title: 'Transparansi',
                       desc: 'Publik dapat melacak asal usul setiap permainan secara terbuka.',
                     },
                     {
-                      icon: <Archive className="w-8 h-8 text-primary" />,
+                      icon: <Archive className="w-8 h-8 text-brand-amber" />,
                       title: 'Warisan Masa Depan',
                       desc: 'Arsip digital yang akan tetap relevan hingga ratusan tahun ke depan.',
                     },
                   ].map((item) => (
                     <div
                       key={item.title}
-                      className="p-6 bg-[#262621] rounded-2xl border border-white/5"
+                      className="p-6 bg-brand-cream/5 rounded-2xl border border-brand-amber/20"
                     >
                       <div className="mb-4">{item.icon}</div>
                       <h4 className="font-bold text-lg mb-2">{item.title}</h4>
-                      <p className="text-sm text-[#FDF9F3]/50">{item.desc}</p>
+                      <p className="text-sm text-brand-cream/85">{item.desc}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="relative hidden lg:block">
-                <div className="aspect-square bg-gradient-to-tr from-primary/20 to-transparent rounded-full absolute -inset-10 blur-3xl" />
+                <div className="aspect-square bg-gradient-to-tr from-brand-amber/20 to-transparent rounded-full absolute -inset-10 blur-3xl" />
                 <div
-                  className="relative aspect-square rounded-[4rem] overflow-hidden border border-white/10"
+                  className="relative aspect-square rounded-[4rem] overflow-hidden border border-brand-amber/30"
                   style={{
                     boxShadow: '0 24px 40px -10px rgba(28, 28, 24, 0.3)',
                   }}
@@ -486,7 +466,7 @@ export default async function Home() {
         <section id="cara-kerja" className="py-24 md:py-32 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-24">
-              <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
+              <h2 className="font-display text-3xl md:text-5xl font-bold mb-6">
                 Cara Kerja
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -504,26 +484,26 @@ export default async function Home() {
                   step: '01',
                   title: 'Daftar Akun',
                   desc: 'Buat akun gratis dengan email. Tidak perlu kartu kredit, tidak ada biaya tersembunyi.',
-                  color: 'bg-primary/10 text-primary',
+                  color: 'bg-primary-soft text-primary-soft-foreground',
                 },
                 {
                   step: '02',
                   title: 'Jelajahi & Pelajari',
                   desc: 'Telusuri ratusan permainan rakyat dari seluruh Nusantara. Filter berdasarkan provinsi, kategori, atau kata kunci.',
-                  color: 'bg-accent/10 text-accent-foreground',
+                  color: 'bg-accent/25 text-foreground',
                 },
                 {
                   step: '03',
                   title: 'Berkontribusi',
                   desc: 'Dokumentasikan permainan dari daerahmu, ikuti event komunitas, dan bangun warisan budaya bersama.',
-                  color: 'bg-secondary/10 text-secondary',
+                  color: 'bg-secondary/10 text-primary-text',
                 },
               ].map((item) => (
                 <div key={item.step} className="relative group flex flex-col items-center text-center">
                   {/* Number circle */}
                   <div className="bg-background p-2 rounded-full relative z-10 mb-6">
                     <div
-                      className={`w-16 h-16 rounded-full ${item.color} flex items-center justify-center text-2xl font-extrabold`}
+                      className={`w-16 h-16 rounded-full ${item.color} flex items-center justify-center font-display text-2xl font-bold`}
                     >
                       {item.step}
                     </div>
@@ -541,7 +521,7 @@ export default async function Home() {
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
               <div>
-                <h2 className="text-4xl font-extrabold tracking-tight mb-4">
+                <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
                   Permainan Unggulan
                 </h2>
                 <p className="text-muted-foreground">
@@ -551,7 +531,7 @@ export default async function Home() {
               </div>
               <Link
                 href="/prot"
-                className="flex items-center space-x-2 text-primary font-bold group/link shrink-0"
+                className="flex items-center space-x-2 text-primary-text font-bold group/link shrink-0"
               >
                 <span>Lihat Semua Koleksi</span>
                 <ArrowRight className="w-5 h-5 transition-transform group-hover/link:translate-x-1" />
@@ -590,11 +570,11 @@ export default async function Home() {
                       <h4 className="text-xl font-bold line-clamp-2">
                         {game.nama}
                       </h4>
-                      <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold tracking-widest uppercase rounded-full shrink-0">
+                      <span className="px-3 py-1 bg-primary-soft text-primary-soft-foreground text-[10px] font-bold tracking-widest uppercase rounded-full shrink-0">
                         {game.jenis === 'PERMAINAN_RAKYAT' ? 'Permainan' : 'Olahraga'}
                       </span>
                     </div>
-                    <p className="text-xs font-semibold text-foreground/60 mb-3 uppercase tracking-wider">
+                    <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">
                       {getGameLocation(game)}
                     </p>
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
@@ -605,6 +585,7 @@ export default async function Home() {
                 })
               ) : (
                 <div className="col-span-full rounded-2xl border border-dashed border-border bg-card p-10 text-center text-muted-foreground">
+                  <BatikMotif className="mx-auto mb-3 h-10 w-10" />
                   Data permainan belum tersedia untuk ditampilkan.
                 </div>
               )}
@@ -616,7 +597,7 @@ export default async function Home() {
         <section className="py-24 md:py-32 px-6 bg-muted/20">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-14">
-              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-5">
+              <h2 className="font-display text-3xl md:text-5xl font-bold mb-5">
                 Hal yang Perlu Diketahui
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl mx-auto">
@@ -683,41 +664,13 @@ export default async function Home() {
         <section id="community" className="py-24 px-6 overflow-hidden">
           <div className="max-w-7xl mx-auto">
             <div className="bg-primary rounded-[3rem] p-12 md:p-24 relative overflow-hidden flex flex-col items-center text-center">
-              {/* Background texture */}
-              <div className="absolute inset-0 opacity-10 pointer-events-none">
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <pattern
-                      id="batik-v2"
-                      x="0"
-                      y="0"
-                      width="100"
-                      height="100"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="2"
-                      />
-                      <path
-                        d="M50 10 L50 90 M10 50 L90 50"
-                        stroke="white"
-                        strokeWidth="2"
-                      />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#batik-v2)" />
-                </svg>
-              </div>
+              <BatikCorner corner="top-left" className="absolute left-0 top-0 w-24 md:w-48 opacity-30 text-primary-foreground!" />
+              <BatikCorner corner="bottom-right" className="absolute right-0 bottom-0 w-24 md:w-48 opacity-30 text-primary-foreground!" />
 
-              <h2 className="text-4xl md:text-6xl font-extrabold text-primary-foreground mb-8 max-w-3xl relative z-10 leading-tight">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-primary-foreground mb-8 max-w-3xl relative z-10 leading-tight">
                 Siap Menjadi Bagian dari Penjaga Warisan Bangsa?
               </h2>
-              <p className="text-xl text-primary-foreground/70 mb-12 max-w-2xl relative z-10 leading-relaxed">
+              <p className="text-xl text-primary-foreground mb-12 max-w-2xl relative z-10 leading-relaxed">
                 Bergabunglah untuk menjelajahi arsip budaya, mendukung
                 dokumentasi permainan tradisional, dan ikut membangun ruang
                 digital yang membuat warisan Nusantara tetap relevan bagi
@@ -726,7 +679,7 @@ export default async function Home() {
               <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                 <Link
                   href={user ? '/menu' : '/signup'}
-                  className="px-12 py-5 bg-primary-foreground text-primary rounded-xl font-bold text-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                  className="px-12 py-5 bg-primary-foreground text-primary-text rounded-xl font-bold text-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
                 >
                   Daftar Gratis
                 </Link>
@@ -742,97 +695,7 @@ export default async function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-muted/50 w-full pt-16 pb-8 mt-20">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="md:col-span-1">
-            <Link
-              href="/"
-              className="text-xl font-bold text-primary mb-4 block"
-            >
-              {SITE_NAME}
-            </Link>
-            <p className="text-foreground/60 mb-8 leading-relaxed text-sm">
-              Platform digital terdesentralisasi pertama yang fokus pada
-              pelestarian warisan permainan tradisional Indonesia.
-            </p>
-            <div className="flex space-x-4">
-              <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
-                <Globe className="w-5 h-5" />
-              </span>
-              <span className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-primary hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
-                <Share2 className="w-5 h-5" />
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <h5 className="font-bold mb-6 text-foreground">Platform</h5>
-            <ul className="space-y-4">
-              {[
-                { label: 'Tentang Kami', href: '#tentang' },
-                { label: 'Jelajahi Permainan', href: '/prot' },
-                { label: 'Kontribusi Data', href: '/signup' },
-                { label: 'Sertifikasi PROT', href: '/prot' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-foreground/60 hover:text-primary transition-all hover:translate-x-1 inline-block text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="font-bold mb-6 text-foreground">Dukungan</h5>
-            <ul className="space-y-4">
-              {[
-                { label: 'Pusat Bantuan', href: '#' },
-                { label: 'Syarat & Ketentuan', href: '#' },
-                { label: 'Kebijakan Privasi', href: '#' },
-                { label: 'Kontak', href: '#' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-foreground/60 hover:text-primary transition-all hover:translate-x-1 inline-block text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="font-bold mb-6 text-foreground">Newsletter</h5>
-            <p className="text-sm text-foreground/60 mb-4">
-              Dapatkan update mingguan tentang warisan budaya terbaru.
-            </p>
-            <div className="flex">
-              <input
-                className="bg-muted border-none rounded-l-lg px-4 py-3 w-full focus:ring-1 focus:ring-primary text-sm"
-                placeholder="Email Anda"
-                type="email"
-              />
-              <button className="bg-primary text-primary-foreground px-4 py-3 rounded-r-lg hover:opacity-90 transition-opacity">
-                <Send className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border/10 text-center">
-          <p className="text-foreground/60 text-sm">
-            &copy; {new Date().getFullYear()} {SITE_NAME}. Menjaga Warisan,
-            Memainkan Masa Depan.
-          </p>
-        </div>
-      </footer>
+      <AppFooter className="mt-20" />
     </div>
   );
 }

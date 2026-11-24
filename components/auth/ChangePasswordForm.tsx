@@ -110,10 +110,10 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
     `${inputBase} ${errors[field] ? 'border-red-500' : 'border-transparent focus:border-primary'}`;
 
   const labelClass =
-    'block text-[0.7rem] font-bold uppercase tracking-[0.15em] text-warm-label mb-2 transition-colors group-focus-within:text-primary';
+    'block text-[0.7rem] font-bold uppercase tracking-[0.15em] text-warm-label mb-2 transition-colors group-focus-within:text-primary-text';
 
   const eyeBtn =
-    'absolute right-3 top-1/2 -translate-y-1/2 text-warm-label hover:text-primary transition-colors';
+    'absolute right-3 top-1/2 -translate-y-1/2 text-warm-label hover:text-primary-text transition-colors';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -187,7 +187,7 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
                   style={{ width: strengthWidth[passwordStrength] }}
                 />
               </div>
-              <span className="text-xs font-medium text-foreground/60">
+              <span className="text-xs font-medium text-muted-foreground">
                 {strengthText[passwordStrength]}
               </span>
             </div>
@@ -234,7 +234,7 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 bg-primary text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="flex-1 bg-primary text-primary-foreground font-bold py-4 px-8 rounded-lg shadow-lg hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {isLoading ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
