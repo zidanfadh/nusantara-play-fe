@@ -12,6 +12,7 @@
  */
 import { BufferAttribute, BufferGeometry, Color, ShapeUtils, Vector2 } from 'three';
 import { ringArea, type Point, type ProvinceShape } from '../geo';
+import type { ProvinceNature } from '../map-nature';
 import { heightNoise, patchVariant, rand01 } from '../paper-map';
 
 export const BASE_Y = 0;
@@ -38,6 +39,8 @@ export interface MapGeometry {
   shades: Float32Array;
   /** Positions as built (lifting is relative to these). */
   basePositions: Float32Array;
+  /** Smoking volcano vents (world coordinates at the crater, before any lift) with their shape index. */
+  vents: { x: number; y: number; z: number; shape: number }[];
 }
 
 export interface SlabOptions {
@@ -135,7 +138,10 @@ export function buildMapGeometry(
   shapes: readonly ProvinceShape[],
   heights: readonly number[],
   options: SlabOptions = PLAIN_SLAB,
+  /** Phase 28: mountains, volcanoes, rivers and lakes per shape (lib/jelajah/map-nature.ts), merged in. */
+  nature: readonly ProvinceNature[] | null = null,
 ): MapGeometry {
+  const vents: MapGeometry['vents'] = [];
   const positions: number[] = [];
   const kinds: number[] = [];
   const variants: number[] = [];
@@ -218,6 +224,82 @@ export function buildMapGeometry(
         }
       }
     }
+    const features = nature?.[i];
+    if (features) {
+      // Water just above the highest possible facet, so it never dips under the surface.
+      const waterY = top + options.noise + 0.012;
+      const up: [number, number, number] = [0, 1, 0];
+      const water = () => KIND.water;
+      for (const river of features.rivers) {
+        const half = river.width / 2;
+        for (let k = 0; k + 1 < river.points.length; k += 1) {
+          const [ax, ay] = river.points[k];
+          const [bx, by] = river.points[k + 1];
+          const len = Math.hypot(bx - ax, by - ay) || 1;
+          const nx = (-(by - ay) / len) * half;
+          const ny = ((bx - ax) / len) * half;
+          const a1 = [ax + nx, waterY, -(ay + ny)], a2 = [ax - nx, waterY, -(ay - ny)];
+          const b1 = [bx + nx, waterY, -(by + ny)], b2 = [bx - nx, waterY, -(by - ny)];
+          tri(a1, a2, b2, up, water, 0, 0);
+          tri(a1, b2, b1, up, water, 0, 0);
+          // A small square joint, so bends have no gap.
+          if (k > 0) {
+            const j = half * 0.95;
+            tri([ax - j, waterY, -(ay - j)], [ax + j, waterY, -(ay - j)], [ax + j, waterY, -(ay + j)], up, water, 0, 0);
+            tri([ax - j, waterY, -(ay - j)], [ax + j, waterY, -(ay + j)], [ax - j, waterY, -(ay + j)], up, water, 0, 0);
+          }
+        }
+      }
+      for (const lake of features.lakes) {
+        const c = [lake.x, waterY, -lake.y];
+        lake.ring.forEach(([x, y], k) => {
+          const [x2, y2] = lake.ring[(k + 1) % lake.ring.length];
+          tri(c, [x, waterY, -y], [x2, waterY, -y2], up, water, 0, 0);
+        });
+      }
+      features.mountains.forEach((m, n) => {
+        const baseY = top - 0.02;
+        const peakY = top + m.height;
+        const seed = `${shape.name}|${n}`;
+        const ring: number[][] = [];
+        for (let k = 0; k < m.sides; k += 1) {
+          const a = m.rotation + (k / m.sides) * Math.PI * 2;
+          const r = m.radius * (0.86 + 0.24 * rand01('mrj', seed, k));
+          ring.push([m.x + Math.cos(a) * r, baseY, -(m.y + Math.sin(a) * r)]);
+        }
+        const rock = () => KIND.rockLight;
+        const outward = (p: number[], q: number[]): [number, number, number] => [
+          (p[0] + q[0]) / 2 - m.x,
+          m.radius * 0.6,
+          (p[2] + q[2]) / 2 + m.y,
+        ];
+        if (m.volcano) {
+          // A truncated cone with a dark crater, its vent slightly below the rim.
+          const rim = ring.map((p) => [m.x + (p[0] - m.x) * 0.3, peakY, -m.y + (p[2] + m.y) * 0.3]);
+          const vent = [m.x, peakY - 0.05, -m.y];
+          for (let k = 0; k < m.sides; k += 1) {
+            const k2 = (k + 1) % m.sides;
+            const o = outward(ring[k], ring[k2]);
+            tri(ring[k], ring[k2], rim[k2], o, rock, 0, 0);
+            tri(ring[k], rim[k2], rim[k], o, rock, 0, 0);
+            tri(rim[k], rim[k2], vent, up, () => KIND.crater, 0, 0);
+          }
+          if (m.volcano.smoke) vents.push({ x: vent[0], y: peakY, z: vent[2], shape: i });
+        } else {
+          const apex = [
+            m.x + (rand01('ax', seed) - 0.5) * m.radius * 0.25,
+            peakY,
+            -(m.y + (rand01('ay', seed) - 0.5) * m.radius * 0.25),
+          ];
+          for (let k = 0; k < m.sides; k += 1) {
+            const k2 = (k + 1) % m.sides;
+            // Alternate faces take the darker rock (the reference's two-tone faceted mountains).
+            const kind = rand01('mf', seed, k) < 0.3 ? () => KIND.rockDark : rock;
+            tri(ring[k], ring[k2], apex, outward(ring[k], ring[k2]), kind, 0, 0);
+          }
+        }
+      });
+    }
     ranges.push({ start, count: positions.length / 3 - start });
   });
 
@@ -240,6 +322,7 @@ export function buildMapGeometry(
     variants: Uint8Array.from(variants),
     shades: Float32Array.from(shades),
     basePositions: position.slice(),
+    vents,
   };
 }
 

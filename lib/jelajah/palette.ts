@@ -65,8 +65,8 @@ export const PALETTES: Record<ThemeMode, MapPalette> = {
     crater: '#4A3A2E',
     smoke: '#EEE6DA',
     water: '#5A9A96',
-    hull: '#5A4337',
-    sail: '#F6EBDA',
+    hull: '#7A5940',
+    sail: '#F4E9D8',
   },
   dark: {
     paper: '#3A281B',
@@ -89,7 +89,7 @@ export const PALETTES: Record<ThemeMode, MapPalette> = {
     crater: '#3A2C22',
     smoke: '#D8CEC0',
     water: '#4F8E8A',
-    hull: '#2A1A0E',
+    hull: '#6B4B31',
     sail: '#EADCC6',
   },
 };

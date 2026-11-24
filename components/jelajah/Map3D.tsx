@@ -17,10 +17,13 @@ import { canvasSettings } from '@/lib/jelajah/device-tier';
 import { hitTest, initialFrame, shapesBounds, type Bounds, type ProvinceShape } from '@/lib/jelajah/geo';
 import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
 import { facetColours, type MapPalette } from '@/lib/jelajah/palette';
+import { ambientMode, NATURE_FULL, NATURE_LITE, placeNature } from '@/lib/jelajah/map-nature';
 import { lowPolyShapes } from '@/lib/jelajah/paper-map';
 import { ENTERABLE_PROVINCES, markerLabel, PILOT_PROVINCE } from '@/lib/jelajah/provinces';
 import { buildMapGeometry, LIGHT_DIR, paintShape, PAPER_SLAB, type MapGeometry } from '@/lib/jelajah/three/map-geometry';
 import { drawPaper, PAPER, paperArea, paperTexture, shadowMode } from '@/lib/jelajah/three/paper';
+import { useReducedMotion } from '@/lib/jelajah/use-reduced-motion';
+import { AmbientTicker, Ships, Smoke } from './three/MapLife';
 import { StatsOverlay, StatsProbe, type DebugStats } from './three/StatsProbe';
 
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -361,15 +364,23 @@ export default function Map3D(props: Map3DProps) {
   const shapes = useMemo(() => lowPolyShapes(sourceShapes), [sourceShapes]);
   const bounds = useMemo(() => shapesBounds(shapes), [shapes]);
   const heightsKey = shapes.map((s) => (isClickable(s.kode, props.summaryByKode) ? '1' : '0')).join('');
+  // Phase 28 nature: lite has fewer mountains and no rivers or lakes.
+  const nature = useMemo(() => placeNature(shapes, tier === 'full' ? NATURE_FULL : NATURE_LITE), [shapes, tier]);
   const geometry = useMemo(
     () =>
       buildMapGeometry(
         shapes,
         heightsKey.split('').map((c) => (c === '1' ? HEIGHT_ACTIVE : HEIGHT_MUTED)),
         PAPER_SLAB,
+        nature,
       ),
-    [shapes, heightsKey],
+    [shapes, heightsKey, nature],
   );
+  // Ships and moving smoke only on the full tier and never with reduced motion (Phase 28).
+  const ambient = ambientMode(tier, useReducedMotion());
+  const moving = ambient.animate;
+  /** Current lift per shape index (hover / selected), read by the smoke every frame. */
+  const lifts = useRef(new Map<number, number>());
   useEffect(
     () => () => {
       geometry.surface.dispose();
@@ -423,6 +434,9 @@ export default function Map3D(props: Map3DProps) {
           palette={palette}
           tier={tier}
         />
+        {ambient.ships !== 'none' && <Ships palette={palette} moving={ambient.ships === 'sailing'} />}
+        <Smoke vents={geometry.vents} lifts={lifts} palette={palette} moving={ambient.smoke === 'rising'} />
+        <AmbientTicker active={moving && !showStats} />
         {markers.map(({ province, shape }) => (
           <TrackScreenPoint
             key={province.kode}

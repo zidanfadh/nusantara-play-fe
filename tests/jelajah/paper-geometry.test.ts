@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parseProvinceGeo, shapesBounds } from '@/lib/jelajah/geo';
 import { facetColours, PALETTES, provinceFill } from '@/lib/jelajah/palette';
+import { NATURE_FULL, placeNature } from '@/lib/jelajah/map-nature';
 import { lowPolyShapes } from '@/lib/jelajah/paper-map';
 import { KNOWN_PROVINCES } from '@/lib/jelajah/provinces';
 import {
@@ -99,6 +100,29 @@ describe('paper slab geometry', () => {
     }
     liftShape(lifted, 2, 0);
     expect(Array.from(pos())).toEqual(Array.from(lifted.basePositions));
+  });
+});
+
+describe('nature merged into the slabs (Phase 28 step 2)', () => {
+  const nature = placeNature(shapes, NATURE_FULL);
+  const g = buildMapGeometry(shapes, heights, PAPER_SLAB, nature);
+
+  it('mountains, volcanoes, rivers and lakes add no draw call and stay within the budget', () => {
+    expect(g.triangles).toBeLessThan(40_000);
+    for (const kind of [KIND.water, KIND.rockLight, KIND.rockDark, KIND.crater]) expect(g.kinds).toContain(kind);
+  });
+
+  it('one smoke vent per smoking volcano, in its province and above its slab', () => {
+    const smoking = nature.flatMap((n, i) => n.mountains.filter((m) => m.volcano?.smoke).map(() => i));
+    expect(g.vents.map((v) => v.shape).sort()).toEqual(smoking.sort());
+    for (const v of g.vents) expect(v.y).toBeGreaterThan(heights[v.shape]);
+  });
+
+  it('water sits above the highest facet of its province (never hidden under the surface)', () => {
+    g.ranges.forEach((range, i) => {
+      for (let v = range.start; v < range.start + range.count; v += 1)
+        if (g.kinds[v] === KIND.water) expect(g.basePositions[v * 3 + 1]).toBeGreaterThan(heights[i] + PAPER_SLAB.noise);
+    });
   });
 });
 
