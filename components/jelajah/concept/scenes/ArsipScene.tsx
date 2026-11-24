@@ -37,7 +37,7 @@ export function ArsipScene({ lt, layout, still, cards }: SceneProps & { cards: r
         : 'inset-x-[15%] top-[13%] bottom-[31%] grid-cols-3 grid-rows-2 gap-5';
 
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(100% 80% at 50% 40%, #FBF3E4 0%, #EAD8B9 100%)' }}>
+    <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(100% 80% at 50% 40%, #FEF3E2 0%, #EAD8B9 100%)' }}>
       <Stage layout={layout}>
         <rect {...BLEED} fill="url(#cv-kawung-brown)" opacity="0.55" />
       </Stage>
@@ -68,27 +68,27 @@ function Card({ card, i, lt, still, layout }: { card: ArchiveCard; i: number; lt
   const motif = MOTIFS[i % MOTIFS.length];
   const compact = layout !== 'desktop';
   return (
-    <div ref={ref} className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#C9A876] bg-[#FFFBF2] shadow-[0_10px_24px_-12px_rgba(60,30,10,0.55)]" style={LIVE}>
+    <div ref={ref} className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#C9A876] bg-[#FEF3E2] shadow-[0_10px_24px_-12px_rgba(60,30,10,0.55)]" style={LIVE}>
       <svg className={`w-full shrink-0 ${compact ? 'h-6' : 'h-10'}`} aria-hidden>
         <rect width="100%" height="100%" fill={motif} />
       </svg>
       <div className={`flex min-h-0 flex-1 flex-col justify-between gap-1 ${compact ? 'p-2' : 'p-4'}`}>
         <div className="flex items-start gap-2">
-          <ScrollText className={`shrink-0 text-[#9E3C24] ${compact ? 'mt-0.5 h-3.5 w-3.5' : 'mt-1 h-5 w-5'}`} aria-hidden />
+          <ScrollText className={`shrink-0 text-[#B4500F] ${compact ? 'mt-0.5 h-3.5 w-3.5' : 'mt-1 h-5 w-5'}`} aria-hidden />
           {card.nama ? (
-            <p className={`line-clamp-2 font-bold leading-tight text-[#3B1E0E] ${compact ? 'text-[13px]' : 'text-lg'}`}>{card.nama}</p>
+            <p className={`line-clamp-2 font-bold leading-tight text-[#2A1A0E] ${compact ? 'text-[13px]' : 'text-lg'}`}>{card.nama}</p>
           ) : (
             <span className="mt-1 flex w-full flex-col gap-1.5" aria-hidden>
-              <span className={`block rounded bg-[#3B1E0E]/25 ${compact ? 'h-2.5' : 'h-3.5'} w-[85%]`} />
-              <span className={`block rounded bg-[#3B1E0E]/15 ${compact ? 'h-2.5' : 'h-3.5'} w-[55%]`} />
+              <span className={`block rounded bg-[#2A1A0E]/25 ${compact ? 'h-2.5' : 'h-3.5'} w-[85%]`} />
+              <span className={`block rounded bg-[#2A1A0E]/15 ${compact ? 'h-2.5' : 'h-3.5'} w-[55%]`} />
             </span>
           )}
         </div>
         {!compact && (
           <span className="flex flex-col gap-1.5 pl-7" aria-hidden>
-            <span className="block h-2 w-[92%] rounded bg-[#3B1E0E]/10" />
-            <span className="block h-2 w-[78%] rounded bg-[#3B1E0E]/10" />
-            <span className="block h-2 w-[64%] rounded bg-[#3B1E0E]/10" />
+            <span className="block h-2 w-[92%] rounded bg-[#2A1A0E]/10" />
+            <span className="block h-2 w-[78%] rounded bg-[#2A1A0E]/10" />
+            <span className="block h-2 w-[64%] rounded bg-[#2A1A0E]/10" />
           </span>
         )}
         <div className={`flex-wrap ${layout === 'landscape' ? 'hidden' : 'flex'} ${compact ? 'gap-1' : 'gap-1.5'}`}>
@@ -134,7 +134,7 @@ function Stamp({ lt, still, layout }: { lt: MotionValue<number>; still: boolean;
       <div
         ref={stamp}
         style={LIVE}
-        className={`pointer-events-none absolute left-1/2 top-1/2 flex items-center justify-center rounded-full border-[5px] border-double border-[#B3261E] bg-[#FFFBF2]/70 p-3 text-center font-extrabold uppercase leading-tight tracking-wide text-[#B3261E] ${size}`}
+        className={`pointer-events-none absolute left-1/2 top-1/2 flex items-center justify-center rounded-full border-[5px] border-double border-[#B3261E] bg-[#FEF3E2]/70 p-3 text-center font-extrabold uppercase leading-tight tracking-wide text-[#B3261E] ${size}`}
       >
         {CONCEPT_TEXT.stamp}
       </div>

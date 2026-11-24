@@ -51,7 +51,7 @@ export function ParticleField({ time, count, maxDpr }: { time: MotionValue<numbe
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
     const dust = sprite('#E8D9B8');
-    const gold = sprite('#F7C95C');
+    const gold = sprite('#F4AE52');
     const targets = outline();
     let sources: DOMRect[] | null = null;
     let ctm: DOMMatrix | null = null;

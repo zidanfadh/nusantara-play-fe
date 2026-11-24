@@ -174,16 +174,16 @@ export function ConceptDefs() {
       <defs>
         {kawung('cv-kawung-cream', '#FBEFD5', 0.5)}
         {kawung('cv-kawung-brown', '#7A3E1D', 0.32)}
-        {kawung('cv-kawung-gold', '#F2C14E', 0.55)}
+        {kawung('cv-kawung-gold', '#F4AE52', 0.55)}
         {/* Parang: diagonal bands (card motif). */}
         <pattern id="cv-parang" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="16" height="16" fill="#9E3C24" />
-          <path d="M0 4 Q4 0 8 4 T16 4" fill="none" stroke="#F2C14E" strokeWidth="2" />
+          <rect width="16" height="16" fill="#B4500F" />
+          <path d="M0 4 Q4 0 8 4 T16 4" fill="none" stroke="#F4AE52" strokeWidth="2" />
           <path d="M0 12 Q4 8 8 12 T16 12" fill="none" stroke="#FBEFD5" strokeWidth="1" strokeOpacity="0.7" />
         </pattern>
         {/* Truntum: small flowers of dots (card motif). */}
         <pattern id="cv-truntum" width="20" height="20" patternUnits="userSpaceOnUse">
-          <rect width="20" height="20" fill="#1A5F7A" />
+          <rect width="20" height="20" fill="#7A3410" />
           {[0, 72, 144, 216, 288].map((a) => (
             <circle
               key={a}
@@ -193,7 +193,7 @@ export function ConceptDefs() {
               fill="#FBEFD5"
             />
           ))}
-          <circle cx="10" cy="10" r="1.2" fill="#F2C14E" />
+          <circle cx="10" cy="10" r="1.2" fill="#F4AE52" />
         </pattern>
         <pattern id="cv-kawung-tile" width="18" height="18" patternUnits="userSpaceOnUse">
           <rect width="18" height="18" fill="#C99A2E" />
@@ -201,12 +201,12 @@ export function ConceptDefs() {
         </pattern>
         {/* Provinces lighting up: amber batik glow. */}
         <linearGradient id="cv-glow-fill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#F7C95C" />
+          <stop offset="0" stopColor="#F4AE52" />
           <stop offset="1" stopColor="#D65C2E" />
         </linearGradient>
         <radialGradient id="cv-sun" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#FFE6A8" stopOpacity="0.95" />
-          <stop offset="0.35" stopColor="#F7B955" stopOpacity="0.55" />
+          <stop offset="0.35" stopColor="#F4AE52" stopOpacity="0.55" />
           <stop offset="1" stopColor="#F28C38" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="cv-sun-sepia" cx="0.5" cy="0.5" r="0.5">
@@ -215,13 +215,13 @@ export function ConceptDefs() {
           <stop offset="1" stopColor="#9C8460" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="cv-halo" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#120F2A" stopOpacity="0.85" />
-          <stop offset="1" stopColor="#120F2A" stopOpacity="0" />
+          <stop offset="0" stopColor="#2A1A0E" stopOpacity="0.85" />
+          <stop offset="1" stopColor="#2A1A0E" stopOpacity="0" />
         </radialGradient>
         <radialGradient id="cv-spark" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0" stopColor="#FFF4D6" stopOpacity="1" />
-          <stop offset="0.4" stopColor="#F7C95C" stopOpacity="0.7" />
-          <stop offset="1" stopColor="#F7C95C" stopOpacity="0" />
+          <stop offset="0" stopColor="#FEF3E2" stopOpacity="1" />
+          <stop offset="0.4" stopColor="#F4AE52" stopOpacity="0.7" />
+          <stop offset="1" stopColor="#F4AE52" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="cv-wood" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#C7803F" />

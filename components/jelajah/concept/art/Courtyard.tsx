@@ -16,19 +16,19 @@ export type CourtyardTone = 'warm' | 'sepia';
 
 const TONES = {
   warm: {
-    sky: ['#120E2E', '#2C1E55', '#6B2F5E', '#C4532A', '#F2A541'],
+    sky: ['#1C1108', '#3A2414', '#7A3410', '#D4621A', '#F4AE52'],
     sun: 'url(#cv-sun)',
     star: '#FBEFD5',
-    silhouette: '#150F22',
-    rim: '#F2A541',
+    silhouette: '#1C1108',
+    rim: '#F4AE52',
     ground: '#21141C',
     groundGlow: '#5A2E1E',
-    window: '#F7B955',
+    window: '#F4AE52',
     wood: 'url(#cv-wood)',
-    hole: '#3B1E0E',
+    hole: '#2A1A0E',
     seed: '#F6E7C8',
     top: '#C0392B',
-    topStripe: '#F2C14E',
+    topStripe: '#F4AE52',
     firefly: '#FFE08A',
   },
   sepia: {

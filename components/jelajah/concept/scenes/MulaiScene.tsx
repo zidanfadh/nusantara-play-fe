@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { Logotype } from '@/components/brand/Logotype';
 import type { RefObject } from 'react';
 import { BEATS, CONCEPT_SCENES, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeOutBack, easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
@@ -36,7 +37,7 @@ export function MulaiScene({
     return { transform: `translateY(${((1 - k) * 20).toFixed(1)}px) scale(${(0.92 + 0.08 * k).toFixed(3)})`, opacity: Math.min(1, k * 1.4) };
   });
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(90% 75% at 50% 42%, #B4553A 0%, #6B2414 55%, #2A0E07 100%)' }}>
+    <div className="absolute inset-0 overflow-hidden" style={{ background: 'radial-gradient(90% 75% at 50% 42%, #D4621A 0%, #7A3410 55%, #2A1A0E 100%)' }}>
       <div
         ref={rays}
         aria-hidden
@@ -63,7 +64,8 @@ export function MulaiScene({
             width={180}
             height={180}
             loading="eager"
-            className={`rounded-3xl shadow-[0_18px_50px_-12px_rgba(0,0,0,0.7)] ring-4 ring-[#F7C95C]/40 ${
+            unoptimized
+            className={`rounded-3xl shadow-[0_18px_50px_-12px_rgba(0,0,0,0.7)] ring-4 ring-[#F4AE52]/40 ${
               layout === 'landscape' ? 'h-14 w-14' : layout === 'portrait' ? 'h-20 w-20' : 'h-28 w-28'
             }`}
           />
@@ -71,11 +73,11 @@ export function MulaiScene({
         <p
           ref={name}
           style={LIVE}
-          className={`font-extrabold tracking-tight text-[#FFF4D6] ${
+          className={`${
             layout === 'landscape' ? 'text-3xl' : layout === 'portrait' ? 'text-[2.1rem] leading-tight' : 'text-6xl'
           }`}
         >
-          {CONCEPT_TEXT.wordmark}
+          <Logotype variant="gradient" />
         </p>
         <div ref={button} className="flex flex-col items-center gap-2" style={LIVE}>
           <button
@@ -86,7 +88,7 @@ export function MulaiScene({
               e.stopPropagation();
               onStart();
             }}
-            className={`inline-flex min-h-[56px] items-center gap-2 rounded-full bg-[#F7C95C] font-extrabold text-[#3B1E0E] shadow-[0_14px_36px_-10px_rgba(0,0,0,0.75)] transition-transform hover:scale-[1.03] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FFF4D6] ${
+            className={`inline-flex min-h-[56px] items-center gap-2 rounded-full bg-[#F4AE52] font-extrabold text-[#2A1A0E] shadow-[0_14px_36px_-10px_rgba(0,0,0,0.75)] transition-transform hover:scale-[1.03] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#FEF3E2] ${
               layout === 'desktop' ? 'px-10 py-4 text-xl' : 'px-7 py-3 text-lg'
             }`}
           >

@@ -8,7 +8,7 @@ import { easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
 import { CONCEPT_MAP_VIEW, CONCEPT_PROVINCE_PATHS, mapToStage, mapTransformAttr } from '../art/MapArt';
 import { LIVE, LIVE_OPACITY, Stage, stageToScreen, useStyle, type SceneProps } from '../scene-kit';
 
-const NIGHT = '#120F2A';
+const NIGHT = '#2A1A0E';
 /** Soft edge of the west-to-east light sweep: a tenth of the map's width on screen, 24 to 90 px. */
 function edgeWidth(layout: ConceptLayout): number {
   const [x0] = stageToScreen(layout, ...mapToStage(layout, 0, 0));
@@ -51,7 +51,7 @@ export function NusantaraScene({ lt, layout, still, canvas }: SceneProps) {
   });
 
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: `radial-gradient(90% 70% at 50% 45%, #2A2152 0%, ${NIGHT} 70%)` }}>
+    <div className="absolute inset-0 overflow-hidden" style={{ background: `radial-gradient(90% 70% at 50% 45%, #4A3524 0%, ${NIGHT} 70%)` }}>
       <div ref={drift} className="absolute -inset-10" style={LIVE}>
         <svg className="h-full w-full" aria-hidden>
           <rect width="100%" height="100%" fill="url(#cv-kawung-gold)" opacity="0.08" />
@@ -97,7 +97,7 @@ function LitMap({ layout }: { layout: ConceptLayout }) {
   return (
     <Stage layout={layout}>
       <g transform={mapTransformAttr(layout)} strokeLinejoin="round">
-        <g fill="none" stroke="#F7C95C" strokeWidth={7} strokeOpacity={0.35}>
+        <g fill="none" stroke="#F4AE52" strokeWidth={7} strokeOpacity={0.35}>
           {CONCEPT_PROVINCE_PATHS.map((p) => (
             <path key={p.kode} d={p.d} />
           ))}
@@ -127,7 +127,7 @@ function Band({ layout, bandRef, edge }: { layout: ConceptLayout; bandRef: RefOb
         height: Math.max(0, bottom - top),
         width: edge * 2,
         opacity: 0,
-        background: 'radial-gradient(50% 50% at 50% 50%, rgba(255,230,168,0.75), rgba(247,201,92,0.25) 45%, transparent 75%)',
+        background: 'radial-gradient(50% 50% at 50% 50%, rgba(255,230,168,0.75), rgba(244,174,82,0.25) 45%, transparent 75%)',
         ...LIVE,
       }}
     />
@@ -142,7 +142,7 @@ function Wordmark({ lt, still, layout }: { lt: MotionValue<number>; still: boole
     return { transform: `scaleX(${k.toFixed(3)})`, opacity: k };
   });
   const size =
-    layout === 'portrait' ? 'text-[2.15rem]' : layout === 'landscape' ? 'text-[2.4rem]' : 'text-[clamp(3rem,5.6vw,5.5rem)]';
+    layout === 'portrait' ? 'text-[1.8rem]' : layout === 'landscape' ? 'text-[2.4rem]' : 'text-[clamp(3rem,5.6vw,5.5rem)]';
   return (
     <div
       className={`pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 text-center ${
@@ -150,12 +150,13 @@ function Wordmark({ lt, still, layout }: { lt: MotionValue<number>; still: boole
       }`}
       style={LIVE}
     >
-      <p className={`whitespace-nowrap font-extrabold tracking-tight ${size}`} aria-hidden>
+      {/* Phase 27: the logotype font and its vertical gradient (#D4621A top → #F4AE52 bottom), one letter at a time. */}
+      <p className={`whitespace-nowrap font-display font-bold ${size}`} aria-hidden>
         {letters.map((ch, i) => (
           <Letter key={i} ch={ch} i={i} n={letters.length} lt={lt} still={still} />
         ))}
       </p>
-      <div ref={rule} className="mx-auto mt-2 h-[3px] w-3/4 origin-center rounded-full" style={{ background: 'linear-gradient(90deg, transparent, #F7C95C, transparent)' }} />
+      <div ref={rule} className="mx-auto mt-2 h-[3px] w-3/4 origin-center rounded-full" style={{ background: 'linear-gradient(90deg, transparent, #F4AE52, transparent)' }} />
     </div>
   );
 }
@@ -174,7 +175,7 @@ function Letter({ ch, i, n, lt, still }: { ch: string; i: number; n: number; lt:
     <span
       ref={ref}
       className="inline-block bg-clip-text text-transparent"
-      style={{ backgroundImage: 'linear-gradient(180deg, #FFF4D6 10%, #F7C95C 90%)', whiteSpace: 'pre', ...LIVE }}
+      style={{ backgroundImage: 'linear-gradient(180deg, #D4621A 18%, #F4AE52 88%)', whiteSpace: 'pre', ...LIVE }}
     >
       {ch}
     </span>

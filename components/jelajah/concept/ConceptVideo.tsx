@@ -329,7 +329,7 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
       data-testid="concept-video"
       data-scene={scene.id}
       data-reduced={reduced ? '1' : undefined}
-      className="fixed inset-0 z-[60] overflow-hidden bg-[#120F2A] font-sans text-white outline-none"
+      className="fixed inset-0 z-[60] overflow-hidden bg-[#2A1A0E] font-sans text-white outline-none"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { duration: 0.35 } }}
       exit={{ opacity: 0, transition: { duration: 0.45 } }}
@@ -375,7 +375,7 @@ export default function ConceptVideo({ data, status, tier, debug, onClose, onSce
               e.stopPropagation();
               controls.seek((index + 1) * (REDUCED_TOTAL_MS / CONCEPT_SCENES.length));
             }}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full bg-[#F7C95C] px-6 text-base font-bold text-[#3B1E0E] shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-white"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full bg-[#F4AE52] px-6 text-base font-bold text-[#2A1A0E] shadow-lg focus:outline-none focus-visible:ring-4 focus-visible:ring-white"
           >
             {CONCEPT_TEXT.next} <ArrowRight className="h-5 w-5" aria-hidden />
           </button>
@@ -440,7 +440,7 @@ function Captions({
       className={`pointer-events-none absolute inset-x-0 bottom-0 z-[5] flex flex-col items-center px-[max(1rem,env(safe-area-inset-left))] ${pad} ${
         layout === 'landscape' ? 'pt-10' : 'pt-24'
       }`}
-      style={{ background: 'linear-gradient(180deg, rgba(8,6,16,0) 0%, rgba(8,6,16,0.62) 45%, rgba(8,6,16,0.85) 100%)' }}
+      style={{ background: 'linear-gradient(180deg, rgba(26,15,7,0) 0%, rgba(26,15,7,0.62) 45%, rgba(26,15,7,0.85) 100%)' }}
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
@@ -460,7 +460,7 @@ function Captions({
           {subcaption && (
             <p
               data-concept-subcaption
-              className="mt-1.5 line-clamp-2 text-balance font-semibold leading-snug text-[#F7C95C] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]"
+              className="mt-1.5 line-clamp-2 text-balance font-semibold leading-snug text-[#F4AE52] [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]"
               style={{ fontSize: 'clamp(1.125rem, 1.6vmin + 0.5rem, 1.6rem)' }}
             >
               {subcaption}
@@ -476,7 +476,7 @@ function Progress({ time, total }: { time: MotionValue<number>; total: number })
   const ref = useStyle(time, (t) => ({ transform: `scaleX(${Math.min(1, Math.max(0, t / total)).toFixed(4)})` }));
   return (
     <div aria-hidden className="absolute inset-x-0 bottom-0 z-[6] h-1 bg-white/15">
-      <div ref={ref} className="h-full origin-left bg-[#F7C95C]" style={{ transform: 'scaleX(0)', willChange: 'transform' }} />
+      <div ref={ref} className="h-full origin-left bg-[#F4AE52]" style={{ transform: 'scaleX(0)', willChange: 'transform' }} />
     </div>
   );
 }

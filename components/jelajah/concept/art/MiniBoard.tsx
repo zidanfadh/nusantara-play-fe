@@ -50,7 +50,7 @@ function Pit({ pit, count }: { pit: number; count: number }) {
   const shown = Math.min(count, store ? 22 : 12);
   return (
     <g transform={`translate(${x} ${y})`}>
-      {store ? <ellipse rx="42" ry="82" fill="#3B1E0E" /> : <circle r="31" fill="#3B1E0E" />}
+      {store ? <ellipse rx="42" ry="82" fill="#2A1A0E" /> : <circle r="31" fill="#2A1A0E" />}
       {SPIRAL.slice(0, shown).map(([sx, sy], i) => (
         <circle key={i} cx={sx * (store ? 1.25 : 1)} cy={sy * (store ? 2.3 : 1)} r="4.4" fill="#F3E6CC" stroke="#B89B6E" strokeWidth="0.8" />
       ))}
@@ -61,8 +61,8 @@ function Pit({ pit, count }: { pit: number; count: number }) {
         dominantBaseline="middle"
         fontSize={store ? 26 : 17}
         fontWeight="800"
-        fill={store ? '#FFF4DF' : '#F2C14E'}
-        stroke={store ? '#3B1E0E' : 'none'}
+        fill={store ? '#FFF4DF' : '#F4AE52'}
+        stroke={store ? '#2A1A0E' : 'none'}
         strokeWidth={store ? 4 : 0}
         paintOrder="stroke"
       >
@@ -106,19 +106,19 @@ export function MiniBoard({ lt, still, stillTime }: { lt: MotionValue<number>; s
   return (
     <svg viewBox={`0 0 ${BOARD_VIEW.w} ${BOARD_VIEW.h}`} className="h-auto w-full" aria-hidden>
       <rect x="4" y="6" width="752" height="218" rx="109" fill="#000" opacity="0.35" transform="translate(0 8)" />
-      <rect x="4" y="4" width="752" height="218" rx="109" fill="url(#cv-wood)" stroke="#F2C14E" strokeOpacity="0.35" strokeWidth="2" />
+      <rect x="4" y="4" width="752" height="218" rx="109" fill="url(#cv-wood)" stroke="#F4AE52" strokeOpacity="0.35" strokeWidth="2" />
       <rect x="20" y="16" width="720" height="194" rx="97" fill="url(#cv-kawung-gold)" opacity="0.25" />
       {pits.map((count, pit) => (
         <Pit key={pit} pit={pit} count={count} />
       ))}
       {picked >= 0 && (
         <g transform={`translate(${pitPosition(picked)[0]} ${pitPosition(picked)[1]})`}>
-          <circle r="36" fill="none" stroke="#F7C95C" strokeWidth="3" strokeDasharray="6 6" />
+          <circle r="36" fill="none" stroke="#F4AE52" strokeWidth="3" strokeDasharray="6 6" />
         </g>
       )}
       <g ref={hand}>
         <circle r="22" fill="url(#cv-spark)" />
-        <circle r="7" fill="#FFF4D6" />
+        <circle r="7" fill="#FEF3E2" />
       </g>
     </svg>
   );

@@ -57,15 +57,18 @@ export function BatikBand({ className = '' }: { className?: string }) {
   return <div aria-hidden="true" data-batik="band" className={`nl-batik-band ${className}`} />;
 }
 
-/** One framed flower: bullets, badges, empty states, stamp frames. Size it with `className` (default 1em). */
-export function BatikMotif({ className = '' }: { className?: string }) {
+/**
+ * One framed flower: bullets, badges, empty states, stamp frames. Size it with `className` (h-/w- classes), or
+ * `fill` to cover the positioned parent (behind an icon or a stamp).
+ */
+export function BatikMotif({ className = '', fill = false }: { className?: string; fill?: boolean }) {
   return (
     <svg
       aria-hidden="true"
       focusable="false"
       data-batik="motif"
       viewBox="3 3 42 42"
-      className={`inline-block h-[1em] w-[1em] shrink-0 text-ornament ${className}`}
+      className={`${fill ? 'absolute inset-0 h-full w-full' : 'inline-block shrink-0'} text-ornament ${className}`}
     >
       <path d={FRAME_D} fill="none" stroke="currentColor" strokeWidth={FRAME_STROKE} strokeLinejoin="round" />
       <path d={FLOWER_D} fill="currentColor" />
