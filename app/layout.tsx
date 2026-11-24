@@ -38,6 +38,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
+  // The single product domain (Phase 10); makes the Open Graph image URL absolute (app/opengraph-image.png, Phase 27).
+  metadataBase: new URL("https://nusantaralegacy.org"),
   title: SITE_NAME,
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
@@ -48,6 +50,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
     type: "website",
   },
+  twitter: { card: "summary_large_image", title: SITE_NAME, description: SITE_DESCRIPTION },
 };
 
 export default function RootLayout({

@@ -262,3 +262,72 @@
     color: var(--nl-brand-brown);
   }
 }
+
+/*
+ * Logotype (components/brand/Logotype.tsx): SITE_NAME in Cinzel Decorative, live text. The gradient (PDF: vertical,
+ * #D4621A at the top to #F4AE52 at the bottom) needs background-clip: text; without it the text stays solid amber.
+ */
+.nl-logotype {
+  font-family: var(--font-cinzel-decorative), Georgia, serif;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  display: inline-block;
+}
+.nl-logotype-dark { color: var(--nl-brand-brown); }
+.nl-logotype-light { color: #FFFFFF; }
+.nl-logotype-gradient,
+.dark .nl-logotype-auto { color: var(--nl-brand-amber); }
+.nl-logotype-auto { color: var(--nl-brand-brown); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .nl-logotype-gradient,
+  .dark .nl-logotype-auto {
+    background-image: linear-gradient(to bottom, var(--nl-brand-terracotta), var(--nl-brand-amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+@media (forced-colors: active) {
+  .nl-logotype { color: CanvasText !important; background: none !important; }
+}
+
+/*
+ * Batik ornaments (components/brand/Batik.tsx, geometry lib/brand/batik.ts). The tile below is batikTileDataUri()
+ * (tests/brand/batik.test.tsx keeps it equal); it is a MASK, so the colour is currentColor / --nl-ornament.
+ */
+.nl-batik-band {
+  display: block;
+  height: 30px;
+  color: var(--nl-ornament);
+  background-color: currentColor;
+  -webkit-mask: var(--nl-batik-tile) repeat-x center / 26px 26px, linear-gradient(#000 0 0) top / 100% 1.5px no-repeat,
+    linear-gradient(#000 0 0) bottom / 100% 1.5px no-repeat;
+  mask: var(--nl-batik-tile) repeat-x center / 26px 26px, linear-gradient(#000 0 0) top / 100% 1.5px no-repeat,
+    linear-gradient(#000 0 0) bottom / 100% 1.5px no-repeat;
+}
+
+/*
+ * Subtle background texture: the lattice at --nl-batik-texture-opacity (tested so text and text-muted keep AA on the
+ * darkest blend). Put it on a section; its children paint above it.
+ */
+:root {
+  --nl-batik-texture-opacity: 0.06;
+  --nl-batik-tile: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cpath%20d%3D%22M18%2C18C12%2C11%2019%2C8.5%2024%2C4C29%2C8.5%2036%2C11%2030%2C18C37%2C12%2039.5%2C19%2044%2C24C39.5%2C29%2037%2C36%2030%2C30C36%2C37%2029%2C39.5%2024%2C44C19%2C39.5%2012%2C37%2018%2C30C11%2C36%208.5%2C29%204%2C24C8.5%2C19%2011%2C12%2018%2C18Z%22%20fill%3D%22none%22%20stroke%3D%22%23000%22%20stroke-width%3D%222.4%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M24%2C21Q27.2%2C15.5%2024%2C10Q20.8%2C15.5%2024%2C21ZM27%2C24Q32.5%2C27.2%2038%2C24Q32.5%2C20.8%2027%2C24ZM24%2C27Q20.8%2C32.5%2024%2C38Q27.2%2C32.5%2024%2C27ZM21%2C24Q15.5%2C20.8%2010%2C24Q15.5%2C27.2%2021%2C24ZM21.8%2C24a2.2%2C2.2%200%201%200%204.4%2C0a2.2%2C2.2%200%201%200%20-4.4%2C0ZM2%2C2Q4.06%2C8.44%2010.5%2C10.5Q8.44%2C4.06%202%2C2ZM-2%2C2Q-8.44%2C4.06%20-10.5%2C10.5Q-4.06%2C8.44%20-2%2C2ZM-2%2C-2Q-4.06%2C-8.44%20-10.5%2C-10.5Q-8.44%2C-4.06%20-2%2C-2ZM2%2C-2Q8.44%2C-4.06%2010.5%2C-10.5Q4.06%2C-8.44%202%2C-2ZM-1.8%2C0a1.8%2C1.8%200%201%200%203.6%2C0a1.8%2C1.8%200%201%200%20-3.6%2C0ZM50%2C2Q52.06%2C8.44%2058.5%2C10.5Q56.44%2C4.06%2050%2C2ZM46%2C2Q39.56%2C4.06%2037.5%2C10.5Q43.94%2C8.44%2046%2C2ZM46%2C-2Q43.94%2C-8.44%2037.5%2C-10.5Q39.56%2C-4.06%2046%2C-2ZM50%2C-2Q56.44%2C-4.06%2058.5%2C-10.5Q52.06%2C-8.44%2050%2C-2ZM46.2%2C0a1.8%2C1.8%200%201%200%203.6%2C0a1.8%2C1.8%200%201%200%20-3.6%2C0ZM2%2C50Q4.06%2C56.44%2010.5%2C58.5Q8.44%2C52.06%202%2C50ZM-2%2C50Q-8.44%2C52.06%20-10.5%2C58.5Q-4.06%2C56.44%20-2%2C50ZM-2%2C46Q-4.06%2C39.56%20-10.5%2C37.5Q-8.44%2C43.94%20-2%2C46ZM2%2C46Q8.44%2C43.94%2010.5%2C37.5Q4.06%2C39.56%202%2C46ZM-1.8%2C48a1.8%2C1.8%200%201%200%203.6%2C0a1.8%2C1.8%200%201%200%20-3.6%2C0ZM50%2C50Q52.06%2C56.44%2058.5%2C58.5Q56.44%2C52.06%2050%2C50ZM46%2C50Q39.56%2C52.06%2037.5%2C58.5Q43.94%2C56.44%2046%2C50ZM46%2C46Q43.94%2C39.56%2037.5%2C37.5Q39.56%2C43.94%2046%2C46ZM50%2C46Q56.44%2C43.94%2058.5%2C37.5Q52.06%2C39.56%2050%2C46ZM46.2%2C48a1.8%2C1.8%200%201%200%203.6%2C0a1.8%2C1.8%200%201%200%20-3.6%2C0ZM22.5%2C0a1.5%2C1.5%200%201%200%203%2C0a1.5%2C1.5%200%201%200%20-3%2C0ZM-1.5%2C24a1.5%2C1.5%200%201%200%203%2C0a1.5%2C1.5%200%201%200%20-3%2C0ZM46.5%2C24a1.5%2C1.5%200%201%200%203%2C0a1.5%2C1.5%200%201%200%20-3%2C0ZM22.5%2C48a1.5%2C1.5%200%201%200%203%2C0a1.5%2C1.5%200%201%200%20-3%2C0Z%22%20fill%3D%22%23000%22%2F%3E%3C%2Fsvg%3E");
+}
+:root.dark { --nl-batik-texture-opacity: 0.07; }
+.nl-batik-texture { position: relative; isolation: isolate; }
+.nl-batik-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--nl-ornament);
+  opacity: var(--nl-batik-texture-opacity);
+  -webkit-mask: var(--nl-batik-tile) repeat 0 0 / 56px 56px;
+  mask: var(--nl-batik-tile) repeat 0 0 / 56px 56px;
+}
+@media (forced-colors: active) {
+  .nl-batik-band, .nl-batik-texture::before { display: none; }
+}
