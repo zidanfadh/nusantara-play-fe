@@ -123,5 +123,5 @@ describe('legend (Phase 28)', () => {
       'Dipilih: terangkat',
     ])
       expect(html).toContain(text);
-  });
+  }, 20_000); // imports the whole hub (slow under load)
 });

@@ -1,17 +1,30 @@
 'use client';
 
 /**
- * 2D hub map (tier 2d): the same shapes, colours and interactions as the 3D view, as an SVG.
- * Never imports three.js. Drag to pan, wheel or pinch to zoom (within limits). Clickable provinces
- * are keyboard-focusable buttons.
+ * 2D hub map (tier 2d): the same shapes, states and interactions as the 3D view, as an SVG. Never imports three.js.
+ * Drag to pan, wheel or pinch to zoom (within limits). Clickable provinces are keyboard-focusable buttons.
+ *
+ * Phase 28, the paper look in SVG: cream (or brown) paper with grain as a static CSS layer (never re-rasterised while
+ * panning), every island as a slab = a soft shadow, a darker brown edge offset downwards and the green top; low-poly
+ * mountains and volcanoes (the lite set); the same state cues as the 3D map (`provinceCues`): provinces that open a
+ * card stand taller, hover / selected lift the top (more edge shows) with an amber rim, enterable provinces carry a
+ * terracotta ★ flag. The whole archipelago is framed on load.
  */
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { initialFrame, shapesBounds, svgPath } from '@/lib/jelajah/geo';
-import { isClickable, maxProtCount, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
+import { shapesBounds, svgPath } from '@/lib/jelajah/geo';
+import { maxProtCount, provinceCues, shapeFill, type MapViewProps } from '@/lib/jelajah/map-model';
+import { NATURE_LITE, placeNature, type PlacedMountain } from '@/lib/jelajah/map-nature';
+import { mixHex, rgba, type MapPalette } from '@/lib/jelajah/palette';
+import { lowPolyShapes } from '@/lib/jelajah/paper-map';
 import { ENTERABLE_PROVINCES, markerLabel } from '@/lib/jelajah/provinces';
 
 const MAX_ZOOM = 8;
 const PAD = 1;
+/** Slab edge (drop) in map units: like the 3D slab heights seen at the 3D map's tilt. */
+const EDGE_RAISED = 0.28;
+const EDGE_MUTED = 0.17;
+/** The 2D lift is a little larger than the 3D one (no perspective to help). */
+const LIFT_SCALE = 1.2;
 
 interface View {
   x: number;
@@ -20,8 +33,28 @@ interface View {
   h: number;
 }
 
+/** Paper grain tile (inline SVG noise), drawn once by the browser as a CSS background. */
+const GRAIN =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0 0.22 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E\")";
+
+/** A low-poly mountain as SVG: a lit and a shaded half (two-tone faces), a crater on volcanoes. */
+function Mountain({ m, palette }: { m: PlacedMountain; palette: MapPalette }) {
+  const x = m.x;
+  const y = -m.y;
+  const r = m.radius;
+  const h = m.height * 0.75;
+  const top = m.volcano ? r * 0.3 : 0;
+  return (
+    <g>
+      <path d={`M${x - r} ${y}L${x - top} ${y - h}L${x + (m.volcano ? 0 : r * 0.12)} ${y - h}L${x + r * 0.1} ${y + r * 0.2}Z`} fill={palette.rockLight} />
+      <path d={`M${x + r * 0.1} ${y + r * 0.2}L${x + (m.volcano ? 0 : r * 0.12)} ${y - h}L${x + top} ${y - h}L${x + r} ${y}Z`} fill={palette.rockDark} />
+      {m.volcano && <path d={`M${x - top} ${y - h}L${x + top} ${y - h}L${x} ${y - h + r * 0.12}Z`} fill={palette.crater} />}
+    </g>
+  );
+}
+
 export default function Map2D({
-  shapes,
+  shapes: sourceShapes,
   summaryByKode,
   hoveredKode,
   selectedKode,
@@ -29,6 +62,9 @@ export default function Map2D({
   onHover,
   onSelect,
 }: MapViewProps) {
+  // The same low-poly outline as the 3D map (Phase 28); also lighter for weak devices.
+  const shapes = useMemo(() => lowPolyShapes(sourceShapes), [sourceShapes]);
+  const nature = useMemo(() => placeNature(shapes, NATURE_LITE), [shapes]);
   const bounds = useMemo(() => shapesBounds(shapes), [shapes]);
   const full: View = useMemo(
     () => ({
@@ -39,19 +75,11 @@ export default function Map2D({
     }),
     [bounds],
   );
+  // First view: the whole archipelago on every screen (Phase 28; before: the western part on portrait phones).
   const [view, setView] = useState<View | null>(null);
+  /** Keyboard focus (the lifted copy drawn on top must show the focus ring too). */
+  const [focusedKode, setFocusedKode] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  // First view: on portrait screens zoom to the western part (same rule as the 3D view).
-  useEffect(() => {
-    const rect = svgRef.current?.getBoundingClientRect();
-    if (!rect || rect.width === 0 || view) return;
-    const frame = initialFrame(bounds, rect.width / rect.height);
-    if (frame === bounds) return;
-    const w = frame.maxX - frame.minX + 2 * PAD;
-    // Reading the element size is only possible after mount.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setView({ x: frame.minX - PAD, y: -(bounds.minY + bounds.maxY) / 2 - ((w / full.w) * full.h) / 2, w, h: (w / full.w) * full.h });
-  }, [bounds, full, view]);
   const v = view ?? full;
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ moved: number; multi: boolean }>({ moved: 0, multi: false });
@@ -63,7 +91,8 @@ export default function Map2D({
     const shape = shapes.find((s) => s.kode === p.kode);
     return shape ? [{ kode: p.kode, shape }] : [];
   });
-  const strokeWidth = 0.06 * (v.w / full.w);
+  const zoom = v.w / full.w;
+  const strokeWidth = 0.05 * zoom;
 
   /** Keeps the view inside the map and the zoom within [1, MAX_ZOOM]. */
   const clampView = (next: View): View => {
@@ -145,15 +174,51 @@ export default function Map2D({
   /** A tap selects; a drag or pinch does not. */
   const isTap = () => !gesture.current.multi && gesture.current.moved <= 6;
 
-  const onKey = (kode: string) => (e: KeyboardEvent<SVGPathElement>) => {
+  const onKey = (kode: string) => (e: KeyboardEvent<SVGGElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onSelect(kode);
     }
   };
 
+  // Per province: its cues (height, lift, rim) and fill.
+  const items = shapes.map((shape, i) => {
+    const cues = provinceCues(shape.kode, summaryByKode, hoveredKode, selectedKode);
+    const fill = shapeFill(shape, summaryByKode, maxCount, palette, hoveredKode, selectedKode);
+    return { shape, i, cues, fill, edge: cues.raised ? EDGE_RAISED : EDGE_MUTED, lift: cues.lift * LIFT_SCALE };
+  });
+  const edgeColour = mixHex(palette.earthBottom, palette.earthTop, 0.35);
+
+  /** One slab top (with its mountains); a lifted one also shows more of its edge. */
+  const slab = ({ shape, i, cues, fill, edge, lift }: (typeof items)[number], copy = false) => (
+    <>
+      {lift > 0 && <path d={paths[i]} fill={edgeColour} transform={`translate(0 ${edge})`} />}
+      {lift > 0 && <path d={paths[i]} fill={palette.earthTop} transform={`translate(0 ${edge * 0.4 - lift})`} />}
+      <g transform={lift ? `translate(0 ${-lift})` : undefined}>
+        <path
+          d={paths[i]}
+          fill={fill}
+          stroke={copy && shape.kode === focusedKode ? 'var(--color-focus-ring)' : cues.rim ? palette.rim : palette.outline}
+          strokeOpacity={cues.rim ? 1 : 0.55}
+          strokeWidth={cues.rim ? strokeWidth * 2.6 : strokeWidth}
+          strokeLinejoin="round"
+          className={cues.raised ? 'group-focus-visible:stroke-[var(--color-focus-ring)]' : undefined}
+        />
+        {nature[i].mountains.map((m, n) => (
+          <Mountain key={n} m={m} palette={palette} />
+        ))}
+      </g>
+    </>
+  );
+
   return (
-    <div className="absolute inset-0" style={{ background: palette.paperEdge }}>
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundColor: palette.paperEdge,
+        backgroundImage: `${GRAIN}, radial-gradient(ellipse at 50% 50%, ${palette.paper} 35%, ${palette.paperEdge} 100%)`,
+      }}
+    >
       <svg
         ref={svgRef}
         viewBox={`${v.x} ${v.y} ${v.w} ${v.h}`}
@@ -168,59 +233,83 @@ export default function Map2D({
           if (e.target === svgRef.current && isTap()) onSelect(null);
         }}
       >
-        <rect x={full.x - 50} y={full.y - 50} width={full.w + 100} height={full.h + 100} fill={palette.paper} />
-        {shapes.map((shape, i) => {
-          const clickable = isClickable(shape.kode, summaryByKode);
-          const summary = shape.kode ? summaryByKode.get(shape.kode) : undefined;
-          const fill = shapeFill(shape, summaryByKode, maxCount, palette, hoveredKode, selectedKode);
-          if (!clickable) {
+        {/* Soft drop shadow (light from the upper left, as in 3D), then every slab's earth edge. */}
+        <g fill={rgba(palette.shadow, 0.22)} aria-hidden className="pointer-events-none">
+          {items.map(({ shape, i, edge }) => (
+            <path key={shape.name} d={paths[i]} transform={`translate(${edge * 0.9} ${edge * 1.6})`} />
+          ))}
+        </g>
+        {/* All earth edges first, so no edge covers a neighbour's top. */}
+        <g fill={edgeColour} aria-hidden className="pointer-events-none">
+          {items.map(({ shape, i, edge }) => (
+            <path key={shape.name} d={paths[i]} transform={`translate(0 ${edge})`} />
+          ))}
+        </g>
+        {/* The provinces in a STABLE order (reordering DOM nodes on hover would retarget a click to the <svg>). */}
+        {items.map((item) => {
+          const { shape, cues } = item;
+          const kode = shape.kode;
+          const summary = kode ? summaryByKode.get(kode) : undefined;
+          if (!cues.raised || !kode) {
             return (
-              <path key={shape.name} d={paths[i]} fill={fill} stroke={palette.outline} strokeWidth={strokeWidth} aria-hidden />
+              <g key={shape.name} aria-hidden className="pointer-events-none">
+                {slab(item)}
+              </g>
             );
           }
-          const kode = shape.kode as string;
           return (
-            <path
+            <g
               key={shape.name}
-              d={paths[i]}
-              fill={fill}
-              stroke={palette.outline}
-              strokeWidth={strokeWidth}
               role="button"
               tabIndex={0}
               aria-label={`${summary?.nama ?? shape.name}: ${summary?.protCount ?? 0} PROT`}
               aria-pressed={selectedKode === kode}
-              className="cursor-pointer outline-none focus-visible:stroke-[var(--color-ring)]"
+              className="group cursor-pointer outline-none"
               onPointerEnter={(e) => e.pointerType === 'mouse' && onHover(kode)}
               onPointerLeave={(e) => e.pointerType === 'mouse' && onHover(null)}
               onClick={() => isTap() && onSelect(kode)}
               onKeyDown={onKey(kode)}
-              onFocus={() => onHover(kode)}
-              onBlur={() => onHover(null)}
-            />
+              onFocus={(e) => {
+                if (e.currentTarget.matches(':focus-visible')) setFocusedKode(kode);
+                onHover(kode);
+              }}
+              onBlur={() => {
+                setFocusedKode(null);
+                onHover(null);
+              }}
+            >
+              {slab(item)}
+            </g>
           );
         })}
-        {markers.map(({ kode, shape }) => (
-          <g
-            key={kode}
-            transform={`translate(${shape.anchor[0]} ${-shape.anchor[1]}) scale(${v.w / full.w})`}
-            className="pointer-events-none"
-            aria-hidden
-          >
-            <rect x={-2.1} y={-2.6} width={4.2} height={1.6} rx={0.8} fill="var(--color-primary)" />
-            <text
-              x={0}
-              y={-1.45}
-              textAnchor="middle"
-              fontSize={1}
-              fontWeight={700}
-              fill="var(--color-primary-foreground)"
+        {/* Lifted provinces drawn again on top of their neighbours (decorative copy; the button above stays). */}
+        {items
+          .filter((item) => item.lift > 0)
+          .map((item) => (
+            <g key={`lifted-${item.shape.name}`} aria-hidden className="pointer-events-none">
+              {slab(item, true)}
+            </g>
+          ))}
+        {markers.map(({ kode, shape }) => {
+          const lift = items.find((it) => it.shape === shape)?.lift ?? 0;
+          // A terracotta flag on a pole (as on the 3D map): #B4500F with cream text, cream border.
+          return (
+            <g
+              key={kode}
+              transform={`translate(${shape.anchor[0]} ${-shape.anchor[1] - lift}) scale(${zoom * 0.8})`}
+              className="pointer-events-none"
+              aria-hidden
+              data-marker2d={kode}
             >
-              {markerLabel(kode)}
-            </text>
-            <circle r={0.35} fill="var(--color-primary)" stroke="var(--color-background)" strokeWidth={0.12} />
-          </g>
-        ))}
+              <rect x={-0.04} y={-1.75} width={0.08} height={1.75} fill={palette.earthTop} />
+              <circle r={0.14} fill={palette.earthTop} />
+              <rect x={0} y={-2.65} width={3.7} height={1.05} rx={0.22} fill="#B4500F" stroke="#FEF3E2" strokeWidth={0.1} />
+              <text x={1.85} y={-1.84} textAnchor="middle" fontSize={0.66} fontWeight={700} fill="#FEF3E2">
+                {markerLabel(kode)}
+              </text>
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
