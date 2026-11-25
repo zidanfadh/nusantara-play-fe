@@ -36,6 +36,38 @@ export function mapTransformAttr(layout: ConceptLayout) {
   return `translate(${r.x} ${r.y}) scale(${mapScale(layout)})`;
 }
 
+/** Island thickness of the paper look in map units of the film's map (about 0.28 degrees, like the Jelajah map). */
+export const ISLAND_EDGE = 6;
+
+/**
+ * Phase 28: the provinces as low-poly "paper" islands, like the Jelajah map: an earth edge offset downwards, then the
+ * tops. Static (painted once); stroke widths in map units.
+ */
+export function PaperIslands({
+  fill,
+  edge,
+  seam,
+  depth = ISLAND_EDGE,
+  strokeWidth = 1,
+}: {
+  fill: string;
+  edge: string;
+  seam: string;
+  depth?: number;
+  strokeWidth?: number;
+}) {
+  return (
+    <>
+      <g fill={edge} transform={`translate(0 ${depth})`}>
+        {CONCEPT_PROVINCE_PATHS.map((p) => (
+          <path key={p.kode} d={p.d} />
+        ))}
+      </g>
+      <ProvincePaths fill={fill} stroke={seam} strokeWidth={strokeWidth} />
+    </>
+  );
+}
+
 /** All provinces as plain paths (static layer). Stroke widths are in map units, so they scale with the map. */
 export function ProvincePaths({ fill, stroke, strokeWidth }: { fill: string; stroke: string; strokeWidth: number }) {
   return (

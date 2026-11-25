@@ -5,7 +5,7 @@ import { GraduationCap, Presentation, Users } from 'lucide-react';
 import { seededRandom } from '@/lib/jelajah/concept/particles';
 import { BEATS, CONCEPT_SCENES, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeInOutCubic, easeOutBack, easeOutCubic, lerp, seg } from '@/lib/jelajah/concept/timeline';
-import { CONCEPT_PROVINCE_PATHS, mapCenter, mapTransformAttr, ProvincePaths } from '../art/MapArt';
+import { CONCEPT_PROVINCE_PATHS, mapCenter, mapTransformAttr, PaperIslands } from '../art/MapArt';
 import { BLEED, cameraCss, LIVE, Stage, useAttrs, useDerived, useStyle, type SceneProps } from '../scene-kit';
 
 const SCENE = CONCEPT_SCENES.find((s) => s.id === 'bersama')!;
@@ -70,7 +70,8 @@ export function BersamaScene({ lt, layout, still }: SceneProps) {
       <div ref={camera} className="absolute inset-0" style={LIVE}>
         <Stage layout={layout}>
           <g transform={mapTransformAttr(layout)}>
-            <ProvincePaths fill="#4A3524" stroke="#8A6A4A" strokeWidth={1.2} />
+            {/* Phase 28: the paper map's islands, dimmed for the night scene. */}
+            <PaperIslands fill="#4E7536" edge="#6B4B31" seam="#3A5A28" strokeWidth={1.2} />
           </g>
         </Stage>
         <Stage layout={layout} live>

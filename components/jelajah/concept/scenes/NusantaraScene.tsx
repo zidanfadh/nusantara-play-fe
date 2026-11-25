@@ -5,7 +5,7 @@ import type { RefObject } from 'react';
 import type { ConceptLayout } from '@/lib/jelajah/concept/layout';
 import { BEATS, CONCEPT_TEXT } from '@/lib/jelajah/concept/script';
 import { easeOutCubic, seg } from '@/lib/jelajah/concept/timeline';
-import { CONCEPT_MAP_VIEW, CONCEPT_PROVINCE_PATHS, mapToStage, mapTransformAttr } from '../art/MapArt';
+import { CONCEPT_MAP_VIEW, CONCEPT_PROVINCE_PATHS, mapToStage, mapTransformAttr, PaperIslands } from '../art/MapArt';
 import { LIVE, LIVE_OPACITY, Stage, stageToScreen, useStyle, type SceneProps } from '../scene-kit';
 
 const NIGHT = '#2A1A0E';
@@ -92,7 +92,10 @@ export function NusantaraScene({ lt, layout, still, canvas }: SceneProps) {
   );
 }
 
-/** Every province lit: a wide amber glow, a gold gradient fill and the kawung texture (painted once). */
+/**
+ * Every province lit (Phase 28: the Jelajah paper map's look): a wide amber glow, then green islands on their
+ * earth-brown edge with light seams. Painted once; the wipe reveals it.
+ */
 function LitMap({ layout }: { layout: ConceptLayout }) {
   return (
     <Stage layout={layout}>
@@ -102,12 +105,7 @@ function LitMap({ layout }: { layout: ConceptLayout }) {
             <path key={p.kode} d={p.d} />
           ))}
         </g>
-        {CONCEPT_PROVINCE_PATHS.map((p) => (
-          <g key={p.kode}>
-            <path d={p.d} fill="url(#cv-glow-fill)" stroke="#FFE6A8" strokeWidth={1.2} />
-            <path d={p.d} fill="url(#cv-kawung-brown)" />
-          </g>
-        ))}
+        <PaperIslands fill="url(#cv-island-fill)" edge="#7A5236" seam="#DCE8B0" strokeWidth={1} />
       </g>
     </Stage>
   );
