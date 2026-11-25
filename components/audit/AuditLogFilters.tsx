@@ -80,7 +80,7 @@ export function AuditLogFilters({
               value={filters.user_id || ''}
               onChange={(e) => handleFilterChange('user_id', e.target.value)}
               placeholder="UUID User"
-              className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
+              className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
           </div>
         )}
@@ -95,7 +95,7 @@ export function AuditLogFilters({
                 id="entity_type"
                 value={filters.entity_type || ''}
                 onChange={(e) => handleFilterChange('entity_type', e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
               >
                 <option value="">Semua</option>
                 {entityTypes.map((type) => (
@@ -116,7 +116,7 @@ export function AuditLogFilters({
                 value={filters.entity_id || ''}
                 onChange={(e) => handleFilterChange('entity_id', e.target.value)}
                 placeholder="UUID Entity"
-                className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
               />
             </div>
           </>
@@ -130,7 +130,7 @@ export function AuditLogFilters({
             id="action"
             value={filters.action || ''}
             onChange={(e) => handleFilterChange('action', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
+            className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             <option value="">Semua</option>
             {actions.map((action) => (
@@ -149,7 +149,7 @@ export function AuditLogFilters({
             id="limit"
             value={filters.limit || 20}
             onChange={(e) => handleFilterChange('limit', parseInt(e.target.value))}
-            className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
+            className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-focus-ring"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>

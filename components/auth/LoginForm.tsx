@@ -66,7 +66,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
   return (
     <div className="space-y-6 w-full max-w-sm">
       <div className="text-center sm:text-left">
-        <h2 className="text-2xl font-bold text-foreground">Masuk</h2>
+        <h1 className="text-2xl font-bold text-foreground">Masuk</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Selamat datang kembali di {SITE_NAME}
         </p>
@@ -80,7 +80,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
         </div>
       )}
 
-      <SocialAuthButtons redirectTo={redirectTo} />
+      <SocialAuthButtons redirectTo={redirectTo} label="Masuk dengan Google" />
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">

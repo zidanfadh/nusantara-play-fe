@@ -54,20 +54,21 @@ export function EventFilter({ onFilterChange, showStatusFilter = false }: EventF
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Nama event..."
-              className="w-full bg-white dark:bg-muted border-b-2 border-border/20 focus:border-primary px-10 py-3 rounded-t-lg outline-none transition-all placeholder:text-muted-foreground"
+              className="w-full bg-white dark:bg-muted border-b-2 border-input focus:border-primary px-10 py-3 rounded-t-lg outline-none transition-all placeholder:text-muted-foreground"
             />
           </div>
         </div>
 
         {/* Jenis */}
         <div>
-          <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+          <label htmlFor="event-filter-jenis" className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
             Jenis Event
           </label>
           <select
+            id="event-filter-jenis"
             value={jenis}
             onChange={(e) => handleJenisChange(e.target.value as EventJenis | '')}
-            className="w-full bg-white dark:bg-muted border-b-2 border-border/20 focus:border-primary px-4 py-3 rounded-t-lg outline-none appearance-none transition-all cursor-pointer text-foreground"
+            className="w-full bg-white dark:bg-muted border-b-2 border-input focus:border-primary px-4 py-3 rounded-t-lg outline-none appearance-none transition-all cursor-pointer text-foreground"
           >
             <option value="">Semua Jenis</option>
             {Object.entries(EVENT_JENIS_LABELS).map(([key, label]) => (
@@ -81,13 +82,14 @@ export function EventFilter({ onFilterChange, showStatusFilter = false }: EventF
         {/* Status (optional) */}
         {showStatusFilter && (
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+            <label htmlFor="event-filter-status" className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
               Status
             </label>
             <select
+              id="event-filter-status"
               value={status}
               onChange={(e) => handleStatusChange(e.target.value as EventStatus | '')}
-              className="w-full bg-white dark:bg-muted border-b-2 border-border/20 focus:border-primary px-4 py-3 rounded-t-lg outline-none appearance-none transition-all cursor-pointer text-foreground"
+              className="w-full bg-white dark:bg-muted border-b-2 border-input focus:border-primary px-4 py-3 rounded-t-lg outline-none appearance-none transition-all cursor-pointer text-foreground"
             >
               <option value="">Semua Status</option>
               {Object.entries(EVENT_STATUS_LABELS).map(([key, label]) => (

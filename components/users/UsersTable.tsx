@@ -272,7 +272,7 @@ export function UsersTable({
                                                                             e.target.value as UserRole
                                                                         )
                                                                     }
-                                                                    className="px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                    className="px-3 py-2 text-gray-700 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 >
                                                                     <option value="publik">Publik</option>
                                                                     <option value="pakar">Pakar</option>
@@ -321,7 +321,7 @@ export function UsersTable({
                                                                             e.target.value as UserStatus
                                                                         )
                                                                     }
-                                                                    className="px-3 py-2 text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                    className="px-3 py-2 text-gray-700 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 >
                                                                     <option value="active">Aktif</option>
                                                                     <option value="inactive">Tidak Aktif</option>

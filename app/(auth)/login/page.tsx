@@ -11,7 +11,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
   const params = await searchParams;
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-6">Sign In</h1>
       <LoginForm
         redirectTo={safeRedirectPath(first(params.redirectTo))}
         reason={parseLoginReason(first(params.reason))}

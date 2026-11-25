@@ -79,15 +79,15 @@ export default function AdminKategoriPage() {
           <h2 className="text-lg font-semibold">{editingId ? 'Edit Kategori' : 'Tambah Kategori Baru'}</h2>
           <div>
             <label className="block text-sm font-medium text-foreground/80">Nama *</label>
-            <input type="text" value={formData.nama} onChange={(e) => handleNamaChange(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground/80 sm:text-sm" required />
+            <input type="text" value={formData.nama} onChange={(e) => handleNamaChange(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground/80 sm:text-sm" required />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground/80">Slug *</label>
-            <input type="text" value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground/80 sm:text-sm" required />
+            <input type="text" value={formData.slug} onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground/80 sm:text-sm" required />
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground/80">Deskripsi</label>
-            <textarea value={formData.deskripsi || ''} onChange={(e) => setFormData((p) => ({ ...p, deskripsi: e.target.value }))} rows={2} className="mt-1 block w-full px-3 py-2 border border-border rounded-md bg-input text-foreground/80 sm:text-sm" />
+            <textarea value={formData.deskripsi || ''} onChange={(e) => setFormData((p) => ({ ...p, deskripsi: e.target.value }))} rows={2} className="mt-1 block w-full px-3 py-2 border border-input rounded-md bg-background text-foreground/80 sm:text-sm" />
           </div>
           {formError && <p className="text-sm text-red-600">{formError}</p>}
           <div className="flex space-x-3">

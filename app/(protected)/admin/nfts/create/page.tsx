@@ -118,7 +118,7 @@ export default function CreateNftPage() {
                   onChange={handleChange}
                   placeholder="Contoh: Gasing Heritage NFT"
                   max={200}
-                  className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
               </div>
               <div className="space-y-2">
@@ -130,7 +130,7 @@ export default function CreateNftPage() {
                   onChange={handleChange}
                   placeholder="gasing-heritage-nft"
                   pattern="^[a-z0-9-]+$"
-                  className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-muted/30 font-mono"
+                  className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none bg-muted/30 font-mono"
                 />
                 <p className="text-xs text-muted-foreground">Huruf kecil, angka, dan tanda hubung saja.</p>
               </div>
@@ -143,7 +143,7 @@ export default function CreateNftPage() {
                 value={formData.deskripsi}
                 onChange={handleChange}
                 placeholder="Ringkasan pendek NFT ini..."
-                className="w-full border rounded-md p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-h-[80px] resize-y"
+                className="w-full border border-input rounded-md p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-h-[80px] resize-y"
               />
             </div>
 
@@ -154,7 +154,7 @@ export default function CreateNftPage() {
                 value={formData.about}
                 onChange={handleChange}
                 placeholder="Penjelasan lebih panjang dan mendalam tentang representasi digital ini..."
-                className="w-full border rounded-md p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-h-[140px] resize-y"
+                className="w-full border border-input rounded-md p-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-h-[140px] resize-y"
               />
             </div>
           </section>
@@ -204,7 +204,7 @@ export default function CreateNftPage() {
                   value={formData.blockchain_network}
                   onChange={handleChange}
                   placeholder="e.g. ethereum, polygon"
-                  className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
               </div>
               <div className="space-y-2">
@@ -215,7 +215,7 @@ export default function CreateNftPage() {
                   value={formData.contract_address}
                   onChange={handleChange}
                   placeholder="0x..."
-                  className="w-full border rounded-md h-10 px-3 font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full border border-input rounded-md h-10 px-3 font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
               </div>
               <div className="space-y-2">
@@ -226,7 +226,7 @@ export default function CreateNftPage() {
                   value={formData.token_id}
                   onChange={handleChange}
                   placeholder="1"
-                  className="w-full border rounded-md h-10 px-3 font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full border border-input rounded-md h-10 px-3 font-mono text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
               </div>
               <div className="space-y-2">
@@ -236,7 +236,7 @@ export default function CreateNftPage() {
                   value={formData.token_standard}
                   onChange={handleChange}
                   placeholder="e.g. ERC721"
-                  className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
@@ -247,7 +247,7 @@ export default function CreateNftPage() {
                   value={formData.metadata_uri}
                   onChange={handleChange}
                   placeholder="https://..."
-                  className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
               </div>
             </div>
@@ -264,7 +264,7 @@ export default function CreateNftPage() {
                     value={formData.marketplace_name}
                     onChange={handleChange}
                     placeholder="e.g. OpenSea, Blur"
-                    className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -275,7 +275,7 @@ export default function CreateNftPage() {
                     value={formData.marketplace_url}
                     onChange={handleChange}
                     placeholder="https://..."
-                    className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
@@ -286,7 +286,7 @@ export default function CreateNftPage() {
                     value={formData.external_url}
                     onChange={handleChange}
                     placeholder="https://..."
-                    className="w-full border rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    className="w-full border border-input rounded-md h-10 px-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                   />
                 </div>
              </div>

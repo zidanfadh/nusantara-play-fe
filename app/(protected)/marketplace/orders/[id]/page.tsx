@@ -136,11 +136,11 @@ export default function OrderDetailPage() {
             <h3 className="text-sm font-semibold text-foreground/80">Informasi Pengiriman</h3>
             <div>
               <label className="block text-sm font-medium text-foreground/80">Kurir</label>
-              <input type="text" value={kirimData.kurir_pengiriman} onChange={(e) => setKirimData((p) => ({ ...p, kurir_pengiriman: e.target.value }))} placeholder="JNE, JNT, SiCepat, dll" className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm" />
+              <input type="text" value={kirimData.kurir_pengiriman} onChange={(e) => setKirimData((p) => ({ ...p, kurir_pengiriman: e.target.value }))} placeholder="JNE, JNT, SiCepat, dll" className="mt-1 block w-full px-3 py-2 border border-input rounded-md text-foreground/80 sm:text-sm" />
             </div>
             <div>
               <label className="block text-sm font-medium text-foreground/80">Nomor Resi</label>
-              <input type="text" value={kirimData.nomor_resi} onChange={(e) => setKirimData((p) => ({ ...p, nomor_resi: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm" />
+              <input type="text" value={kirimData.nomor_resi} onChange={(e) => setKirimData((p) => ({ ...p, nomor_resi: e.target.value }))} className="mt-1 block w-full px-3 py-2 border border-input rounded-md text-foreground/80 sm:text-sm" />
             </div>
             <div className="flex space-x-2">
               <button onClick={handleKirim} disabled={actionLoading || !kirimData.kurir_pengiriman || !kirimData.nomor_resi} className="px-4 py-2 bg-purple-600 text-white rounded-md text-sm font-medium hover:bg-purple-700 disabled:opacity-50">

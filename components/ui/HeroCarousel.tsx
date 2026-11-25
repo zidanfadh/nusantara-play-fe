@@ -126,19 +126,23 @@ export function HeroCarousel() {
 
       {canScrollLeft && (
         <button
+          type="button"
           onClick={() => scroll("left")}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center text-foreground hover:bg-background transition-colors opacity-0 group-hover:opacity-100 shadow-xl"
+          aria-label="Slide sebelumnya"
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center text-foreground hover:bg-background transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 shadow-xl"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-6 h-6" aria-hidden />
         </button>
       )}
 
       {canScrollRight && (
         <button
+          type="button"
           onClick={() => scroll("right")}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center text-foreground hover:bg-background transition-colors opacity-0 group-hover:opacity-100 shadow-xl"
+          aria-label="Slide berikutnya"
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center text-foreground hover:bg-background transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100 shadow-xl"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-6 h-6" aria-hidden />
         </button>
       )}
 
@@ -146,6 +150,9 @@ export function HeroCarousel() {
         {images.map((_, idx) => (
           <button
             key={idx}
+            type="button"
+            aria-label={`Tampilkan slide ${idx + 1}`}
+            aria-current={idx === (canScrollLeft ? 1 : 0) ? 'true' : undefined}
             className={`w-2 h-2 rounded-full transition-all ${
               idx === (canScrollLeft ? 1 : 0)
                 ? "bg-primary w-4"

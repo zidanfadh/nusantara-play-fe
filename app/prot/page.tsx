@@ -269,11 +269,12 @@ export default function ProtModulePage() {
             </div>
 
              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Per halaman:</span>
+                <label htmlFor="prot-per-page" className="text-sm text-muted-foreground">Per halaman:</label>
                 <select
+                    id="prot-per-page"
                     value={filters.limit}
                     onChange={(e) => setFilters(prev => ({ ...prev, limit: Number(e.target.value), page: 1 }))}
-                    className="px-2 py-1 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="px-2 py-1 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="12">12</option>
                   <option value="24">24</option>

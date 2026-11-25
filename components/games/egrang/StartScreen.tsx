@@ -66,26 +66,27 @@ export function StartScreen({ settings, onSettings, onStart, onRules, onAbout, b
           </div>
         </fieldset>
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+        {/* Phase 28: "Mulai main" on its own row, the two others side by side; labels never wrap. */}
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
           <button
             type="button"
             onClick={onStart}
             data-testid="egrang-mulai"
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-base font-bold text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus-visible:ring-4 focus-visible:ring-ring"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary px-5 py-2.5 text-base font-bold sm:col-span-2 text-primary-foreground shadow transition-colors hover:bg-primary/90 focus:outline-none focus-visible:ring-4 focus-visible:ring-ring"
           >
             <Play className="h-5 w-5" aria-hidden /> {UI.start}
           </button>
           <button
             type="button"
             onClick={onRules}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <BookOpen className="h-4 w-4" aria-hidden /> {UI.rules}
           </button>
           <button
             type="button"
             onClick={onAbout}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             data-testid="egrang-about-open"
           >
             <Info className="h-4 w-4" aria-hidden /> {UI.about}

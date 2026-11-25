@@ -101,7 +101,7 @@ export default function DaerahPage() {
               id="level"
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value as DaerahLevel | '')}
-              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+              className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
             >
               <option value="">Semua Level</option>
               <option value="provinsi">Provinsi</option>
@@ -120,7 +120,7 @@ export default function DaerahPage() {
               value={selectedProvince}
               onChange={(e) => setSelectedProvince(e.target.value)}
               placeholder="Nama provinsi"
-              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+              className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
             />
           </div>
 

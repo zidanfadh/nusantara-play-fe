@@ -41,7 +41,7 @@ export function ProdukFilter({ onFilterChange }: ProdukFilterProps) {
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Cari produk kerajinan..."
-          className="w-full pl-12 pr-4 py-4 bg-white rounded-xl border-none focus:ring-1 focus:ring-focus-ring/20 text-stone-700 placeholder-stone-400"
+          className="w-full pl-12 pr-4 py-4 bg-white rounded-xl border border-input focus:ring-1 focus:ring-focus-ring/20 text-stone-700 placeholder-stone-400"
         />
       </div>
 
@@ -50,7 +50,7 @@ export function ProdukFilter({ onFilterChange }: ProdukFilterProps) {
           <select
             value={kategoriId}
             onChange={(e) => handleKategoriChange(e.target.value)}
-            className="w-full px-4 py-4 bg-white rounded-xl border-none focus:ring-1 focus:ring-focus-ring/20 text-stone-500 text-sm font-medium pr-10 appearance-auto"
+            className="w-full px-4 py-4 bg-white rounded-xl border border-input focus:ring-1 focus:ring-focus-ring/20 text-stone-500 text-sm font-medium pr-10 appearance-auto"
           >
             <option value="">Semua Kategori</option>
             {kategoriList.map((k) => (

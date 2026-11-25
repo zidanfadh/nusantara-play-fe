@@ -338,7 +338,7 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
   };
 
   // Shared input class
-  const inputCls = 'w-full bg-surface-container-highest dark:bg-warm-field border-0 border-b-2 border-outline-variant/50 dark:border-white/10 focus:border-primary focus:outline-none px-4 py-3 rounded-t-lg transition-all placeholder:text-warm-label/50 dark:text-foreground';
+  const inputCls = 'w-full bg-surface-container-highest dark:bg-warm-field border-0 border-b-2 border-input focus:border-primary focus:outline-none px-4 py-3 rounded-t-lg transition-all placeholder:text-warm-label/50 dark:text-foreground';
   const labelCls = 'text-[10px] font-bold uppercase tracking-widest text-warm-label block mb-2';
   const cardCls = 'md:col-span-8 bg-warm-card p-8 rounded-xl shadow-sm space-y-6';
   const sectionLabelCls = 'text-[10px] font-bold uppercase tracking-[0.2em] text-primary-text block mb-2';
@@ -383,10 +383,11 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Jenis */}
             <div>
-              <label className={labelCls}>
+              <label htmlFor="prot-jenis" className={labelCls}>
                 Jenis <span className="text-red-500">*</span>
               </label>
               <select
+                id="prot-jenis"
                 name="jenis"
                 required
                 value={formData.jenis || PROTJenis.PERMAINAN_RAKYAT}
@@ -400,10 +401,11 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
 
             {/* Target Usia */}
             <div>
-              <label className={labelCls}>
+              <label htmlFor="prot-target-usia" className={labelCls}>
                 Target Usia <span className="text-red-500">*</span>
               </label>
               <select
+                id="prot-target-usia"
                 name="targetUsia"
                 required
                 value={formData.targetUsia || TargetUsia.SEMUA_USIA}
@@ -458,18 +460,21 @@ export function ProtForm({ initialData, onSubmit, isLoading, title, provinceFilt
           </p>
         </div>
         <div className={cardCls}>
-          <p className="text-xs text-warm-label -mb-2">
-            Provinsi dan kabupaten/kota
-            <JelajahBadge />
-          </p>
-          <DaerahSelector
-            provinceValue={provinsiId}
-            kabupatenKotaValue={kabkotaId}
-            onProvinceChange={handleProvinceChange}
-            onKabupatenKotaChange={handleKabupatenKotaChange}
-            required
-            provinceFilterKodes={provinceFilterKodes}
-          />
+          {/* Phase 28 (Cleanup list): the hint sits in its own row above the selects; it used to overlap "PROVINSI". */}
+          <div className="space-y-3">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-warm-label">
+              Provinsi dan kabupaten/kota
+              <JelajahBadge />
+            </p>
+            <DaerahSelector
+              provinceValue={provinsiId}
+              kabupatenKotaValue={kabkotaId}
+              onProvinceChange={handleProvinceChange}
+              onKabupatenKotaChange={handleKabupatenKotaChange}
+              required
+              provinceFilterKodes={provinceFilterKodes}
+            />
+          </div>
 
           {/* Detail Lokasi Spesifik */}
           <div>

@@ -77,7 +77,7 @@ export function CheckoutForm({ produk, onClose }: CheckoutFormProps) {
               max={produk.stok}
               value={qty}
               onChange={(e) => setQty(Math.max(1, Math.min(produk.stok, Number(e.target.value))))}
-              className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-input rounded-md text-foreground/80 sm:text-sm"
             />
           </div>
 
@@ -93,7 +93,7 @@ export function CheckoutForm({ produk, onClose }: CheckoutFormProps) {
                 type="text"
                 value={address[field as keyof ShippingAddress] || ''}
                 onChange={(e) => handleAddressChange(field as keyof ShippingAddress, e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-input rounded-md text-foreground/80 sm:text-sm"
                 required={field !== 'kode_pos'}
               />
             </div>
@@ -106,7 +106,7 @@ export function CheckoutForm({ produk, onClose }: CheckoutFormProps) {
               value={catatan}
               onChange={(e) => setCatatan(e.target.value)}
               rows={2}
-              className="mt-1 block w-full px-3 py-2 border border-border rounded-md text-foreground/80 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border border-input rounded-md text-foreground/80 sm:text-sm"
             />
           </div>
 

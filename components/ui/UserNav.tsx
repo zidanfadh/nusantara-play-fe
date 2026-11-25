@@ -42,10 +42,13 @@ export function UserNav() {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Menu akun"
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
           className="flex items-center gap-2 focus:outline-none group"
         >
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center border border-border group-hover:border-primary/50 transition-colors">
-            <User className="w-4 h-4 text-foreground/70" />
+            <User className="w-4 h-4 text-foreground/70" aria-hidden />
           </div>
           <span className="hidden sm:inline text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
             Guest
@@ -81,13 +84,16 @@ export function UserNav() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label={`Menu akun ${user?.full_name || user?.email || ''}`.trim()}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         className="flex items-center gap-2 focus:outline-none group"
       >
         <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center overflow-hidden border border-border group-hover:border-primary/50 transition-colors">
           {user?.avatar_url ? (
-            <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+            <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <User className="w-4 h-4 text-foreground/70" />
+            <User className="w-4 h-4 text-foreground/70" aria-hidden />
           )}
         </div>
         <span className="hidden sm:inline text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors max-w-[100px] truncate">
