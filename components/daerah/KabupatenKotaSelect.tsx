@@ -80,7 +80,7 @@ export function KabupatenKotaSelect({
         onChange={handleChange}
         disabled={isDisabled}
         className={`w-full bg-surface-container-highest dark:bg-warm-field border-0 border-b-2 focus:outline-none px-4 py-3 rounded-t-lg transition-all appearance-none text-foreground dark:text-foreground disabled:opacity-50 disabled:cursor-not-allowed ${
-          error ? 'border-red-500' : 'border-outline-variant/50 dark:border-white/10 focus:border-primary'
+          error ? 'border-red-500' : 'border-input focus:border-primary'
         } ${className}`}
         required={required}
       >

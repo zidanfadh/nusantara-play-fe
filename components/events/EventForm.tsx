@@ -114,7 +114,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               onChange={handleChange}
               placeholder="Contoh: Festival Gasing Nusantara"
               className={`bg-transparent border-t-0 border-x-0 border-b px-0 py-3 text-lg focus:ring-0 placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors ${
-                errors.nama ? 'border-red-500 focus:border-red-500' : 'border-border/40 dark:border-border focus:border-primary'
+                errors.nama ? 'border-red-500 focus:border-red-500' : 'border-input focus:border-primary'
               }`}
             />
             {errors.nama && <p className="text-sm text-danger">{errors.nama}</p>}
@@ -129,7 +129,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               name="jenis"
               value={formData.jenis}
               onChange={handleChange}
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary appearance-none transition-colors cursor-pointer text-foreground [&>option]:bg-white dark:[&>option]:bg-background"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary appearance-none transition-colors cursor-pointer text-foreground [&>option]:bg-white dark:[&>option]:bg-background"
             >
               {Object.entries(EVENT_JENIS_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>
@@ -150,7 +150,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.tanggal_mulai}
               onChange={handleChange}
               className={`bg-transparent border-t-0 border-x-0 border-b px-0 py-3 text-lg focus:ring-0 transition-colors text-foreground dark:text-foreground dark:[color-scheme:dark] ${
-                errors.tanggal_mulai ? 'border-red-500 focus:border-red-500' : 'border-border/40 dark:border-border focus:border-primary'
+                errors.tanggal_mulai ? 'border-red-500 focus:border-red-500' : 'border-input focus:border-primary'
               }`}
             />
             {errors.tanggal_mulai && <p className="text-sm text-danger">{errors.tanggal_mulai}</p>}
@@ -167,7 +167,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.tanggal_selesai}
               onChange={handleChange}
               className={`bg-transparent border-t-0 border-x-0 border-b px-0 py-3 text-lg focus:ring-0 transition-colors text-foreground dark:text-foreground dark:[color-scheme:dark] ${
-                errors.tanggal_selesai ? 'border-red-500 focus:border-red-500' : 'border-border/40 dark:border-border focus:border-primary'
+                errors.tanggal_selesai ? 'border-red-500 focus:border-red-500' : 'border-input focus:border-primary'
               }`}
             />
             {errors.tanggal_selesai && <p className="text-sm text-danger">{errors.tanggal_selesai}</p>}
@@ -194,7 +194,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               onChange={handleChange}
               placeholder="Nama gedung, lapangan, atau area"
               className={`bg-transparent border-t-0 border-x-0 border-b px-0 py-3 text-lg focus:ring-0 placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors ${
-                errors.lokasi ? 'border-red-500 focus:border-red-500' : 'border-border/40 dark:border-border focus:border-primary'
+                errors.lokasi ? 'border-red-500 focus:border-red-500' : 'border-input focus:border-primary'
               }`}
             />
             {errors.lokasi && <p className="text-sm text-danger">{errors.lokasi}</p>}
@@ -236,7 +236,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.kuota_peserta || ''}
               onChange={handleChange}
               placeholder="0 (Opsional)"
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
             />
           </div>
           
@@ -253,7 +253,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.latitude || ''}
               onChange={handleChange}
               placeholder="(Opsional)"
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -268,7 +268,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.longitude || ''}
               onChange={handleChange}
               placeholder="(Opsional)"
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
             />
           </div>
         </div>
@@ -292,7 +292,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.deskripsi}
               onChange={handleChange}
               placeholder="Ceritakan keunikan event Anda..."
-              className={`bg-card dark:bg-card border-none rounded-xl p-4 text-lg focus:ring-2 focus:ring-focus-ring/20 dark:focus:ring-focus-ring/20 placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-shadow ${
+              className={`bg-card dark:bg-card border border-input rounded-xl p-4 text-lg focus:ring-2 focus:ring-focus-ring/20 dark:focus:ring-focus-ring/20 placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-shadow ${
                 errors.deskripsi ? 'ring-2 ring-red-500/50' : ''
               }`}
             />
@@ -310,7 +310,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.persyaratan || ''}
               onChange={handleChange}
               placeholder="Apa yang perlu dibawa atau disiapkan peserta?"
-              className="bg-card border-none rounded-xl p-4 text-lg focus:ring-2 focus:ring-focus-ring/20 placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-shadow"
+              className="bg-card border border-input rounded-xl p-4 text-lg focus:ring-2 focus:ring-focus-ring/20 placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-shadow"
             />
           </div>
         </div>
@@ -333,7 +333,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
             value={formData.banner_url || ''}
             onChange={handleChange}
             placeholder="https://example.com/banner.jpg"
-            className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+            className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
           />
           <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-wider">
             Rekomendasi 16:9 (Min. 1200x675px) - Sementara hanya support URL gambar.
@@ -359,7 +359,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.contact_person || ''}
               onChange={handleChange}
               placeholder="Nama lengkap panitia"
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -373,7 +373,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.contact_phone || ''}
               onChange={handleChange}
               placeholder="0812..."
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -387,7 +387,7 @@ export function EventForm({ initialData, onSubmit, onCancel, isLoading = false }
               value={formData.contact_email || ''}
               onChange={handleChange}
               placeholder="kontak@nusantara.com"
-              className="bg-transparent border-t-0 border-x-0 border-b border-border/40 dark:border-border px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
+              className="bg-transparent border-t-0 border-x-0 border-b border-input px-0 py-3 text-lg focus:ring-0 focus:border-primary placeholder:text-stone-400 dark:placeholder:text-stone-600 transition-colors"
             />
           </div>
         </div>

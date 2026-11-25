@@ -11,7 +11,6 @@ export default async function SignupPage({ searchParams }: { searchParams: Searc
   const params = await searchParams;
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-6">Create Account</h1>
       <SignupForm
         redirectTo={safeRedirectPath(first(params.redirectTo))}
         reason={parseLoginReason(first(params.reason))}

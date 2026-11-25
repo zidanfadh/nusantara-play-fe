@@ -70,7 +70,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
   return (
     <div className="space-y-6 w-full max-w-sm">
       <div className="text-center sm:text-left">
-        <h2 className="text-2xl font-bold text-foreground">Daftar</h2>
+        <h1 className="text-2xl font-bold text-foreground">Daftar</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Bergabung dengan komunitas {SITE_NAME}
         </p>
@@ -78,7 +78,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
 
       <LoginNotice reason={reason} />
 
-      <SocialAuthButtons redirectTo={redirectTo} />
+      <SocialAuthButtons redirectTo={redirectTo} label="Daftar dengan Google" />
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">

@@ -101,7 +101,7 @@ export default function AdminAllProtPage() {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -115,7 +115,7 @@ export default function AdminAllProtPage() {
                       setStatusFilter(e.target.value as PROTStatus | '');
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Semua Status</option>
                     <option value={PROTStatus.DRAFT}>DRAFT</option>
@@ -136,7 +136,7 @@ export default function AdminAllProtPage() {
                       setJenisFilter(e.target.value as PROTJenis | '');
                       setCurrentPage(1);
                     }}
-                    className="w-full px-3 py-2 border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Semua Jenis</option>
                     <option value={PROTJenis.PERMAINAN_RAKYAT}>PERMAINAN RAKYAT</option>

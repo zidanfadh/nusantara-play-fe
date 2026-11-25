@@ -1,48 +1,96 @@
 /**
- * Map colours, derived from the site tokens in app/globals.css:
- * primary #9E3C24 / dark #D65C2E (terracotta), secondary #1A5F7A / #2C7A9A (teal),
- * accent #D4A017 / #E5B028 (gold), muted #E6E2DC / #2C2A26, background #FDF9F3 / #121212.
- * Plain hex strings, so both the SVG and the three.js view can use them.
+ * Map colours (Phase 28: the low-poly "paper" map from the design team's reference, see the Phase 28 report 8.2).
+ * Light theme = cream paper (#FEF3E2 range) with green islands on dark-brown earth sides; dark theme = brown paper
+ * (#2A1A0E range) with the same greens a little deeper and lighter earth sides, so the slabs still read.
+ * States in the brand palette: hover amber (#F4AE52), selected terracotta (#D4621A).
+ * Plain hex strings, so the SVG (Map2D, bumper) and the three.js view use the same values.
  */
 export type ThemeMode = 'light' | 'dark';
 
 export interface MapPalette {
-  sea: string;
-  seaDeep: string;
+  /** The paper "sea" (centre) and its edge (vignette, page background around the map). */
+  paper: string;
+  paperEdge: string;
+  /** Paper grain specks. */
+  grain: string;
+  /** Soft drop shadow under the islands. */
+  shadow: string;
   /** Province without public PROT (not clickable). */
   muted: string;
   /** Province with few PROT … many PROT. */
   protLow: string;
   protHigh: string;
-  /** Pilot province while it has no PROT yet. */
+  /** Enterable province while it has no PROT yet. */
   pilot: string;
+  /** Greens mixed into the top facets (patchwork). */
+  facets: readonly string[];
+  /** Earth side walls: top edge and foot. */
+  earthTop: string;
+  earthBottom: string;
+  /** Province borders: subtle darker seams. */
   outline: string;
+  /** Hover tint, hover rim (amber) and the selected tint (terracotta). */
   highlight: string;
+  rim: string;
   selected: string;
+  /** Mountains, volcano craters, smoke, rivers and lakes, ships. */
+  rockLight: string;
+  rockDark: string;
+  crater: string;
+  smoke: string;
+  water: string;
+  hull: string;
+  sail: string;
 }
 
 export const PALETTES: Record<ThemeMode, MapPalette> = {
   light: {
-    sea: '#D3E6EA',
-    seaDeep: '#A9CDD6',
-    muted: '#E6E2DC',
-    protLow: '#E7BE5A',
-    protHigh: '#9E3C24',
-    pilot: '#F3DDAA',
-    outline: '#B9AE9C',
-    highlight: '#FFF6E0',
-    selected: '#1A5F7A',
+    paper: '#FDF0DC',
+    paperEdge: '#F0DDC3',
+    grain: '#B89C76',
+    shadow: '#7A5C3E',
+    muted: '#9DB668',
+    protLow: '#6A9E38',
+    protHigh: '#2C6820',
+    pilot: '#CFD07A',
+    facets: ['#4C8832', '#6D9347', '#8CA751', '#C9C772'],
+    earthTop: '#6B4B31',
+    earthBottom: '#2A1A0E',
+    outline: '#5F7A3C',
+    highlight: '#F7C27A',
+    rim: '#F4AE52',
+    selected: '#D4621A',
+    rockLight: '#CDBBA2',
+    rockDark: '#6E5A48',
+    crater: '#4A3A2E',
+    smoke: '#EEE6DA',
+    water: '#5A9A96',
+    hull: '#7A5940',
+    sail: '#F4E9D8',
   },
   dark: {
-    sea: '#13262D',
-    seaDeep: '#0C1A1F',
-    muted: '#3A3732',
-    protLow: '#C99A2E',
-    protHigh: '#D65C2E',
-    pilot: '#6B5428',
-    outline: '#5A5248',
-    highlight: '#FFE7B0',
-    selected: '#2C7A9A',
+    paper: '#3A281B',
+    paperEdge: '#2A1A0E',
+    grain: '#6B5038',
+    shadow: '#100904',
+    muted: '#7E9858',
+    protLow: '#5E9132',
+    protHigh: '#2A6220',
+    pilot: '#B9BA66',
+    facets: ['#3F7A2A', '#5C8440', '#7A9848', '#ADAE62'],
+    earthTop: '#9A7048',
+    earthBottom: '#4A3524',
+    outline: '#3F5A28',
+    highlight: '#F7C27A',
+    rim: '#F4AE52',
+    selected: '#E06A24',
+    rockLight: '#B8A68E',
+    rockDark: '#5E4C3C',
+    crater: '#3A2C22',
+    smoke: '#D8CEC0',
+    water: '#4F8E8A',
+    hull: '#6B4B31',
+    sail: '#EADCC6',
   },
 };
 
@@ -62,12 +110,22 @@ export function mixHex(a: string, b: string, t: number): string {
   return rgbToHex([x[0] + (y[0] - x[0]) * k, x[1] + (y[1] - x[1]) * k, x[2] + (y[2] - x[2]) * k]);
 }
 
+/** `#rrggbb` + alpha → `rgba(...)` (canvas and SVG). */
+export function rgba(hex: string, alpha: number): string {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 export type ProvinceVisualState = 'idle' | 'hover' | 'selected';
 
+/** How strongly the hover / selected tint covers the base colour (the lift and the rim carry the state too). */
+export const HOVER_TINT = 0.4;
+export const SELECTED_TINT = 0.68;
+
 /**
- * Fill colour of a province. More PROT → stronger colour (square-root scale, so one PROT is
- * already clearly coloured). Provinces without PROT are muted, except enterable ones (Phase 22; before: the pilot),
- * which get the soft `pilot` colour.
+ * Fill colour of a province. More PROT → deeper green (square-root scale, so one PROT is already clearly coloured).
+ * Provinces without PROT are muted (pale sage), except enterable ones (Phase 22; before: the pilot), which get the
+ * soft `pilot` yellow-green.
  */
 export function provinceFill(
   palette: MapPalette,
@@ -85,7 +143,19 @@ export function provinceFill(
   } else {
     return palette.muted;
   }
-  if (state === 'hover') return mixHex(base, palette.highlight, 0.45);
-  if (state === 'selected') return mixHex(base, palette.selected, 0.55);
+  if (state === 'hover') return mixHex(base, palette.highlight, HOVER_TINT);
+  if (state === 'selected') return mixHex(base, palette.selected, SELECTED_TINT);
   return base;
+}
+
+/** Weight of the facet greens in a top facet (the rest is the province's state colour). */
+export const FACET_MIX = 0.42;
+
+/**
+ * The top-facet colours of a province: its fill mixed with each facet green (muted provinces vary a little less; a
+ * selected province barely, so its terracotta tint stays clear).
+ */
+export function facetColours(palette: MapPalette, fill: string, muted: boolean, selected = false): string[] {
+  const mix = selected ? FACET_MIX * 0.3 : muted ? FACET_MIX * 0.85 : FACET_MIX;
+  return palette.facets.map((f) => mixHex(fill, f, mix));
 }

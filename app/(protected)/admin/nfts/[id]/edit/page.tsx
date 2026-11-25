@@ -120,17 +120,17 @@ export default function EditNftPage({ params }: { params: Promise<{ id: string }
              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                <div>
                   <label className="text-sm font-medium mb-1 block">Nama NFT *</label>
-                  <input required name="nama" value={formData.nama || ''} onChange={handleChange} className="w-full border rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-primary" />
+                  <input required name="nama" value={formData.nama || ''} onChange={handleChange} className="w-full border border-input rounded-md h-10 px-3 text-sm focus:ring-1 focus:ring-primary" />
                </div>
                <div>
                   <label className="text-sm font-medium mb-1 block">Slug *</label>
-                  <input required name="slug" value={formData.slug || ''} onChange={handleChange} className="w-full border rounded-md h-10 px-3 text-sm font-mono focus:ring-1 focus:ring-primary" />
+                  <input required name="slug" value={formData.slug || ''} onChange={handleChange} className="w-full border border-input rounded-md h-10 px-3 text-sm font-mono focus:ring-1 focus:ring-primary" />
                </div>
              </div>
              
              <div className="space-y-2">
                 <label className="text-sm font-medium block">Deskripsi Singkat</label>
-                <textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} className="w-full border rounded-md p-3 text-sm min-h-[80px]" />
+                <textarea name="deskripsi" value={formData.deskripsi || ''} onChange={handleChange} className="w-full border border-input rounded-md p-3 text-sm min-h-[80px]" />
              </div>
            </section>
 
@@ -162,21 +162,21 @@ export default function EditNftPage({ params }: { params: Promise<{ id: string }
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
                  <div>
                     <label className="text-sm font-medium block h-6">Network*</label>
-                    <input required name="blockchain_network" value={formData.blockchain_network || ''} onChange={handleChange} className="w-full border rounded-md h-10 px-3 text-sm uppercase" />
+                    <input required name="blockchain_network" value={formData.blockchain_network || ''} onChange={handleChange} className="w-full border border-input rounded-md h-10 px-3 text-sm uppercase" />
                  </div>
                  <div>
                     <label className="text-sm font-medium block h-6">Contract Address*</label>
-                    <input required name="contract_address" value={formData.contract_address || ''} onChange={handleChange} className="w-full border rounded-md h-10 px-3 text-sm font-mono" />
+                    <input required name="contract_address" value={formData.contract_address || ''} onChange={handleChange} className="w-full border border-input rounded-md h-10 px-3 text-sm font-mono" />
                  </div>
                  <div>
                     <label className="text-sm font-medium block h-6">Token ID*</label>
-                    <input required name="token_id" value={formData.token_id || ''} onChange={handleChange} className="w-full border rounded-md h-10 px-3 text-sm font-mono" />
+                    <input required name="token_id" value={formData.token_id || ''} onChange={handleChange} className="w-full border border-input rounded-md h-10 px-3 text-sm font-mono" />
                  </div>
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <div>
                     <label className="text-sm font-medium block mb-1">Marketplace URL</label>
-                    <input type="url" name="marketplace_url" value={formData.marketplace_url || ''} onChange={handleChange} className="w-full border rounded-md h-10 px-3 text-sm" />
+                    <input type="url" name="marketplace_url" value={formData.marketplace_url || ''} onChange={handleChange} className="w-full border border-input rounded-md h-10 px-3 text-sm" />
                  </div>
               </div>
            </section>

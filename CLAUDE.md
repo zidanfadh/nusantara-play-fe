@@ -109,12 +109,12 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
   page, max 50 pages), counted per province on the client. While loading or after an error, every province from
   `KNOWN_PROVINCES` (`lib/jelajah/provinces.ts`, the 35 production codes) is shown with 0 PROT, so the map still renders.
 - Geometry (`lib/jelajah/geo.ts`, no three.js): GeoJSON → map units (1 unit = 1 degree, centred on 118°E 2.5°S), shapes
-  matched to codes by normalized name (`matchShapesToProvinces`), point-in-polygon hit test, SVG paths, portrait framing.
-- Views: `Map3D.tsx` (tiers full/lite; one merged non-indexed geometry with vertex colours for all provinces + one
-  LineSegments for borders + the sea = 3 draw calls, ~39k triangles; `lib/jelajah/three/map-geometry.ts`; picking on the
-  ground plane, not raycasting; drei `MapControls` without rotation; renders on demand in production) and `Map2D.tsx`
-  (tier 2d, SVG, never imports three). Both take `MapViewProps` (`lib/jelajah/map-model.ts`). The "★ Pilot" marker is a DOM
-  button positioned from the 3D scene each frame (drei `<Html>` rendered empty in the production build).
+  matched to codes by normalized name (`matchShapesToProvinces`), point-in-polygon hit test, SVG paths.
+- Views: `Map3D.tsx` (tiers full/lite; since Phase 28 the low-poly "paper" map, see "Paper map (Phase 28)": 4 to 6 draw
+  calls, ~12k triangles; picking on the ground plane against the low-poly outline, not raycasting; drei `MapControls`
+  without rotation; renders on demand in production) and `Map2D.tsx` (tier 2d, SVG in the same look, never imports three).
+  Both take `MapViewProps` (`lib/jelajah/map-model.ts`). The "★ Pilot" / "★ Desa" markers are DOM buttons positioned from
+  the 3D scene each frame (drei `<Html>` rendered empty in the production build).
 - **three.js isolation**: only `components/jelajah/Map3D.tsx`, `components/jelajah/three/*` and `lib/jelajah/three/*` may
   import `three` or `@react-three/*`; `Map3D` is only loaded via `next/dynamic(..., { ssr: false })` from `JelajahHub`, and
   `three/VillageScene3D` only the same way from `ProvinceExperience` (`tests/jelajah/three-isolation.test.ts`). three.js loads on
@@ -124,8 +124,9 @@ Feature code lives only in `app/jelajah/`, `components/jelajah/`, `lib/jelajah/`
 - Budgets (`lib/jelajah/budget.ts`): 30 fps, 5 MB cold download for /jelajah, 100 draw calls, 100k triangles. The stats
   overlay appears only with `?debug=1` (Phase 13, see below); in development the probe still warns in the console when
   the set of exceeded budgets changes.
-- Colours (`lib/jelajah/palette.ts`) are derived from the `app/globals.css` tokens; the theme comes from the `dark` class on
-  `<html>` (`use-theme-mode.ts`, `useSyncExternalStore`), so the map recolours live when the navbar toggle is used.
+- Colours (`lib/jelajah/palette.ts`, the paper-map palette since Phase 28: cream paper in the light theme, brown paper in
+  the dark one); the theme comes from the `dark` class on `<html>` (`use-theme-mode.ts`, `useSyncExternalStore`), so the
+  map recolours live when the navbar toggle is used.
 - Everything simulated is labelled in the UI ("Demo"; simulated rewards "Simulasi · tidak disimpan") and never sent to
   the backend.
 
@@ -878,8 +879,59 @@ Legacy.png`; `Referensi Peta Indonesia.png`, the 3D low-poly map for the NEXT ph
   eyebrow, amber and outline buttons); the blockchain band is brand brown; the landing uses the shared `AppFooter`.
 - **Intros**: the bumper uses tokens; the concept film keeps its own fixed colours, now on the palette (night = brand
   brown, golds = #F4AE52, terracotta = #D4621A / #B4500F; river and sea art keep their blues). Timings and sound unchanged.
-- **Not in Phase 27**: `Map3D`, `Map2D`, `components/jelajah/three/*`, `lib/jelajah/palette.ts` (map colours) and the
-  film's map art: the 3D low-poly map is the next phase. The 3D villages and game canvases keep their own art colours.
+- **Not in Phase 27**: the maps (done in Phase 28, see "Paper map (Phase 28)"). The 3D villages and game canvases keep
+  their own art colours.
+
+## Paper map (Phase 28)
+
+The Jelajah hub map in the style of the design team's reference (`docs/design/Referensi Peta Indonesia.png`, Konsep Visual
+page 4): islands as thick slabs with dark-brown earth sides and faceted green tops, low-poly mountains and smoking
+volcanoes, thin rivers and lakes, small pinisi-like ships on a cream paper "sea" (no blue ocean), soft drop shadows, a
+tilted camera. The reference image is a style reference only: it is not shipped, traced or used as a texture (its rights
+are unclear). Everything is procedural: no new dependency, no new binary asset.
+
+- **Pure parts (no three.js; the 2D map, the bumper and the tests use them)**: `lib/jelajah/paper-map.ts`
+  (`lowPolyShapes`: Douglas-Peucker 0.035° with borders shared by two provinces simplified ONCE in a canonical direction,
+  so neighbours never overlap; islets < 0.006 deg² dropped but every province keeps its largest polygon; 13,228 → 3,089
+  vertices; seeded `hash32` / `rand01`; `patchVariant` = jittered-grid Voronoi patches of the facet greens;
+  `heightNoise`), `lib/jelajah/map-nature.ts` (THE data file with sources: 13 mountain ranges, 18 volcanoes from the
+  Smithsonian GVP database, Puncak Jaya as a peak (not a volcano), 7 rivers and 5 lakes traced coarsely after
+  OpenStreetMap, 6 invented ship routes; `placeNature` seeded placement, volcanoes nudged inland up to 0.32° when the
+  coast is too close, small-island volcanoes left out when the outline drops their island; `ambientMode`; `loopPoint`;
+  `smokePuff`), `lib/jelajah/paper-camera.ts` (40° tilt, `frameMap` = the whole archipelago centred with a 6 % margin on
+  every viewport, `zoomLimits`, a pure `project()` the tests use), `lib/jelajah/map-model.ts` `provinceCues`.
+- **3D** (`lib/jelajah/three/map-geometry.ts` `buildMapGeometry(shapes, heights, PAPER_SLAB, nature)`; the default
+  `PLAIN_SLAB` is the old plain extrusion): outlines densified to 0.85°, tops triangulated and subdivided (edge splits
+  decided per edge, so no cracks), seeded height noise; mountains (5 to 7 sides, two-tone faces), volcano cones with a
+  dark crater, rivers and lakes are merged into the SAME mesh, in their province's vertex range (0 extra draw calls; they
+  lift and recolour with it). Lighting is baked into the vertex colours (fixed light from the north-west, the camera never
+  rotates), so the islands use MeshBasicMaterial; `paintShape` recolours one province, `liftShape` raises one. Paper
+  (`lib/jelajah/three/paper.ts`): one plane with a canvas texture (seeded grain, vignette to `paperEdge` = the
+  background). Shadows, exactly one kind per tier (`shadowMode`): full = one PCF shadow map with `autoUpdate` off,
+  rendered again only when the islands change; lite = the blurred shadow painted into the paper texture
+  (`shadowBlur`, works in Safari too). Ships (one InstancedMesh, `lib/jelajah/three/ships.ts`) and smoke puffs (one
+  InstancedMesh) in `components/jelajah/three/MapLife.tsx`.
+- **Tiers and motion**: full = 37 range mountains, 14 volcanoes (7 smoking), rivers and lakes, 6 ships; ships sail and
+  smoke rises only on the full tier without reduced motion, and the map then asks for ~30 frames per second
+  (`AmbientTicker`; it renders on demand otherwise). Reduced motion: ships docked, smoke still. Lite: 18 range mountains,
+  no rivers or lakes, no ships, still smoke, texture 1024 px. 2d: no three.js (Map2D: the lite mountain set as SVG).
+- **States (both maps, `provinceCues`; each pair of situations differs in a cue that is not colour, tested)**: provinces
+  that open a card (PROT or enterable) stand taller (0.42 vs 0.26); hover = lift 0.1 + amber (#F4AE52) rim; selected =
+  lift 0.18 + rim + terracotta (#D4621A) tint; more PROT = deeper green; enterable = a terracotta flag pin (#B4500F,
+  cream text 4.67:1) with "★ Pilot" / "★ Desa" on a pole (DOM buttons on the 3D map, `data-marker`, `aria-pressed`).
+  The legend documents every state with its cue. `?debug=1` also exposes `window.__nlMap.point(kode)` (client pixels
+  of a province anchor) for screenshots and recordings.
+- **Map2D**: low-poly outline, paper + grain as a static CSS background (never re-rasterised while panning), layers =
+  soft shadow, earth edges, tops; a lifted province is drawn again on top as an aria-hidden copy, the province buttons
+  keep a STABLE DOM order (moving a node on hover retargeted the click to the `<svg>` and deselected; found in Phase 28).
+- **Intros**: concept film scene 3 (the lit map) and scene 7 use `PaperIslands` (`concept/art/MapArt.tsx`: earth edge +
+  green tops, still painted once); the bumper's map scene uses the theme's map palette, provinces with PROT rise with
+  the amber rim. Timings, BEATS and sound cues unchanged.
+- **Measured** (Phase 28, production build, headless Chrome with SwiftShader, CPU 4x, `?debug=1`): A/B against `main`
+  interleaved in the same session: frame time full phone 390x844 dpr 2 +3.5 %, desktop 1440x900 +2.4 % (budget +20 %);
+  lite −8.4 % / −9.5 % (faster than `main`). Draw calls full 5 / lite 4 (was 3), triangles 12.4k / 11.9k (was 39.3k).
+  `/jelajah` JS +11.6 KB gzip on full/lite, +6.0 KB on 2d (budget +15 KB). Film scenes 3 and 7 equal to `main` within
+  noise. Real phones not measured yet: use `?debug=1`.
 
 ## Env Vars
 
@@ -1058,6 +1110,17 @@ NEXT_PUBLIC_PROT_SELF_REVIEW_RULE # Optional, build time (Phase 26). "true" only
      Jelajah chrome, the intro bumper and the concept film follow it; the icons and the Open Graph image use a
      PROVISIONAL "NL" monogram until the design team delivers an icon. The 3D low-poly map (PDF page 4) is the next
      phase; the maps were not touched. Details in the frontend CLAUDE.md "Visual identity (Phase 27)".
+   - Paper map (Phase 28, visual identity part 2, from the design reference on Konsep Visual page 4): the Jelajah map is a
+     low-poly "paper" map of Indonesia: green faceted islands on thick dark-brown earth slabs, low-poly mountains and
+     smoking volcanoes at real coordinates (data with sources in `nusantara-play-fe/lib/jelajah/map-nature.ts`), thin
+     rivers and lakes, small pinisi-like ships sailing on a cream paper "sea" (brown paper in the dark theme), soft
+     shadows, a tilted camera that frames the whole archipelago on every screen. All procedural (no new dependency, no
+     image files; the reference image is never shipped). Every behaviour of the map is kept (cards, enterable provinces,
+     tiers, fallback, `?debug=1`, intros, login gate); states read without colour alone (height, lift, amber rim,
+     terracotta flag). Lite tier: fewer mountains, no rivers, no ships; 2d tier: the same look in SVG. The concept film's
+     map scenes and the bumper's map follow it. Phase 27 cleanup items fixed (form hint overlap, Indonesian-only login
+     and signup, accessible names, the 3:1 `border-input` token on every form control, egrang start buttons). Details
+     in the frontend CLAUDE.md "Paper map (Phase 28)".
 10. Real rewards, part 1 (Phase 15, backend only): `nusantara-play-be/src/modules/rewards/`. `RewardsService` is the
     ONLY code that changes XP and Points. Every change is one transaction: `pg_advisory_xact_lock` per user, server-built
     idempotency keys (`PROVINCE_ENTER:{userId}:{provinsiKode}`, `PROT_VIEW:{userId}:{protId}`,
@@ -1324,13 +1387,12 @@ Small known problems that a later phase should fix. Do not fix them in passing.
   `tests/config/fonts.test.ts`, `tests/games/congklak-engine.test.ts`, and `tests/games/gasing-match-ai.test.ts` failed a
   timing assertion (10.3 ms against 7.5 ms). All pass when the suite runs alone. Raise the timeout of the slow
   source-scanning tests (or `testTimeout` in `vitest.config.ts`) and make the timing test relative.
-- (Phase 27) On `/prot/create` and the edit page the "Provinsi dan kabupaten/kota" hint line (with its Jelajah badge)
-  overlaps the "PROVINSI" label (already so in the Phase 26 screenshots).
-- (Phase 27, axe-core) Controls without an accessible name: the account button of the app navbar on phones
-  (`button-name`), three unlabeled buttons on the landing page at 1440 px (carousel), and `<select>` elements
-  without a label on `/prot`, `/events`, `/calendar` and the PROT form (`select-name`).
 - (Phase 27) `app/landing-page/1` and `/2` (old drafts, removal waits for the cleanup phase) were only run through the
-  colour codemods, not redesigned.
+  colour codemods, not redesigned (Phase 28's form-control codemod skipped them too).
+- (Phase 28) Concept film scene 5 ("jelajah", the dive into Sumatera Selatan) still shows the old map: cream provinces
+  on a blue sea gradient. The prompt asked only for scenes 3 and 7; restyle it to the paper look in a later pass.
+- (Phase 28) On landscape phones (844x390) the hub's title card and reward HUD cover part of Sumatra and the map section
+  is taller than the viewport (`min-h-[440px]`); the camera frames the whole section, not the free area.
 
 ## Engineering rules
 
@@ -1427,6 +1489,9 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Frontend after Phase 27: unchanged, 43 errors, 64 warnings (106 touched source files; every new file is clean; the
   problems left in touched files are the ones they had before).
 - Backend after Phase 27: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 28: unchanged, 43 errors, 64 warnings (64 new and touched files; every new file is clean; the 16
+  touched files with existing problems have exactly the counts they had on `main`).
+- Backend after Phase 28: unchanged (only CLAUDE.md and the phase report changed).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1814,6 +1879,20 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   ramps were remapped at the same OKLCH lightness instead of editing ~870 classes by hand, the semantic colours red /
   green / yellow / amber / purple stay; the landing hero is dark brown in both themes (the cover); Cinzel Decorative is
   shipped as a plain woff2 conversion, not a subset, because of its Reserved Font Name; the "NL" icon is provisional.
+- 2026-11-25: Paper map (Phase 28): the Jelajah map follows the design reference (Konsep Visual page 4) in code only; the
+  reference image is a style reference, never shipped, traced or used as a texture. The camera frames the WHOLE
+  archipelago on every viewport (portrait phones included; before: the western part), tilted 40°. Province borders
+  are simplified once per shared border (no overlaps); picking uses the same low-poly outline. Island lighting is baked
+  into vertex colours (fixed camera), so the islands use the cheapest material; exactly one island shadow per tier (full:
+  a shadow map rendered only when the islands change; lite: painted into the paper texture). Mountains, volcanoes,
+  rivers and lakes live in their province's vertex range, so they lift with it at no extra draw call. Ships and moving
+  smoke only on the full tier without reduced motion, at ~30 rendered frames per second; reduced motion = docked ships,
+  still smoke. Puncak Jaya is shown as a peak, not a volcano. Performance is judged A/B against `main` in the same
+  session (machine load changes absolute fps a lot).
+- 2026-11-25: Form controls (Phase 28): every text input, select and textarea uses the `border-input` token (3:1 boundary,
+  WCAG 1.4.11); `bg-input` (the border token used as a fill since Phase 27) became `bg-background`; borderless fields got
+  a border. Login and signup show only Indonesian headings; the Google buttons say "Masuk dengan Google" / "Daftar dengan
+  Google".
 
 ## Phase workflow
 

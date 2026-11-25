@@ -199,10 +199,11 @@ export function ConceptDefs() {
           <rect width="18" height="18" fill="#C99A2E" />
           <rect width="18" height="18" fill="url(#cv-kawung-brown)" />
         </pattern>
-        {/* Provinces lighting up: amber batik glow. */}
-        <linearGradient id="cv-glow-fill" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#F4AE52" />
-          <stop offset="1" stopColor="#D65C2E" />
+        {/* Phase 28: the paper map's islands (green tops, as on the Jelajah map). */}
+        <linearGradient id="cv-island-fill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#9DB668" />
+          <stop offset="0.55" stopColor="#6D9347" />
+          <stop offset="1" stopColor="#4C8832" />
         </linearGradient>
         <radialGradient id="cv-sun" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#FFE6A8" stopOpacity="0.95" />

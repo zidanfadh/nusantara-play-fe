@@ -264,7 +264,7 @@ export default function ReviewPage() {
                     Saran Perbaikan (Wajib)
                   </label>
                   <textarea
-                    className="w-full p-2 border border-yellow-300 bg-yellow-50 rounded-md h-32 text-sm focus:ring-yellow-500"
+                    className="w-full p-2 border border-input bg-yellow-50 rounded-md h-32 text-sm focus:ring-yellow-500"
                     placeholder="Sebutkan isian dan file mana yang perlu diganti, dan jenis masalahnya (jangan menyalin data pribadi)."
                     value={saranPerbaikan}
                     onChange={(e) => setSaranPerbaikan(e.target.value)}
@@ -280,7 +280,7 @@ export default function ReviewPage() {
                   </label>
                   <textarea
                     id="self-review-reason"
-                    className="w-full p-2 border border-red-300 rounded-md h-24 text-sm"
+                    className="w-full p-2 border border-input rounded-md h-24 text-sm"
                     maxLength={OVERRIDE_REASON_MAX}
                     value={overrideReason}
                     onChange={(e) => setOverrideReason(e.target.value)}

@@ -107,7 +107,7 @@ export function ChangePasswordForm({ onSuccess, onCancel }: ChangePasswordFormPr
   const inputBase =
     'w-full bg-warm-field border-0 border-b-2 focus:ring-0 px-4 py-3 text-base font-medium transition-all rounded-t outline-none';
   const inputClass = (field: string) =>
-    `${inputBase} ${errors[field] ? 'border-red-500' : 'border-transparent focus:border-primary'}`;
+    `${inputBase} ${errors[field] ? 'border-red-500' : 'border-input focus:border-primary'}`;
 
   const labelClass =
     'block text-[0.7rem] font-bold uppercase tracking-[0.15em] text-warm-label mb-2 transition-colors group-focus-within:text-primary-text';

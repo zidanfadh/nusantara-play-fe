@@ -222,7 +222,7 @@ export default function UsersManagementPage() {
                                 required
                                 value={createForm.full_name}
                                 onChange={(e) => handleCreateFieldChange('full_name', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -235,7 +235,7 @@ export default function UsersManagementPage() {
                                 required
                                 value={createForm.email}
                                 onChange={(e) => handleCreateFieldChange('email', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -249,7 +249,7 @@ export default function UsersManagementPage() {
                                 minLength={8}
                                 value={createForm.password}
                                 onChange={(e) => handleCreateFieldChange('password', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -260,7 +260,7 @@ export default function UsersManagementPage() {
                             <select
                                 value={createForm.role}
                                 onChange={(e) => handleCreateRoleChange(e.target.value as UserRole)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             >
                                 <option value="publik">Publik</option>
                                 <option value="pakar">Pakar</option>
@@ -276,7 +276,7 @@ export default function UsersManagementPage() {
                             <select
                                 value={createForm.status}
                                 onChange={(e) => handleCreateFieldChange('status', e.target.value as UserStatus)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             >
                                 <option value="active">Aktif</option>
                                 <option value="inactive">Tidak Aktif</option>
@@ -292,7 +292,7 @@ export default function UsersManagementPage() {
                                 type="tel"
                                 value={createForm.phone}
                                 onChange={(e) => handleCreateFieldChange('phone', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
 
@@ -304,7 +304,7 @@ export default function UsersManagementPage() {
                                 type="text"
                                 value={createForm.institution}
                                 onChange={(e) => handleCreateFieldChange('institution', e.target.value)}
-                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                                className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                             />
                         </div>
                     </div>
@@ -376,7 +376,7 @@ export default function UsersManagementPage() {
                             id="role"
                             value={selectedRole}
                             onChange={(e) => setSelectedRole(e.target.value as UserRole | '')}
-                            className="w-full px-3 py-2 text-foreground/80 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                            className="w-full px-3 py-2 text-foreground/80 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                         >
                             <option value="">Semua Role</option>
                             <option value="publik">Publik</option>
@@ -394,7 +394,7 @@ export default function UsersManagementPage() {
                             id="status"
                             value={selectedStatus}
                             onChange={(e) => setSelectedStatus(e.target.value as UserStatus | '')}
-                            className="w-full px-3 text-foreground/80 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-2 focus:ring-focus-ring"
+                            className="w-full px-3 text-foreground/80 py-2 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-focus-ring"
                         >
                             <option value="">Semua Status</option>
                             <option value="active">Aktif</option>

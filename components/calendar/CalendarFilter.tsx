@@ -43,13 +43,14 @@ export function CalendarFilter({
 
       {/* Source Filter */}
       <div className="flex-1 min-w-[200px]">
-        <label className="block text-sm font-medium mb-1">Sumber</label>
+        <label htmlFor="calendar-filter-source" className="block text-sm font-medium mb-1">Sumber</label>
         <select
+          id="calendar-filter-source"
           value={filters.source || ''}
           onChange={(e) =>
             updateFilter('source', e.target.value || undefined)
           }
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full px-3 py-2 bg-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">Semua</option>
           <option value={CalendarSourceFilter.IMPORTANT_DATE}>
@@ -65,13 +66,14 @@ export function CalendarFilter({
       {/* Visibility Filter */}
       {showVisibilityFilter && (
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium mb-1">Visibilitas</label>
+          <label htmlFor="calendar-filter-visibility" className="block text-sm font-medium mb-1">Visibilitas</label>
           <select
+            id="calendar-filter-visibility"
             value={filters.visibility || ''}
             onChange={(e) =>
               updateFilter('visibility', e.target.value || undefined)
             }
-            className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full px-3 py-2 bg-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Semua</option>
             <option value={CalendarItemVisibility.PUBLIC}>Public</option>
@@ -102,7 +104,7 @@ export function CalendarFilter({
           value={filters.search || ''}
           onChange={(e) => updateFilter('search', e.target.value || undefined)}
           placeholder="Cari judul atau deskripsi..."
-          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full px-3 py-2 bg-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
     </div>

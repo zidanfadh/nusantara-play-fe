@@ -54,3 +54,39 @@ export function shapeFill(
   const state = clickable ? visualState(shape.kode, hoveredKode, selectedKode) : 'idle';
   return provinceFill(palette, count, maxCount, enterableByKode(shape.kode) !== null, state);
 }
+
+/** Lifts of the states (map units; the 2D map scales them), Phase 28. */
+export const LIFT = { hover: 0.1, selected: 0.18 } as const;
+
+export interface ProvinceCues {
+  state: ProvinceVisualState;
+  /** Provinces that open a card (PROT or enterable) stand taller than the muted ones. */
+  raised: boolean;
+  /** Extra lift of the hovered / selected province. */
+  lift: number;
+  /** Amber rim around the hovered / selected province. */
+  rim: boolean;
+  /** Terracotta ★ flag: an enterable province. */
+  flag: boolean;
+}
+
+/**
+ * Every state of a province on both maps (Phase 28), with cues that do not rely on colour alone: height, lift, rim
+ * and flag. The colour (`shapeFill`) comes on top.
+ */
+export function provinceCues(
+  kode: string | null,
+  summaryByKode: ReadonlyMap<string, ProvinceSummary>,
+  hoveredKode: string | null,
+  selectedKode: string | null,
+): ProvinceCues {
+  const raised = isClickable(kode, summaryByKode);
+  const state = raised ? visualState(kode, hoveredKode, selectedKode) : 'idle';
+  return {
+    state,
+    raised,
+    lift: state === 'selected' ? LIFT.selected : state === 'hover' ? LIFT.hover : 0,
+    rim: state !== 'idle',
+    flag: enterableByKode(kode) !== null,
+  };
+}

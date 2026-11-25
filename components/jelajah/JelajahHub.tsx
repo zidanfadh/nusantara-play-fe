@@ -49,6 +49,21 @@ const ConceptVideo = dynamic(() => import('./concept/ConceptVideo'), {
   loading: () => <div aria-hidden className="fixed inset-0 z-[60]" style={{ background: CONCEPT_COVER }} />,
 });
 
+/** A legend swatch drawn like a little slab of the map: the top colour over an earth edge (taller = raised). */
+function LegendSlab({ fill, edge, tall = false, rim }: { fill: string; edge: string; tall?: boolean; rim?: string }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-2.5 w-5 shrink-0 rounded-[2px]"
+      style={{
+        background: fill,
+        boxShadow: `0 ${tall ? 3 : 1.5}px 0 ${edge}${rim ? `, inset 0 0 0 1.5px ${rim}` : ''}`,
+        transform: tall ? 'translateY(-1px)' : undefined,
+      }}
+    />
+  );
+}
+
 function MapSkeleton({ label }: { label: string }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-muted/40">
@@ -236,7 +251,7 @@ export function JelajahHub() {
         ref={mapRef}
         aria-label="Peta Jelajah Nusantara"
         className="relative h-[calc(100dvh-4rem)] min-h-[440px] w-full overflow-hidden"
-        style={{ background: palette.seaDeep }}
+        style={{ background: palette.paperEdge }}
       >
         {map}
 
@@ -309,23 +324,33 @@ export function JelajahHub() {
           className={`pointer-events-none absolute bottom-3 right-3 z-10 rounded-lg border border-border bg-card/90 px-3 py-2 text-[11px] text-card-foreground shadow-sm backdrop-blur ${selected ? 'hidden md:block' : ''}`}
           aria-hidden
         >
+          {/* Phase 28: every state has a cue besides colour (slab height, lift, rim, flag). */}
           <div className="flex items-center gap-2">
-            <span
-              className="h-2.5 w-5 rounded-sm"
-              style={{ background: `linear-gradient(90deg, ${palette.protLow}, ${palette.protHigh})` }}
-            />{' '}
-            Ada PROT (makin banyak, makin tua)
+            <LegendSlab
+              tall
+              fill={`linear-gradient(90deg, ${palette.protLow}, ${palette.protHigh})`}
+              edge={palette.earthBottom}
+            />
+            Ada PROT: lebih tinggi, makin banyak makin hijau tua
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-5 rounded-sm" style={{ background: palette.pilot }} /> Pilot
+            <LegendSlab fill={palette.muted} edge={palette.earthBottom} /> Belum ada PROT: lebih rendah
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-primary px-1.5 text-[9px] font-bold leading-4 text-primary-foreground">★</span> Desa
-            virtual: bisa dimasuki
+            <span className="flex w-5 items-end justify-center" aria-hidden>
+              <span className="rounded-sm rounded-bl-none bg-brand-terracotta-600 px-1 text-[9px] font-bold leading-[14px] text-brand-cream">★</span>
+            </span>
+            Bendera ★: desa virtual, bisa dimasuki
           </div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-5 rounded-sm border border-border" style={{ background: palette.muted }} /> Belum
-            ada PROT
+            <LegendSlab fill={palette.pilot} edge={palette.earthBottom} tall /> Desa virtual, belum ada PROT
+          </div>
+          <div className="flex items-center gap-2">
+            <LegendSlab fill={palette.muted} edge={palette.earthBottom} tall rim={palette.rim} /> Disorot: terangkat, garis amber
+          </div>
+          <div className="flex items-center gap-2">
+            <LegendSlab fill={palette.selected} edge={palette.earthBottom} tall rim={palette.rim} /> Dipilih: terangkat,
+            terakota
           </div>
         </div>
       </section>

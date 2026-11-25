@@ -165,7 +165,7 @@ export function CalendarInviteModal({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Cari user berdasarkan nama atau email..."
-                  className="w-full px-3 py-2 border border-border rounded bg-input"
+                  className="w-full px-3 py-2 border border-input rounded bg-background"
                 />
               </div>
 
@@ -226,7 +226,7 @@ export function CalendarInviteModal({
                   onChange={(e) => setEmailInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addEmail())}
                   placeholder="email@example.com"
-                  className="flex-1 px-3 py-2 border border-border rounded bg-input"
+                  className="flex-1 px-3 py-2 border border-input rounded bg-background"
                 />
                 <button
                   onClick={addEmail}

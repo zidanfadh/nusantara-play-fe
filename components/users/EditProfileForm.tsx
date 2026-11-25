@@ -96,7 +96,7 @@ export function EditProfileForm({ currentUser, onSuccess, onCancel }: EditProfil
   const labelClass = 'block text-[10px] font-bold uppercase tracking-[0.15em] text-primary-text mb-2';
   const inputClass = (field?: string) =>
     `w-full bg-warm-field border-0 border-b-2 ${
-      field && errors[field] ? 'border-red-500' : 'border-transparent focus:border-primary'
+      field && errors[field] ? 'border-red-500' : 'border-input focus:border-primary'
     } focus:ring-0 px-4 py-3 text-base font-medium transition-all rounded-t outline-none`;
 
   return (
