@@ -38,9 +38,9 @@ describe('bumper map scene (Phase 28)', () => {
   const shapes = parseProvinceGeo(JSON.parse(read('public/jelajah/geo/indonesia-provinces.json')), KNOWN_PROVINCES).shapes;
   const html = renderToStaticMarkup(
     createElement(MapScene, {
-      scene: { headline: '3 provinsi dengan PROT publik', text: 'Pilih provinsi.', highlighted: ['16', '32'] },
+      scene: { count: 2, headline: '2 provinsi dengan PROT publik', text: 'Pilih provinsi.', highlighted: ['16', '32'] },
       shapes,
-    } as Parameters<typeof MapScene>[0]),
+    }),
   );
 
   it('green islands on an earth edge; provinces with PROT deeper green with the amber rim', () => {
