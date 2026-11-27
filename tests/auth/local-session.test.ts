@@ -138,6 +138,22 @@ describe('start-up', () => {
   });
 });
 
+describe('stale np_logged_in hint (the middleware let a protected page through)', () => {
+  it('the start-up refresh gets 401: signed out, and the protected page goes to the login with its target', async () => {
+    const tab = openTab({ cookie: 'np_logged_in=1', pathname: '/jelajah', search: '' });
+    tab.replies.set('refresh', [{ status: 401, body: { error: 'invalid_refresh_token' } }]);
+    expect(await tab.client.getSession()).toBeNull();
+    expect(tab.location.assign).toHaveBeenCalledWith('/login?redirectTo=%2Fjelajah&reason=jelajah');
+  });
+
+  it('on a public page it only signs out', async () => {
+    const tab = openTab({ cookie: 'np_logged_in=1', pathname: '/' });
+    tab.replies.set('refresh', [{ status: 401, body: { error: 'invalid_refresh_token' } }]);
+    expect(await tab.client.getSession()).toBeNull();
+    expect(tab.location.assign).not.toHaveBeenCalled();
+  });
+});
+
 describe('sign-in', () => {
   it('keeps the token in memory only and tells other tabs (event type only)', async () => {
     const tab = openTab();
@@ -305,6 +321,21 @@ describe('two tabs', () => {
     b.doc.cookie = '';
     expect(await b.client.getAccessToken()).toBeNull();
     expect(b.calls.length).toBe(before);
+    // b is on /jelajah (protected): it goes to the login with its target (Phase 18 rules).
+    expect(b.location.assign).toHaveBeenCalledWith('/login?redirectTo=%2Fjelajah&reason=jelajah');
+    // a signed out with its own button: no redirect from the session (the UI goes to /).
+    expect(a.location.assign).not.toHaveBeenCalled();
+  });
+
+  it('another tab signing out does not move a public page', async () => {
+    const a = openTab();
+    const b = openTab({ pathname: '/main/congklak' });
+    a.replies.set('login', [session('a1')]);
+    a.replies.set('logout', [{ status: 204 }]);
+    await a.client.signIn('a@example.test', 'x');
+    await b.client.getAccessToken();
+    await a.client.signOut();
+    expect(b.location.assign).not.toHaveBeenCalled();
   });
 
   it('sign-in in one tab is picked up by the other (one refresh with the shared cookie)', async () => {

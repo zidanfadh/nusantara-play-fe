@@ -5,7 +5,9 @@
  * - On start: if `np_logged_in` is present, refresh ONCE (single-flight per tab: concurrent callers share it).
  * - 409 `refresh_conflict` (another tab rotated the cookie a moment ago): wait briefly, retry once, never log out.
  * - 401 on refresh: the session is over → signed out (other tabs are told), and a protected page goes to
- *   `/login?redirectTo=…` (Phase 18 rules). A network error or 5xx never signs out.
+ *   `/login?redirectTo=…` (Phase 18 rules). A network error or 5xx never signs out. The same redirect happens
+ *   when another tab signs out, or when the start-up refresh finds a stale `np_logged_in` hint (the middleware
+ *   let the page through on the hint alone), so the Jelajah gate holds in local mode too.
  * - Proactive refresh ~60 s before the access token expires, only while the tab is visible (a hidden tab
  *   refreshes when it becomes visible again, or on its next request).
  * - Other tabs: sign-in and sign-out events through BroadcastChannel (storage-event fallback), event type only.
@@ -137,18 +139,22 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
     }
   };
 
-  /** Ends the session in this tab. `tell` = also tell the other tabs (not when the news came from one). */
-  const endSession = (tell: boolean) => {
+  const sendToLogin = () => {
+    const { pathname, search } = deps.location;
+    if (!isPublicPath(pathname)) deps.location.assign(loginUrlFor(`${pathname}${search}`, pathname));
+  };
+
+  /**
+   * Ends the session in this tab. `tell` = also tell the other tabs (not when the news came from one);
+   * `toLogin` = the session ended by itself (not this tab's sign-out button): a protected page goes to /login.
+   */
+  const endSession = (tell: boolean, toLogin: boolean) => {
     const wasSignedIn = session !== null;
     session = null;
     clearTimer();
     if (tell) tabs?.post('signed-out');
     if (wasSignedIn || tell) emit('signed-out');
-  };
-
-  const sendToLogin = () => {
-    const { pathname, search } = deps.location;
-    if (!isPublicPath(pathname)) deps.location.assign(loginUrlFor(`${pathname}${search}`, pathname));
+    if (toLogin) sendToLogin();
   };
 
   const wait = (ms: number) => new Promise<void>((resolve) => deps.setTimeout(resolve, ms));
@@ -164,7 +170,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
     }
     if (response.status === 401) {
       // The refresh token is gone (expired, revoked, reused, password reset): the session is over everywhere.
-      endSession(true);
+      endSession(true, true);
       return null;
     }
     // 409 twice, CSRF 403, 5xx, offline: keep what we have (no logout); the next request or timer tries again.
@@ -183,7 +189,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
 
   const onTabMessage = (message: TabMessage) => {
     if (message === 'signed-out') {
-      endSession(false);
+      endSession(false, true);
     } else {
       // Another tab signed in: the new np_refresh cookie is shared, so pick the session up.
       void refresh();
@@ -251,7 +257,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
       await start();
       await call('logout');
       clearHintCookie();
-      endSession(true);
+      endSession(true, false);
     },
 
     async signOutEverywhere() {
@@ -262,7 +268,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
         return { error: { code: 'unknown', message: 'Gagal keluar dari semua perangkat. Coba lagi.' } };
       }
       clearHintCookie();
-      endSession(true);
+      endSession(true, false);
       return OK;
     },
 
@@ -303,9 +309,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
       // the caller retries once. If the session is over, send a protected page to the login.
       const hadSession = session !== null || hasLoggedInHint(deps.document.cookie);
       if (!hadSession) return null;
-      const token = await refresh();
-      if (!token && session === null) sendToLogin();
-      return token;
+      return refresh(); // a 401 there ends the session and sends a protected page to /login
     },
 
     reset() {

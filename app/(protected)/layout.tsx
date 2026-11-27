@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth/client';
+import { loginUrlFor } from '@/components/auth/login-redirect';
 import { AppNavbar } from '@/components/ui/AppNavbar';
 import { AppFooter } from '@/components/ui/AppFooter';
 
@@ -14,7 +15,13 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkUser = async () => {
       if (!(await authClient.hasSession())) {
-        router.push('/login');
+        // Supabase mode: /login as before (the middleware already checked the real session). Local mode
+        // (Phase 29): the middleware only saw the np_logged_in hint, so keep the Phase 18 target.
+        router.push(
+          authClient.mode === 'local'
+            ? loginUrlFor(`${window.location.pathname}${window.location.search}`, window.location.pathname)
+            : '/login',
+        );
       }
       setLoading(false);
     };
