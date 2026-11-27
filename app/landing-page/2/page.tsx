@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { getServerAuth } from '@/lib/auth/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { SITE_NAME } from '@/lib/brand';
 import {
@@ -14,10 +14,7 @@ import {
 } from 'lucide-react';
 
 export default async function LandingPageV2() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = (await getServerAuth()).loggedIn;
 
 
   return (

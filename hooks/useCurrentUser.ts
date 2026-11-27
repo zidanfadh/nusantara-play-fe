@@ -1,42 +1,43 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { getCurrentUser } from '@/lib/api/users';
+import { useState, useEffect, useCallback } from 'react';
+import { authClient } from '@/lib/auth/client';
 import type { UserProfile } from '@/types/user';
 
+/**
+ * The signed-in user from the backend (`GET /users/me`: role, profile), or null. Phase 29: through the auth
+ * facade. Supabase mode: session present → `/users/me` (as before). Local mode: the user from the local session
+ * (login and refresh return the same object), refreshed when another tab signs in or out.
+ */
 export function useCurrentUser() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const supabase = useMemo(() => createClient(), []);
 
   const fetchUser = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        setUser(null);
-        return;
-      }
-
-      const userData = await getCurrentUser();
-      setUser(userData);
+      setUser(await authClient.currentUser());
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch user'));
       setUser(null);
     } finally {
       setIsLoading(false);
     }
-  }, [supabase]);
+  }, []);
 
   useEffect(() => {
     fetchUser();
+  }, [fetchUser]);
+
+  useEffect(() => {
+    // Supabase mode never re-read the user on auth events; keep it that way.
+    if (authClient.mode !== 'local') return;
+    return authClient.onChange((event) => {
+      if (event !== 'refreshed') void fetchUser();
+    });
   }, [fetchUser]);
 
   return {

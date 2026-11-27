@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase/server';
+import { getServerAuth } from '@/lib/auth/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { AppFooter } from '@/components/ui/AppFooter';
 import { HeroCarousel } from '@/components/ui/HeroCarousel';
@@ -81,18 +81,14 @@ function getGameSummary(game: PROTEntity): string {
 }
 
 export default async function Home() {
-  const supabase = await createClient();
-  const [
-    {
-      data: { user },
-    },
-    {
-      data: { session },
-    },
-  ] = await Promise.all([supabase.auth.getUser(), supabase.auth.getSession()]);
+  // Phase 29: supabase mode sends the visitor's token as before; local mode has no token on the server, so both
+  // fetches are public (featured PROT are published-only anyway, the stats are public). `user` only picks the
+  // buttons (local mode: the np_logged_in hint).
+  const auth = await getServerAuth({ withToken: true });
+  const user = auth.loggedIn;
   const [featuredGames, stats, published] = await Promise.all([
-    getFeaturedGames(session?.access_token),
-    getLandingStats(session?.access_token),
+    getFeaturedGames(auth.accessToken),
+    getLandingStats(auth.accessToken),
     // Phase 18: PROT and provinces from published PROT only, so they match the map and the bumper.
     getPublishedCounts(),
   ]);

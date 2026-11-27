@@ -6,6 +6,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { UserProfileCard } from '@/components/users/UserProfileCard';
 import { EditProfileForm } from '@/components/users/EditProfileForm';
 import type { UserProfile } from '@/types/user';
+import { AccountSecurity } from '@/lib/auth/impl/ui';
 
 export default function ProfilePage() {
   const { user, isLoading, error, setUser } = useCurrentUser();
@@ -181,6 +182,8 @@ export default function ProfilePage() {
               </div>
             </>
           )}
+          {/* Phase 29: self-hosted login only (email status + resend, sign out of every device). */}
+          <AccountSecurity user={user} />
         </div>
       </div>
     </div>

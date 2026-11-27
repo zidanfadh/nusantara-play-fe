@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server';
+import { getServerAuth } from '@/lib/auth/server';
+import { WelcomeName } from '@/lib/auth/impl/ui';
 import Link from 'next/link';
 import { BatikBand } from '@/components/brand/Batik';
 import {
@@ -14,13 +15,9 @@ import {
 } from 'lucide-react';
 
 export default async function MenuPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { fullName } = await getServerAuth();
 
-  const firstName =
-    user?.user_metadata?.full_name?.split(' ')[0] || 'Kawan';
+  const firstName = fullName?.split(' ')[0] || 'Kawan';
 
   return (
     <>
@@ -31,7 +28,10 @@ export default async function MenuPage() {
         </div>
         <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-4">
           Selamat Datang,{' '}
-          <span className="text-primary-text">{firstName}</span>!
+          <span className="text-primary-text">
+            {/* Phase 29: supabase mode prints firstName; local mode has no user on the server, the client fills it. */}
+            <WelcomeName fallback={firstName} />
+          </span>!
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
           Jelajahi kekayaan permainan dan olahraga tradisional Indonesia.

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { exchangeOAuthCode } from '@/lib/auth/server';
 import { POST_LOGIN_COOKIE, callbackTarget, loginRetryPath } from '@/components/auth/login-redirect';
 
 function clearTargetCookie(response: NextResponse): NextResponse {
@@ -13,13 +13,8 @@ export async function GET(request: NextRequest) {
   // Phase 18: validated target (`next` or the cookie the login page set before Google sign-in), never another site.
   const target = callbackTarget(searchParams.get('next'), request.cookies.get(POST_LOGIN_COOKIE)?.value);
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (!error) {
-      return clearTargetCookie(NextResponse.redirect(new URL(target, origin)));
-    }
+  if (code && (await exchangeOAuthCode(code))) {
+    return clearTargetCookie(NextResponse.redirect(new URL(target, origin)));
   }
 
   return clearTargetCookie(NextResponse.redirect(new URL(loginRetryPath(target), origin)));

@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex w-full">
       {/* Brand panel (Phase 27): the cover look in both themes. Dark brown, amber batik corners, the gradient
           logotype. Hidden on phones, 40% of the width on large screens. */}
-      <div className="hidden lg:flex w-[40%] bg-brand-brown border-r border-brand-amber/30 relative overflow-hidden flex-col justify-between p-12 text-brand-cream">
+      <aside aria-label={SITE_NAME} className="hidden lg:flex w-[40%] bg-brand-brown border-r border-brand-amber/30 relative overflow-hidden flex-col justify-between p-12 text-brand-cream">
         <BatikCorner corner="top-right" className="absolute right-0 top-0 w-36 xl:w-44 text-brand-amber!" />
         <BatikCorner corner="bottom-right" className="absolute right-0 bottom-0 w-36 xl:w-44 text-brand-amber!" />
 
@@ -32,10 +32,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="relative z-10 text-xs text-brand-cream/80">
           &copy; {new Date().getFullYear()} {SITE_NAME}. Hak cipta dilindungi.
         </div>
-      </div>
+      </aside>
 
-      {/* Form Container */}
-      <div className="flex-1 flex flex-col bg-background relative">
+      {/* Form Container (Phase 29: the page's main landmark; axe landmark-one-main / region) */}
+      <main className="flex-1 flex flex-col bg-background relative">
         <div className="lg:hidden">
           <BatikBand />
         </div>
@@ -58,7 +58,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             {children}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

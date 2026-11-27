@@ -102,6 +102,9 @@ describe('form controls use the border-input token (3:1 boundary, WCAG 1.4.11)',
     expect(read('components/prot/ProtForm.tsx')).toMatch(/const inputCls = '[^']*border-input/);
     expect(read('components/auth/ChangePasswordForm.tsx')).toContain("'border-input focus:border-primary'");
     expect(read('components/users/EditProfileForm.tsx')).toContain("'border-input focus:border-primary'");
+    // Phase 29: the signup form and the local-login pages.
+    expect(read('components/auth/SignupForm.tsx')).toMatch(/const inputClass =\s*'[^']*border-input/);
+    expect(read('components/auth/local/parts.tsx')).toMatch(/export const inputClass =\s*'[^']*border-input/);
   });
 });
 

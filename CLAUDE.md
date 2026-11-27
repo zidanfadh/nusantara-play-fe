@@ -7,8 +7,9 @@
 ## Project Overview
 
 Next.js 16 + React 19 + TypeScript + Tailwind v4 frontend for Nusantara Legacy — a digital
-archive platform for Indonesian traditional games and sports (PROT). Uses Supabase for auth
-and a NestJS backend (http://localhost:3000/api in development) for all data.
+archive platform for Indonesian traditional games and sports (PROT). Login: Supabase (default) or, with
+`NEXT_PUBLIC_AUTH_MODE=local`, the backend's self-hosted login (Phase 29; one auth facade in `lib/auth/`). A
+NestJS backend (http://localhost:3000/api in development) serves all data.
 
 ## Commands
 
@@ -19,6 +20,7 @@ pnpm lint         # ESLint (no auto-fix)
 pnpm test         # Vitest (vitest run); tests live in tests/**/*.test.{ts,tsx}, `@/` alias works like tsconfig (component tests render with react-dom/server)
 pnpm jelajah:geo --download D:/dev-cache/tmp/jelajah-geo   # Rebuild public/jelajah/geo/indonesia-provinces.json (mapshaper; source pinned by SHA-256)
 pnpm concept:map  # Rebuild lib/jelajah/concept/indonesia-paths.ts (concept video outline, from the file above; commit it)
+node tests/e2e-local/auth-local.e2e.mjs   # Local login end-to-end run (Phase 29; NOT part of pnpm test; setup in tests/e2e-local/README.md)
 ```
 
 On this machine always add the D: store/cache flags to pnpm install/add (see "Local machine" below).
@@ -40,7 +42,7 @@ Never chain navigation with git using `&&` — always run them as separate comma
 ## Architecture
 
 **Route organization** (App Router):
-- `app/(auth)/` — public auth pages (login, signup)
+- `app/(auth)/` — public auth pages (login, signup; local mode only since Phase 29: forgot-password, reset-password, verify-email, cek-email)
 - `app/(protected)/` — authenticated pages with shared layout
 - `app/prot/` — public-facing PROT browsing pages
 - `app/jelajah/` — Jelajah Nusantara (login required since Phase 18): hub map `/jelajah`, province pages `/jelajah/[provinsi]` (Phase 10)
@@ -49,8 +51,9 @@ Never chain navigation with git using `&&` — always run them as separate comma
 - `app/page.tsx` — landing page; a **server component** that fetches stats and featured PROT on the server
 
 **Data flow**: Page/component → domain hook (`hooks/use*.ts`) → API module (`lib/api/*.ts`) →
-`apiClient` (`lib/api/client.ts`) → NestJS backend. `apiClient` auto-attaches the Supabase
-JWT as `Authorization: Bearer <token>`.
+`apiClient` (`lib/api/client.ts`) → NestJS backend. `apiClient` (and the multipart uploads, through
+`authorizedFetch`) attaches the access token of the build's login as `Authorization: Bearer <token>` (Supabase
+mode: the Supabase JWT, as before; local mode: the in-memory local token, one refresh + one retry after a 401).
 
 **Backend URL** (`lib/api/base-url.ts`, `getBackendApiUrl()`): in development it uses
 `NEXT_PUBLIC_BACKEND_API_URL` (browser and server). In production, in the browser it returns
@@ -63,8 +66,10 @@ Supabase call, no `/login` redirect). `/backend-api` is reserved: do not create 
 (a test fails if you do). Every backend call, including raw multipart `fetch` uploads, must build its
 URL with `getBackendApiUrl()`.
 
-**Auth**: `contexts/AuthContext.tsx` exposes `user`, `session`, `signIn`, `signOut`,
-`getAccessToken`. `middleware.ts` handles session refresh and redirects unauthenticated users
+**Auth** (Phase 29: through the facade, see "Self-hosted login in the frontend (Phase 29)"): `contexts/AuthContext.tsx`
+exposes `signedIn`, `isLoading`, `signIn`, `signUp`, `signOut`, `getAccessToken` and `client` (the facade);
+`useCurrentUser()` gives the backend user with its role. `middleware.ts` checks the session (supabase mode:
+`updateSession`; local mode: the `np_logged_in` hint) and redirects unauthenticated users
 to `/login` (Next.js 16 warns that the `middleware` file convention is deprecated in favour of `proxy`).
 Since Phase 18 the redirect carries `redirectTo` (and `reason=jelajah` for Jelajah pages), and every login path honours
 it; see "Brand, navbar and the Jelajah login gate (Phase 18)".
@@ -933,6 +938,77 @@ are unclear). Everything is procedural: no new dependency, no new binary asset.
   `/jelajah` JS +11.6 KB gzip on full/lite, +6.0 KB on 2d (budget +15 KB). Film scenes 3 and 7 equal to `main` within
   noise. Real phones not measured yet: use `?debug=1`.
 
+## Self-hosted login in the frontend (Phase 29)
+
+The frontend can sign in with the backend's own login (Phases 07 to 09) instead of Supabase, switched at BUILD time
+by `NEXT_PUBLIC_AUTH_MODE`: `supabase` (default when unset or anything else; the site behaves exactly as before)
+or `local`. Google sign-in for the local login is the next phase (local mode hides the Google buttons).
+
+- **One facade, `lib/auth/`**: `types.ts` (`AuthClient`: getSession, getAccessToken, hasSession, currentUser,
+  signIn, signUp, signOut, signOutEverywhere, signInWithGoogle, requestPasswordReset, resetPassword, verifyEmail,
+  resendVerification, onChange, handleUnauthorized; `AuthError` codes), `client.ts` / `server.ts` (what the app
+  imports), `mode.ts`. Implementations: `lib/auth/supabase/` (today's calls, moved unchanged) and
+  `lib/auth/local/` (never imports `@supabase/*` or `lib/supabase`, tested). **Four switch points**
+  `@/lib/auth/impl/{client,server,middleware,ui}`: the files in `lib/auth/impl/` are the supabase versions; in
+  local mode `next.config.ts` aliases each to `lib/auth/local/impl-*` (`LOCAL_AUTH_ALIASES`, Turbopack
+  `resolveAlias` + webpack). Always import them through `@/lib/auth/...`, never relatively. `next.config.ts` also
+  always DEFINES `NEXT_PUBLIC_AUTH_MODE` (`env`): Next inlines a public variable only when it is set, and an unset
+  one left every local-mode branch in the supabase bundle. Local-only UI that other pages mount (site notices,
+  /menu name, profile panel, password rules) goes through `impl/ui` (nothing in supabase mode).
+- **Local session** (`lib/auth/local/session.ts`, browser parts injected, unit-tested): access token in tab memory
+  only; on start, if `np_logged_in=1`, ONE refresh (single-flight per tab); `handleUnauthorized()` after a 401 =
+  one refresh, the caller retries once; 409 `refresh_conflict` → wait 400 ms, retry once, never sign out; 401 on
+  refresh = session over → signed out, other tabs told, a protected page goes to `/login?redirectTo=…` (Phase 18
+  rules; also for a stale hint at start-up and a sign-out in another tab); network errors and 5xx never sign out;
+  proactive refresh `min(60 s, half the token lifetime)` before expiry while visible (a hidden tab refreshes when
+  visible again); tabs talk through BroadcastChannel `np-auth-v1` (storage-event fallback `np_auth_event_v1`),
+  event type only. Every auth call: same-origin `/backend-api/auth/*`, `credentials: "include"`,
+  `X-Requested-With: nusantara-play`, `cache: no-store`. In local mode the browser uses `/backend-api` for ALL
+  calls, also in development (`getBackendApiUrl()`), so `BACKEND_ORIGIN` is required outside Vercel
+  (`assertLocalAuthBackend`: a build or dev server would otherwise send logins to the production API).
+- **Middleware and server**: local mode decides redirects on the `np_logged_in` hint only (no network);
+  `routeDecision()` (Phase 18) is unchanged. Server components get NO token in local mode: the landing page's
+  featured PROT and `/stats/landing` fetches are public (they were the only server fetches with the visitor's token),
+  logged-in buttons use the hint, `/menu` shows the name from the client (`WelcomeName`). Roles come from
+  `GET /users/me` in both modes (`useCurrentUser` → `authClient.currentUser()`), so every role check
+  (`canSeeProtDocuments`, `selfReviewState`, ProtTabBar, admin layout) is unchanged.
+- **Pages** (local mode only; 404 in supabase mode; public in `lib/auth/public-routes.ts` only in local mode):
+  `/forgot-password` (`?legacy=1` explains the one-time step for old accounts), `/reset-password?token=`,
+  `/verify-email?token=` (success / used / expired / invalid; verifies once on arrival), `/cek-email` after sign-up.
+  Token pages send no referrer and remove the token from the address bar. Login: no Google, "Lupa kata sandi?",
+  "Email atau kata sandi salah." + the legacy hint "Akun lama? Atur kata sandi baru sekali lewat email" with EVERY
+  invalid-credentials error (the backend never reveals legacy accounts), "Terlalu banyak percobaan. Coba lagi dalam
+  N menit." from 429 `login_locked`. Sign-up asks for the name (`full_name`) and shows the password rules before
+  submit (`lib/auth/password-policy.ts` = backend policy). The email between pages travels in sessionStorage
+  (`np_auth_email_prefill_v1`), never in a URL. Resend buttons: 60 s apart, 3 per hour
+  (`lib/auth/resend-limit.ts`, send times only). Profile: email status + resend and "Keluar dari semua perangkat"
+  (`POST /auth/logout-all`). A 403 `EMAIL_NOT_VERIFIED` from any API call shows a notice with resend. Logout goes
+  to `/` (supabase mode: `/login`, unchanged).
+- **Tests**: `tests/auth/` (facades, API client in both modes, local session, pages, routing, import isolation).
+  End-to-end: `tests/e2e-local/` (start scripts + Playwright script, not part of `pnpm test`), scenarios in its
+  README; screenshots `D:/dev-cache/screens/phase-29/`.
+- **Measured** (Phase 29, production builds, gzip JS a page loads, against `main`): supabase mode `/` +0.4 KB,
+  `/login` +0.7, `/signup` +0.8, `/prot` −0.05, `/main` and `/menu` −0.6; local mode has no Supabase code in any
+  client chunk, server bundle or the middleware and loads about 46 KB less per page.
+
+**Go-live checklist (switching production to the local login)**:
+1. Backend deployed with everything in "Pending deployment" items 4 to 6, 8, 9 and 14 (migrations BEFORE the code;
+   the Phase 07 and Phase 09 migrations), keys generated on the server.
+2. Server env: `JWT_*` (item 5), `AUTH_COOKIE_PATH=/backend-api/auth` (default), `AUTH_COOKIE_SECURE` true,
+   `FRONTEND_URLS=https://nusantaralegacy.org`, `APP_PUBLIC_URL=https://nusantaralegacy.org`, real SMTP
+   (`SMTP_*`, sender of the production domain), `AUTH_ACCEPT_SUPABASE_TOKENS=true` (open Supabase sessions keep
+   working during the switch).
+3. Check on a Vercel preview with `NEXT_PUBLIC_AUTH_MODE=local` (needs `FRONTEND_ORIGIN_PATTERNS` for the preview
+   host): the rewrite forwards `Origin`, `Cookie`, `X-Requested-With` and returns `Set-Cookie` unchanged;
+   register → email arrives → verify → login → refresh after 15 minutes → logout.
+4. Vercel (Production): set `NEXT_PUBLIC_AUTH_MODE=local` and redeploy (build-time variable). `BACKEND_ORIGIN` may
+   stay unset (Vercel builds use the production default).
+5. **Rollback**: set `NEXT_PUBLIC_AUTH_MODE=supabase` (or remove it) and redeploy; nothing in the database changes.
+6. Existing users: accounts created with the old login have no local password. They sign in ONCE through "Lupa
+   kata sandi" / the "Akun lama?" link (reset email), which creates their local password and marks the email
+   verified; Google-only users wait for the Google phase. Accounts with a local password are unaffected.
+7. After the switch: `AUTH_ACCEPT_SUPABASE_TOKENS=false` once no Supabase session is in use any more (later phase).
+
 ## Env Vars
 
 See `.env.example` (copy to `.env.local`). `.env*` files are git-ignored except `.env.example`.
@@ -940,8 +1016,9 @@ See `.env.example` (copy to `.env.local`). `.env*` files are git-ignored except 
 ```
 NEXT_PUBLIC_BACKEND_API_URL    # Backend base URL incl. /api. Required in development (http://localhost:3000/api); in production used only server-side (the browser uses /backend-api).
 BACKEND_ORIGIN                 # Optional, build time. Origin behind the /backend-api rewrite (default https://api.nusantaralegacy.org); https only (http for localhost), no path, no trailing slash.
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY
+NEXT_PUBLIC_AUTH_MODE          # Optional, build time (Phase 29). "local" = the backend's self-hosted login (needs BACKEND_ORIGIN outside Vercel); anything else = Supabase (default).
+NEXT_PUBLIC_SUPABASE_URL       # Supabase mode only.
+NEXT_PUBLIC_SUPABASE_ANON_KEY  # Supabase mode only.
 NEXT_PUBLIC_SHOW_PROT_DOCUMENTS # Optional, build time (Phase 25). "true" shows PROT documents on public pages; default off.
 NEXT_PUBLIC_PROT_RESUBMIT_NOTE  # Optional, build time (Phase 26). "true" only after the backend deploy (Pending deployment item 13): the resubmit sends the note.
 NEXT_PUBLIC_PROT_SELF_REVIEW_RULE # Optional, build time (Phase 26). "true" only after the same deploy: self-review blocked / admin override reason sent.
@@ -965,6 +1042,17 @@ NEXT_PUBLIC_PROT_SELF_REVIEW_RULE # Optional, build time (Phase 26). "true" only
    - Email flows (Phase 09): email verification (24 h link) and password reset (1 h link) with one-time tokens in `auth_tokens` (hash only, single use, a new link invalidates the older one), endpoints `POST /api/auth/verify-email`, `/resend-verification`, `/forgot-password`, `/reset-password`; generic answers that never reveal an account; at most 3 emails per address per hour per purpose; Indonesian emails with links to `{APP_PUBLIC_URL}/verify-email?token=...` and `{APP_PUBLIC_URL}/reset-password?token=...` (the frontend pages are built in a later phase). Users may log in without a verified email; `emailVerified` is on `GET /api/users/me` and `@RequireVerifiedEmail()` (403 `EMAIL_NOT_VERIFIED`) is ready for Points. "Verified" lives in `user_credentials.email_verified_at` for accounts with a password and in `email_verifications` for accounts without one (Supabase-only now; Google-only accounts in Phase 10 write a row with method `google`). A password reset clears the lockout, revokes all refresh tokens and makes every access token issued more than 5 s before it invalid (also after change-password; the own session continues through its next refresh).
    - Self-service migration (Phase 09, owner decision): forgot-password works for EVERY account with that email, including Supabase-only accounts without local credentials; completing the reset creates their `user_credentials` (and marks the email verified), so the user can sign in with the self-hosted login from then on. The reset link proves ownership of the address.
    - Brute force (Phase 08): per-account lockout (`LOGIN_MAX_FAILED` 5 wrong passwords → locked `LOGIN_LOCK_MINUTES` 15, atomic counter in SQL), per-email limit (10 login attempts / 15 min, in memory), generous per-IP limits (login and register 30 / min, refresh 60 / min). See Risks.
+   - Frontend on the self-hosted login (Phase 29): the frontend signs in with these endpoints when it is built with
+     `NEXT_PUBLIC_AUTH_MODE=local`; the default `supabase` keeps today's Supabase login unchanged. One auth facade
+     (`nusantara-play-fe/lib/auth/`), the build contains only one implementation (no Supabase code in local mode).
+     Email/password only; Google for the local login is the next phase. **Production still runs Supabase mode**:
+     switching needs the backend deployment first (frontend CLAUDE.md "Self-hosted login in the frontend (Phase 29)",
+     go-live checklist; rollback = flip the variable back). Backend additions (additive, pending deployment item 14):
+     429 `{code: "login_locked", retryAfterSeconds}` + `Retry-After` from the 5th failed login per email for 15
+     minutes, given for known AND unknown emails alike (in-memory `LoginFailureTracker`, mirrors the database
+     lockout, so no account is revealed), and `reason: "used" | "expired" | "invalid"` next to
+     `invalid_or_expired_token`. No code tells a Supabase-only account apart (it would reveal accounts); the frontend
+     shows the "Akun lama?" hint with every invalid-credentials error instead.
 5. Multiplayer will run on a separate realtime server (Colyseus, Node.js, TypeScript) in nusantara-play-be/realtime/, with one room per province.
 6. Hardware target: a mid-range Android phone (4 GB RAM, Chrome). Performance budget: at least 30 fps, initial 3D download max 5 MB, max 8 MB per province, max 100k triangles and 100 draw calls per scene, textures max 1024x1024 and compressed, max 20 visible avatars per room. A 2D fallback must exist for weak devices.
 7. Out of scope: open world, vehicles, combat, heavy physics, AI NPCs, day-night cycle, realtime shadows, detailed avatar editors, realistic graphics.
@@ -1292,13 +1380,27 @@ column, so running the migration first is safe for the old code too.
      backend deploy: the old DTO rejects `selfReviewOverrideReason` and the whole request fails.
    - Check: a pakar who created a DIKURASI record gets 403 on pick; `audit_logs` gets a `PROT_SELF_REVIEW_OVERRIDE` row
      when an admin decides on or publishes their own record with a reason.
+14. Phase 29 login answers for the frontend (no migration, no env; needs the Phase 08/09 code of items 6 and 8):
+   - `POST /api/auth/login`: from the `LOGIN_MAX_FAILED`-th generic failure (5) per normalized email, 429
+     `{statusCode, code: "login_locked", retryAfterSeconds, message}` + `Retry-After` for `LOGIN_LOCK_MINUTES` (15),
+     for known and unknown emails alike (`LoginFailureTracker`, in memory per process, SHA-256 keys); a success resets
+     it. Before: the generic 401 for a locked account (still the answer when the tracker has no record, e.g. after a
+     restart, while the database lock holds).
+   - `POST /api/auth/verify-email` and `/reset-password`: `invalid_or_expired_token` answers carry
+     `reason: "used" | "expired" | "invalid"` (one read-only query).
+   - The frontend's local mode reads both; the switch itself is the frontend go-live checklist (frontend CLAUDE.md
+     "Self-hosted login in the frontend (Phase 29)"). Never set `NEXT_PUBLIC_AUTH_MODE=local` on Vercel before items
+     4 to 6, 8, 9 and this one are deployed.
 
 ## Local development
 
-Both repos run fully locally against a disposable PostgreSQL (Phase 05). **The frontend still cannot log in
-locally**: it signs in through Supabase, and the local Supabase values are fake
-(`https://supabase-placeholder.invalid`). The backend's own login works since Phase 08 (register, login,
-refresh, logout under `http://localhost:3000/api/auth/`; walk-through with curl in
+Both repos run fully locally against a disposable PostgreSQL (Phase 05). **Since Phase 29 the frontend can log in
+locally** with `NEXT_PUBLIC_AUTH_MODE=local` and `BACKEND_ORIGIN=http://localhost:3000` (everything through the
+`/backend-api` rewrite, backend with `AUTH_COOKIE_PATH=/backend-api/auth`, `FRONTEND_URLS=http://localhost:3001`,
+`APP_PUBLIC_URL=http://localhost:3001`, Mailpit): `nusantara-play-fe/tests/e2e-local/start-backend.ps1` and
+`start-frontend.ps1` set exactly that, README next to them. In the default supabase mode the frontend still cannot
+log in locally (fake Supabase values, `https://supabase-placeholder.invalid`). The backend's own login also works
+directly (register, login, refresh, logout under `http://localhost:3000/api/auth/`; walk-through with curl in
 `nusantara-play-be/docs/auth-local-testing.md`) once a dev key pair is in `.env.local`. Public pages and
 public endpoints work.
 
@@ -1369,6 +1471,12 @@ public endpoints work.
 - Email delivery (Phase 09): production has no SMTP credentials yet; until they are set, verification and reset
   emails are not delivered (logged as failures) while the endpoints still answer 200.
 - Same-origin cookies (including Supabase `sb-*` auth cookies) are now forwarded to the backend with every browser API call. Large cookie headers could exceed nginx header buffer limits (unknown production config).
+- Local login in the frontend (Phase 29): the middleware trusts the readable `np_logged_in` cookie for REDIRECTS only.
+  A forged cookie gets a protected page's HTML, whose first refresh fails (401) and sends the visitor to the login;
+  data still needs a valid access token. If that refresh cannot reach the backend (offline, 5xx, a 429 of the shared
+  per-IP refresh limit behind Vercel) the visitor stays on the page signed out until the next refresh. The
+  `login_locked` answer lives in each backend instance's memory like the other login limits (N instances or a restart
+  → the database lock still holds but answers the generic 401).
 - Rewards (Phase 15): browser-reported XP can still be earned by a script with a valid login, but only up to the rule
   caps (each province and each public PROT counts once per account, 60 activity requests / min per user), and it is XP
   only, never Points. The leaderboard cache (60 s) lives in each backend instance's memory, so N instances can show
@@ -1378,15 +1486,13 @@ public endpoints work.
 
 Small known problems that a later phase should fix. Do not fix them in passing.
 
-- (Phase 23 review, noted in Phase 25) The frontend gasing integration test
-  (`nusantara-play-fe/tests/games/gasing-integration.test.tsx`) once hit Vitest's default 5 s test timeout while the
-  machine was under load (a production build and headless Chrome running at the same time); it passes when run alone.
-  Give its slow cases an explicit timeout or make the simulated match shorter.
-- (Phase 26) Under load (the backend unit suite or a build running at the same time) more frontend tests hit the 5 s
-  timeout: `tests/jelajah/concept-scenes.test.tsx`, `tests/jelajah/three-isolation.test.ts`,
-  `tests/config/fonts.test.ts`, `tests/games/congklak-engine.test.ts`, and `tests/games/gasing-match-ai.test.ts` failed a
-  timing assertion (10.3 ms against 7.5 ms). All pass when the suite runs alone. Raise the timeout of the slow
-  source-scanning tests (or `testTimeout` in `vitest.config.ts`) and make the timing test relative.
+- (Phase 26; the timeout part fixed in Phase 29 with `testTimeout: 15_000`) `tests/games/gasing-match-ai.test.ts`
+  failed a timing assertion under load (10.3 ms against 7.5 ms); make the timing test relative.
+- (Phase 29) Backend `npm run test:int`: `test/integration/verifikasi-queue.int-spec.ts` fails to build its test module
+  ("Nest can't resolve dependencies of the VerifikasiService ... AuditLogRepository"); same failure on the Phase 28
+  `main` (00a3921). The test module needs the `AuditLog` repository the service gained in Phase 26.
+- (Phase 29) `test/email-flows.e2e-spec.ts` "registering an existing email" still fails now and then on the email order
+  (Phase 15 decisions log); seen once in Phase 29, passed in the full run.
 - (Phase 27) `app/landing-page/1` and `/2` (old drafts, removal waits for the cleanup phase) were only run through the
   colour codemods, not redesigned (Phase 28's form-control codemod skipped them too).
 - (Phase 28) Concept film scene 5 ("jelajah", the dive into Sumatera Selatan) still shows the old map: cream provinces
@@ -1492,6 +1598,9 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
 - Frontend after Phase 28: unchanged, 43 errors, 64 warnings (64 new and touched files; every new file is clean; the 16
   touched files with existing problems have exactly the counts they had on `main`).
 - Backend after Phase 28: unchanged (only CLAUDE.md and the phase report changed).
+- Frontend after Phase 29: unchanged, 43 errors, 64 warnings (every new file is clean; touched files keep the problems
+  they had: `AdminHeader.tsx` and `UserNav.tsx` no-img-element warnings).
+- Backend after Phase 29: unchanged, 219 errors, 29 warnings (every new and touched file is clean).
 - Frontend `pnpm lint`: 44 errors, 87 warnings. Per rule: @typescript-eslint/no-unused-vars 47 (warn), @typescript-eslint/no-explicit-any 39, @next/next/no-img-element 26 (warn), react-hooks/exhaustive-deps 14 (warn), @typescript-eslint/no-empty-object-type 4, react-hooks/set-state-in-effect 1.
 
 ## Decisions log
@@ -1893,6 +2002,29 @@ Phases must not add lint errors in the files they touch. Counts below are the wh
   WCAG 1.4.11); `bg-input` (the border token used as a fill since Phase 27) became `bg-background`; borderless fields got
   a border. Login and signup show only Indonesian headings; the Google buttons say "Masuk dengan Google" / "Daftar dengan
   Google".
+
+- 2026-11-27: Frontend on the self-hosted login (Phase 29): build-time switch `NEXT_PUBLIC_AUTH_MODE` (`supabase`
+  default, `local`), one facade in `lib/auth/`, the implementation chosen by aliasing four switch-point modules in
+  `next.config.ts` (not by runtime checks), so local builds contain no Supabase code and supabase builds no local-login
+  code; `next.config.ts` always defines the variable (an unset NEXT_PUBLIC variable is not inlined).
+- 2026-11-27: No error code that tells a Supabase-only account apart (Phase 29): it would reveal that an account exists
+  (Phase 08 rule). The frontend shows "Akun lama? Atur kata sandi baru sekali lewat email" with every invalid-credentials
+  error; the reset flow (Phase 09) migrates the account.
+- 2026-11-27: Lockout message (Phase 29): `LoginFailureTracker` counts generic login failures per normalized email for
+  known and unknown emails alike and answers 429 `login_locked` with the remaining time from the 5th, mirroring the
+  database lockout (count reset only by a success, the next failure after a lock locks again). The database lock stays
+  the real protection.
+- 2026-11-27: Email-link answers carry `reason` (used / expired / invalid, Phase 29): only the holder of the 32-byte
+  token can ask, so it reveals nothing about other accounts.
+- 2026-11-27: No route uses `@RequireVerifiedEmail()` yet; Phase 29 added none (a route without a feature). The frontend
+  handles 403 `EMAIL_NOT_VERIFIED` globally (notice + resend); the end-to-end run answers one request in that shape.
+- 2026-11-27: Local session rules (Phase 29): access token in memory only; one refresh at start when `np_logged_in` is
+  present; 401 → one refresh, one retry; 409 → wait 400 ms, retry once, never sign out; network errors and 5xx never
+  sign out; proactive refresh `min(60 s, half the TTL)` before expiry while visible; tabs share sign-in and sign-out
+  over BroadcastChannel (event type only); a session that ends by itself sends a protected page to the login with
+  `redirectTo`; logout goes to `/`. In local mode server components get no token: the landing page's two token
+  fetches became public.
+- 2026-11-27: Vitest `testTimeout` 15 s (Phase 29): the source-scanning and simulation tests stay green under load.
 
 ## Phase workflow
 

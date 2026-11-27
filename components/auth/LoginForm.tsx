@@ -4,17 +4,25 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import type { AuthError } from '@/lib/auth/types';
+import { storePrefillEmail } from '@/lib/auth/prefill';
 import { SocialAuthButtons } from './SocialAuthButtons';
 import { LoginNotice } from './LoginNotice';
 import { JELAJAH_GUEST_NOTE, authQuery, redirectTargetOr, type LoginReason } from './login-redirect';
 import { SITE_NAME } from '@/lib/brand';
+
+/** Build-time constant (Phase 29): the local login shows its own links and messages, and no Google button. */
+const LOCAL = process.env.NEXT_PUBLIC_AUTH_MODE === 'local';
+
+/** Phase 29, local mode: shown with EVERY invalid-credentials error (the backend never reveals legacy accounts). */
+export const LEGACY_ACCOUNT_HINT = 'Akun lama? Atur kata sandi baru sekali lewat email';
 
 /**
  * Email/password login, then the validated target (Phase 18). Returns the error message, or null after
  * navigating. Kept outside the component so the post-login redirect is unit-tested.
  */
 export async function loginAndRedirect(
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>,
+  signIn: (email: string, password: string) => Promise<{ error: { message: string } | null }>,
   navigate: (href: string) => void,
   email: string,
   password: string,
@@ -33,10 +41,20 @@ export interface LoginFormProps {
   callbackError?: boolean;
 }
 
+/** Local mode only: hands the typed email to the forgot-password page (synchronously, before it reads it). */
+function rememberEmail(email: string) {
+  try {
+    storePrefillEmail(window.sessionStorage, email);
+  } catch {
+    // no storage: the forgot-password form starts empty
+  }
+}
+
 export function LoginForm({ redirectTo = null, reason = null, callbackError = false }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<AuthError['code'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
@@ -44,10 +62,16 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setErrorCode(null);
     setIsLoading(true);
 
+    let failure: AuthError | null = null;
     const message = await loginAndRedirect(
-      signIn,
+      async (address, secret) => {
+        const result = await signIn(address, secret);
+        failure = result.error;
+        return result;
+      },
       (href) => {
         router.push(href);
         router.refresh();
@@ -59,6 +83,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
 
     if (message) {
       setError(message);
+      setErrorCode((failure as AuthError | null)?.code ?? null);
       setIsLoading(false);
     }
   };
@@ -74,22 +99,26 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
 
       <LoginNotice reason={reason} />
 
-      {callbackError && (
+      {callbackError && !LOCAL && (
         <div role="alert" className="text-danger text-sm">
           Masuk dengan Google gagal. Silakan coba lagi.
         </div>
       )}
 
-      <SocialAuthButtons redirectTo={redirectTo} label="Masuk dengan Google" />
+      {!LOCAL && (
+        <>
+          <SocialAuthButtons redirectTo={redirectTo} label="Masuk dengan Google" />
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-background text-muted-foreground">atau lanjut dengan email</span>
-        </div>
-      </div>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-background text-muted-foreground">atau lanjut dengan email</span>
+            </div>
+          </div>
+        </>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -102,6 +131,7 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete={LOCAL ? 'email' : undefined}
             className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground/50"
             placeholder="nama@email.com"
           />
@@ -117,13 +147,38 @@ export function LoginForm({ redirectTo = null, reason = null, callbackError = fa
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete={LOCAL ? 'current-password' : undefined}
             className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground/50"
             placeholder="••••••••"
           />
+          {LOCAL && (
+            <p className="mt-2 text-right text-sm">
+              <Link href="/forgot-password" onClick={() => rememberEmail(email)} className="text-primary-text font-medium hover:underline">
+                Lupa kata sandi?
+              </Link>
+            </p>
+          )}
         </div>
 
-        {error && (
+        {error && !LOCAL && (
           <div className="text-danger text-sm">{error}</div>
+        )}
+
+        {error && LOCAL && (
+          <div role="alert" data-login-error={errorCode ?? 'unknown'} className="space-y-2 rounded-md border border-danger/40 bg-danger-soft px-3 py-2 text-sm text-danger-soft-foreground">
+            <p>{error}</p>
+            {errorCode === 'invalid_credentials' && (
+              <p data-legacy-hint>
+                <Link
+                  href="/forgot-password?legacy=1"
+                  onClick={() => rememberEmail(email)}
+                  className="font-medium underline underline-offset-2"
+                >
+                  {LEGACY_ACCOUNT_HINT}
+                </Link>
+              </p>
+            )}
+          </div>
         )}
 
         <button

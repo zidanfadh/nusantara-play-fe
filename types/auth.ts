@@ -1,16 +1,18 @@
-import { User, Session } from '@supabase/supabase-js';
+import type { AuthClient, AuthMode, AuthResult, SignUpInput } from '@/lib/auth/types';
 
 export interface AuthState {
-  user: User | null;
-  session: Session | null;
+  /** A session exists (Phase 29: from the auth facade; the user object comes from `useCurrentUser()`). */
+  signedIn: boolean;
   isLoading: boolean;
 }
 
 export interface AuthContextType extends AuthState {
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  mode: AuthMode;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (input: SignUpInput) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   getAccessToken: () => Promise<string | null>;
+  client: AuthClient;
 }
 
 export interface AuthFormData {
