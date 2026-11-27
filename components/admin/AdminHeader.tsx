@@ -2,7 +2,7 @@
 
 import { UserProfile } from '@/types/user';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { authClient } from '@/lib/auth/client';
 import { formatUserRole } from '@/lib/api/users';
 import { SITE_NAME } from '@/lib/brand';
 
@@ -12,11 +12,10 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ user }: AdminHeaderProps) {
   const router = useRouter();
-  const supabase = createClient();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    await authClient.signOut();
+    router.push(authClient.afterSignOutPath);
   };
 
   return (

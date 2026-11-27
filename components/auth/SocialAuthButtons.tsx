@@ -1,22 +1,18 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import { authClient } from '@/lib/auth/client';
 import { rememberPostLoginTarget } from './login-redirect';
 
-/** Google sign-in; `label` is the Indonesian action of the page ("Masuk dengan Google" / "Daftar dengan Google"). */
+/**
+ * Google sign-in; `label` is the Indonesian action of the page ("Masuk dengan Google" / "Daftar dengan Google").
+ * Only rendered where `authClient.supportsGoogle` (supabase mode; Google for the local login is a later phase).
+ */
 export function SocialAuthButtons({ redirectTo = null, label }: { redirectTo?: string | null; label: string }) {
-  const supabase = createClient();
-
   const handleGoogleSignIn = async () => {
     // The OAuth redirect URL stays exactly /auth/callback (Supabase allowlist); the target travels in a
     // short-lived cookie that the callback validates again (Phase 18).
     rememberPostLoginTarget(redirectTo);
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    await authClient.signInWithGoogle(`${window.location.origin}/auth/callback`);
   };
 
   return (

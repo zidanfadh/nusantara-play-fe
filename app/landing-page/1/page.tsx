@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { getServerAuth } from '@/lib/auth/server';
 import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 import { SITE_NAME } from '@/lib/brand';
 
 export default async function LandingPageV1() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = (await getServerAuth()).loggedIn;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground font-sans">

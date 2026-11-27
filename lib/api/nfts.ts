@@ -1,6 +1,5 @@
-import { apiClient } from './client';
+import { apiClient, authorizedFetch } from './client';
 import { getBackendApiUrl } from './base-url';
-import { createClient } from '@/lib/supabase/client';
 import { NftCatalog, NftListResponse, CreateNftPayload, UpdateNftPayload } from '@/types/nfts';
 
 type FetchNftsParams = {
@@ -67,18 +66,12 @@ export const nftsApi = {
   },
 
   async uploadImage(file: File): Promise<{ url: string; message: string }> {
-    const supabase = createClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    
     const formData = new FormData();
     formData.append('file', file);
 
     // Perform raw fetch because apiClient forces JSON and content-type
-    const response = await fetch(`${getBackendApiUrl()}/nfts/upload/image`, {
+    const response = await authorizedFetch(`${getBackendApiUrl()}/nfts/upload/image`, {
       method: 'POST',
-      headers: {
-        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
-      },
       body: formData,
     });
 

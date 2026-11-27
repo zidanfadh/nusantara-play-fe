@@ -14,7 +14,7 @@ import { SITE_NAME } from '@/lib/brand';
  * navigating. Kept outside the component so the post-login redirect is unit-tested.
  */
 export async function loginAndRedirect(
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>,
+  signIn: (email: string, password: string) => Promise<{ error: { message: string } | null }>,
   navigate: (href: string) => void,
   email: string,
   password: string,

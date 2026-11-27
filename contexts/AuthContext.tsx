@@ -1,84 +1,53 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  ReactNode,
-  useMemo,
-} from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { createClient } from '@/lib/supabase/client';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { authClient } from '@/lib/auth/client';
+import type { SignUpInput } from '@/lib/auth/types';
 import { AuthContextType } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Session state for the whole app (Phase 29: through the auth facade, `lib/auth/`). Supabase mode does what it
+ * did before: subscribe to auth changes and read the session once. Local mode: the same through the local
+ * session store (which refreshes once on start when the `np_logged_in` cookie is present).
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const supabase = useMemo(() => createClient(), []);
-
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
-
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+    let active = true;
+    const read = () =>
+      authClient.getSession().then((session) => {
+        if (!active) return;
+        setSignedIn(Boolean(session));
+        setIsLoading(false);
       });
-      return { error: error ? new Error(error.message) : null };
-    },
-    [supabase]
-  );
+    const unsubscribe = authClient.onChange(() => {
+      void read();
+    });
+    void read();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
 
-  const signUp = useCallback(
-    async (email: string, password: string) => {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      return { error: error ? new Error(error.message) : null };
-    },
-    [supabase]
-  );
-
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-  }, [supabase]);
-
-  const getAccessToken = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? null;
-  }, [supabase]);
+  const signIn = useCallback((email: string, password: string) => authClient.signIn(email, password), []);
+  const signUp = useCallback((input: SignUpInput) => authClient.signUp(input), []);
+  const signOut = useCallback(() => authClient.signOut(), []);
+  const getAccessToken = useCallback(() => authClient.getAccessToken(), []);
 
   const value: AuthContextType = {
-    user,
-    session,
+    mode: authClient.mode,
+    signedIn,
     isLoading,
     signIn,
     signUp,
     signOut,
     getAccessToken,
+    client: authClient,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

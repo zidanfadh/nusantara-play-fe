@@ -1,8 +1,8 @@
 'use client';
 
-import { ReactNode, useEffect, useState, useMemo } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { authClient } from '@/lib/auth/client';
 import { AppNavbar } from '@/components/ui/AppNavbar';
 import { AppFooter } from '@/components/ui/AppFooter';
 
@@ -10,18 +10,16 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      if (!(await authClient.hasSession())) {
         router.push('/login');
       }
       setLoading(false);
     };
     checkUser();
-  }, [router, supabase]);
+  }, [router]);
 
   if (loading) {
     return null;

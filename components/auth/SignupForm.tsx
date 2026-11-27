@@ -40,7 +40,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
 
     setIsLoading(true);
 
-    const { error } = await signUp(email, password);
+    const { error } = await signUp({ email, password });
 
     if (error) {
       setError(error.message);

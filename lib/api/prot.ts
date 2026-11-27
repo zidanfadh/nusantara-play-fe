@@ -1,6 +1,5 @@
-import { apiClient } from './client';
+import { apiClient, authorizedFetch, throwApiError } from './client';
 import { getBackendApiUrl } from './base-url';
-import { createClient } from '@/lib/supabase/client';
 import {
   PROTEntity,
   PROTFilters,
@@ -13,10 +12,15 @@ import {
 const BASE_URL = '/prot';
 const VERIFIKASI_URL = '/verifikasi';
 
-async function getAuthToken(): Promise<string | null> {
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  return session?.access_token || null;
+/** Multipart upload with the visitor's token (no Content-Type: the browser sets the boundary). */
+async function uploadForm(url: string, formData: FormData) {
+  const response = await authorizedFetch(url, { method: 'POST', body: formData });
+
+  if (!response.ok) {
+    await throwApiError(response, 'Upload failed');
+  }
+
+  return response.json();
 }
 
 export const protApi = {
@@ -47,45 +51,11 @@ export const protApi = {
 
   // Media Uploads
   uploadFoto: async (id: string, formData: FormData) => {
-    const token = await getAuthToken();
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/foto-kegiatan`, {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    return uploadForm(`${getBackendApiUrl()}${BASE_URL}/${id}/foto-kegiatan`, formData);
   },
 
   uploadVideo: async (id: string, formData: FormData) => {
-    const token = await getAuthToken();
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/video-kegiatan`, {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    return uploadForm(`${getBackendApiUrl()}${BASE_URL}/${id}/video-kegiatan`, formData);
   },
 
   deleteFoto: (id: string, index: number) =>
@@ -95,48 +65,14 @@ export const protApi = {
     apiClient.delete(`${BASE_URL}/${id}/video-kegiatan/${index}`),
 
   uploadDokumenKurikulum: async (id: string, formData: FormData) => {
-    const token = await getAuthToken();
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/dokumen-kurikulum`, {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    return uploadForm(`${getBackendApiUrl()}${BASE_URL}/${id}/dokumen-kurikulum`, formData);
   },
 
   deleteDokumenKurikulum: (id: string, index: number) =>
     apiClient.delete(`${BASE_URL}/${id}/dokumen-kurikulum/${index}`),
 
   uploadFotoAlat: async (id: string, peralatanIndex: number, formData: FormData) => {
-    const token = await getAuthToken();
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${getBackendApiUrl()}${BASE_URL}/${id}/peralatan/${peralatanIndex}/foto-alat`, {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    return uploadForm(`${getBackendApiUrl()}${BASE_URL}/${id}/peralatan/${peralatanIndex}/foto-alat`, formData);
   },
 
   deleteFotoAlat: (id: string, peralatanIndex: number, fotoIndex: number) =>

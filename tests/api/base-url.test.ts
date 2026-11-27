@@ -99,4 +99,30 @@ describe('getBackendApiUrl', () => {
 
     expect(getBackendApiUrl()).toBe('http://localhost:3000/api');
   });
+
+  it('returns the same-origin proxy in the development browser with NEXT_PUBLIC_AUTH_MODE=local (Phase 29)', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubEnv('NEXT_PUBLIC_BACKEND_API_URL', 'http://localhost:3000/api');
+    vi.stubEnv('NEXT_PUBLIC_AUTH_MODE', 'local');
+    vi.stubGlobal('window', { location: { origin: 'http://localhost:3001' } });
+
+    expect(getBackendApiUrl()).toBe('http://localhost:3001/backend-api');
+  });
+});
+
+describe('resolveBackendApiUrl with NEXT_PUBLIC_AUTH_MODE=local (Phase 29)', () => {
+  it('keeps NEXT_PUBLIC_BACKEND_API_URL on the server', () => {
+    expect(resolveBackendApiUrl({ nodeEnv: 'production', envBackendApiUrl: ENV_URL, authMode: 'local' })).toBe(ENV_URL);
+  });
+
+  it('is unchanged for any other mode value', () => {
+    expect(
+      resolveBackendApiUrl({
+        nodeEnv: 'development',
+        envBackendApiUrl: 'http://localhost:3000/api',
+        browserOrigin: 'http://localhost:3001',
+        authMode: 'supabase',
+      }),
+    ).toBe('http://localhost:3000/api');
+  });
 });

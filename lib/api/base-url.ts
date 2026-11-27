@@ -9,6 +9,8 @@ type ResolveBackendApiUrlOptions = {
   envBackendApiUrl?: string;
   /** window.location.origin in the browser; undefined on the server. */
   browserOrigin?: string;
+  /** Phase 29: "local" = the browser always uses the same-origin proxy (the refresh cookie lives there). */
+  authMode?: string;
 };
 
 function normalizeUrl(url?: string): string {
@@ -20,13 +22,23 @@ function normalizeUrl(url?: string): string {
  * - production, browser: `${window.location.origin}/backend-api` on any domain. Same-origin, so
  *   no CORS; Vercel proxies it to the backend.
  * - production, server: NEXT_PUBLIC_BACKEND_API_URL (absolute; server-side calls have no CORS).
+ * - NEXT_PUBLIC_AUTH_MODE=local (Phase 29), browser: `${window.location.origin}/backend-api` in every
+ *   environment.
  */
 export function resolveBackendApiUrl({
   nodeEnv,
   envBackendApiUrl,
   browserOrigin,
+  authMode,
 }: ResolveBackendApiUrlOptions = {}): string {
   const envUrl = normalizeUrl(envBackendApiUrl);
+  const origin = normalizeUrl(browserOrigin);
+
+  if (authMode === 'local' && origin) {
+    // Local login (Phase 29): every browser call goes through /backend-api, also in development, so the
+    // host-only auth cookies of the frontend origin apply. next.config.ts then requires BACKEND_ORIGIN.
+    return `${origin}${BACKEND_PROXY_PATH}`;
+  }
 
   if (nodeEnv === 'development') {
     if (!envUrl) {
@@ -35,8 +47,6 @@ export function resolveBackendApiUrl({
 
     return envUrl;
   }
-
-  const origin = normalizeUrl(browserOrigin);
 
   if (origin) {
     return `${origin}${BACKEND_PROXY_PATH}`;
@@ -54,5 +64,6 @@ export function getBackendApiUrl(): string {
     nodeEnv: process.env.NODE_ENV,
     envBackendApiUrl: process.env.NEXT_PUBLIC_BACKEND_API_URL,
     browserOrigin: typeof window === 'undefined' ? undefined : window.location.origin,
+    authMode: process.env.NEXT_PUBLIC_AUTH_MODE,
   });
 }
