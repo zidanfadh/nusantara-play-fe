@@ -1,38 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { middlewareSession } from '@/lib/auth/impl/middleware';
 import { loginUrlFor, safeRedirectPath } from '@/components/auth/login-redirect';
+import { isPublicPath } from '@/lib/auth/public-routes';
 
-const publicExactRoutes = [
-  '/',
-  '/login',
-  '/signup',
-  '/auth/callback',
-  '/unauthorized',
-  '/menu',
-  '/events',
-  '/calendar',
-  '/nfts',
-  // Games hosted on the site (Phase 17): /main lists them, /main/<game> plays one. No login (Phase 18 too).
-  '/main',
-];
-
-const publicPrefixes = [
-  /^\/events\/(?!create$|my-events$|my-registrations$)[^/]+$/,
-  /^\/prot$/,
-  /^\/prot\/(?!create$|verifikasi(?:\/.*)?$)[^/]+$/,
-  /^\/nfts\/[^/]+$/,
-  // Jelajah pages need a login since Phase 18 (owner decision). Only the static files under
-  // public/jelajah/ stay public (map geometry, 3D assets, the local DEMO photo): they are data, not pages.
-  /^\/jelajah\/(?:geo|assets|demo)\/.+$/,
-  /^\/main\/.+$/,
-];
-
-export function isPublicPath(pathname: string) {
-  return (
-    publicExactRoutes.includes(pathname) ||
-    publicPrefixes.some((pattern) => pattern.test(pathname))
-  );
-}
+// Public pages: lib/auth/public-routes.ts (Phase 29; re-exported for the tests and older imports).
+export { isPublicPath };
 
 /**
  * Where the middleware sends a request, or null to let it through. Pure (tested). `loggedIn` is what the
