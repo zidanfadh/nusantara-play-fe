@@ -12,7 +12,6 @@ export function UserNav() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { signOut } = useAuth();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -26,9 +25,12 @@ export function UserNav() {
     };
   }, [dropdownRef]);
 
+  const { signOut, client } = useAuth();
+
   const handleLogout = async () => {
     await signOut();
-    router.push('/login');
+    // Supabase mode: /login (as before). Local mode: / (Phase 29).
+    router.push(client.afterSignOutPath);
   };
 
   if (isLoading) {

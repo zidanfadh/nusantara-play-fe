@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { EmailNotVerifiedNotice } from "@/components/auth/local/EmailNotVerifiedNotice";
 import { Toaster } from "sonner";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/brand";
 
@@ -83,6 +84,8 @@ export default function RootLayout({
       >
         <AuthProvider>
           {children}
+          {/* Phase 29: local login only (403 EMAIL_NOT_VERIFIED notice with resend). */}
+          {process.env.NEXT_PUBLIC_AUTH_MODE === "local" && <EmailNotVerifiedNotice />}
           {/* Site-wide toasts at the top centre (owner decision, Phase 13), below the 64 px navbar. The Jelajah
               pages move them below their own overlays through --toast-top (lib/jelajah/toast-clearance.ts). */}
           <Toaster

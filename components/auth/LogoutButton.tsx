@@ -6,13 +6,13 @@ import { useAuth } from '@/hooks/useAuth';
 
 export function LogoutButton() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signOut } = useAuth();
+  const { signOut, client } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
     setIsLoading(true);
     await signOut();
-    router.push('/login');
+    router.push(client.afterSignOutPath);
   };
 
   return (
