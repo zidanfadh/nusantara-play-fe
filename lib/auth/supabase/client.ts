@@ -4,7 +4,6 @@
  * NEXT_PUBLIC_AUTH_MODE is not "local" (see `lib/auth/impl/client.ts`).
  */
 import { createClient } from '@/lib/supabase/client';
-import { getCurrentUser } from '@/lib/api/users';
 import type { AuthChangeEvent, AuthClient, AuthResult } from '@/lib/auth/types';
 
 const NOT_SUPPORTED: AuthResult = {
@@ -56,6 +55,8 @@ export const supabaseAuthClient: AuthClient = {
       data: { session },
     } = await createClient().auth.getSession();
     if (!session?.access_token) return null;
+    // Loaded on demand: the users API module stays out of the chunk every page loads (as before Phase 29).
+    const { getCurrentUser } = await import('@/lib/api/users');
     return getCurrentUser();
   },
 

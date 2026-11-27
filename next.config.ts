@@ -63,7 +63,7 @@ export function resolveAuthMode(raw: string | undefined): "supabase" | "local" {
 }
 
 /**
- * The three switch points of the auth facade. In local mode each import path is aliased to the local file, so
+ * The four switch points of the auth facade (client, server, middleware, ui). In local mode each import path is aliased to the local file, so
  * the Supabase implementation (and @supabase/*) is not in the build at all; in supabase mode nothing is
  * aliased and the files under lib/auth/impl/ (the Supabase implementation) are used.
  */
@@ -71,6 +71,7 @@ export const LOCAL_AUTH_ALIASES = {
   "@/lib/auth/impl/client": "./lib/auth/local/impl-client.ts",
   "@/lib/auth/impl/server": "./lib/auth/local/impl-server.ts",
   "@/lib/auth/impl/middleware": "./lib/auth/local/impl-middleware.ts",
+  "@/lib/auth/impl/ui": "./lib/auth/local/impl-ui.tsx",
 } as const;
 
 export function authAliases(mode: "supabase" | "local"): Record<string, string> {
@@ -130,6 +131,11 @@ export const IMAGE_MINIMUM_CACHE_TTL_SECONDS = 2_678_400;
 const AUTH_MODE = resolveAuthMode(process.env.NEXT_PUBLIC_AUTH_MODE);
 
 const nextConfig: NextConfig = {
+  // Phase 29: always define the resolved mode. Next inlines a NEXT_PUBLIC_* variable only when it is set at
+  // build time; unset (the supabase default) it stayed a runtime lookup and no local-mode branch was dropped.
+  env: {
+    NEXT_PUBLIC_AUTH_MODE: AUTH_MODE,
+  },
   // Phase 29: the auth implementation of this build (see LOCAL_AUTH_ALIASES). Turbopack is the default bundler;
   // the webpack hook covers `next build --webpack`.
   turbopack: {

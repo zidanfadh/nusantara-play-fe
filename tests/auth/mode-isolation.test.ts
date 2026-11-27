@@ -41,20 +41,23 @@ describe('auth mode switch', () => {
     expect(resolveAuthMode('local')).toBe('local');
   });
 
-  it('aliases nothing in supabase mode and the three switch points in local mode', () => {
+  it('aliases nothing in supabase mode and the four switch points in local mode', () => {
     expect(authAliases('supabase')).toEqual({});
     expect(Object.keys(authAliases('local')).sort()).toEqual([
       '@/lib/auth/impl/client',
       '@/lib/auth/impl/middleware',
       '@/lib/auth/impl/server',
+      '@/lib/auth/impl/ui',
     ]);
   });
 
   it.each(Object.entries(LOCAL_AUTH_ALIASES))('%s → %s exists and exports what the default exports', (from, to) => {
     const target = join(ROOT, to);
-    const source = join(ROOT, `${from.replace('@/', '')}.ts`);
+    const base = join(ROOT, from.replace('@/', ''));
+    const source = existsSync(`${base}.ts`) ? `${base}.ts` : `${base}.tsx`;
     expect(existsSync(target)).toBe(true);
     expect(existsSync(source)).toBe(true);
+    expect(source.slice(source.lastIndexOf('.'))).toBe(to.slice(to.lastIndexOf('.')));
     expect(exportNames(target)).toEqual(exportNames(source));
   });
 
@@ -88,5 +91,12 @@ describe('import isolation', () => {
       .map((file) => relative(ROOT, file).replace(/\\/g, '/'))
       .filter((file) => !file.startsWith('lib/auth/impl/') && !file.startsWith('lib/auth/supabase/') && !file.startsWith('lib/supabase/'));
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('the supabase ui switch point carries no local-login code', () => {
+  it('imports nothing but types', () => {
+    const src = readFileSync(join(ROOT, 'lib', 'auth', 'impl', 'ui.tsx'), 'utf8');
+    expect(src.match(/^import (?!type ).*$/gm)).toBeNull();
   });
 });

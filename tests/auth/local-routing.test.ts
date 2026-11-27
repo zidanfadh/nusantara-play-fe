@@ -91,7 +91,8 @@ describe('server components in local mode', () => {
 
   it('/menu shows the name from the client in local mode', () => {
     const src = readFileSync(join(ROOT, 'app', 'menu', 'page.tsx'), 'utf8');
-    expect(src).toContain("process.env.NEXT_PUBLIC_AUTH_MODE === 'local' ? <WelcomeName fallback={firstName} /> : firstName");
+    expect(src).toContain("import { WelcomeName } from '@/lib/auth/impl/ui';");
+    expect(src).toContain('<WelcomeName fallback={firstName} />');
   });
 
   it('no server component, route handler or middleware imports Supabase directly any more', () => {

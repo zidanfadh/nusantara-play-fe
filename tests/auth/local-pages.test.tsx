@@ -77,10 +77,8 @@ describe('login and signup in local mode', () => {
     expect(html).toContain('Nama lengkap');
     expect(html).toContain('autoComplete="name"');
     expect(html).not.toContain('Daftar dengan Google');
-    expect(html).toContain('aria-label="Syarat kata sandi"');
-    expect(text(html)).toContain('Minimal 8 karakter');
-    expect(text(html)).toContain('Maksimal 128 karakter');
-    expect(text(html)).toContain('Tidak sama dengan email');
+    // The rules list itself is a lazily loaded chunk (local mode only; rendered by Next, tested below and in
+    // tests/e2e-local scenario 1); here only its wiring.
     expect(html).toContain('aria-describedby="password-rules"');
     expect(html).toContain('href="/login?redirectTo=%2Fjelajah&amp;reason=jelajah"');
   });

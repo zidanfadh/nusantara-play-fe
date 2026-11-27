@@ -241,12 +241,12 @@ const scenarios = {
 
     await page.locator('a', { hasText: 'Daftar sekarang' }).click();
     await waitUrl(page, /\/signup\?redirectTo=%2Fjelajah&reason=jelajah/);
-    await page.locator('#fullName').fill('E2E Daftar');
-    await page.locator('#email').fill(address);
-    await page.locator('#password').fill('pendek');
+    await fillStable(page, '#fullName', 'E2E Daftar');
+    await fillStable(page, '#email', address);
+    await fillStable(page, '#password', 'pendek');
     check((await page.locator('[data-rule="min"][data-ok="false"]').count()) === 1, 'password rules visible before submit (min not met)');
-    await page.locator('#password').fill(PASSWORD);
-    await page.locator('#confirmPassword').fill(PASSWORD);
+    await fillStable(page, '#password', PASSWORD);
+    await fillStable(page, '#confirmPassword', PASSWORD);
     check((await page.locator('[data-rule][data-ok="true"]').count()) === 3, 'all three rules met');
     await page.locator('form button[type="submit"]').click();
     await waitUrl(page, /\/cek-email\?redirectTo=%2Fjelajah&reason=jelajah/);
@@ -321,7 +321,7 @@ const scenarios = {
     const ctx = await newContext();
     const page = await ctx.newPage();
     await go(page, '/login');
-    await page.locator('#email').fill(address);
+    await fillStable(page, '#email', address);
     await page.locator('a', { hasText: 'Lupa kata sandi?' }).click();
     await waitUrl(page, /\/forgot-password$/);
     check((await page.locator('#forgot-email').inputValue()) === address, 'forgot-password is pre-filled from the login form (not via the URL)');
@@ -333,15 +333,15 @@ const scenarios = {
     await page.goto(link, { waitUntil: 'domcontentloaded' });
     await page.locator('#new-password').waitFor();
     check(await waitUrl(page, (u) => !u.search.includes('token='), { timeout: 10_000 }).then(() => true, () => false), 'the token is removed from the address bar');
-    await page.locator('#new-password').fill(NEW_PASSWORD);
-    await page.locator('#confirm-new-password').fill(NEW_PASSWORD);
+    await fillStable(page, '#new-password', NEW_PASSWORD);
+    await fillStable(page, '#confirm-new-password', NEW_PASSWORD);
     await page.locator('form button[type="submit"]').click();
     await page.locator('[data-auth-page="reset-password-done"]').waitFor();
     check(true, 'reset: "Kata sandi diperbarui"');
 
     await page.goto(link, { waitUntil: 'domcontentloaded' });
-    await page.locator('#new-password').fill(`${NEW_PASSWORD}-2`);
-    await page.locator('#confirm-new-password').fill(`${NEW_PASSWORD}-2`);
+    await fillStable(page, '#new-password', `${NEW_PASSWORD}-2`);
+    await fillStable(page, '#confirm-new-password', `${NEW_PASSWORD}-2`);
     await page.locator('form button[type="submit"]').click();
     await page.locator('[data-auth-page="reset-password-invalid"]').waitFor();
     check((await page.locator('[data-token-reason]').getAttribute('data-token-reason')) === 'used', 'the same reset link again: "sudah dipakai"');
@@ -379,8 +379,8 @@ const scenarios = {
     await page.locator('[data-auth-page="forgot-password-sent"]').waitFor();
     const link = await mail.link(address, '/reset-password');
     await page.goto(link, { waitUntil: 'domcontentloaded' });
-    await page.locator('#new-password').fill(NEW_PASSWORD);
-    await page.locator('#confirm-new-password').fill(NEW_PASSWORD);
+    await fillStable(page, '#new-password', NEW_PASSWORD);
+    await fillStable(page, '#confirm-new-password', NEW_PASSWORD);
     await page.locator('form button[type="submit"]').click();
     await page.locator('[data-auth-page="reset-password-done"]').waitFor();
     await login(page, address, NEW_PASSWORD);

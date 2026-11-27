@@ -1,5 +1,5 @@
 import { getServerAuth } from '@/lib/auth/server';
-import { WelcomeName } from '@/components/auth/WelcomeName';
+import { WelcomeName } from '@/lib/auth/impl/ui';
 import Link from 'next/link';
 import { BatikBand } from '@/components/brand/Batik';
 import {
@@ -29,8 +29,8 @@ export default async function MenuPage() {
         <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-4">
           Selamat Datang,{' '}
           <span className="text-primary-text">
-            {/* Phase 29: local mode has no user on the server; the client fills in the name. */}
-            {process.env.NEXT_PUBLIC_AUTH_MODE === 'local' ? <WelcomeName fallback={firstName} /> : firstName}
+            {/* Phase 29: supabase mode prints firstName; local mode has no user on the server, the client fills it. */}
+            <WelcomeName fallback={firstName} />
           </span>!
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">

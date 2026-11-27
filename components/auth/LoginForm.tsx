@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import type { AuthError } from '@/lib/auth/types';
-import { storePrefillEmail } from '@/lib/auth/resend-limit';
+import { storePrefillEmail } from '@/lib/auth/prefill';
 import { SocialAuthButtons } from './SocialAuthButtons';
 import { LoginNotice } from './LoginNotice';
 import { JELAJAH_GUEST_NOTE, authQuery, redirectTargetOr, type LoginReason } from './login-redirect';
@@ -41,6 +41,7 @@ export interface LoginFormProps {
   callbackError?: boolean;
 }
 
+/** Local mode only: hands the typed email to the forgot-password page (synchronously, before it reads it). */
 function rememberEmail(email: string) {
   try {
     storePrefillEmail(window.sessionStorage, email);

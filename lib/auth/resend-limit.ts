@@ -4,6 +4,8 @@
  * stops after 3 in an hour instead of pretending to send. Only send times are stored (sessionStorage, this tab,
  * try/catch): never the email address.
  */
+import { PREFILL_EMAIL_KEY, storePrefillEmail } from './prefill';
+
 export type ResendPurpose = 'verification' | 'password_reset';
 
 export const RESEND_COOLDOWN_MS = 60_000;
@@ -68,16 +70,7 @@ export function resendWait(sends: number[], now: number): { seconds: number; lim
   return { seconds: Math.max(0, seconds), limitReached: false };
 }
 
-/** Prefill of an email field between the auth pages (sessionStorage, cleared on read; never in a URL). */
-export const PREFILL_EMAIL_KEY = 'np_auth_email_prefill_v1';
-
-export function storePrefillEmail(storage: StorageLike | null, email: string): void {
-  try {
-    if (email.trim()) storage?.setItem(PREFILL_EMAIL_KEY, email.trim());
-  } catch {
-    // ignore
-  }
-}
+export { PREFILL_EMAIL_KEY, storePrefillEmail };
 
 /** Reads the prefill without removing it (a pure snapshot for useSyncExternalStore). */
 export function peekPrefillEmail(storage: StorageLike | null): string {

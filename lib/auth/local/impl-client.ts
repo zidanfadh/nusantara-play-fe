@@ -5,7 +5,6 @@
  * On the server (SSR of client components) there is no session: every call answers "signed out" without any
  * network request; the browser instance starts on first use.
  */
-import { getCurrentUser } from '@/lib/api/users';
 import type { AuthClient } from '@/lib/auth/types';
 import { createLocalAuthClient } from './session';
 
@@ -30,7 +29,8 @@ function browserClient(): AuthClient {
       addEventListener: (type, listener) => window.addEventListener(type, listener),
       removeEventListener: (type, listener) => window.removeEventListener(type, listener),
     },
-    fetchCurrentUser: () => getCurrentUser(),
+    // Loaded on demand, like the supabase implementation (keeps the users API out of every page's chunk).
+    fetchCurrentUser: () => import('@/lib/api/users').then((m) => m.getCurrentUser()),
   });
 }
 

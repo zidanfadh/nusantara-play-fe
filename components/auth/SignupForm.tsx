@@ -5,11 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { passwordProblem } from '@/lib/auth/password-policy';
-import { recordSend, storePrefillEmail } from '@/lib/auth/resend-limit';
 import { SocialAuthButtons } from './SocialAuthButtons';
 import { LoginNotice } from './LoginNotice';
-import { PasswordRules } from './local/parts';
 import { authQuery, type LoginReason } from './login-redirect';
+import { PasswordRules } from '@/lib/auth/impl/ui';
 import { SITE_NAME } from '@/lib/brand';
 
 /** Build-time constant (Phase 29): the local login needs a name, shows the password rules, no Google button. */
@@ -69,6 +68,7 @@ export function SignupForm({ redirectTo = null, reason = null }: SignupFormProps
       setIsLoading(false);
     } else if (LOCAL) {
       // Phase 29: the same answer for new and existing emails; the next page says "Cek email kamu".
+      const { recordSend, storePrefillEmail } = await import('@/lib/auth/resend-limit');
       try {
         storePrefillEmail(window.sessionStorage, email);
         recordSend(window.sessionStorage, 'verification', Date.now());
