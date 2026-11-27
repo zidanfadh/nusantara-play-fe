@@ -29,8 +29,12 @@ import {
 } from './http';
 
 export const LOGGED_IN_COOKIE = 'np_logged_in';
-/** Refresh this long before the access token expires. */
+/** Refresh this long before the access token expires (at most half the token's lifetime, for short TTLs). */
 export const REFRESH_LEAD_MS = 60_000;
+
+export function refreshLeadMs(ttlMs: number): number {
+  return Math.min(REFRESH_LEAD_MS, Math.floor(ttlMs / 2));
+}
 /** A token this close to its expiry is not handed out any more (refreshed first). */
 export const EXPIRY_MARGIN_MS = 5_000;
 /** Wait after a 409 refresh_conflict before the one retry (the other tab's new cookie is then in place). */
@@ -67,6 +71,8 @@ interface SessionState {
   accessToken: string;
   /** Epoch ms. */
   expiresAt: number;
+  /** Refresh this long before expiresAt. */
+  leadMs: number;
 }
 
 const OK: AuthResult = { error: null };
@@ -109,7 +115,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
   const scheduleRefresh = () => {
     clearTimer();
     if (!session) return;
-    const delay = Math.max(1_000, session.expiresAt - REFRESH_LEAD_MS - deps.now());
+    const delay = Math.max(1_000, session.expiresAt - session.leadMs - deps.now());
     refreshTimer = deps.setTimeout(() => {
       refreshTimer = null;
       if (deps.document.visibilityState === 'visible') {
@@ -124,7 +130,8 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
     const parsed = readSessionBody(body);
     if (!parsed) return null;
     const wasSignedIn = session !== null;
-    session = { accessToken: parsed.accessToken, expiresAt: deps.now() + parsed.expiresIn * 1000 };
+    const ttlMs = parsed.expiresIn * 1000;
+    session = { accessToken: parsed.accessToken, expiresAt: deps.now() + ttlMs, leadMs: refreshLeadMs(ttlMs) };
     scheduleRefresh();
     emit(wasSignedIn ? 'refreshed' : 'signed-in');
     return session.accessToken;
@@ -201,7 +208,7 @@ export function createLocalAuthClient(deps: LocalAuthDeps): AuthClient & {
     tabs = openTabChannel(deps.tabs, onTabMessage);
     deps.document.addEventListener('visibilitychange', () => {
       if (deps.document.visibilityState !== 'visible' || !session) return;
-      if (refreshDue || session.expiresAt - REFRESH_LEAD_MS <= deps.now()) void refresh();
+      if (refreshDue || session.expiresAt - session.leadMs <= deps.now()) void refresh();
     });
     started = hasLoggedInHint(deps.document.cookie) ? refresh().then(() => undefined) : Promise.resolve();
     return started;

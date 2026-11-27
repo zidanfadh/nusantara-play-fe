@@ -288,6 +288,19 @@ describe('proactive refresh', () => {
     expect(await tab.client.getAccessToken()).toBe('t2');
   });
 
+  it('a short-lived token (local test TTL) refreshes at half its lifetime, not in a loop', async () => {
+    const tab = openTab();
+    tab.replies.set('login', [session('t1', 20)]);
+    tab.replies.set('refresh', [session('t2', 20)]);
+    await tab.client.signIn('a@example.test', 'x');
+    await vi.advanceTimersByTimeAsync(9_000);
+    expect(tab.calls.filter((c) => c.path === 'refresh')).toHaveLength(0);
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(tab.calls.filter((c) => c.path === 'refresh')).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(tab.calls.filter((c) => c.path === 'refresh')).toHaveLength(2);
+  });
+
   it('a hidden tab waits and refreshes when it becomes visible again', async () => {
     const tab = openTab();
     tab.replies.set('login', [session('t1', 900)]);
